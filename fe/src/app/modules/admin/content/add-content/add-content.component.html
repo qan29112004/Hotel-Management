@@ -1,0 +1,54 @@
+<div class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center"
+     *transloco="let t"
+     (click)="cancel()"> <!-- click nền đen để đóng -->
+
+  <div class="bg-white rounded-lg w-[400px] max-w-full h-[520px] max-h-[90vh] shadow-xl  border border-gray-300 flex flex-col"
+       (click)="$event.stopPropagation()"> <!-- chặn click trong modal -->
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-4 bg-primary text-on-primary rounded-t-lg">
+        <h2 class="text-lg font-medium leading-10 my-2">{{ t('content.add') }}</h2>
+        <span class="material-icons text-white cursor-pointer" (click)="cancel()">close</span>
+      </div>
+
+      <!-- Form -->
+      <form (ngSubmit)="createContent()" class="space-y-4 p-4 flex-1 flex flex-col overflow-y-auto">
+        <div>
+          <label class="block text-sm font-medium">
+            {{ t('content.title') }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            [(ngModel)]="form.title"
+            name="title"
+            class="w-full border border-gray-300 rounded px-3 py-2"
+            placeholder="{{ t('content.title_placeholder') }}" />
+            <div *ngIf="!form.title && submitted" class="text-red-500 text-sm mt-1">
+              {{ t('errors.news_required') }}
+            </div>
+        </div>
+
+        <div class="flex-1">
+          <label class="block text-sm font-medium">
+            {{ t('content.content') }}
+            <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            [(ngModel)]="form.content"
+            name="content"
+            class="w-full border border-gray-300 rounded px-3 py-2 resize-none h-full"
+            placeholder="{{ t('content.content_placeholder') }}"></textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end gap-2 pt-4 border-t border-gray-200">
+          <button type="button" (click)="cancel()" class="px-4 py-2 rounded bg-red-200 text-red-700 font-semibold">
+            {{ t('content.cancel') }}
+          </button>
+          <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
+            {{ t('content.add') }}
+          </button>
+        </div>
+      </form>
+  </div>
+</div>

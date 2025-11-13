@@ -1,0 +1,71 @@
+<div class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center"
+     *transloco="let t"
+     (click)="cancel()">
+
+  <div class="bg-white rounded-lg w-[400px] max-w-full h-[520px] max-h-[90vh] shadow-xl  border border-gray-300 flex flex-col"
+       (click)="$event.stopPropagation()">
+
+    <!-- Tiêu đề -->
+    <div class="flex items-center justify-between px-4 bg-primary text-on-primary rounded-t-lg">
+        <h2 class="text-lg font-medium leading-10 my-2">{{ t('content.update_content') }}</h2>
+        <span class="material-icons text-white cursor-pointer" (click)="cancel()">close</span>
+      </div>
+
+    <!-- Form cập nhật -->
+    <form (ngSubmit)="update()" class="space-y-4 p-6 flex-1 flex flex-col overflow-y-auto">
+
+      <!-- Tiêu đề nội dung -->
+      <div>
+        <label>{{ t('content.title') }}</label>
+        <span class="text-red-500">*</span>
+        <input [(ngModel)]="form.title" name="title"
+               class="w-full border border-gray-300 rounded px-3 py-2" />
+      </div>
+
+      <!-- Nội dung -->
+      <div class="flex-1">
+        <label>{{ t('content.content') }}</label>
+        <span class="text-red-500">*</span>
+        <textarea [(ngModel)]="form.content"
+                  name="content"
+                  class="w-full border border-gray-300 rounded px-3 py-2 resize-none h-full"
+                  placeholder="{{ t('content.content_placeholder') }}"></textarea>
+      </div>
+
+      <!-- Nút hành động -->
+      <div class="flex justify-between items-center gap-2 pt-4 border-gray-200">
+        <button type="button"
+                (click)="cancel()"
+                class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">
+          {{ t('content.cancel') }}
+        </button>
+
+        <div class="flex gap-2 items-center">
+          <!-- Nút xóa -->
+          <button type="button"
+                  (click)="openDeleteForm()"
+                  title="{{ t('content.delete') }}"
+                  class="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded">
+            {{ t('content.delete') }}
+          </button>
+
+          <!-- Nút cập nhật -->
+          <button type="submit"
+                  [disabled]="isUpdating"
+                  class="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded">
+            {{ isUpdating ? t('content.updating') : t('content.update') }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Popup xóa -->
+<app-delete-content
+  *ngIf="showDeleteForm"
+  [contentIds]="[contentData.id]"
+  (close)="cancelDeleteForm()"
+  (refresh)="handleDeleteSuccess()">
+</app-delete-content>
+  

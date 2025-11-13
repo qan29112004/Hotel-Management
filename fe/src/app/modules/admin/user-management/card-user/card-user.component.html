@@ -1,0 +1,42 @@
+<div
+  class="relative content-center px-6 py-4 overflow-hidden text-white rounded-md shadow-md"
+  [ngClass]="bgColor"
+>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <!-- Text and tooltip -->
+    <div class="z-10 flex-1 min-w-0">
+      <div class="flex items-center text-base leading-snug">
+        <span class="flex-1 pr-1 break-words">{{ title }}</span>
+        <mat-icon
+          matTooltip="{{ description }}"
+          [matTooltipPosition]="'below'"
+          svgIcon="heroicons_outline:exclamation-circle"
+          class="flex-none text-white icon-size-4"
+          style="vertical-align: sub; white-space: nowrap;"
+        ></mat-icon>
+      </div>
+      <p class="text-2xl font-medium">
+        {{ value }}
+      </p>
+    </div>
+
+    <!-- Icon image -->
+    <img
+      [src]="iconPath"
+      alt=""
+      class="p-2 bg-white rounded-lg w-fit"
+    />
+  </div>
+
+  <!-- Decorative wave -->
+  <svg
+    class="absolute bottom-0 left-0 w-full h-13 opacity-10"
+    viewBox="0 0 1440 96"
+    preserveAspectRatio="none"
+  >
+    <path
+      d="M 0 18 C 761 26 1255 101 1439 59 L 1439 95 L 0 96 Z"
+      fill="currentColor"
+    />
+  </svg>
+</div>

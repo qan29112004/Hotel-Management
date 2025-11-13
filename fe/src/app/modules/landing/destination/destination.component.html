@@ -1,0 +1,26 @@
+<div class="flex flex-col items-center flex-auto w-full h-full bg-white max-w-[1920px]">
+    <div class='bg-black h-[7rem] w-full'></div>
+    <div class='flex flex-col items-center justify-center mt-5'>
+        <span class='text-[48px] font-lexend_deca'>Explore Destinations</span>
+        <button type="button" class="px-6 py-3 mt-4 text-base font-semibold uppercase transition duration-300 bg-yellow-500 cursor-pointer font-avenir hover:scale-105">
+            List Hotels
+        </button>
+    </div>
+    <app-map class='w-full h-[756px] z-0 mt-8 max-w-[1920px] px-16' [listData]="listHotels"></app-map>
+    <div class="grid w-full grid-cols-3 max-md:grid-cols-1 mx-auto mt-8 place-items-center max-w-[1920px] px-16">
+        <ng-container *ngFor="let destination of listDestinations">
+            <div class="px-[10px] w-full h-full py-2 text-white flex justify-center items-end">
+                <div class="relative flex flex-col items-center justify-end w-full h-full px-8 pb-5 bg-center bg-no-repeat bg-cover pt-[90px]"
+                    [style.background-image]="'url(' + baseUrl + encodeFileUrl(destination.thumbnail) + ')'"
+                >
+                    <div class="absolute top-0 left-0 w-full h-full bg-primary/50"></div>
+                    <div class="z-10 flex flex-col items-center w-full gap-8">
+                        <span class="font-avenir text-[30px]">{{destination.name | capitalize}}</span>
+                        <a [href]="destination.slug" class="text-base uppercase border-b border-b-white font-lexend_deca">destination page</a>
+                        <button type="button" class="w-full h-[2.5rem] font-avenir text-[14px] text-black uppercase flex justify-center items-center bg-yellow-500 font-black">{{destination.totalHotels}} hotels</button>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>

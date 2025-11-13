@@ -1,0 +1,51 @@
+<div *transloco="let t" class="w-full">
+    <!-- Nếu chưa gửi email -->
+    <div>
+        <!-- Title -->
+        <div class="mt-5 text-3xl tracking-tight leading-tight">
+            Please check your email
+        </div>
+
+        <div class=" text-gray-500 text-start mt-5">
+            <p class="mb-1">
+                We have sent a email to
+                <span class="text-primary">{{ _authService._sendEmail }}</span>
+                with password reset link.
+            </p>
+            <p class="mb-1">
+                {{ t("forgot_password.check_email") }}
+                <strong>{{ t("forgot_password.promotion_folder") }}</strong>
+                {{ t("forgot_password.and") }}
+                <strong>{{ t("forgot_password.spam_folder") }}</strong>
+            </p>
+            <p class="mb-2">
+                {{ t("forgot_password.no_email_received") }}
+            </p>
+            <p
+                [ngClass]="{
+                    'text-primary cursor-pointer': counter === 0,
+                    'text-gray-500': counter > 0
+                }"
+                (click)="counter === 0 && resendResetLink()"
+            >
+                {{ t("forgot_password.resend") }}
+                <span *ngIf="counter">({{ counter }}s)</span>
+            </p>
+        </div>
+
+        <img
+            src="assets/images/auth/undraw-mailbox.svg"
+            alt="mail"
+            class="w-full max-w-2/3 mx-auto"
+        />
+
+        <app-custom-button
+            type="button"
+            [color]="'primary'"
+            variant="flat"
+            [routerLink]="[routerSignIn]"
+            [label]="'Back to login'"
+            customClass="!rounded-md !mt-12 fuse-mat-button-large"
+        ></app-custom-button>
+    </div>
+</div>

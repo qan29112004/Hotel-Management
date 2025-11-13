@@ -1,0 +1,10 @@
+FROM image-base
+
+WORKDIR /app
+COPY . .
+
+# Giúp tránh lỗi encoding
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+ENTRYPOINT ["/bin/bash","-c", "/app/run.sh"]

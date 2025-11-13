@@ -1,0 +1,262 @@
+<fuse-drawer
+
+    class="w-screen min-w-screen sm:w-140 sm:min-w-140 z-999"
+    fixed
+    [mode]="'over'"
+    [opened]="showDrawer"
+    (openedChanged)="onDrawerOpenedChange($event)"
+    [name]="'editEntityDrawer'"
+    [position]="'right'"
+    #editEntityDrawer
+    (keydown.enter)="save()"
+>
+    <ng-container *ngIf="editFormGroup">
+        <form 
+            *transloco="let t"
+            
+            class="w-full h-full shadow-md flex flex-col animated-box-content"
+            [formGroup]="editFormGroup"
+            #editForm="ngForm"
+        >
+            <!-- Header -->
+            <div
+                class="flex flex-row items-center px-4 py-2.5 text-white bg-primary"
+            >
+                <div class="ml-3 text-2xl font-semibold tracking-tight">
+                    {{ t(titleKey) }}
+                </div>
+            </div>
+
+            <!-- Form Scrollable Content -->
+            <div class="flex-1 overflow-y-auto p-2 bg-white border border-gray-200">
+                <div class="flex flex-col p-3 bg-card overflow-hidden space-y-1">
+                    <fuse-alert
+                        class="mb-2"
+                        *ngIf="showAlert"
+                        [appearance]="'outline'"
+                        [showIcon]="false"
+                        [type]="alert.type"
+                        [@shake]="alert.type === 'error'"
+                    >
+                        <ul class="list-disc pl-4">
+                            <li *ngFor="let code of alert.code">
+                                {{ t(code) }}
+                            </li>
+                        </ul>
+                    </fuse-alert>
+
+                    <!-- Dynamic Fields -->
+                    <ng-container *ngFor="let field of fields">
+                        <!-- Text/Email/Number Input -->
+                        <mat-form-field
+                            *ngIf="field.type === 'text' || field.type === 'email' || field.type === 'number'"
+                            floatLabel="always"
+                            class="w-full fuse-mat-dense"
+                        >
+                            <mat-label>{{ t(field.labelKey) }}</mat-label>
+                            <input
+                                [id]="field.name"
+                                matInput
+                                [type]="field.type"
+                                [formControlName]="field.name"
+                                [placeholder]="field.placeholderKey ? t(field.placeholderKey) : ''"
+                                [required]="field.required"
+                            />
+                            <mat-error
+                                *ngIf="editFormGroup.get(field.name)?.hasError('required')"
+                            >
+                                {{ t(field.errorMessages?.required || 'errors.fields.required') }}
+                            </mat-error>
+                            <mat-error
+                                *ngIf="field.type === 'email' && editFormGroup.get(field.name)?.hasError('email')"
+                            >
+                                {{ t(field.errorMessages?.email || 'errors.fields.email_invalid') }}
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Select Input -->
+                        <mat-form-field
+                            *ngIf="field.type === 'select'"
+                            floatLabel="always"
+                            class="w-full fuse-mat-dense"
+                        >
+                            <mat-label>{{ t(field.labelKey) }}</mat-label>
+                            <mat-select *ngIf="field.asyncOptionsKey; else staticSelect" [formControlName]="field.name">
+                                <mat-option *ngFor="let option of optionDestination" [value]="option.id">
+                                    {{ option.name }}
+                                </mat-option>
+                            </mat-select>
+                            <mat-select #staticSelect [formControlName]="field.name">
+                                <mat-option *ngFor="let option of field.options" [value]="option.id">
+                                    {{ option.name }}
+                                </mat-option>
+                            </mat-select>
+                            <button
+                                mat-icon-button
+                                matSuffix
+                                disableRipple
+                                class="custom-icon"
+                            >
+                                <mat-icon>expand_more</mat-icon>
+                            </button>
+                        </mat-form-field>
+
+                        <!-- Date Input -->
+                        <mat-form-field
+                            *ngIf="field.type === 'date'"
+                            floatLabel="always"
+                            class="w-full fuse-mat-dense"
+                        >
+                            <mat-label>{{ t(field.labelKey) }}</mat-label>
+                            <input
+                                matInput
+                                [matDatepicker]="picker"
+                                [formControlName]="field.name"
+                            />
+                            <mat-datepicker-toggle
+                                matSuffix
+                                [for]="picker"
+                            ></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
+                            <mat-error
+                                *ngIf="editFormGroup.get(field.name)?.hasError('invalidBirthDate')"
+                            >
+                                {{ t(field.errorMessages?.invalidBirthDate || 'errors.fields.birthdayInvalid') }}
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Radio Input -->
+                        <div
+                            *ngIf="field.type === 'radio'"
+                            class="w-full fuse-mat-dense flex flex-col"
+                        >
+                            <mat-label>{{ t(field.labelKey) }}</mat-label>
+                            <mat-radio-group
+                                [formControlName]="field.name"
+                                class="flex flex-row space-x-4"
+                            >
+                                <mat-radio-button *ngFor="let option of field.options" [value]="option.id">
+                                    {{ t(option.name) }}
+                                </mat-radio-button>
+                            </mat-radio-group>
+                        </div>
+                        <!-- checkbox Input -->
+                        <div
+                            *ngIf="field.type === 'checkbox'"
+                            class="flex flex-col w-full fuse-mat-dense"
+                        >
+                            <mat-label>{{ t(field.labelKey) }}</mat-label>
+                            <!-- Khi có asyncOptionsKey -->
+                            <div *ngIf="field.asyncOptionsKey; else staticCheckbox">
+                            <mat-checkbox
+                                *ngFor="let option of optionRadio"
+                                [checked]="selectedRadioValues[field.name]?.includes(option.id)"
+                                (change)="onCheckboxChange($event.checked, field.name, option.id, option)"
+                                class="mr-4"
+                            >
+                                {{ t(option.name) }}
+                            </mat-checkbox>
+                            </div>
+
+                            <!-- Khi không có asyncOptionsKey -->
+                            <ng-template #staticCheckbox>
+                            <mat-checkbox
+                                *ngFor="let option of field.options"
+                                [checked]="selectedRadioValues[field.name]?.includes(option.id)"
+                                (change)="onCheckboxChange($event.checked, field.name, option.id, option)"
+                                class="mr-4"
+                            >
+                                {{ t(option.name) }}
+                            </mat-checkbox>
+                            </ng-template>
+
+                            <!-- Preview grid for radio -->
+                            <div *ngIf="selectedRadioValues[field.name]?.length > 0" class="grid grid-cols-3 gap-2 mt-4">
+                                <div *ngFor="let value of displayCheckbox | keyvalue; let i = index" class="relative">
+                                    <div class="flex items-center justify-center w-full h-12 bg-gray-200 rounded">
+                                        <!-- {{ field.options.find(opt => opt.id === value)?.name || value }} -->
+                                            <img [src]="baseUrl + value.value" class="w-8 mr-1"/> {{value.key}}
+                                    </div>
+                                    <button
+                                        mat-icon-button
+                                        class="absolute top-0 right-0 text-red-500 bg-white rounded-full"
+                                        (click)="removeRadioValue(field.name, i, value)"
+                                    >
+                                        <mat-icon>close</mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- File/Files Input -->
+                        <div
+                            *ngIf="field.type === 'file' || field.type === 'files'"
+                            class="flex flex-col w-full fuse-mat-dense"
+                        >
+                            <mat-label class="font-medium">{{ t(field.labelKey) }}</mat-label>
+                            <input
+                                type="file"
+                                [multiple]="field.type === 'files'"
+                                [accept]="field.accept || '*/*'"
+                                (change)="onFileChange($event, field)"
+                                class="hidden"
+                                #fileInput
+                            />
+                            <button
+                                mat-raised-button
+                                (click)="fileInput.click()"
+                                class="mt-2"
+                            >
+                                {{ t('common.upload') }} {{ field.type === 'files' ? t('common.files') : t('common.file') }}
+                            </button>
+
+                            <!-- Preview grid -->
+                            <div *ngIf="filePreviews[field.name]?.length > 0" class="grid grid-cols-3 gap-2 mt-4">
+                                <div *ngFor="let preview of filePreviews[field.name]; let i = index" class="relative">
+                                    <ng-container *ngIf="preview.url; else nonImage">
+                                        <img [src]="preview.url" alt="preview" class="object-cover w-full h-24 rounded" />
+                                    </ng-container>
+                                    <ng-template #nonImage>
+                                        <div class="flex items-center justify-center w-full h-24 bg-gray-200 rounded">
+                                            {{ preview.name }}
+                                        </div>
+                                    </ng-template>
+                                    <button
+                                        mat-icon-button
+                                        class="absolute top-0 right-0 text-red-500 bg-white rounded-full"
+                                        (click)="removeFile(field.name, i)"
+                                    >
+                                        <mat-icon>close</mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <mat-error *ngIf="editFormGroup.get(field.name)?.hasError('required')">
+                                {{ t(field.errorMessages?.required || 'errors.fields.required') }}
+                            </mat-error>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div
+                class="p-4 bg-gray-100 border-t border-gray-200 w-full flex items-center"
+            >
+                <button
+                    (click)="onToggleClick()"
+                    type="button"
+                    class="w-auto border border-red-500 bg-white text-primary px-4 py-2 rounded font-bold text-base"
+                >
+                    <span class="text-red-500">{{ t('common.cancel') }}</span>
+                </button>
+                <button
+                    (click)="save()"
+                    type="submit"
+                    class="w-auto bg-primary text-white px-4 py-2 ml-3 rounded font-bold text-base"
+                >
+                    {{ t('other.update') }}
+                </button>
+            </div>
+        </form>
+    </ng-container>
+</fuse-drawer>

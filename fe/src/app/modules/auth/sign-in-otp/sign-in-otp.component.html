@@ -1,0 +1,46 @@
+<div *transloco="let t" class="w-full pt-15">
+    <div class="mt-5 text-4xl font-extrabold tracking-tight leading-tight">
+        {{ t("sign_in_otp.title") }}
+    </div>
+
+    <!-- Sign in form -->
+    <form class="mt-6" [formGroup]="signInOtpForm" #signInNgForm="ngForm">
+        <!-- Email field -->
+
+        <mat-form-field floatLabel="always" class="w-full fuse-mat-dense">
+            <mat-label>{{ t("sign_in_otp.email_label") }}</mat-label>
+            <input
+                id="email"
+                matInput
+                class="bg-gray-input"
+                [formControlName]="'email'"
+                placeholder="{{ t('sign_in_otp.email_placeholder') }}"
+                required
+            />
+            <mat-error *ngIf="signInOtpForm.get('email').hasError('required')">
+                {{ t("sign_in_otp.email_required") }}
+            </mat-error>
+            <mat-error *ngIf="signInOtpForm.get('email').hasError('email')">
+                {{ t("sign_in_otp.invalid_email") }}
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Submit button -->
+        <button
+            class="fuse-mat-button-large !rounded-md w-full mt-2"
+            mat-flat-button
+            [color]="'primary'"
+            [disabled]="signInOtpForm.disabled"
+            (click)="signIn()"
+        >
+            <span *ngIf="!signInOtpForm.disabled">
+                {{ t("sign_in_otp.btn_title") }}
+            </span>
+            <mat-progress-spinner
+                *ngIf="signInOtpForm.disabled"
+                [diameter]="24"
+                [mode]="'indeterminate'"
+            ></mat-progress-spinner>
+        </button>
+    </form>
+</div>

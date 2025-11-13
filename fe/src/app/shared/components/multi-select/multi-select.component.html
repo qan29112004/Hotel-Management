@@ -1,0 +1,98 @@
+<div class="relative w-full mb-2">
+    <label
+        *ngIf="label"
+        class="block text-base font-semibold mb-1"
+        [ngClass]="{
+            'text-gray-700': !disabled,
+            'text-gray-400': disabled
+        }"
+    >
+        {{ label }}
+    </label>
+
+    <!-- Wrapper -->
+    <div
+        class="flex flex-wrap items-center gap-1 rounded px-2 py-1 transition border"
+        [ngClass]="{
+            'border-primary': isDropdownOpen && !disabled,
+            'border-gray-400': !isDropdownOpen && !disabled,
+            'bg-gray-100 border-gray-300': disabled
+        }"
+    >
+        <!-- Selected badges -->
+        <ng-container *ngFor="let item of selectedOptions">
+            <div
+                *ngIf="item"
+                @zoomOut
+                class="flex items-center gap-1 bg-blue-100 text-primary-700 rounded-sm text-sm"
+            >
+                <span class="pl-2 py-0.5 max-w-22 truncate block">
+                    {{ item.name }}
+                </span>
+                <span
+                    *ngIf="!disabled"
+                    class="flex items-center cursor-pointer text-primary-600 font-semibold hover:bg-red-200 hover:text-red-500 py-0.5 px-1 hover:rounded-sm"
+                    (click)="removeItem(item)"
+                >
+                    &times;
+                </span>
+            </div>
+        </ng-container>
+
+        <!-- Search input -->
+        <input
+            #inputRef
+            [disabled]="disabled"
+            [(ngModel)]="searchTerm"
+            (click)="!disabled && toggleDropdown(!isDropdownOpen)"
+            class="flex-1 min-w-[100px] outline-none border-none py-1 bg-transparent"
+            [ngClass]="{
+                'text-gray-700': !disabled,
+                'text-gray-500': disabled
+            }"
+            placeholder="Tìm kiếm..."
+        />
+
+        <button
+            *ngIf="selectedOptions?.length > 0 && !disabled"
+            class="ml-auto font-semibold hover:text-red-500"
+            type="button"
+            (click)="clearSelected()"
+        >
+            ✕
+        </button>
+
+        <!-- Icon -->
+        <mat-icon
+            (click)="!disabled && toggleDropdown(!isDropdownOpen)"
+            [ngClass]="{
+                'text-black': isDropdownOpen && !disabled,
+                'text-gray-400': !isDropdownOpen || disabled
+            }"
+            class="cursor-pointer icon-size-4 font-semibold ml-2 transition-transform duration-200"
+            svgIcon="heroicons_solid:chevron-down"
+        ></mat-icon>
+    </div>
+
+    <!-- Dropdown list -->
+    <div
+        *ngIf="isDropdownOpen && !disabled && filteredOptions.length > 0"
+        class="absolute z-10 w-full bg-white border border-gray-200 mt-1 rounded shadow max-h-50 overflow-y-auto"
+    >
+        <div
+            *ngFor="let item of filteredOptions"
+            (click)="selectItem(item)"
+            class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+        >
+            {{ item.name }}
+        </div>
+    </div>
+
+    <!-- No match -->
+    <div
+        *ngIf="isDropdownOpen && !disabled && filteredOptions.length === 0"
+        class="absolute z-10 w-full bg-white border border-gray-200 mt-1 rounded shadow px-3 py-2 text-gray-400 text-center"
+    >
+        Không tìm thấy kết quả
+    </div>
+</div>

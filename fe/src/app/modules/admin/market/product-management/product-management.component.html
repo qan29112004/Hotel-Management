@@ -1,0 +1,376 @@
+<div *transloco="let t" class="absolute inset-0 flex min-w-0 flex-col overflow-y-auto" cdkScrollable>
+    <!-- Main -->
+    <div class="flex-auto p-4 sm:px-6 sm:py-4">
+        <!-- CONTENT GOES HERE -->
+    <div class="relative w-full" *ngIf="!showImport">
+
+    <!-- Tiêu đề -->
+    <div class="flex items-center justify-between text-lg mb-4">
+        <span class="lg:text-lg text-md">{{
+            t("product_management.title")
+        }}</span>
+    </div>
+    
+    <!-- Bộ lọc -->
+     <div class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-start">
+            <!-- Cột trái - Filters -->
+            <div class="flex flex-wrap gap-2 mb-4">
+                <!-- Filter hạng mục -->
+                <div class="min-w-48">
+                    <mat-form-field class="w-full" appearance="outline">
+                        <mat-label>{{ t("product_management.category") }}</mat-label>
+                        <mat-select [(value)]="selectedCategory" (selectionChange)="onCategoryChange()">
+                            <mat-option value="">{{ t("product_management.all_categories") }}</mat-option>
+                            <mat-option *ngFor="let category of Category" [value]="category.value">
+                                {{ t("product_management.category_" + category.value) }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <!-- Filter người tạo -->
+                <div class="min-w-48">
+                    <mat-form-field class="w-full" appearance="outline">
+                        <mat-label>{{ t("product_management.creator") }}</mat-label>
+                        <mat-select [(value)]="selectedCreator" (selectionChange)="onCreatorChange()">
+                            <mat-option value="">{{ t("product_management.all_creators") }}</mat-option>
+                            <mat-option *ngFor="let creator of createBy" [value]="creator.username">
+                                {{ creator.username }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <!-- Filter trạng thái -->
+                <div class="min-w-48">
+                    <mat-form-field class="w-full" appearance="outline">
+                        <mat-label>{{ t("product_management.status") }}</mat-label>
+                        <mat-select [(value)]="selectedStatus" (selectionChange)="onStatusChange()">
+                            <mat-option value="">{{ t("product_management.all_status") }}</mat-option>
+                            <mat-option value="In stock">{{ t("product_management.in_stock") }}</mat-option>
+                            <mat-option value="Out of stock">{{ t("product_management.out_of_stock") }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+            <!-- Cột phải - Search và Actions -->
+            <div class="flex flex-wrap justify-between gap-2 mb-4">
+                <!-- Thanh tìm kiếm -->
+                <div class="lg:w-100 md:w-128 w-full text-gray-400 md:mb-0 mb-5">
+                    <div class="relative">
+                        <mat-icon class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">search</mat-icon>
+                        <input
+                            type="text"
+                            [(ngModel)]="searchValue"
+                            (ngModelChange)="onSearchChange()"
+                            placeholder="{{ t('product_management.search_placeholder') }}"
+                            class="h-9 lg:text-base text-sm text-black pl-10 pr-3 py-2 border border-gray-300 rounded-lg w-full"
+                        />
+                    </div>
+                </div>
+                <!-- Các nút actions -->
+                <div class="flex flex-wrap gap-2">
+                    <button
+                        (click)="toggleAddProductDrawer(true)"
+                        class="flex items-center gap-2 justify-between bg-primary text-white h-9 px-3 rounded-md"
+                    >
+                        <mat-icon class="text-white icon-size-6" svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                        <span class="lg:text-base text-sm">{{ t("product_management.create_product") }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    <!-- Table -->
+    <div class="h-table-body-22">
+    <div class="bg-white overflow-x-auto h-full mb-3">
+    <table class="table w-full border-separate border-spacing-0 text-base">
+      <thead class="font-medium text-gray-700 text-left bg-sky-50">
+        <tr>
+          <th class="th-cell text-center p-0">
+            {{ t("product_management.sequenceNumber") }}
+          </th>
+          <th class="th-cell">
+            {{ t("product_management.thumbnail") }}
+          </th>
+          <th
+            class="th-cell cursor-pointer"
+            (click)="sortBy('name')"
+            [ngClass]="{ 'bg-primary-100': sortField === 'name' }"
+          >
+            <span class="flex items-center">
+              {{ t("product_management.product_name") }}
+              <div class="flex flex-col ml-2">
+                <mat-icon
+                  class="min-w-3 w-3 min-h-2 h-2"
+                  *ngIf="sortField !== 'name' || sortOption === null || sortOption === 'asc'"
+                  fontIcon="arrow_drop_up"
+                ></mat-icon>
+                <mat-icon
+                  class="min-w-3 w-3 min-h-2 h-2"
+                  *ngIf="sortField !== 'name' || sortOption === null || sortOption === 'desc'"
+                  fontIcon="arrow_drop_down"
+                ></mat-icon>
+              </div>
+            </span>
+          </th>
+          <th class="th-cell">
+            {{ t("product_management.category") }}
+          </th>
+          <th
+            class="th-cell cursor-pointer"
+            (click)="sortBy('price')"
+            [ngClass]="{ 'bg-primary-100': sortField === 'price' }"
+          >
+            <span class="flex items-center">
+              {{ t("product_management.price") }}
+              <div class="flex flex-col ml-2">
+                <mat-icon
+                  class="min-w-3 w-3 min-h-2 h-2"
+                  *ngIf="sortField !== 'price' || sortOption === null || sortOption === 'asc'"
+                  fontIcon="arrow_drop_up"
+                ></mat-icon>
+                <mat-icon
+                  class="min-w-3 w-3 min-h-2 h-2"
+                  *ngIf="sortField !== 'price' || sortOption === null || sortOption === 'desc'"
+                  fontIcon="arrow_drop_down"
+                ></mat-icon>
+              </div>
+            </span>
+          </th>
+          <th class="th-cell">
+            {{ t("product_management.discount") }}
+          </th>
+          <th class="th-cell">
+            {{ t("product_management.creator") }}
+          </th>
+          <th
+            class="th-cell cursor-pointer"
+            (click)="sortBy('created_at')"
+            [ngClass]="{ 'bg-primary-100': sortField === 'created_at' }"
+          >
+            <span class="flex items-center">
+              {{ t("product_management.created_at") }}
+              <div class="flex flex-col ml-2">
+                <mat-icon
+                  class="min-w-3 w-3 min-h-2 h-2"
+                  *ngIf="sortField !== 'created_at' || sortOption === null || sortOption === 'asc'"
+                  fontIcon="arrow_drop_up"
+                ></mat-icon>
+                <mat-icon
+                  class="min-w-3 w-3 min-h-2 h-2"
+                  *ngIf="sortField !== 'created_at' || sortOption === null || sortOption === 'desc'"
+                  fontIcon="arrow_drop_down"
+                ></mat-icon>
+              </div>
+            </span>
+          </th>
+          <th class="th-cell text-center p-0">
+            {{ t("product_management.supplier") }}
+          </th>
+          <th class="th-cell text-center p-0">
+            {{ t("product_management.product_status") }}
+          </th>
+          <th class="th-cell">
+            {{ t("product_management.status") }}
+          </th>
+          <th class="th-cell text-center p-0">
+            {{ t("product_management.approver") }}
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let product of filteredProductList; let i = index; trackBy: trackByProductId"
+          class="cursor-pointer hover:bg-gray-50"
+          (click)="viewProductDetail(product)"
+        >
+          <td class="td-cell min-w-10 max-w-10 text-center p-0">
+            {{ (currentPage - 1) * pageSize + i + 1 }}
+          </td>
+          <td class="td-cell min-w-20 max-w-20">
+            <img
+              [src]="product.img || 'assets/images/products/default-product.svg'"
+              class="w-16 h-16 rounded-lg object-cover"
+              [alt]="product.name"
+            />
+          </td>
+          <td class="td-cell min-w-48 max-w-48">
+            <div class="min-w-0">
+              <div
+                class="font-semibold text-primary text-ellipsis overflow-hidden whitespace-nowrap"
+                [title]="product.name || ''"
+              >
+                {{ product.name }}
+              </div>
+              <div
+                class="text-sm text-gray-500 text-ellipsis overflow-hidden whitespace-nowrap"
+                [title]="product.location || ''"
+              >
+                <mat-icon class="text-gray-400 text-sm mr-1">location_on</mat-icon>
+                {{ product.location || "---" }}
+              </div>
+            </div>
+          </td>
+          <td class="td-cell min-w-36 max-w-36">
+            <div class="flex justify-center">
+              <span class="px-2 py-1 rounded-lg text-sm font-medium">
+                {{ product.categoryName || '---' }}
+              </span>
+            </div>
+          </td>
+          <td class="td-cell min-w-32 max-w-32">
+            <div class="text-left">
+              <div
+                *ngIf="product.discount > 0"
+                class="text-sm text-gray-400 line-through"
+              >
+                {{ formatCurrency(product.price) }}
+              </div>
+              <div
+                class="font-semibold"
+                [ngClass]="{
+                  'text-red-600': product.discount > 0,
+                  'text-gray-900': product.discount === 0
+                }"
+              >
+                {{
+                  formatCurrency(
+                    getFinalPrice(product.price, product.discount)
+                  )
+                }}
+              </div>
+            </div>
+          </td>
+          <td class="td-cell min-w-24 max-w-24 text-center">
+            <span
+              *ngIf="product.discount > 0"
+              class="px-2 py-1 bg-red-100 text-red-800 rounded-lg text-sm font-medium"
+            >
+              -{{ product.discount }}%
+            </span>
+            <span *ngIf="product.discount === 0" class="text-gray-400">
+              ---
+            </span>
+          </td>
+          <td class="td-cell min-w-36 max-w-36">
+            <div class="flex items-center gap-2">
+              <img
+                [src]="product.creator?.avatar || 'assets/images/avatars/default-avatar.svg'"
+                class="w-6 h-6 rounded-full"
+              />
+              <div class="min-w-0">
+                <div
+                  class="text-sm font-medium text-ellipsis overflow-hidden whitespace-nowrap"
+                  [title]="product.creator || ''"
+                >
+                  {{ product.createdByName || "---" }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="td-cell min-w-40 max-w-40 whitespace-nowrap">
+            <div>
+              <p>{{ formatDateTime(product.createdAt) }}</p>
+              <p class="text-sm text-gray-500">
+                {{ product.createdByName || "---" }}
+              </p>
+            </div>
+          </td>
+           <td class="td-cell min-w-36 max-w-36">
+            <div class="flex justify-center">
+              <span class="px-2 py-1 rounded-lg text-sm font-medium">
+                {{ product.suplier || '---' }}
+              </span>
+            </div>
+          </td>
+          <td class="td-cell min-w-32 max-w-32 text-center">
+            <mat-slide-toggle
+              [checked]="product.productStatus === 'in_stock'"
+              (change)="toggleProductStatus(product, $event)"
+              (click)="$event.stopPropagation()"
+              color="primary"
+            ></mat-slide-toggle>
+            <div class="text-xs mt-1">
+              <span
+                *ngIf="product.productStatus === 'in_stock'"
+                class="text-green-600 font-medium"
+              >
+                {{ t('product_management.in_stock') }}
+              </span>
+              <span
+                *ngIf="product.productStatus === 'out_of_stock'"
+                class="text-red-600 font-medium"
+              >
+                {{ t('product_management.outOfStock') }}
+              </span>
+            </div>
+          </td>
+           <td class="td-cell min-w-36 max-w-36">
+            <div class="flex justify-center">
+              <span class="px-2 py-1 rounded-lg text-sm font-medium">
+                {{ product.statusName || '---' }}
+              </span>
+            </div>
+          </td>
+           <td class="td-cell min-w-36 max-w-36">
+            <div class="flex justify-center">
+              <span class="px-2 py-1 rounded-lg text-sm font-medium">
+                {{ product.approverName || '---' }}
+              </span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty state -->
+    <div
+      *ngIf="filteredProductList.length === 0"
+      class="flex flex-col items-center justify-center text-primary font-semibold text-center py-8"
+    >
+      <img src="assets/images/ui/empty-folder-1.svg" alt="Empty" class="w-32 h-32 mb-4" />
+      <p class="font-semibold">Danh sách đang trống</p>
+    </div>
+        </div>
+
+  <!-- Pagination -->
+  <app-custom-pagination
+    *ngIf="productList.length > 0"
+    [totalRecords]="totalRecords"
+    [totalItems]="totalItems"
+    [currentPage]="currentPage"
+    [pageSize]="pageSize"
+    (pageChange)="onPageChange($event)"
+    (pageSizeChange)="onPageSizeChange($event)"
+  ></app-custom-pagination>
+
+</div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Drawers -->
+  <!-- <app-add-product
+    class="relative z-10"
+    [showAddProduct]="showAddProduct"
+    (click)="$event.stopPropagation()"
+    (closeDrawer)="toggleAddProductDrawer(false)"
+  ></app-add-product> -->
+
+<!-- <app-edit-product
+    [showEditProduct]="showEditProduct"
+    [selectedProduct]="selectedProduct"
+    (drawerOpenedChangedEdit)="drawerOpenedChangedEdit($event)"
+    (toggleEditProductDrawer)="toggleEditProductDrawer($event)"
+></app-edit-product> -->
+
+<!-- <app-product-detail
+    [showProductDetail]="showProductDetail"
+    [selectedProduct]="selectedProduct"
+    [categories]="categories"
+    [creators]="creators"
+    (closeProductDetail)="closeProductDetail()"
+    (editProduct)="editProductFromDetail($event)"
+    (deleteProduct)="deleteProductFromDetail($event)"
+>
+</app-product-detail> -->

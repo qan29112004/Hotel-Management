@@ -1,0 +1,119 @@
+<div class='flex items-start justify-start w-full'>  
+    <div class="flex flex-col w-full pr-5 shrink">
+        <ng-container *ngFor="let rt of listRoomType; let i = index">
+            <div class="bg-[#f4f4f4] w-full p-5 mb-5">
+                <div class="flex flex-col w-full p-5 bg-white">
+                    <div class="flex flex-col w-full h-max">
+                        <div class="flex w-full gap-3 mb-14">
+                            <div class="relative w-[305px]">
+                                <!-- Swiper -->
+                                <swiper-container
+                                    #swiperEl
+                                    init="false"
+                                    class="overflow-hidden aspect-[3/2]"
+                                >
+                                    <swiper-slide *ngFor="let img of rt.images">
+                                    <img [src]="baseUrl + img.imageUrl" class="object-cover w-full h-full" />
+                                    </swiper-slide>
+                                </swiper-container>
+
+                                <!-- Custom controls -->
+                                <div
+                                    class="absolute left-0 right-0 flex z-[9] items-center justify-between bg-[#ffe6d2] px-3 py-1 text-[14px]"
+                                >
+                                    <div class="flex items-center gap-2 text-[#855d2c] font-[500]">
+                                    <span>{{ currentIndexes[i] + 1 }}/{{ rt.images.length }}</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-2">
+                                    <button (click)="prevSlide(i, swipers)" class="text-[#855d2c] hover:opacity-70">
+                                        &#10094;
+                                    </button>
+                                    <button (click)="nextSlide(i, swipers)" class="text-[#855d2c] hover:opacity-70">
+                                        &#10095;
+                                    </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col flex-grow">
+                                <span class="w-full font-clearface text-[24px]">name</span>
+                                <div class="flex gap-5 mt-3 mb-5">
+                                    <div class="bg-size-[12px] bg-no-repeat bg-left pl-5 italic text-[12px]"
+                                        [style.background-image]="'url('+ ('assets/images/booking/people.svg')+ ')'"
+                                    >Sleeps {{rt.maxOccupancy}}</div>
+                                    <div class="bg-size-[12px] bg-no-repeat bg-left pl-5 italic text-[12px]"
+                                        [style.background-image]="'url('+ ('assets/images/booking/bed.svg')+ ')'"
+                                    >King 1</div>
+                                    <div class="bg-size-[12px] bg-no-repeat bg-left pl-5 italic text-[12px]"
+                                        [style.background-image]="'url('+ ('assets/images/booking/size.svg')+ ')'"
+                                    >{{rt.size}} m²</div>
+                                </div>
+                                <p class="font-avenir text-[14px]">{{rt.description}}</p>
+                                <a href="#" class="font-avenir text-[14px] underline uppercase mt-6">booking.view_amenity</a>
+                                
+                            </div>
+                        </div>
+                        <div class="w-full border-b border-[#d4d4d4]">
+                            <ng-container *ngFor="let r of rt.rate; let j = index">
+                                <div class="w-full py-5 px-[10px] flex border-t border-[#d4d4d4]">
+                                    <div class="w-[55%] flex flex-col">
+                                        <span class="font-clearface text-[18px] font-normal">{{r.name}}</span>
+                                        <div class="my-[15px]">
+                                            <p class="text-[#787878] font-avenir text-[12px] leading-[1.6666666667]">{{r.description}}</p>
+                                        </div>
+                                        <a  class="font-avenir text-[12px] underline text-black uppercase mt-5">booking.view_rate_detail</a>
+                                        <a  class="font-avenir text-[12px] underline uppercase" (click)="toggleDetailRate(i,j)"
+                                            [ngClass]="{'text-[#9e693d]':selectDetailRate?.id_rt === i && selectDetailRate?.id_rate === j,
+                                                        'text-black': !(selectDetailRate?.id_rt === i && selectDetailRate?.id_rate === j)
+                                            }"
+                                        >booking.show_fees</a>
+                                        <div  class="flex flex-col w-full" *ngIf="selectDetailRate?.id_rt === i && selectDetailRate?.id_rate === j" @slideToggle>
+                                            <div class="flex justify-between">
+                                                <span class="font-avenir text-[11px] text-[#787878]"> {{r.price.length}} booking.nights</span>
+                                                <span class="font-avenir text-[11px] text-[#787878]"> {{calculateTotalAndAverage(r).totalWithVat| currency:'VND':'symbol':'1.0-0'}}</span>
+                                            </div>
+                                            <div class="w-full flex flex-col py-[15px]">
+                                                <ng-container *ngFor="let pr of r.price">
+                                                    <div class="flex justify-between">
+                                                        <span class="font-avenir text-[11px] text-[#787878]"> {{formatDateToLong(pr.date)}}</span>
+                                                        <span class="font-avenir text-[11px] text-[#787878]"> {{+pr.price | currency:'VND':'symbol':'1.0-0'}}</span>
+                                                    </div>
+                                                </ng-container>
+                                                
+                                                <div class="flex justify-between mt-5">
+                                                    <span class="font-avenir text-[11px] text-[#787878]"> VATs</span>
+                                                    <span class="font-avenir text-[11px] text-[#787878]"> 10%</span>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <div class="flex justify-end gap-5">
+                                            <span class="font-avenir text-[12px] font-bold text-right text-black">{{calculateTotalAndAverage(r).average | currency:'VND':'symbol':'1.0-0'}} booking.per_night <br> ~{{convertVNDToUSD(calculateTotalAndAverage(r).average) | currency:'USD':'symbol-narrow':'1.0-2'}} </span>
+                                            <ng-container *ngIf="r.name === list_room_selected?.ratePlanName && rt.name===list_room_selected?.roomTypeName; else notSelect">
+                                                <button type="button" class="bg-black py-[15px] px-[20px] font-avenir text-[14px] font-extrabold text-white" (click)="selectRateToBooking(rt.name, r.name,'10000')">booking.keep_room</button>
+                                            </ng-container>
+                                            <ng-template #notSelect>
+                                                <button type="button" class="bg-yellow-500 py-[15px] px-[20px] font-avenir text-[14px] font-extrabold" (click)="selectRateToBooking(rt.name, r.name,'10000')">booking.select</button>
+                                            </ng-template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </div>
+                            
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+    
+    
+    <!-- <h2 class="mb-4 text-lg font-semibold">Select Rate for Room {{ roomIndex + 1 }}</h2>
+    <button
+        class="px-4 py-2 text-white rounded-lg bg-amber-700 hover:bg-amber-800"
+        (click)="selectRate(1)">
+        Choose Sample Rate
+    </button> -->
+</div>

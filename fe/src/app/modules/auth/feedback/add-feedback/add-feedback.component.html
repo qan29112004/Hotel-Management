@@ -1,0 +1,43 @@
+<div class="fixed overflow-y-auto inset-0 bg-gray-800 bg-opacity-50 flex flex-col items-center justify-center z-50"
+     *transloco="let t"
+     (click)="cancel()"> <!-- click nền đen để đóng -->
+
+  <div class="bg-white rounded-lg w-[400px] max-w-full h-[520px] max-h-[90vh] shadow-xl  border border-gray-300 flex flex-col"
+       (click)="$event.stopPropagation()"> <!-- chặn click trong modal -->
+
+    <div class="flex items-center justify-between px-4 bg-primary text-on-primary rounded-t-lg">
+        <h2 class="text-lg font-medium leading-10 my-2">{{ t('feedback.add') }}</h2>
+        <span class="material-icons text-white cursor-pointer" (click)="cancel()">close</span>
+      </div>
+
+    <form (ngSubmit)="createFeedback()" class="space-y-4 p-6 flex-1 flex flex-col">
+      <div>
+        <label class="block text-sm font-medium">{{ t('content.title') }}</label>
+        <input
+          [(ngModel)]="form.title"
+          name="title"
+          class="w-full border border-gray-300 rounded px-3 py-2"
+          placeholder="{{ t('content.title_placeholder') }}" />
+      </div>
+
+      <div class="flex-1">
+        <label class="block text-sm font-medium">{{ t('content.content') }}</label>
+        <textarea
+          [(ngModel)]="form.content"
+          name="content"
+          rows="6"
+          class="w-full border border-gray-300 rounded px-3 py-2 resize-none h-full"
+          placeholder="{{ t('content.content_placeholder') }}"></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-4 border-t border-gray-200">
+        <button type="button" (click)="cancel()" class="px-4 py-2 rounded bg-red-200 text-red-700 font-semibold">
+          {{ t('content.cancel') }}
+        </button>
+        <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
+          {{ t('content.add') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

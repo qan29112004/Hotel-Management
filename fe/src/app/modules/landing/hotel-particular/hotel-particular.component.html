@@ -1,0 +1,308 @@
+<div class="relative items-center flex flex-col flex-auto w-full h-full max-w-[1920px]">
+    <div
+        class="md:min-h-[100svh] h-[100svh] pb-10 bg-center bg-no-repeat bg-cover text-white flex flex-col justify-end items-center relative w-full"
+        [style.background-image]="'url('+ ('assets/images/home-page/header.jpg')+ ')'"
+    >
+        <div class="absolute inset-0 bg-black/50"></div>
+        <div class="flex flex-col items-center gap-5 w-full-col z-[1] mb-[100px]">
+            <span class="font-avenir text-[40px] text-white uppercase">{{hotel_data.name}}</span>
+            <span class="italic font-lexend_deca text-[12px] text-white"></span>
+        </div>
+        <!-- Search -->
+
+    </div>
+    <div class="absolute top-0 left-0 flex items-start justify-end w-full h-full px-16 max-sm:px-0">
+        <div class="sticky z-10 flex h-auto max-w-full w-max bg-white/90 top-28">
+            <div class="p-3 max-w-[372px] w-[372px] h-[63px]"
+                    [ngClass]="{'hidden':!isHiddenForm}">
+                <button type="button" class="bg-yellow-500 w-full h-full flex justify-center items-center font-clearface text-[22px]" (click)="displayForm()">Make a reservation</button>
+            </div>
+            <form class="relative grid w-auto max-w-full grid-cols-1 gap-3 p-2 bg-transparent "
+                [ngClass]="{'hidden':isHiddenForm, 'bg-white':showCloseButton}"
+                (ngSubmit)="booking()"
+            >
+                <button type="button" class="absolute top-0 right-0 w-6 h-6 bg-yellow-500 rounded-full flex justify-center items-center text-[14px]"
+                    *ngIf="showCloseButton"
+                    (click)="hideForm()"
+                >x</button>
+                <span class="text-center font-clearface text-[22px]"> Make a reservation</span>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" class="relative flex flex-col p-2 border-b border-black/30 min-w-[105px] " >
+                        <span class="self-start font-mono text-black">CHECK IN</span>
+                        <input readonly (click)="toggleCalendarCheckin()" type="text" [(ngModel)]="checkInDate" name="DateCheckin"  [placeholder]="translocoService.translate('home-page.choose_day')" class="text-black placeholder:font-mono">
+                        <!-- <app-calendar class="z-10 w-[360px] absolute top-8" [date]="date" [crrHotel]="crrHotel"></app-calendar> -->
+                         <app-calendar class="z-10 w-[200%] absolute top-8" [date]="date" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckin" (selectedDayEmit)="selectedCheckin($event)"
+                            [ngClass]="{'hidden':!showCalendarCheckin}"
+                         ></app-calendar>
+                    </button>
+                    <button type="button" class="relative flex flex-col p-2 border-b border-black/30 min-w-[105px] " >
+                        <span class="self-start font-mono text-black">CHECK OUT</span>
+                        <input readonly [disabled]="!checkInDate" (click)="toggleCalendarCheckout()" type="text" name="DateCheckout" [(ngModel)]="checkOutDate"  [placeholder]="translocoService.translate('home-page.choose_day')" class="text-black placeholder:font-mono">
+                        <app-calendar *ngIf="checkInDate" class="z-10 w-[200%] absolute top-8 left-[-102%]" [date]="checkOutDateObj" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckout" (selectedDayEmit)="selectedCheckout($event)"
+                            [ngClass]="{'hidden':!showCalendarCheckout}"
+                        ></app-calendar>
+                    </button>
+                    <div class="relative min-w-0 col-span-2 border-b border-black/30">
+                        <button
+                            type="button"
+                            class="flex flex-col h-full p-2"
+                            (click)="toggleGuestSelector()"
+                        >
+                            <span class="self-start font-mono text-black">{{translocoService.translate('home-page.guest')+ ', ' + translocoService.translate('home-page.room')}}</span>
+                            <span class="self-start font-mono text-black text-start">{{ guestSummary }}</span>
+                        </button>
+
+                        <!-- Popup chọn khách -->
+                        <div
+                            *ngIf="showGuestSelector"
+                            class="absolute left-0 z-50 flex flex-col gap-3 p-3 mt-2 text-black border border-gray-300 rounded-lg shadow-lg bg-[#F5F5F5] w-max"
+                        >
+                            <div class="flex flex-col">
+                                <span class="text-xl font-charm">{{translocoService.translate('home-page.how_many_guests')}}</span>
+                                <div class="flex items-center justify-between p-2 text-black">
+                                    <span class="font-mono">{{translocoService.translate('home-page.room')}}</span>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" class="px-2" (click)="removeRoom()">-</button>
+                                        <span class="font-mono">{{ roomList.length }}</span>
+                                        <button [attr.disabled]="roomList.length >= 5 ? true : null" type="button" class="px-2" (click)="addRoom()">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-xl font-charm">{{translocoService.translate('home-page.how_many_rooms')}}</span>
+                                <div class="grid gap-3" [ngClass]="roomList.length > 1 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'">
+                                    <div class="flex flex-col bg-white shadow-md"  *ngFor="let r of roomList">
+                                        <div class="flex items-center justify-between p-2 text-black ">
+                                            <span class="font-mono">{{translocoService.translate('home-page.adults')}}</span>
+                                            <div class="flex items-center gap-2">
+                                                <button type="button" class="px-2" (click)="r.adults = Math.max(1, r.adults - 1)">-</button>
+                                                <span class="font-mono">{{ r.adults }}</span>
+                                                <button [attr.disabled]="r.adults >= 10 ? true : null" type="button" class="px-2" (click)="r.adults = r.adults + 1">+</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between p-2 text-black">
+                                            <span class="font-mono">{{translocoService.translate('home-page.children')}}</span>
+                                            <div class="flex items-center gap-2">
+                                                <button type="button" class="px-2" (click)="r.children = Math.max(0, r.children - 1)">-</button>
+                                                <span class="font-mono">{{ r.children }}</span>
+                                                <button [attr.disabled]="r.children >= 6 ? true : null" type="button" class="px-2" (click)="r.children = r.children + 1">+</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <button type="button" class="px-3 py-1 font-mono text-white bg-black rounded" (click)="closeGuestSelector()">{{translocoService.translate('home-page.done')}}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col min-w-0 col-span-2 p-2 border-b border-black/30">
+                        <span class="font-mono text-black">Code</span>
+                        <input type="text" placeholder="" class="text-black placeholder:font-mono"/>
+                    </div>
+                </div>
+                
+                <button [disabled]="!checkInDate && !checkOutDate" type="submit" class="flex items-center justify-center gap-3 px-8 py-6 bg-yellow-500 disabled:opacity-75 disabled:cursor-not-allowed">
+                    <mat-icon class="text-black" [svgIcon]="'heroicons_outline:magnifying-glass'"></mat-icon>
+                    <span class="font-mono text-black">{{translocoService.translate('home-page.search')}}</span>
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="flex flex-col px-16 max-w-[1440px] w-full bg-white -mt-[95px] z-[3] sticky top-28">
+        <div class="flex items-center h-24 gap-8">
+            <a href="#" class="font-avenir text-[12px] no-underline uppercase">Overview</a>
+            <a href="#" class="font-avenir text-[12px] no-underline uppercase">Images</a>
+            <a href="#" class="font-avenir text-[12px] no-underline uppercase">Rooms</a>
+            <a href="#" class="font-avenir text-[12px] no-underline uppercase">Reviews</a>
+            <a href="#" class="font-avenir text-[12px] no-underline uppercase">Location</a>
+        </div>
+    </div>
+    <div class="flex flex-col px-16 max-w-[1440px] w-full bg-white z-[2]">
+        <div class="w-full h-full border border-[#f7f0ea] p-3 ms:mb-[100px]">
+            <div class="w-full h-full border border-[#f7f0ea]">
+                <div class="grid grid-cols-[65%_35%]">
+                    <div class="flex flex-col text-black gap-5 pt-[88px] mx-[4.16%] px-[30px] border-r border-[#f7f0ea]">
+                        <span class="font-clearface text-[30px] font-normal">Tranquillity and serenity find their home in this Seychelles-island hideaway</span>
+                        <p class="font-avenir text-[16px] font-normal">Taking its name from the rest stops made by seafarers of the Ottoman Empire, L’Escale Resort Marina & Spa is a refuge for today’s travellers. Surrounded by rugged mountains, emerald forests, and multihued waters, today it’s a haven of natural beauty. </p>
+                        <p class="font-avenir text-[16px] font-normal">From the Indian Ocean to Morne Seychellois (Seychelles’ highest peak), enjoy breath-taking views of the island from the comfort of your private terrace or balcony. Luxurious and refined, details throughout the hotel bear the hallmark of Winch Design - renowned for their work on superyachts. Think wood panelling, cream-white furnishings and a splash of nautical memorabilia in the bedrooms. Lose yourself in the all-encompassing tranquillity of the rainfall shower, before settling down for the night in irresistibly soft cotton bed linen. </p>
+                        <span class="font-classy text-[60px] text-[#9e693d] mb-24">Enjoy your stay!</span>
+                    </div>
+                    <div class="flex flex-col items-center w-full gap-8 px-[25px] pt-12">
+                        <div class="flex h-auto gap-4 w-max">
+                            <span class="uppercase font-avenir text-[16px] font-black text-[#282828]">rooms</span>
+                            <span class="uppercase font-avenir text-[16px] font-black text-[#282828]">floors</span>
+                        </div>
+                        <div class="relative flex flex-wrap justify-center h-auto w-28">
+                            <img src="assets/images/explore-hotel/rating.png" class="absolute top-0 -translate-x-1/2 w-28 h-28 left-1/2"/>
+                            <span class="mt-[1.75rem] font-normal w-full text-center text-[30px] font-clearface">4.3</span>
+                            <span class="w-full mt-[2.25rem] text-center text-[14px]">100 reviews</span>
+                        </div>
+                        <div class="grid w-full grid-cols-2">
+                            <a class="relative w-full h-full px-[10px]">
+                                <div class="flex flex-col text-center text-black">
+                                    <img src="assets/icons/hotel-type/Honeymoon.svg" class="sm:h-[75px] mb-[10px]"/>
+                                    <span class="font-avenir text-[14px] mb-[30px]"> Honeymoon</span>
+                                </div>
+                            </a>
+                            <a class="relative w-full h-full px-[10px]">
+                                <div class="flex flex-col text-center text-black">
+                                    <img src="assets/icons/hotel-type/Honeymoon.svg" class="sm:h-[75px] mb-[10px]"/>
+                                    <span class="font-avenir text-[14px] mb-[30px]"> Honeymoon</span>
+                                </div>
+                            </a>
+                            <a class="relative w-full h-full px-[10px]">
+                                <div class="flex flex-col text-center text-black">
+                                    <img src="assets/icons/hotel-type/Honeymoon.svg" class="sm:h-[75px] mb-[10px]"/>
+                                    <span class="font-avenir text-[14px] mb-[30px]"> Honeymoon</span>
+                                </div>
+                            </a>
+                            <a class="relative w-full h-full px-[10px]">
+                                <div class="flex flex-col text-center text-black">
+                                    <img src="assets/icons/hotel-type/Honeymoon.svg" class="sm:h-[75px] mb-[10px]"/>
+                                    <span class="font-avenir text-[14px] mb-[30px]"> Honeymoon</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w-full flex flex-col items-center relative mt-[100px]">
+
+            <div class="flex flex-col items-center justify-center relative max-w-[67%]">
+                <span class="font-clearface font-normal text-[30px] mb-[20px]">Our Hotel</span>
+                <swiper-container
+                    #swiperE2
+                    pagination="true"
+                    navigation="true"
+                    rewind="true"
+                    thumbs-swiper="#thumbSwiper"
+                    class="mySwiper"
+                    style="--swiper-navigation-color: #fff; --swiper-pagination-color:#fff"
+                >
+                    <ng-container *ngFor="let img of listImageExploreHotel">
+                        <swiper-slide class="bg-center bg-cover">
+                            <img [src]="img" class="block object-cover w-full h-full" />
+                        </swiper-slide>
+                    </ng-container>
+                </swiper-container>
+                <swiper-container
+                    #swiperE2
+                    id="thumbSwiper"
+                    space-between="10"
+                    slides-per-view="5"
+                    free-mode="true"
+                    watch-slides-progress="true"
+                    class="self-start ml-0 mr-auto mySwiper2 max-sm:hidden"
+                >
+                    <ng-container *ngFor="let img of listImageExploreHotel">
+                        <swiper-slide class="bg-center bg-cover w-[25%] h-[100%] opacity-40">
+                            <img [src]="img" class="block object-cover w-full h-full" />
+                        </swiper-slide>
+                    </ng-container>
+                </swiper-container>
+            </div>
+        </div>
+        <div class="flex flex-col items-center w-full">
+            <span class="font-clearface text-[30px] mb-5">Highlights</span>
+            <div class="relative flex items-center justify-center w-full h-auto gap-10">
+                <div class="absolute w-full self-center bg-[#f7f0ea]" style="height: calc(100% - 140px);"></div>
+                <div class="max-w-[37%] z-10 h-full text-right">
+                    <img
+                        src="assets/images/Americas-City-Break-LR.jpg"
+                        class="flex-grow object-cover max-h-full pt-3 max-sm:hidden"
+                        alt="logo"
+                    />
+                    <span class="italic font-parisienne">test</span>
+                </div>
+                <div class="flex flex-col justify-center z-10 h-full max-w-[42%] gap-5">
+                    <span class="font-clearface text-[24px]">{{ 'hotel.vinpearl-resort-spa-ha-long.paragraph_1.title' | transloco }}</span>        
+                    <p class="font-avenir text-[16px]">{{ 'hotel.vinpearl-resort-spa-ha-long.paragraph_1.content' | transloco }}</p>            
+                </div>
+            </div>
+            <div class="relative flex items-center justify-center w-full h-auto gap-10">
+                <div class="absolute self-center w-[90%] border border-black" style="height: calc(100% - 140px);"></div>
+                <div class="flex flex-col justify-center z-10 h-full max-w-[42%] gap-5">
+                    <span class="font-clearface text-[24px]">{{ 'hotel.vinpearl-resort-spa-ha-long.paragraph_2.title' | transloco }}</span>        
+                    <p class="font-avenir text-[16px]">{{ 'hotel.vinpearl-resort-spa-ha-long.paragraph_2.content' | transloco }}</p>            
+                </div>
+                <div class="max-w-[37%] z-10 h-full text-right">
+                    <img
+                        src="assets/images/Americas-City-Break-LR.jpg"
+                        class="flex-grow object-cover max-h-full pt-3 max-sm:hidden"
+                        alt="logo"
+                    />
+                    <span class="inline-flex items-center italic font-parisienne">test <img src="assets/images/map/hotel-icon.png" class="w-[14px] h-4 align-middle"/></span>
+                </div>
+            </div>
+            <div class="relative flex items-center justify-center w-full h-auto gap-10">
+                <div class="absolute w-full self-center bg-[#f7f0ea]" style="height: calc(100% - 140px);"></div>
+                <div class="max-w-[37%] z-10 h-full text-right">
+                    <img
+                        src="assets/images/Americas-City-Break-LR.jpg"
+                        class="flex-grow object-cover max-h-full pt-3 max-sm:hidden"
+                        alt="logo"
+                    />
+                    <span class="italic font-parisienne">test</span>
+                </div>
+                <div class="flex flex-col justify-center z-10 h-full max-w-[42%] gap-5">
+                    <span class="font-clearface text-[24px]">{{ 'hotel.vinpearl-resort-spa-ha-long.paragraph_3.title' | transloco }}</span>        
+                    <p class="font-avenir text-[16px]">{{ 'hotel.vinpearl-resort-spa-ha-long.paragraph_3.content' | transloco }}</p>            
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col items-center w-full">
+            <span class="font-clearface text-[30px] mb-5">Highlights</span>
+            <div class="relative flex items-center w-full h-auto">
+                <swiper-container
+                    pagination="true"
+                    rewind="true"
+                    navigation="true"
+                    class="md:max-w-[67%] z-[5] h-[478px]"
+                    style="--swiper-navigation-color: #fff; --swiper-pagination-color:#fff"
+                >
+                    <ng-container *ngFor="let img of listImageExploreHotel">
+                        <swiper-slide class="bg-center bg-cover">
+                            <img [src]="img" class="block object-cover w-full h-full" />
+                        </swiper-slide>
+                    </ng-container>
+                </swiper-container>
+                <div class="h-auto z-[6] bg-white border border-[#f7f0ea] max-w-[33%] flex items-center">
+                    <div class="w-full py-[45px] px-[65px] flex flex-col justify-center items-center">
+                        <span class="font-clearface text-[24px] font-normal pb-5 border-b border-[#f7f0ea]">Room type</span>
+                        <div class="flex flex-col items-center w-full gap-5 mt-5 mb-10">
+                            <div class="flex items-center gap-3 text-black">
+                                <img src="assets/icons/hotel-type/Honeymoon.svg" class="sm:h-[24px]"/>
+                                <span class="font-avenir text-[16px] font-normal"> Honeymoon</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-black">
+                                <img src="assets/icons/hotel-type/Honeymoon.svg" class="sm:h-[24px]"/>
+                                <span class="font-avenir text-[16px] font-normal"> Honeymoon</span>
+                            </div>
+                        </div>
+                        <span class="font-avenir text-[16px] font-normal">Please enter dates to check availability</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col items-center w-full">
+            <span class="font-clearface text-[30px] mb-16">Rating & Reviews</span>
+            <div class="w-full py-8 border-t border-black">
+                <div class="flex gap-1">
+                    <ng-container *ngFor="let star of stars">
+                        <app-rating [starId]="star" [rating]="4" (enter)="enter($event)" (leave)="leave($event)"
+                            (bigClick)="updateRating(star)">
+                        </app-rating>
+                    </ng-container>
+                </div>
+                <h3 class="font-clearface text-[24px] text-black font-normal">Title</h3>
+                <p class="w-full truncate font-avenir text-[16px] font-normal">Review</p>
+                <div class="flex gap-8">
+                    <span class="font-avenir text-[16px] font-normal">By</span>
+                    <span class="font-avenir text-[16px] font-normal">At</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

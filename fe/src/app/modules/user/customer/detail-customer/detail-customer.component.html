@@ -1,0 +1,959 @@
+<div
+    *transloco="let t"
+    class="absolute inset-0 flex min-w-0 w-full p-4 flex-col overflow-y-auto lg:overflow-visible"
+    cdkScrollable
+>
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 flex-1 h-full">
+        <!-- Left Sidebar -->
+        <div
+            class="lg:col-span-1 border py-3 h-full overflow-visible lg:h-full lg:overflow-y-auto"
+        >
+            <div class="p-2 space-y-3">
+                <!-- Title + Filter -->
+                <div
+                    class="container flex justify-between items-center border rounded-lg px-2"
+                >
+                    <h1 class="text-lg font-medium">
+                        {{ t("customer.title") }}
+                    </h1>
+                    <div class="flex items-center overflow-hidden">
+                        <filter
+                            (submitFilter)="handleFilterSubmit($event)"
+                        ></filter>
+                    </div>
+                </div>
+                <!-- Thanh tìm kiếm -->
+                <div class="w-full text-gray-400 md:mb-0 mb-5">
+                    <div class="relative">
+                        <mat-icon
+                            class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400"
+                            >search</mat-icon
+                        >
+                        <input
+                            type="text"
+                            [(ngModel)]="searchValue"
+                            (input)="onSearchChange()"
+                            placeholder="Tìm kiếm"
+                            class="h-9 lg:text-base text-sm text-black pl-10 pr-3 py-2 border border-gray-300 rounded-lg w-full"
+                        />
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div
+                        class="flex justify-between items-center mb-2 border p-2"
+                    >
+                        <!-- Select sắp xếp theo cột -->
+                        <label
+                            class="flex items-center space-x-2 text-base font-medium border rounded-md px-1"
+                        >
+                            <span>Sắp xếp:</span>
+                            <select
+                                class="py-1 text-primary-700"
+                                [(ngModel)]="selectedSortOption"
+                                (change)="onSortOptionChange()"
+                            >
+                                <option
+                                    *ngFor="let option of sortOptions"
+                                    [value]="option.value"
+                                >
+                                    {{ option.label }}
+                                </option>
+                            </select>
+                        </label>
+
+                        <!-- Sắp xếp -->
+                        <div
+                            class="flex flex-col pr-2 cursor-pointer"
+                            (click)="
+                                selectedSortOption !== 'default' &&
+                                    sortBy(selectedSortOption)
+                            "
+                            [class.cursor-not-allowed]="
+                                selectedSortOption === 'default'
+                            "
+                            [class.opacity-50]="
+                                selectedSortOption === 'default'
+                            "
+                            [style.pointerEvents]="
+                                selectedSortOption === 'default'
+                                    ? 'none'
+                                    : 'auto'
+                            "
+                        >
+                            <mat-icon
+                                class="min-w-3 w-3 min-h-2 h-2"
+                                *ngIf="
+                                    sortField !== selectedSortOption ||
+                                    sortOption === null ||
+                                    sortOption === 'asc'
+                                "
+                                fontIcon="arrow_drop_up"
+                            >
+                            </mat-icon>
+
+                            <mat-icon
+                                class="min-w-3 w-3 min-h-2 h-2"
+                                *ngIf="
+                                    sortField !== selectedSortOption ||
+                                    sortOption === null ||
+                                    sortOption === 'desc'
+                                "
+                                fontIcon="arrow_drop_down"
+                            >
+                            </mat-icon>
+                        </div>
+                    </div>
+
+                    <!-- Customer List -->
+                    <div
+                        class="space-y-4"
+                        *ngIf="customerList.length > 0; else noResult"
+                    >
+                        <div
+                            *ngFor="let customer of customerList"
+                            (mouseenter)="hoveredCustomer = customer.id"
+                            (mouseleave)="hoveredCustomer = null"
+                            (click)="selectCustomer(customer.id)"
+                            class="border-b pb-2 space-y-2 cursor-pointer hover:bg-gray-100 transition-all rounded-md p-2"
+                        >
+                            <!-- Luôn hiển thị -->
+                            <div class="text-lg font-medium">
+                                {{ customer.data.full_name }}
+                            </div>
+                            <div class="text-md text-gray-500">
+                                Người phụ trách: {{ customer.data.assigned }}
+                            </div>
+                            <div class="text-md text-gray-500">
+                                Trạng thái:
+                                <span
+                                    class="font-semibold"
+                                    [ngClass]="{
+                                'text-green-500': customer.data.status === 'Khách hàng mới',
+                                'text-yellow-500': customer.data.status === 'Tiềm năng',
+                                'text-red-500': customer.data.status === 'Rời bỏ',
+                                'text-gray-500': customer.data.status === 'Cơ hội',
+                                'text-blue-500': customer.data.status === 'Chính thức',
+                             }"
+                                    >{{ customer.data.status }}</span
+                                >
+                            </div>
+
+                            <!-- Hiển thị khi hover hoặc click -->
+                            <div
+                                *ngIf="
+                                    hoveredCustomer === customer.id ||
+                                    selectedCustomerId === customer.id
+                                "
+                                class="space-y-2"
+                            >
+                                <div class="text-md text-gray-500">
+                                    Email: {{ customer.data.email }}
+                                </div>
+                                <div class="text-md text-gray-500">
+                                    Điện thoại: {{ customer.data.phone_number }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Thông báo khi không có kết quả -->
+                    <ng-template #noResult>
+                        <div class="text-center text-red-500 py-4">
+                            Không tìm thấy kết quả phù hợp với từ khóa tìm kiếm.
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+
+        <form
+            class="grid lg:grid-cols-4 lg:col-span-4 w-full h-full overflow-visible lg:h-full lg:overflow-y-auto gap-4"
+            *ngIf="formJson?.length > 0" [formGroup]="dynamicForm" (ngSubmit)="onSubmit()"
+            (keydown.enter)="$event.preventDefault()">
+            <!-- Main Content -->
+            <div
+                class="lg:col-span-3 border h-full overflow-visible lg:h-full lg:overflow-y-auto"
+            >
+                <div class="bg-white rounded-md shadow-sm mb-4">
+                    <div
+                        class="flex p-4 border-b justify-between sticky top-0 bg-white z-10"
+                    >
+                        <!-- Header -->
+                        <div class="flex space-x-3">
+                            <button
+                                type="button"
+                                class="gap-1 px-2 py-2 rounded-md flex items-center"
+                                (click)="goBack()"
+                            >
+                                <mat-icon>arrow_back</mat-icon>
+                                Quay lại
+                            </button>
+                            <button
+                                type="button"
+                                class="bg-primary text-white gap-1 px-2 py-2 rounded-md flex items-center"
+                                (click)="isEditMode = true"
+                            >
+                                <mat-icon class="text-white">edit</mat-icon>
+                                Chỉnh sửa
+                            </button>
+                        </div>
+                        <div
+                            class="relative inline-block w-56"
+                            #dropdownWrapper
+                        >
+                            <!-- Nút dropdown -->
+                            <div
+                                class="bg-primary text-white font-medium px-4 py-2 rounded-md flex items-center justify-between cursor-pointer"
+                                (click)="toggleDropdown($event)"
+                            >
+                                {{ selectedActionName ?? "Hành động" }}
+                                <mat-icon class="text-white ml-2"
+                                    >arrow_drop_down</mat-icon
+                                >
+                            </div>
+
+                            <!-- Danh sách tùy chọn -->
+                            <div
+                                *ngIf="isOpen"
+                                class="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-md overflow-hidden"
+                            >
+                                <div
+                                    *ngFor="let action of actions"
+                                    class="px-4 py-2 hover:bg-blue-100 cursor-pointer"
+                                    (click)="onActionSelect(action)"
+                                >
+                                    {{ action.name }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab -->
+                    <div class="tabs">
+                        <ul class="flex border-b">
+                            <li
+                                class="px-10 py-2 cursor-pointer"
+                                [class.border-b-2]="activeTab === 'general'"
+                                [class.border-blue-500]="
+                                    activeTab === 'general'
+                                "
+                                (click)="activeTab = 'general'"
+                            >
+                                Chi tiết
+                            </li>
+                            <li
+                                class="px-10 py-2 cursor-pointer"
+                                [class.border-b-2]="activeTab === 'work'"
+                                [class.border-blue-500]="activeTab === 'work'"
+                                (click)="activeTab = 'work'"
+                            >
+                                Công việc
+                            </li>
+                            <li
+                                class="px-10 py-2 cursor-pointer"
+                                [class.border-b-2]="activeTab === 'price'"
+                                [class.border-blue-500]="activeTab === 'price'"
+                                (click)="activeTab = 'price'"
+                            >
+                                Cơ hội
+                            </li>
+                            <!-- <li
+                                class="px-10 py-2 cursor-pointer"
+                                [class.border-b-2]="activeTab === 'orders'"
+                                [class.border-blue-500]="activeTab === 'orders'"
+                                (click)="activeTab = 'orders'"
+                            >
+                                Đơn hàng (2)
+                            </li> -->
+                            <li
+                                class="px-10 py-2 cursor-pointer"
+                                [class.border-b-2]="activeTab === 'history'"
+                                [class.border-blue-500]="
+                                    activeTab === 'history'
+                                "
+                                (click)="activeTab = 'history'"
+                            >
+                                Lịch sử
+                            </li>
+                        </ul>
+
+                        <div *ngIf="activeTab === 'general'">
+                            <div
+                                [ngClass]="{
+                                    'pointer-events-none': !isEditMode
+                                }"
+                            >
+                                <div
+                                    *ngFor="let section of formJson"
+                                    class="rounded-lg mb-4 relative"
+                                >
+                                    <!-- Section title -->
+                                    <div
+                                        class="w-full bg-blue-200 mb-3 py-3 pl-2 text-lg font-semibold"
+                                    >
+                                        <h3>{{ section.title }}</h3>
+                                    </div>
+
+                                    <!-- Grid layout cho inputs -->
+                                    <div
+                                        class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3"
+                                    >
+                                        <div
+                                            *ngFor="let field of section.fields"
+                                            class="h-auto rounded-lg relative px-3 flex md:flex-row items-center space-x-2"
+                                        >
+                                            <!-- Input dạng text, email, number, password, datetime-local -->
+                                            <mat-form-field
+                                                *ngIf="
+                                                    [
+                                                        'text',
+                                                        'number',
+                                                        'email',
+                                                        'password',
+                                                        'datetime-local'
+                                                    ].includes(field.type)
+                                                "
+                                                floatLabel="always"
+                                                class="w-full fuse-mat-dense"
+                                                [ngClass]="{
+                                                    'no-input-border':
+                                                        !isEditMode
+                                                }"
+                                            >
+                                                <mat-label>{{
+                                                    field.label
+                                                }}</mat-label>
+
+                                                <input
+                                                    matInput
+                                                    *ngIf="isEditMode"
+                                                    [formControlName]="
+                                                        field.name
+                                                    "
+                                                    [type]="field.type"
+                                                    [required]="
+                                                        field.config?.required
+                                                    "
+                                                    [placeholder]="
+                                                        field.placeholder
+                                                    "
+                                                />
+                                                <mat-error
+                                                    *ngIf="
+                                                        dynamicForm
+                                                            .get(field.name)
+                                                            ?.hasError(
+                                                                'required'
+                                                            ) &&
+                                                        dynamicForm.get(
+                                                            field.name
+                                                        )?.touched
+                                                    "
+                                                >
+                                                    {{ field.label }} là bắt
+                                                    buộc
+                                                </mat-error>
+
+                                                <mat-error
+                                                    *ngIf="
+                                                        dynamicForm
+                                                            .get(field.name)
+                                                            ?.hasError(
+                                                                'maxlength'
+                                                            ) &&
+                                                        dynamicForm.get(
+                                                            field.name
+                                                        )?.touched
+                                                    "
+                                                >
+                                                    {{ field.label }} vượt quá
+                                                    độ dài cho phép
+                                                </mat-error>
+
+                                                <mat-error
+                                                    *ngIf="
+                                                        dynamicForm
+                                                            .get(field.name)
+                                                            ?.hasError(
+                                                                'email'
+                                                            ) &&
+                                                        dynamicForm.get(
+                                                            field.name
+                                                        )?.touched
+                                                    "
+                                                >
+                                                    {{ field.label }} không đúng
+                                                    định dạng email
+                                                </mat-error>
+
+                                                <mat-error
+                                                    *ngIf="
+                                                        dynamicForm
+                                                            .get(field.name)
+                                                            ?.hasError(
+                                                                'pattern'
+                                                            ) &&
+                                                        dynamicForm.get(
+                                                            field.name
+                                                        )?.touched
+                                                    "
+                                                >
+                                                    {{ field.label }} không đúng
+                                                    định dạng
+                                                </mat-error>
+
+                                                <input
+                                                    matInput
+                                                    *ngIf="!isEditMode"
+                                                    [type]="field.type"
+                                                    [readonly]="true"
+                                                    [value]="
+                                                        getFormattedValue(field)
+                                                    "
+                                                    [matTooltip]="
+                                                        field.label ===
+                                                            'Người khởi tạo' ||
+                                                        field.label ===
+                                                            'Người cập nhật'
+                                                            ? selectedCustomer?.owner
+                                                            : null
+                                                    "
+                                                />
+                                            </mat-form-field>
+
+                                            <!-- Input dạng date -->
+                                            <mat-form-field
+                                                *ngIf="field.type === 'date'"
+                                                floatLabel="always"
+                                                class="w-full fuse-mat-dense"
+                                                [ngClass]="{
+                                                    'no-input-border':
+                                                        !isEditMode
+                                                }"
+                                            >
+                                                <mat-label>{{
+                                                    field.label
+                                                }}</mat-label>
+
+                                                <!-- Edit mode -->
+                                                <input *ngIf="isEditMode" matInput [formControlName]="field.name"
+                                                    class="cursor-pointer" placeholder="dd/mm/yyyy"
+                                                    [matDatepicker]="picker" [matDatepickerMax]="today"
+                                                    (click)="picker.open()" readonly>
+                                                <mat-datepicker-toggle *ngIf="isEditMode" matSuffix
+                                                    [for]="picker"></mat-datepicker-toggle>
+                                                <mat-datepicker #picker></mat-datepicker>
+                                                <mat-error
+                                                    *ngIf="
+                                                        dynamicForm
+                                                            .get(field.name)
+                                                            ?.hasError(
+                                                                'maxDate'
+                                                            ) &&
+                                                        dynamicForm.get(
+                                                            field.name
+                                                        )?.touched
+                                                    "
+                                                >
+                                                    {{ field.label }} không được
+                                                    lớn hơn hiện tại
+                                                </mat-error>
+
+                                                <!-- View mode -->
+                                                <input
+                                                    *ngIf="!isEditMode"
+                                                    matInput
+                                                    [value]="
+                                                        field.value
+                                                            | date
+                                                                : 'dd/MM/yyyy'
+                                                    "
+                                                    readonly
+                                                />
+                                            </mat-form-field>
+
+                                            <!-- Select combobox -->
+                                            <mat-form-field
+                                                *ngIf="field.type === 'select'"
+                                                floatLabel="always"
+                                                class="w-full fuse-mat-dense"
+                                                [ngClass]="{
+                                                    'no-input-border':
+                                                        !isEditMode,
+                                                    'readonly-select':
+                                                        !isEditMode
+                                                }"
+                                            >
+                                                <mat-label>{{
+                                                    field.label
+                                                }}</mat-label>
+
+                                                <!-- Edit mode -->
+                                                <mat-select
+                                                    *ngIf="isEditMode"
+                                                    [formControlName]="
+                                                        field.name
+                                                    "
+                                                    (selectionChange)="
+                                                        onChangeSelected(
+                                                            $event.value,
+                                                            field.name
+                                                        )
+                                                    "
+                                                    [placeholder]="
+                                                        field.placeholder
+                                                    "
+                                                    [required]="
+                                                        field.config?.required
+                                                    "
+                                                >
+                                                    <mat-option
+                                                        *ngFor="
+                                                            let option of field.select_options ||
+                                                                []
+                                                        "
+                                                        [value]="option.id"
+                                                    >
+                                                        {{ option.name }}
+                                                    </mat-option>
+                                                    <ng-container
+                                                        *ngIf="
+                                                            field.name ===
+                                                            'address_districts_name'
+                                                        "
+                                                    >
+                                                        <mat-option
+                                                            *ngFor="
+                                                                let option of districtOptions ||
+                                                                    []
+                                                            "
+                                                            [value]="option.id"
+                                                        >
+                                                            {{ option.name }}
+                                                        </mat-option>
+                                                    </ng-container>
+                                                    <ng-container
+                                                        *ngIf="
+                                                            field.name ===
+                                                            'address_wards_name'
+                                                        "
+                                                    >
+                                                        <mat-option
+                                                            *ngFor="
+                                                                let option of wardOptions ||
+                                                                    []
+                                                            "
+                                                            [value]="option.id"
+                                                        >
+                                                            {{ option.name }}
+                                                        </mat-option>
+                                                    </ng-container>
+                                                    <ng-container
+                                                        *ngIf="
+                                                            field.name ===
+                                                            'assigned_by'
+                                                        "
+                                                    >
+                                                        <mat-option
+                                                            *ngFor="
+                                                                let option of AssignedByOptions ||
+                                                                    []
+                                                            "
+                                                            [value]="option.id"
+                                                        >
+                                                            {{ option.name }}
+                                                        </mat-option>
+                                                    </ng-container>
+                                                </mat-select>
+
+                                                <!-- View mode -->
+                                                <mat-select
+                                                    *ngIf="!isEditMode"
+                                                    [value]="field.value"
+                                                >
+                                                    <mat-option
+                                                        *ngFor="
+                                                            let option of field.select_options
+                                                        "
+                                                        [value]="option.id"
+                                                    >
+                                                        {{ option.name }}
+                                                    </mat-option>
+                                                    <ng-container
+                                                        *ngIf="
+                                                            field.name ===
+                                                            'address_districts_name'
+                                                        "
+                                                    >
+                                                        <mat-option
+                                                            *ngFor="
+                                                                let option of districtOptions ||
+                                                                    []
+                                                            "
+                                                            [value]="option.id"
+                                                        >
+                                                            {{ option.name }}
+                                                        </mat-option>
+                                                    </ng-container>
+                                                    <ng-container
+                                                        *ngIf="
+                                                            field.name ===
+                                                            'address_wards_name'
+                                                        "
+                                                    >
+                                                        <mat-option
+                                                            *ngFor="
+                                                                let option of wardOptions ||
+                                                                    []
+                                                            "
+                                                            [value]="option.id"
+                                                        >
+                                                            {{ option.name }}
+                                                        </mat-option>
+                                                    </ng-container>
+                                                    <ng-container
+                                                        *ngIf="
+                                                            field.name ===
+                                                            'assigned_by'
+                                                        "
+                                                    >
+                                                        <mat-option
+                                                            *ngFor="
+                                                                let option of AssignedByOptions ||
+                                                                    []
+                                                            "
+                                                            [value]="option.id"
+                                                        >
+                                                            {{ option.name }}
+                                                        </mat-option>
+                                                    </ng-container>
+                                                </mat-select>
+
+                                                <span
+                                                    *ngIf="isEditMode"
+                                                    mat-icon-button
+                                                    matSuffix
+                                                    disableRipple
+                                                    class="custom-icon"
+                                                >
+                                                    <mat-icon
+                                                        >expand_more</mat-icon
+                                                    >
+                                                </span>
+                                            </mat-form-field>
+
+                                            <!-- Text area -->
+                                            <mat-form-field
+                                                *ngIf="
+                                                    field.type === 'textarea'
+                                                "
+                                                floatLabel="always"
+                                                class="w-full fuse-mat-dense"
+                                                [ngClass]="{
+                                                    'no-input-border':
+                                                        !isEditMode
+                                                }"
+                                            >
+                                                <mat-label>{{
+                                                    field.label
+                                                }}</mat-label>
+
+                                                <textarea matInput *ngIf="isEditMode" [formControlName]="field.name"
+                                                    [placeholder]="field.placeholder" rows="1">
+                                            </textarea>
+
+                                                <textarea matInput *ngIf="!isEditMode" [value]="field.value" readonly
+                                                    rows="1"></textarea>
+
+                                            </mat-form-field>
+
+                                            <!-- File Upload -->
+                                            <div *ngIf="field.type === 'file'" class="w-full">
+                                                <ng-container *ngIf="isEditMode">
+                                                    <label class="block font-semibold text-base">
+                                                        {{ field.label }}
+                                                        <span *ngIf="field.config?.required"
+                                                            class="text-red-500">*</span>
+                                                    </label>
+                                                    <input type="file" [name]="field.name"
+                                                        [placeholder]="field.placeholder"
+                                                        [required]="field.config?.required"
+                                                        [attr.accept]="field.config?.accept" disabled
+                                                        class="block w-full file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-100 file:text-primary-700 hover:file:bg-primary-200" />
+                                                </ng-container>
+
+                                                <ng-container *ngIf="!isEditMode">
+                                                    <p class="text-gray-700 text-sm mt-2">
+                                                        {{ field.value }}
+                                                    </p>
+                                                </ng-container>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Button (Nếu edit mode thì hiện) -->
+                                <div
+                                    *ngIf="isEditMode"
+                                    class="flex justify-end space-x-3 p-3 sticky bottom-0 bg-white z-10"
+                                >
+                                    <button
+                                        type="button"
+                                        [routerLink]="['/user/customer']"
+                                        class="w-auto border border-primary bg-white text-primary px-4 py-2 rounded font-bold text-base"
+                                    >
+                                        Hủy
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        class="w-auto bg-primary text-white px-4 py-2 rounded font-bold text-base"
+                                    >
+                                        Cập nhật
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="activeTab === 'work'" class="p-4">
+                            <h1>Chức năng đang phát triển</h1>
+                        </div>
+                        <div *ngIf="activeTab === 'price'" class="p-4">
+                            <h1>Chức năng đang phát triển</h1>
+                        </div>
+                        <!-- <div *ngIf="activeTab === 'orders'" class="p-4">
+                            <h1>Chức năng đang phát triển</h1>
+                        </div> -->
+                        <div *ngIf="activeTab === 'history'" class="p-4">
+                            <h1>Chức năng đang phát triểns</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div
+                class="lg:col-span-1 border h-full overflow-visible lg:h-full lg:overflow-y-auto"
+                [ngClass]="{ 'pointer-events-none': !isEditMode }"
+            >
+                <div class="bg-white rounded-md shadow-sm p-4 mb-4 space-y-4">
+                    <div class="flex space-x-2">
+                        <button class="flex p-1 items-center justify-center">
+                            <mat-icon class="text-primary">email</mat-icon>
+                        </button>
+                        <button class="flex p-1 items-center justify-center">
+                            <mat-icon class="text-primary">class</mat-icon>
+                        </button>
+                        <button class="flex p-1 items-center justify-center">
+                            <mat-icon class="text-primary">phone</mat-icon>
+                        </button>
+                        <button class="flex p-1 items-center justify-center">
+                            <mat-icon class="text-primary">payment</mat-icon>
+                        </button>
+                    </div>
+                    <!-- Thông tin chung -->
+                    <div>
+                        <h2
+                            class="bg-sky-100 py-2 text-base text-center font-medium mb-4"
+                        >
+                            Thông tin chung
+                        </h2>
+                        <div class="flex flex-col space-y-3">
+                            <!-- Trạng thái -->
+                            <div class="flex space-x-4">
+                                <mat-label class="w-32 pt-2 text-md font-medium">Trạng thái</mat-label>
+                                <mat-form-field  appearance="fill" class="custom-select-detail">
+                                    <mat-select formControlName="status">
+                                        <mat-option
+                                            *ngFor="let option of statusOptions"
+                                            [value]="option.name"
+                                        >
+                                            {{ option.name }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-icon class="custom-icon-detail"
+                                        >expand_more</mat-icon
+                                    >
+                                </mat-form-field>
+                            </div>
+
+                            <!-- Người phụ trách -->
+                            <div class="flex space-x-4">
+                                <mat-label class="w-32 pt-2 text-md font-medium"
+                                    >Người phụ trách</mat-label
+                                >
+                                <mat-form-field
+                                    appearance="fill"
+                                    class="custom-select-detail"
+                                >
+                                    <mat-select
+                                        [formControl]="
+                                            dynamicForm.get('assigned_by')
+                                        "
+                                    >
+                                        <mat-option
+                                            *ngFor="
+                                                let option of assignedByOptions
+                                            "
+                                            [value]="option.id"
+                                        >
+                                            {{ option.name }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-icon class="custom-icon-detail"
+                                        >expand_more</mat-icon
+                                    >
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Liên hệ liên quan -->
+                    <div>
+                        <!-- Header -->
+                        <div
+                            class="flex items-center justify-between bg-sky-100 py-2 px-2"
+                        >
+                            <span
+                                class="text-base font-medium flex items-center cursor-pointer"
+                                (click)="toggleContactDropdown()"
+                            >
+                                <mat-icon>
+                                    {{
+                                        isContactOpen
+                                            ? "keyboard_arrow_up"
+                                            : "keyboard_arrow_down"
+                                    }}
+                                </mat-icon>
+                                <span class="ml-1">Liên hệ liên quan</span>
+                            </span>
+                            <button
+                                class="text-blue-500 hover:text-blue-700 text-base"
+                            >
+                                Thêm mới
+                            </button>
+                        </div>
+                        <!-- Dropdown Content -->
+                        <div
+                            [@dropdownAnimation]="
+                                isContactOpen ? 'open' : 'closed'
+                            "
+                            class="mt-2"
+                        >
+                            <ng-container
+                                *ngIf="
+                                    relatedContacts?.length > 0;
+                                    else noContactData
+                                "
+                            >
+                                <!-- Chỉ nội dung có scroll -->
+                                <div
+                                    class="space-y-3 max-h-[16rem] overflow-y-auto pr-1"
+                                >
+                                    <div
+                                        *ngFor="let contact of relatedContacts"
+                                        class="flex justify-between border-b pb-1"
+                                    >
+                                        <div>
+                                            <div class="text-md text-gray-500">
+                                                {{ contact.name }}:
+                                            </div>
+                                            <div class="text-md">
+                                                Email: {{ contact.email }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="text-md">
+                                                SĐT: {{ contact.phone }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+
+                            <ng-template #noContactData>
+                                <div
+                                    class="bg-yellow-100 text-yellow-700 p-2 text-center rounded"
+                                >
+                                    Chưa có dữ liệu
+                                </div>
+                            </ng-template>
+                        </div>
+                    </div>
+
+                    <!-- Công ty liên quan -->
+                    <div>
+                        <!-- Header -->
+                        <div
+                            class="flex items-center justify-between bg-sky-100 py-2 px-2"
+                        >
+                            <span
+                                class="text-base font-medium flex items-center cursor-pointer"
+                                (click)="toggleCompanyDropdown()"
+                            >
+                                <mat-icon>
+                                    {{
+                                        isCompanyOpen
+                                            ? "keyboard_arrow_up"
+                                            : "keyboard_arrow_down"
+                                    }}
+                                </mat-icon>
+                                <span class="ml-1">Công ty liên quan</span>
+                            </span>
+                            <button
+                                class="text-blue-500 hover:text-blue-700 text-base"
+                            >
+                                Thêm mới
+                            </button>
+                        </div>
+                        <!-- Dropdown Content -->
+                        <div
+                            [@dropdownAnimation]="
+                                isCompanyOpen ? 'open' : 'closed'
+                            "
+                            class="mt-2"
+                        >
+                            <ng-container
+                                *ngIf="
+                                    relatedCompanies?.length > 0;
+                                    else noCompanyData
+                                "
+                            >
+                                <!-- Chỉ nội dung có scroll -->
+                                <div
+                                    class="space-y-3 max-h-[16rem] overflow-y-auto pr-1"
+                                >
+                                    <div
+                                        *ngFor="let company of relatedCompanies"
+                                        class="flex justify-between border-b pb-1"
+                                    >
+                                        <div>
+                                            <div class="text-md text-gray-500">
+                                                {{ company.name }}:
+                                            </div>
+                                            <div class="text-md">
+                                                Email: {{ company.email }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="text-md">
+                                                SĐT: {{ company.phone }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+
+                            <ng-template #noCompanyData>
+                                <div
+                                    class="bg-yellow-100 text-yellow-700 p-2 text-center rounded"
+                                >
+                                    Chưa có dữ liệu
+                                </div>
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

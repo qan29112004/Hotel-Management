@@ -1,0 +1,117 @@
+<div class="absolute inset-0 z-10 w-full h-full overflow-auto bg-white lg:flex">
+    <div class="relative bg-gray-500 flex lg:h-full lg:w-[70%] max-sm:h-[50%] max-sm:w-full md:w-full bg-no-repeat bg-center bg-contain"
+         [style.background-image]="'url(' + (product?.img || 'assets/images/home-page/image1.png') + ')'">
+        <div class="relative z-10 flex justify-between w-full h-12 px-6 mt-8 ">
+            <button type='button' (click)='closeDetail()' class="flex items-center justify-center w-12 h-full bg-black rounded-full">
+                <mat-icon class="text-white">close</mat-icon>
+            </button>
+            <div class="flex h-full gap-2">
+                <button type='button' class="flex items-center justify-center w-12 h-full bg-black rounded-full">
+                    <mat-icon class="text-white">zoom_in</mat-icon>
+                </button>
+                <button type='button' class="flex items-center justify-center w-12 h-full bg-black rounded-full">
+                    <mat-icon class="text-white">zoom_out</mat-icon>
+                </button>
+            </div>
+        </div>
+        
+    </div>
+    <div class="h-full lg:overflow-y-auto flex flex-col gap-6 md:w-full lg:w-[30%] sm:w-full bg-white p-[1.875rem]">
+        <div class="flex flex-col gap-2">
+            <span class="w-full text-[1.25rem] font-medium">
+                {{ product?.name || 'Tên sản phẩm' }}
+            </span>
+            <span class="w-full text-[1.25rem]">{{ product?.realPrice || '0' }} VNĐ</span>
+        </div>
+        <div class="flex flex-col gap-3 p-3 bg-white shadow-md rounded-xl">
+            <div class="flex items-center gap-1">
+                 <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 48 48">
+                 <path fill="#448AFF" d="M24,4C13.5,4,5,12.1,5,22c0,5.2,2.3,9.8,6,13.1V44l7.8-4.7c1.6,0.4,3.4,0.7,5.2,0.7c10.5,0,19-8.1,19-18C43,12.1,34.5,4,24,4z"></path><path fill="#FFF" d="M12 28L22 17 27 22 36 17 26 28 21 23z"></path>
+                 </svg>
+                 <span class="text-2xl font-medium">{{"marketplace.detail.send_message_to_seller" | transloco}}</span>
+            </div>
+            <div class="flex h-10 gap-2">
+                <input type="text" placeholder="Mặt hàng này còn không?" class="p-[0.625rem] bg-[#F0F0F0] w-[85%] rounded-lg placeholder:text-xl placeholder:font-normal" />
+                <div class="flex items-center justify-center flex-grow bg-[#3941AB] rounded-lg"><span class="font-semibold text-white">{{"marketplace.detail.send" | transloco}}</span></div>
+            </div>
+            
+        </div>
+        <div class="flex justify-between gap-1 py-4 border-b border-gray-400">
+            <div class="flex flex-col items-center justify-center w-auto h-auto">
+                <div class="bg-[#F0F0F0] rounded-full w-15 h-15 flex items-center justify-center">
+                    <mat-icon class="w-8 h-8 text-black">notifications</mat-icon>
+                </div>
+                <div>
+                    <span>{{"marketplace.detail.notifications" | transloco}}</span>
+                </div>
+            </div>
+            <div class="flex flex-col items-center justify-center w-auto h-auto">
+                <div class="bg-[#F0F0F0] rounded-full w-15 h-15 flex items-center justify-center">
+                    <mat-icon class="w-8 h-8 text-black">attach_money</mat-icon>
+                </div>
+                <div>
+                    <span>{{"marketplace.detail.make_an_offer" | transloco}}</span>
+                </div>
+            </div>
+            <div class="flex flex-col items-center justify-center w-auto h-auto">
+                <div class="bg-[#F0F0F0] rounded-full w-15 h-15 flex items-center justify-center">
+                    <mat-icon class="w-8 h-8 text-black">screen_share</mat-icon>
+                </div>
+                <div>
+                    <span>{{"marketplace.detail.share" | transloco}}</span>
+                </div>
+            </div>
+            <div class="flex flex-col items-center justify-center w-auto h-auto">
+                <div class="bg-[#F0F0F0] rounded-full w-15 h-15 flex items-center justify-center">
+                    <img class="w-8 h-8" src="assets/icons/marketplace/icons8-heart-30.png" />
+                </div>
+                <div>
+                    <span>{{"marketplace.detail.save" | transloco}}</span>
+                </div>
+            </div>
+            
+        </div>
+        <div class="flex flex-col gap-3 pb-4 border-b border-gray-400">
+            <div><span class="text-2xl font-medium">{{"marketplace.detail.description" | transloco}}</span></div>
+            <div>
+                <span class="text-[14px] text-[#626262]">{{ product?.describe || "iPhone 16 – phiên bản tiêu chuẩn mới nhất của Apple, sở hữu thiết kế tinh tế, chip A18 Bionic mạnh mẽ, màn hình Super Retina XDR 6.1 inch sắc nét và camera kép 48MP ấn tượng. Táo Đen Shop cam kết mang đến cho bạn sản phẩm chính hãng VN/A, giá tốt nhất thị trường cùng chính sách bảo hành và ưu đãi đặc biệt." }}</span>
+            </div>
+            <div>
+                <a href='' class="text-[14px] text-[#11A0FF]">https://shopee.vn/%C4%90i%E1%BB%87n tho%E1%BA%A1i-Samsung-A10s-tho%E1%BA%A1i-Samsung-A10s</a>
+            </div>
+        </div>
+        <div class="flex flex-col h-auto gap-4 pb-4 border-b border-gray-400">
+            <div class="flex justify-between">
+                <span class="text-2xl font-medium">{{"marketplace.detail.meet_up_options" | transloco}}</span>
+                <mat-icon class="text-[#323232]">keyboard_arrow_up</mat-icon>
+            </div>
+            <div class="overflow-hidden rounded-2xl h-44">
+                <img src="assets/icons/marketplace/map.png" class="object-cover w-full h-full" />
+            </div>
+            <div class="flex flex-col gap-1">
+                <span class="text-[14px] font-medium">Quận Hai Bà Trưng</span>
+                <span class="text-md text-[#626262]">{{"marketplace.detail.approximate_location_notice" | transloco}}</span>
+            </div>
+        </div>
+        <div class="flex flex-col gap-3 pb-4">
+            <div class="flex items-center justify-between">
+                <span class="text-2xl font-medium">{{"marketplace.detail.seller_information" | transloco}}</span>
+                <a class="text-[14px] text-[#2E90FA]">{{"marketplace.detail.seller_details" | transloco}}</a>
+            </div>
+            <div class="flex justify-between h-auto">
+                <div class="flex items-center w-auto h-full gap-2">
+                    <div class="w-[37px] h-[37px] rounded-full bg-no-repeat bg-center bg-contain"
+                            [style.background-image]="'url(' + (user.avatar || 'assets/images/avatars/default-avatar.svg') + ')'"
+                    ></div>
+                    <div class="flex flex-col w-auto py-1">
+                        <span class="inline-block font-medium text-[14px]">{{user.fullname || user.username}}</span>
+                        <span class="inline-block text-[#626262] text-md">Đã tham gia Facebook vào 2014</span>
+                    </div>
+                </div>
+                <div class="flex w-auto h-full bg-[#EEEEEE] rounded-md">
+                    <span class="w-auto h-auto flex justify-center items-center text-[14px] font-semibold px-4 py-[9px]">{{"marketplace.detail.follow" | transloco}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,286 @@
+<div
+    *transloco="let t"
+    class="absolute inset-0 z-0 flex flex-col min-w-0 overflow-y-auto"
+    fuseScrollbar
+>
+    <div class="flex-auto p-4 sm:px-6 sm:py-4">
+        <div class="relative w-full">
+            <!-- Header -->
+            <div class="flex max-sm:flex-col max-sm:gap-3 max-sm:items-start items-center justify-between mb-4 text-lg">
+                <span class="text-3xl font-semibold lg:text-2xl">
+                    {{ t("user_infor.title") }}
+                </span>
+                <div class="flex max-sm:self-end max-sm:justify-end items-center gap-2">
+                    
+                    <button
+                        *ngIf="isEditMode"
+                        (click)="toggleEditMode()"
+                        class="flex items-center justify-between gap-2 px-3 text-gray-700 bg-gray-300 rounded-md h-9"
+                    >
+                        <mat-icon
+                            class="text-gray-700 icon-size-6"
+                            svgIcon="heroicons_outline:x-circle"
+                        ></mat-icon>
+                        <span class="text-sm lg:text-base">{{
+                            t("user_infor.btn_cancel")
+                        }}</span>
+                    </button>
+                    <button
+                        *ngIf="isEditMode"
+                        (click)="saveChanges()"
+                        class="flex items-center justify-between gap-2 px-3 sm:mr-8 text-white rounded-md bg-primary h-9"
+                        [disabled]="phoneInput?.invalid"
+                    >
+                        <mat-icon
+                            class="text-white icon-size-6"
+                            svgIcon="heroicons_outline:check-circle"
+                        ></mat-icon>
+                        <span class="text-sm lg:text-base">{{
+                            t("user_infor.btn_save")
+                        }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Info Table -->
+            <div class="flex sm:flex-row max-sm:flex-col gap-4">
+                <!-- Avatar -->
+                <div
+                    class="sm:w-[40%] max-sm:w-full min-w-[200px] me-4 rounded-lg flex justify-center items-center shadow bg-white p-4"
+                >
+                    <div class="flex justify-center mb-4 w-full">
+                        <div class='relative flex w-full justify-center items-center [container-type:inline-size]' (click)="triggerAvatarEditor(isEditMode)"
+                            [ngClass]="{ 'cursor-pointer': isEditMode }"
+                        >
+                            <div *ngIf="isEditMode" class="absolute bottom-0 right-0">
+                                <img src="assets/icons/icon-upload-image.svg" />
+                            </div>
+                            <img
+                                [src]="user?.avatar || 'assets/images/avatars/default-avatar.svg'"
+                                alt="{{ user?.fullname }}"
+                                class="object-cover aspect-square border border-gray-300 rounded-full w-72 h-72 [@container(max-width:25rem)]:w-auto [@container(max-width:25rem)]:h-auto"
+                            />
+                        </div>
+                    </div>
+                    <input #inputAvatar
+                        type="file"
+                        accept="image/*"
+                        (change)="onFileSelected($event)"
+                        class="hidden"
+                    />
+                    <span *ngIf="errorFields['avatar']" class="block mt-1 text-xs text-red-500">
+                        {{ t(errorFields["avatar"]) }}
+                    </span>
+                </div>
+                <!-- User Details -->
+                <div class="flex flex-col flex-grow gap-4 py-4 pl-6 rounded-lg shadow">
+                    <div>
+                        <span class="text-[20px] font-semibold font-lexend_deca">{{t("user_infor.details")}}</span>
+                    </div>
+                    <table
+                        class="w-full overflow-hidden text-left"
+                    >
+                        <tbody>
+                            <tr
+                                class="transition border-b border-gray-100 hover:bg-gray-50"
+                            >
+                                <td class="w-1/2 pl-0 font-medium text-[14px] font-lexend_deca">
+                                    {{ t("user_infor.username")
+                                    }}<span class="text-red-500">*</span>
+                                </td>
+                                <td>
+                                    <span>{{ user?.username || "---" }}</span>
+                                </td>
+                            </tr>
+
+                            <tr
+                                class="transition border-b border-gray-100 hover:bg-gray-50"
+                            >
+                                <td class="pl-0 font-medium text-[14px] font-lexend_deca">
+                                    {{ t("user_infor.fullName") }}
+                                </td>
+                                <td>
+                                    <span *ngIf="!isEditMode">{{
+                                        user?.fullName || "---"
+                                    }}</span>
+                                    <div
+                                        *ngIf="isEditMode"
+                                        class="flex flex-col gap-1"
+                                    >
+                                        <input
+                                            type="text"
+                                            name="fullName"
+                                            [(ngModel)]="user.fullName"
+                                            #fullNameInput="ngModel"
+                                            [ngModelOptions]="{ standalone: true }"
+                                            class="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                                        />
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr
+                                class="transition border-b border-gray-100 hover:bg-gray-50"
+                            >
+                                <td class="pl-0 font-medium text-[14px] font-lexend_deca">
+                                    {{ t("user_infor.phone")
+                                    }}<span class="text-red-500">*</span>
+                                </td>
+                                <td>
+                                    <span *ngIf="!isEditMode">{{
+                                        user?.phone || "---"
+                                    }}</span>
+                                    <div
+                                        *ngIf="isEditMode"
+                                        class="flex flex-col gap-1"
+                                    >
+                                        <input
+                                            type="text"
+                                            name="phone_number"
+                                            [(ngModel)]="user.phone"
+                                            (ngModelChange)="
+                                                clearFieldError('phone')
+                                            "
+                                            #phoneInput="ngModel"
+                                            pattern="^(0(2|3|5|7|8|9)[0-9]{8})$"
+                                            [ngModelOptions]="{ standalone: true }"
+                                            class="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                                            required
+                                        />
+
+                                        <span
+                                            *ngIf="
+                                                phoneInput.invalid &&
+                                                phoneInput.touched
+                                            "
+                                            class="text-xs text-red-500"
+                                        >
+                                            <span
+                                                *ngIf="phoneInput.errors?.pattern"
+                                                >{{
+                                                    t(
+                                                        "errors.fields.phone_number_invalid"
+                                                    )
+                                                }}</span
+                                            >
+                                        </span>
+
+                                        <span
+                                            *ngIf="errorFields['phone']"
+                                            class="text-xs text-red-500"
+                                        >
+                                            {{ t(errorFields["phone"]) }}
+                                        </span>
+                                        <span
+                                            *ngIf="phoneInput.errors?.required"
+                                            class="text-xs text-red-500"
+                                        >
+                                            {{
+                                                t(
+                                                    "errors.fields.phone_number_required"
+                                                )
+                                            }}
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr
+                                class="transition border-b border-gray-100 hover:bg-gray-50"
+                            >
+                                <td class="pl-0 font-medium text-[14px] font-lexend_deca">
+                                    {{ t("user_infor.email")
+                                    }}<span class="text-red-500">*</span>
+                                </td>
+                                <td>
+                                    <span>{{ user?.email || "---" }}</span>
+                                </td>
+                            </tr>
+                            <tr
+                                class="transition border-b border-gray-100 hover:bg-gray-50"
+                            >
+                                <td class="pl-0 font-medium text-[14px] font-lexend_deca">
+                                    {{ t("user_infor.address") }}
+                                </td>
+                                <td>
+                                    <span *ngIf="!isEditMode">{{
+                                        user?.address || "---" | titlecase
+                                    }}</span>
+                                    <input
+                                        *ngIf="isEditMode"
+                                        type="text"
+                                        [(ngModel)]="user.address"
+                                        class="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                                    />
+                                </td>
+                            </tr>
+                            <tr
+                                class="transition border-b border-gray-100 hover:bg-gray-50"
+                            >
+                                <td class="pl-0 font-medium text-[14px] font-lexend_deca">
+                                    {{ t("user_infor.gender") }}
+                                </td>
+                                <td>
+                                    <span *ngIf="!isEditMode">
+                                        {{
+                                            user?.gender
+                                                ? t(
+                                                    "user_infor.gender_" +
+                                                        user.gender
+                                                )
+                                                : "---"
+                                        }}
+                                    </span>
+                                    <select
+                                        *ngIf="isEditMode"
+                                        [(ngModel)]="user.gender"
+                                        class="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                                    >
+                                        <option value="male">
+                                            {{ t("user_infor.gender_male") }}
+                                        </option>
+                                        <option value="female">
+                                            {{ t("user_infor.gender_female") }}
+                                        </option>
+                                        <option value="other">
+                                            {{ t("user_infor.gender_other") }}
+                                        </option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr
+                                class="transition border-b border-gray-100 hover:bg-gray-50"
+                            >
+                                <td class="pl-0 font-medium text-[14px] font-lexend_deca">
+                                    {{ t("user_infor.birthday") }}
+                                </td>
+                                <td>
+                                    <span *ngIf="!isEditMode">
+                                        {{
+                                            user?.birthday
+                                                ? (user.birthday
+                                                | date : "dd/MM/yyyy")
+                                                : "---"
+                                        }}
+                                    </span>
+                                    <input
+                                        *ngIf="isEditMode"
+                                        type="date"
+                                        [(ngModel)]="user.birthday"
+                                        class="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        [max]="today"
+                                    />
+                                </td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                    <button type='button' *ngIf="!isEditMode" (click)="toggleEditMode()" class="flex self-start items-center w-auto h-auto justify-center bg-[#3941AB] py-3 px-8 gap-2 rounded-md">
+                        <div class="text-xl text-white material-icons">border_color</div>
+                        <span class="text-xl font-semibold text-white font-lexend_deca">{{ t("user_infor.btn_edit") }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

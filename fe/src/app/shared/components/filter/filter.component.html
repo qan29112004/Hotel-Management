@@ -1,0 +1,131 @@
+<!-- Messages toggle -->
+<button mat-icon-button (click)="openPanel()" #filtersOrigin>
+    <mat-icon svgIcon="heroicons_outline:adjustments-horizontal"></mat-icon>
+</button>
+
+<!-- Messages panel -->
+<ng-template #filtersPanel>
+    <div
+        class="fixed inset-0 sm:static sm:inset-auto flex flex-col sm:min-w-100 sm:w-100 sm:rounded-lg overflow-hidden shadow-lg"
+    >
+        <!-- Header -->
+        <div
+            class="flex shrink-0 items-center pr-4 pl-6 bg-primary text-on-primary"
+        >
+            <div class="sm:hidden -ml-1 mr-3">
+                <button mat-icon-button (click)="closePanel()">
+                    <mat-icon
+                        class="icon-size-5 text-current"
+                        [svgIcon]="'heroicons_solid:x-mark'"
+                    ></mat-icon>
+                </button>
+            </div>
+            <div class="text-lg font-medium leading-10">Bộ lọc nâng cao</div>
+        </div>
+
+        <!-- Content -->
+        <div
+            class="relative flex flex-col flex-auto h-90 sm:max-h-90 divide-y overflow-y-auto bg-card"
+        >
+            <form class="p-3" [formGroup]="filterForm">
+                <app-multi-select
+                    [label]="'Trạng thái'"
+                    [options]="statusOptions"
+                    [selectedOptions]="filterForm.get('status')?.value"
+                     (selectedOptionsChange)="
+                        filterForm.get('status')?.setValue($event)
+                    "
+                ></app-multi-select>
+                <app-multi-select
+                    [label]="'Người phụ trách'"
+                    [options]="AssignedByOptions"
+                    [selectedOptions]="filterForm.get('assigned_by')?.value"
+                    (selectedOptionsChange)="
+                        filterForm.get('assigned_by')?.setValue($event)
+                    "
+                ></app-multi-select>
+                <app-multi-select
+                    [label]="'Phòng ban phụ trách'"
+                    [options]="[]"
+                ></app-multi-select>
+
+                <app-multi-select
+                    [label]="'Tỉnh/Thành phố'"
+                    [options]="cityOptions"
+                    [selectedOptions]="filterForm.get('address_provinces_name')?.value"
+                    (selectedOptionsChange)="
+                        filterForm.get('address_provinces_name')?.setValue($event)
+                    "
+                ></app-multi-select>
+
+                <!-- Quận/Huyện -->
+                <app-multi-select
+                    [label]="'Quận/Huyện'"
+                    [options]="districtOptions"
+                    [selectedOptions]="filterForm.get('address_districts_name')?.value"
+                    (selectedOptionsChange)="
+                        filterForm.get('address_districts_name')?.setValue($event)
+                    "
+                    [disabled]="
+                        (filterForm.get('address_provinces_name')?.value?.length || 0) === 0
+                    "
+                ></app-multi-select>
+
+                <!-- Xã/Phường -->
+                <app-multi-select
+                    [label]="'Xã/Phường'"
+                    [options]="wardOptions"
+                    [selectedOptions]="filterForm.get('address_wards_name')?.value"
+                    (selectedOptionsChange)="
+                        filterForm.get('address_wards_name')?.setValue($event)
+                    "
+                    [disabled]="
+                        (filterForm.get('address_districts_name')?.value?.length || 0) === 0
+                    "
+                ></app-multi-select>
+
+                <!-- Due date -->
+
+                <app-custom-datepicker
+                    [label]="'Ngày khởi tạo'"
+                    [selectedOptions]="filterForm.get('created_at')?.value"
+                    (selectedOptionsChange)="
+                        filterForm.get('created_at')?.setValue($event)
+                    "
+                ></app-custom-datepicker>
+
+                <app-custom-datepicker
+                    [label]="'Ngày chỉnh sửa'"
+                    [selectedOptions]="filterForm.get('updated_at')?.value"
+                    (selectedOptionsChange)="
+                        filterForm.get('updated_at')?.setValue($event)
+                    "
+                ></app-custom-datepicker>
+                <app-multi-select
+                    [label]="'Nguồn'"
+                    [options]="sourceOptions"
+                    [selectedOptions]="filterForm.get('source_name')?.value"
+                     (selectedOptionsChange)="
+                        filterForm.get('source_name')?.setValue($event)
+                    "
+                ></app-multi-select>
+
+                <!-- </div> -->
+                <div class="flex items-center justify-end gap-2 mt-2">
+                    <button
+                        (click)="closePanel()"
+                        class="flex items-center gap-2 justify-between bg-primary-100 text-primary h-9 px-3 rounded-md"
+                    >
+                        <span class="lg:text-base text-sm">Hủy</span>
+                    </button>
+                    <button
+                        (click)="onSubmit()"
+                        class="flex items-center gap-2 justify-between bg-primary text-white h-9 px-3 rounded-md"
+                    >
+                        <span class="lg:text-base text-sm">Lọc</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</ng-template>

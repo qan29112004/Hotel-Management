@@ -1,0 +1,76 @@
+<div *ngIf="showImport" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @fadeInOut
+    (@fadeInOut.done)="onAnimationDone($event)" (click)="onClose()">
+    <div class="bg-white rounded-lg shadow-lg p-5 w-full max-w-md relative" (click)="$event.stopPropagation()">
+        <form [formGroup]="someForm">
+            <div class="my-2">
+                <h2 class="text-xl font-semibold mb-3">Thêm mới Khách hàng bằng file excel</h2>
+                <div class="border-2 border-dashed border-blue-400 rounded-lg p-5 text-center cursor-pointer hover:bg-gray-50 transition-colors my-10"
+                    (drop)="onDrop($event)" (dragover)="onDragOver($event)" (click)="fileInput.click()">
+                    <p class="text-base font-medium mb-1">
+                        Chọn hoặc kéo thả file excel vào đây
+                    </p>
+                    <input type="file" hidden #fileInput (change)="onFileSelected($event)" />
+                </div>
+
+                <!-- Upload file -->
+                <div class="mt-4 space-y-2" *ngFor="let file of files">
+                    <!-- file hiển thị -->
+                    <div class="bg-gray-50 p-3 rounded border">
+                        <div class="flex items-center space-x-3">
+                            <img src="assets/icons/excel-icon.svg" alt="excel" class="w-6 h-6" />
+                            <div class="w-full">
+                                <p class="text-sm font-medium">{{ file.name }}</p>
+                                <div class="flex items-center text-xs text-gray-500 mt-1">
+                                    <span>{{ file.progress }} KB / {{ file.size }} KB</span>
+                                    <span class="flex items-center space-x-1 ml-3">
+                                        <ng-container [ngSwitch]="file.status">
+                                            <span *ngSwitchCase="'uploading'" class="flex items-center text-blue-500">
+                                                <img src="assets/icons/loading.svg" class="w-4 h-4 mr-1 animate-spin"
+                                                    alt="loading" />
+                                                Đang tải lên ...
+                                            </span>
+                                            <span *ngSwitchCase="'success'" class="flex items-center text-green-600">
+                                                <img src="assets/icons/success.svg" class="w-4 h-4 mr-1"
+                                                    alt="success" />
+                                                Thao tác thành công
+                                            </span>
+                                            <span *ngSwitchCase="'error'" class="flex items-center text-red-600">
+                                                <img src="assets/icons/error.svg" class="w-4 h-4 mr-1" alt="error" />
+                                                Thao tác thất bại
+                                            </span>
+                                        </ng-container>
+                                    </span>
+                                </div>
+                                <div *ngIf="file.status === 'uploading'" class="mt-2">
+                                    <div class="h-2 w-full bg-gray-200 rounded">
+                                        <div class="h-2 bg-blue-500 rounded"
+                                            [style.width.%]="(file.progress / file.size) * 100"></div>
+                                    </div>
+                                </div>
+                                <div *ngIf="file.status === 'error'" class="mt-2">
+                                    <button class="text-sm text-blue-600 hover:underline"
+                                        (click)="retryUpload(file)">Thử
+                                        lại</button>
+                                </div>
+                            </div>
+                            <button class="ml-auto text-gray-500 hover:text-red-600 text-lg font-bold"
+                                (click)="removeFile(file)">
+                                ×
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <a href="javascript:void(0)" class="text-primary underline" (click)="downloadTemplate()">
+                    Tải xuống file mẫu
+                </a>
+                <button
+                    class="bg-primary hover:bg-primary text-white font-medium py-2 px-8 rounded-md transition-colors"
+                    (click)="submitFile()">
+                    Xác nhận
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

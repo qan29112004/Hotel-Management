@@ -1,0 +1,486 @@
+<div class="flex-auto pt-3 sm:px-6 px-4 overflow-hidden max-h-screen">
+    <div class="relative w-full flex-1 h-full flex flex-col">
+        <div class="flex items-center justify-between text-lg mb-4">
+            <h2 class="text-[24px] font-bold text-primary">
+                {{ translocoService.translate("news_category.title") }}
+            </h2>
+        </div>
+        <div class="flex md:flex-row flex-col justify-between gap-2 mb-2">
+            <div class="relative md:w-80 w-full">
+                <!-- Khối input -->
+                <div class="flex items-center h-full border border-primary rounded-md bg-white px-2 py-1">
+                    <mat-icon [svgIcon]="'heroicons_outline:magnifying-glass'" class="text-primary text-2xl mr-2"></mat-icon>
+                    <input
+                        type="text"
+                        class="flex-1 border-0 outline-none bg-transparent text-gray-700 text-base placeholder-gray-400"
+                        [placeholder]="translocoService.translate('news_category.search_placeholder')"
+                        [(ngModel)]="searchText"
+                        (ngModelChange)="onSearchChange()"
+                        (click)="$event.stopPropagation()"
+                    />
+        
+                    <!-- Nút X -->
+                    <button
+                        *ngIf="searchText"
+                        type="button"
+                        (click)="clearSearch()"
+                        class="p-1 flex items-center justify-center rounded hover:bg-gray-200 transition"
+                    >
+                        <mat-icon [svgIcon]="'heroicons_outline:x-mark'" class="text-primary"></mat-icon>
+                    </button>
+                </div>
+            </div>
+            <button
+                class="flex items-center gap-2 bg-primary text-white h-9 px-3 rounded-md shadow hover:bg-primary-700 transition"
+                (click)="openAddCategoryPopup()">
+                <span class="material-icons">add</span>
+                <span class="lg:text-base text-sm">
+                    {{ translocoService.translate('news_category.btn_add') | titlecase}}
+                </span>
+            </button>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 pb-2">
+            <!-- Nút sửa -->
+            <!-- <div *ngIf="checkboxSelected.length === 1"
+                 class="flex items-center bg-blue-100 text-blue-600 px-2 py-1 gap-1 rounded text-sm cursor-pointer"
+                 (click)="openUpdatePopup(checkboxSelected[0])">
+                 <span class="material-icons text-base">edit</span>
+                <span class="font-semibold">{{ translocoService.translate('news_category.update') }}</span>
+            </div> -->
+            <div *ngIf="checkboxSelected.length > 0" class="flex items-center bg-red-100 text-red-600 px-2 py-1 gap-1 rounded text-sm cursor-pointer" (click)="openDeleteAllPopup()">
+                <span class="material-icons text-base">delete</span>
+                <span class="font-semibold">{{ translocoService.translate('news_category.delete') }}</span>
+            </div>
+        </div>
+        <div class="md:h-table-body-16 h-table-body-22">
+            <div class="bg-white overflow-x-auto h-full mb-3">
+                <table class="table w-full border-separate border-spacing-0 text-base">
+                    <thead class="font-medium text-gray-700 text-left bg-sky-50">
+                        <tr>
+                            <th class="th-cell p-3 text-left border-b w-10">
+                                <input type="checkbox" class="form-checkbox h-4 w-4 text-primary-600"
+                                    [checked]="isAllSelected()" (change)="onCheckboxChangeAll($event)">
+                            </th>
+                            <th class="th-cell p-3 text-left border-b w-10">STT</th>
+                            <th class="th-cell p-3 text-left border-b w-1/2 cursor-pointer"
+                                (click)="sortBy('name')"
+                                [ngClass]="{'bg-primary-100': sortField === 'name'}">
+                                <span class="flex items-center">
+                                    {{ translocoService.translate('news_category.name') | titlecase}}
+                                    <div class="flex flex-col ml-2">
+                                        <ng-container *ngIf="sortField !== 'name' || sortOption === null">
+                                            <span class="material-icons leading-none h-4 text-base" style="line-height: 1;">arrow_drop_up</span>
+                                            <span class="material-icons leading-none h-4 text-base" style="line-height: 1; margin-top: -8px;">arrow_drop_down</span>
+                                        </ng-container>
+                                        <ng-container *ngIf="sortField === 'name' && sortOption === 'asc'">
+                                            <span class="material-icons leading-none h-4 text-base" style="line-height: 1;">arrow_drop_up</span>
+                                        </ng-container>
+                                        <ng-container *ngIf="sortField === 'name' && sortOption === 'desc'">
+                                            <span class="material-icons leading-none h-4 text-base" style="line-height: 1;">arrow_drop_down</span>
+                                        </ng-container>
+                                    </div>
+                                </span>
+                            </th>
+                            <th class="th-cell p-3 text-left border-b w-1/2">{{ translocoService.translate('news_category.slug') | titlecase}}</th>
+                            <th class="th-cell p-3 border-b min-w-40 cursor-pointer">{{ translocoService.translate('news_category.news_total') }}</th>
+                            <th class="th-cell p-3 text-left border-b min-w-40 cursor-pointer"
+                                (click)="sortBy('created_by')"
+                                [ngClass]="{'bg-primary-100': sortField === 'created_by'}">
+                                <span class="flex items-center">
+                                    {{ translocoService.translate('news_category.created_by') | titlecase}}
+                                    <div class="flex flex-col ml-2">
+                                        <ng-container *ngIf="sortField !== 'created_by' || sortOption === null">
+                                            <span class="material-icons leading-none h-4 text-base" style="line-height: 1;">arrow_drop_up</span>
+                                            <span class="material-icons leading-none h-4 text-base" style="line-height: 1; margin-top: -8px;">arrow_drop_down</span>
+                                        </ng-container>
+                                        <ng-container *ngIf="sortField === 'created_by' && sortOption === 'asc'">
+                                            <span class="material-icons leading-none h-4 text-base" style="line-height: 1;">arrow_drop_up</span>
+                                        </ng-container>
+                                        <ng-container *ngIf="sortField === 'created_by' && sortOption === 'desc'">
+                                            <span class="material-icons leading-none h-4 text-base" style="line-height: 1;">arrow_drop_down</span>
+                                        </ng-container>
+                                    </div>
+                                </span>
+                            </th>
+                            <th class="th-cell p-3 border-b min-w-40 cursor-pointer"
+                                (click)="sortBy('created_at')"
+                                [ngClass]="{ 'bg-primary-100': sortField === 'created_at' }">
+                                <span class="flex items-center">
+                                    {{ translocoService.translate("news_category.created_at") | titlecase }}
+                                    <div class="flex flex-col ml-2">
+                                        <!-- Khi chưa sort, hiển thị cả hai icon gần nhau -->
+                                        <ng-container *ngIf="
+                                                sortField !== 'created_at' ||
+                                                sortOption === null">
+                                            <span class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1">arrow_drop_up
+                                            </span>
+                                            <span class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1; margin-top: -8px;">arrow_drop_down</span>
+                                        </ng-container>
+                                        <!-- Khi sort asc -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'created_at' &&
+                                                sortOption === 'asc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_up</span
+                                            >
+                                        </ng-container>
+                                        <!-- Khi sort desc -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'created_at' &&
+                                                sortOption === 'desc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+                                    </div>
+                                </span>
+                            </th>
+                            <th class="th-cell p-3 text-start border-b w-30">
+                                {{
+                                translocoService.translate("news_category.action") | titlecase
+                                }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let parent of categories_parent; let i = index">
+                            <!-- Danh mục cha -->
+                            <tr class="hover:bg-blue-50 transition">
+                                <td class="td-cell p-3 border-b">
+                                    <input type="checkbox" class="form-checkbox h-4 w-4 text-primary-600"
+                                        [checked]="parent.selected" (change)="onCheckboxChange($event, parent)">
+                                </td>
+                                <td class="td-cell p-3 border-b font-medium">
+                                    {{ (currentPage - 1) * pageSize + i + 1 }}
+                                </td>
+                                <td class="td-cell p-3 border-b">
+                                    <ng-container *ngIf="getChildCategories(parent.id).length > 0; else noExpand">
+                                        <button (click)="toggleExpand(parent)" 
+                                                class="focus:outline-none flex items-center text-blue-700 font-medium hover:text-blue-800 transition">
+                                            <span class="truncate max-w-xs" [title]="parent.name">
+                                                {{ parent.name | titlecase }}
+                                            </span>
+                                            <span class="material-icons ml-2 text-lg">
+                                                {{ parent.expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+                                            </span>
+                                        </button>
+                                    </ng-container>
+                                    <ng-template #noExpand>
+                                        <span class="text-blue-700 font-medium truncate max-w-xs block" [title]="parent.name">
+                                            {{ parent.name | titlecase }}
+                                        </span>
+                                    </ng-template>
+                                </td>
+                                <td class="td-cell p-3 border-b text-gray-600">
+                                    <span class="truncate max-w-xs block" [slug]="parent.slug">{{ parent.slug }}</span>
+                                </td>
+                                <td class="td-cell p-3 border-b">
+                                    <span>{{ parent.newsTotal }}</span>
+                                </td>
+                                <td class="td-cell p-3 border-b">
+                                    <span>{{ parent.createdBy?.username || "---" }}</span>
+                                </td>
+                                <td class="td-cell p-3 border-b">
+                                    <span>{{ parent.createdAt | date : "dd/MM/yyyy HH:mm" }}</span>
+                                </td>
+                                <!-- <td class="td-cell p-3 border-b">
+                                    <button (click)="openAddChildCategoryPopup(parent)"
+                                        class="inline-flex items-center justify-center bg-primary text-white rounded-full w-8 h-8 mr-1 hover:bg-primary-500 transition"
+                                        title="Thêm con">
+                                        <span class="material-icons text-base">add</span>
+                                    </button>
+                                    <button (click)="openUpdatePopup(parent)"
+                                        class="inline-flex items-center justify-center bg-primary-100 text-primary rounded-full w-8 h-8 mr-1 hover:bg-primary-300 transition"
+                                        title="Sửa">
+                                        <span class="material-icons text-base">edit</span>
+                                    </button>
+                                    <button (click)="openDeletePopup(parent)"
+                                        class="inline-flex items-center justify-center bg-gray-300 text-gray-700 rounded-full w-8 h-8 hover:bg-gray-400 transition"
+                                        title="Xóa">
+                                        <span class="material-icons text-base">delete</span>
+                                    </button>
+                                </td> -->
+                                <td class="td-cell p-3 border-b flex flex-row items-center">
+                                    <!-- <button (click)="openAddChildCategoryPopup(parent)"
+                                        class="inline-flex items-center justify-center w-8 h-8 mr-1"
+                                        title="Thêm con">
+                                        <img src="assets/images/ui/add.svg" 
+                                            alt="edit" class="w-8 h-8 object-scale-down mx-auto">
+                                    </button> -->
+                                    <button (click)="openUpdatePopup(parent)"
+                                        class="inline-flex items-center justify-center w-8 h-8 mr-1"
+                                        title="{{ translocoService.translate('news_category.edit') }}">
+                                        <img src="assets/images/ui/edit.svg" 
+                                            alt="appType" class="w-8 h-8 object-scale-down mx-auto">
+                                    </button>
+                                    <button (click)="openDeletePopup(parent)"
+                                        class="inline-flex items-center justify-center w-8 h-8 mr-1"
+                                        title="{{ translocoService.translate('news_category.delete') }}">
+                                        <img src="assets/images/ui/trash.png" 
+                                        alt="appType" class="w-8 h-8 object-scale-down mx-auto">
+                                    </button>
+                                </td>
+                            </tr>
+                            
+                            <!-- Danh mục con -->
+                            <tr *ngFor="let child of getChildCategories(parent.id); let j = index"
+                                [hidden]="!parent.expanded" 
+                                class="hover:bg-gray-50 transition">
+                                <td class="td-cell p-3 border-b relative">
+                                    <!-- Đường kẻ indent -->
+                                    <div class="absolute left-5 top-0 bottom-0 w-px bg-gray-200"></div>
+                                    <div class="absolute left-5 top-1/2 w-5 h-px bg-gray-200"></div>
+                                    <input type="checkbox" class="form-checkbox h-5 w-5 text-primary-600 ml-8"
+                                        [checked]="child.selected" (change)="onCheckboxChange($event, child)">
+                                </td>
+                                <td class="td-cell p-3 border-b text-gray-600">
+                                    {{ (currentPage - 1) * pageSize + i + 1 }}.{{ j + 1 }}
+                                </td>
+                                <td class="td-cell p-3 border-b">
+                                    <span class="text-blue-700 truncate max-w-xs block" [title]="child.name">
+                                        {{ child.name | titlecase }}
+                                    </span>
+                                </td>
+                                <td class="td-cell p-3 border-b text-gray-600">
+                                    <span class="truncate max-w-xs block" [title]="child.slug">{{ child.slug }}</span>
+                                </td>
+                                <td class="td-cell p-3 border-b">
+                                    <span>{{ child.newsTotal }}</span>
+                                </td>
+                                <td class="td-cell p-3 border-b">
+                                    <span>{{ child.createdBy?.username || "---" }}</span>
+                                </td>
+                                <td class="td-cell p-3 border-b">
+                                    <span>{{ child.createdAt | date : "dd/MM/yyyy HH:mm" }}</span>
+                                </td>
+                                <td class="td-cell p-3 border-b">
+                                    <button (click)="openUpdatePopup(child)"
+                                        class="inline-flex items-center justify-center w-8 h-8 mr-1"
+                                        title="Thêm con">
+                                        <img src="assets/images/ui/edit.svg" 
+                                            alt="appType" class="w-8 h-8 object-scale-down mx-auto">
+                                    </button>
+                                    <button (click)="openDeletePopup(child)"
+                                        class="inline-flex items-center justify-center w-8 h-8 mr-1"
+                                        title="Thêm con">
+                                        <img src="assets/images/ui/trash.png" 
+                                        alt="appType" class="w-8 h-8 object-scale-down mx-auto">
+                                    </button>
+                                </td>
+                            </tr>
+                        </ng-container>
+                        <tr *ngIf="categories_parent.length === 0">
+                            <td colspan="8" class="py-10">
+                                <div class="flex flex-col md:items-center md:justify-center items-center justify-center text-blue-500">
+                                    <img src="assets/images/ui/empty-folder-1.svg" alt="Empty" class="w-32 h-32 mb-4" />
+                                    <p class="font-semibold">
+                                        {{ translocoService.translate('errors.fields.empty') }}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="mt-auto flex flex-row items-start justify-between flex-wrap gap-2">
+            <span class="text-[#2563EB] text-sm font-medium block">
+                {{ translocoService.translate('other.result') }}: {{ totalNewsCategory }}/{{ totalNewsCategory }}
+            </span>
+            <app-custom-pagination *ngIf="categories_parent.length > 0" [totalRecords]="totalNewsCategory"
+                [totalItems]="totalNewsCategory" [currentPage]="currentPage" [pageSize]="pageSize"
+                (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)">
+            </app-custom-pagination>
+        </div>
+    </div>
+</div>
+<div *ngIf="showAddCategoryPopup"
+    class="fixed overflow-y-auto inset-0 bg-gray-800 bg-opacity-50 flex flex-col items-center justify-center z-50">
+    <div class="flex items-center justify-between pr-4 pl-6 w-[400px] bg-primary text-on-primary rounded-t-lg">
+        <div class="text-lg font-medium leading-10 my-2">
+        {{ translocoService.translate('news_category.btn_add') | titlecase }}
+        </div>
+        <span class="material-icons text-white cursor-pointer" (click)="closeAddCategoryPopup()">close</span>
+    </div>
+    <div class="bg-white rounded-b-lg shadow-lg p-6 w-[400px] max-h-[80vh] overflow-y-auto">
+        <form (ngSubmit)="createCategory()">
+            <div class="mb-4">
+                <label for="name" class="block text-sm font-medium text-gray-500">{{
+                    translocoService.translate('news_category.name') | titlecase}}<span
+                        class="text-red-500">*</span></label>
+                <input id="name" [(ngModel)]="newCategory.name" name="name" type="text"
+                    (ngModelChange)="clearFieldError('name')"
+                    class="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                <span *ngIf="errorFields['name']" class="text-xs text-red-500 block mt-1">
+                    {{ translocoService.translate(errorFields['name']) }}
+                </span>
+            </div>
+            <!-- <div class="mb-4">
+                <label for="slug" class="block text-sm font-medium text-gray-500">Slug</label>
+                <input id="slug" [(ngModel)]="newCategory.slug" name="slug" type="text"
+                    (ngModelChange)="clearFieldError('slug')"
+                    class="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                <span *ngIf="errorFields['slug']" class="text-xs text-red-500 block mt-1">
+                    {{ translocoService.translate(errorFields['slug']) }}
+                </span>
+            </div> -->
+            <div class="mb-4">
+                <label for="category_parent" class="block text-sm font-medium text-gray-700">{{translocoService.translate('news_category.category_parent')}}</label>
+                <select id="category_parent" [(ngModel)]="newCategory.category_parent" name="category_parent"
+                    class="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+
+                    <option *ngFor="let cat of categories_parent" [value]="cat.id">{{ cat.name | titlecase}}</option>
+                </select>
+                <span *ngIf="errorFields['category_parent']" class="text-xs text-red-500 block mt-1">
+                    {{ translocoService.translate(errorFields['category_parent']) }}
+                </span>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" (click)="closeAddCategoryPopup()"
+                    class="px-4 py-2 bg-red-50 text-red-500 font-semibold rounded-md">{{
+                    translocoService.translate('news_category.btn_cancel') | titlecase}}</button>
+                <button type="submit" class="px-4 py-2 font-semibold bg-primary text-white rounded-md">{{
+                    translocoService.translate('news_category.btn_create') | titlecase}}</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div *ngIf="showUpdateCategoryPopup"
+    class="fixed inset-0 bg-gray-800 bg-opacity-50 flex flex-col items-center justify-center z-50">
+    <div class="flex items-center justify-between pr-4 pl-6 w-[400px] bg-primary text-on-primary rounded-t-lg">
+        <div class="text-lg font-medium leading-10 my-2">
+        {{ translocoService.translate('news_category.btn_update') | titlecase }}
+        </div>
+        <span class="material-icons text-white cursor-pointer" (click)="closeUpdateCategoryPopup()">close</span>
+    </div>
+    <div class="bg-white rounded-b-lg shadow-lg p-6 w-[400px] max-h-[80vh] overflow-y-auto">
+        <form (ngSubmit)="submitUpdateCategory()">
+            <div class="mb-4">
+                <label for="update-name" class="block text-sm font-medium text-gray-700">{{
+                    translocoService.translate('news_category.name') | titlecase}}<span
+                        class="text-red-500">*</span></label>
+                <input id="update-name" [(ngModel)]="newCategory.name" name="update-name" type="text"
+                    (ngModelChange)="clearFieldError('name')"
+                    class="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                <span *ngIf="errorFields['name']" class="text-xs text-red-500 block mt-1">
+                    {{ translocoService.translate(errorFields['name']) }}
+                </span>
+            </div>
+            <!-- <div class="mb-4">
+                <label for="update-slug" class="block text-sm font-medium text-gray-700">Slug</label>
+                <input id="update-slug" [(ngModel)]="newCategory.slug" name="update-slug" type="text"
+                    (ngModelChange)="clearFieldError('slug')"
+                    class="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                <span *ngIf="errorFields['slug']" class="text-xs text-red-500 block mt-1">
+                    {{ translocoService.translate(errorFields['slug']) }}
+                </span>
+            </div> -->
+            <div class="flex justify-end gap-2">
+                <button type="button" (click)="closeUpdateCategoryPopup()"
+                    class="px-4 py-2 bg-red-50 text-red-500 font-semibold rounded-md">{{
+                    translocoService.translate('news_category.btn_cancel') | titlecase}}</button>
+                <button type="submit" class="px-4 py-2 font-semibold bg-primary text-white rounded-md">{{
+                    translocoService.translate('news_category.btn_update') | titlecase}}</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div *ngIf="showAddChildCategoryPopup"
+    class="fixed overflow-y-auto inset-0 bg-gray-800 bg-opacity-50 flex flex-col items-center justify-center z-50">
+    <div class="flex items-center justify-between pr-4 pl-6 w-[400px] bg-primary text-on-primary rounded-t-lg">
+        <div class="text-lg font-medium leading-10 my-2">
+        {{ translocoService.translate('news_category.btn_add') | titlecase }}
+        </div>
+        <span class="material-icons text-white cursor-pointer" (click)="closeAddChildCategoryPopup()">close</span>
+    </div>
+    <div class="bg-white rounded-b-lg shadow-lg p-6 w-[400px] max-h-[80vh] overflow-y-auto">
+        <form (ngSubmit)="createChildCategory()">
+            <div class="mb-4">
+                <label for="name" class="block text-sm font-medium text-gray-500">{{
+                    translocoService.translate('news_category.name') | titlecase}}<span
+                        class="text-red-500">*</span></label>
+                <input id="name" [(ngModel)]="newCategory.name" name="name" type="text"
+                    (ngModelChange)="clearFieldError('name')"
+                    class="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                <span *ngIf="errorFields['name']" class="text-xs text-red-500 block mt-1">
+                    {{ translocoService.translate(errorFields['name']) }}
+                </span>
+            </div>
+            <!-- <div class="mb-4">
+                <label for="slug" class="block text-sm font-medium text-gray-500">Slug</label>
+                <input id="slug" [(ngModel)]="newCategory.slug" name="slug" type="text"
+                    (ngModelChange)="clearFieldError('slug')"
+                    class="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                <span *ngIf="errorFields['slug']" class="text-xs text-red-500 block mt-1">
+                    {{ translocoService.translate(errorFields['slug']) }}
+                </span>
+            </div> -->
+            <div class="flex justify-end gap-2">
+                <button type="button" (click)="closeAddChildCategoryPopup()"
+                    class="px-4 py-2 bg-red-50 text-red-500 font-semibold rounded-md">{{
+                    translocoService.translate('news_category.btn_cancel') | titlecase}}</button>
+                <button type="submit" class="px-4 py-2 font-semibold bg-primary text-white rounded-md">{{
+                    translocoService.translate('news_category.btn_create') | titlecase}}</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div *ngIf="showDeletePopup" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex flex-col items-center justify-center z-50">
+    <div class="flex items-center justify-between pr-4 pl-6 md:w-[450px] w-full bg-white text-on-white rounded-t-lg">
+        <div class="text-lg font-medium leading-10 my-2">
+        {{ translocoService.translate('news_category.btn_delete') }}
+        </div>
+        <span class="material-icons text-black cursor-pointer" (click)="closeDeletePopup()">close</span>
+    </div>
+    <div class="bg-white rounded-b-lg shadow-lg px-6 pb-6 md:w-[450px] w-full">
+        <div class="flex items-center justify-start gap-4">
+            <img src="assets/images/ui/warning.svg" alt="Warning" class="w-16 h-16 mb-4">
+            <div>
+                <p class="text-gray-700 mb-4">{{ translocoService.translate('news_category.delete_message') }}</p>
+                <p class="text-gray-700 mb-4"><span class="font-semibold">{{ translocoService.translate('other.warning') }}: </span>{{ translocoService.translate('other.warning_text') }}</p>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2" (click)="deleteCategory()">
+            <button type="button" (click)="closeDeletePopup()" class="px-4 py-2 border border-red-500 bg-white text-red-500 font-semibold rounded-md">{{
+                translocoService.translate('news_category.btn_cancel') | titlecase}}</button>
+            <button type="submit" class="px-4 py-2 font-semibold bg-red-500 text-white rounded-md">{{
+                translocoService.translate('news_category.delete') | titlecase}}</button>
+        </div>
+    </div>
+</div>
+<div *ngIf="showDeleteAllPopup" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex flex-col items-center justify-center z-50">
+    <div class="flex items-center justify-between pr-4 pl-6 md:w-[450px] w-full bg-white text-on-white rounded-t-lg">
+        <div class="text-lg font-medium leading-10 my-2">
+        {{ translocoService.translate('news_category.btn_delete') }}
+        </div>
+        <span class="material-icons text-black cursor-pointer" (click)="closeDeleteAllPopup()">close</span>
+    </div>
+    <div class="bg-white rounded-b-lg shadow-lg px-6 pb-6 md:w-[450px] w-full">
+        <div class="flex items-center justify-start gap-4">
+            <img src="assets/images/ui/warning.svg" alt="Warning" class="w-16 h-16 mb-4">
+            <div>
+                <p class="text-gray-700 mb-4">{{ translocoService.translate('news_category.delete_message') }}</p>
+                <p class="text-gray-700 mb-4"><span class="font-semibold">{{ translocoService.translate('other.warning') }}: </span>{{ translocoService.translate('other.warning_text') }}</p>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2" (click)="deleteAllCategories()">
+            <button type="button" (click)="closeDeleteAllPopup()"
+                class="px-4 py-2 border border-red-500 bg-white text-red-500 font-semibold rounded-md">{{
+                translocoService.translate('news_category.btn_cancel') | titlecase}}</button>
+            <button type="submit" class="px-4 py-2 font-semibold bg-red-500 text-white rounded-md">{{
+                translocoService.translate('news_category.btn_delete') | titlecase}}</button>
+        </div>
+    </div>
+</div>

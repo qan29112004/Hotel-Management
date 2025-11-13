@@ -1,0 +1,311 @@
+<!-- Product Detail Modal -->
+<div
+    *ngIf="showProductDetail && selectedProduct"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    (click)="onCloseModal()"
+>
+    <div
+        class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+        (click)="$event.stopPropagation()"
+        @fadeSlideIn
+    >
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b">
+            <h2 class="text-2xl font-bold text-gray-800">
+                {{ t("product_management.product_detail") }}
+            </h2>
+            <button
+                (click)="onCloseModal()"
+                class="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+            >
+                ×
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6">
+            <!-- Product Images -->
+            <div class="mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-4">
+                        <img
+                            [src]="
+                                selectedMainImage || selectedProduct.images[0]
+                            "
+                            [alt]="selectedProduct.name"
+                            class="w-full h-64 object-cover rounded-lg border"
+                            (error)="onImageError($event)"
+                        />
+                        <div class="flex space-x-2 overflow-x-auto">
+                            <img
+                                *ngFor="
+                                    let image of selectedProduct.images;
+                                    let i = index
+                                "
+                                [src]="image"
+                                [alt]="selectedProduct.name + ' ' + (i + 1)"
+                                class="w-20 h-20 object-cover rounded border cursor-pointer hover:border-blue-500"
+                                [class.border-blue-500]="
+                                    selectedMainImage === image ||
+                                    (selectedMainImage === null && i === 0)
+                                "
+                                (click)="selectMainImage(image)"
+                                (error)="onImageError($event)"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="space-y-4">
+                        <h3 class="text-2xl font-bold text-gray-800">
+                            {{ selectedProduct.name }}
+                        </h3>
+
+                        <!-- Price -->
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-3xl font-bold text-red-600">
+                                    {{
+                                        formatCurrency(
+                                            getFinalPrice(
+                                                selectedProduct.price,
+                                                selectedProduct.discount
+                                            )
+                                        )
+                                    }}
+                                </span>
+                                <span
+                                    *ngIf="selectedProduct.discount > 0"
+                                    class="text-lg text-gray-500 line-through"
+                                >
+                                    {{ formatCurrency(selectedProduct.price) }}
+                                </span>
+                            </div>
+                            <span
+                                *ngIf="selectedProduct.discount > 0"
+                                class="inline-block px-2 py-1 bg-red-100 text-red-800 text-sm rounded-full"
+                            >
+                                {{ t("product_management.discount") }}
+                                {{ selectedProduct.discount }}%
+                            </span>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-600"
+                                >{{ t("product_management.status") }}:</span
+                            >
+                            <span
+                                [class]="
+                                    selectedProduct.status === 'In stock'
+                                        ? 'text-green-600'
+                                        : 'text-red-600'
+                                "
+                                class="font-medium"
+                            >
+                                {{
+                                    selectedProduct.status === "In stock"
+                                        ? t("product_management.in_stock")
+                                        : t("product_management.out_of_stock")
+                                }}
+                            </span>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-600"
+                                >{{ t("product_management.category") }}:</span
+                            >
+                            <span
+                                [class]="
+                                    getCategoryClass(selectedProduct.category)
+                                "
+                                class="px-2 py-1 rounded-full text-xs font-medium"
+                            >
+                                {{ getCategoryLabel(selectedProduct.category) }}
+                            </span>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-600"
+                                >{{ t("product_management.location") }}:</span
+                            >
+                            <span class="text-gray-800">{{
+                                selectedProduct.location
+                            }}</span>
+                        </div>
+
+                        <!-- Contact Phone -->
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-600"
+                                >{{
+                                    t("product_management.phone_number")
+                                }}:</span
+                            >
+                            <a
+                                [href]="'tel:' + selectedProduct.contactPhone"
+                                class="text-blue-600 hover:underline"
+                            >
+                                {{ selectedProduct.contactPhone }}
+                            </a>
+                        </div>
+
+                        <!-- Creator -->
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-600"
+                                >{{ t("product_management.creator") }}:</span
+                            >
+                            <div class="flex items-center space-x-2">
+                                <img
+                                    [src]="
+                                        getCreatorAvatar(
+                                            selectedProduct.creator
+                                        ) ||
+                                        'assets/images/products/default-product.svg'
+                                    "
+                                    [alt]="
+                                        getCreatorName(selectedProduct.creator)
+                                    "
+                                    class="w-6 h-6 rounded-full"
+                                    (error)="onImageError($event)"
+                                />
+                                <span class="text-gray-800">{{
+                                    getCreatorName(selectedProduct.creator)
+                                }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Created Date -->
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-600"
+                                >{{ t("product_management.created_at") }}:</span
+                            >
+                            <span class="text-gray-800">{{
+                                formatDateTime(selectedProduct.createdAt)
+                            }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-6">
+                <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                    {{ t("product_management.description") }}
+                </h4>
+                <p class="text-gray-600 leading-relaxed">
+                    {{ selectedProduct.description }}
+                </p>
+            </div>
+
+            <!-- Additional Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h5 class="font-medium text-gray-800 mb-2">
+                        {{ t("product_management.additional_info") }}
+                    </h5>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600"
+                                >{{ t("product_management.product_id") }}:</span
+                            >
+                            <span class="font-medium">{{
+                                selectedProduct.id
+                            }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600"
+                                >{{ t("product_management.price") }}:</span
+                            >
+                            <span class="font-medium">{{
+                                formatCurrency(selectedProduct.price)
+                            }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600"
+                                >{{ t("product_management.discount") }}:</span
+                            >
+                            <span class="font-medium"
+                                >{{ selectedProduct.discount }}%</span
+                            >
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600"
+                                >{{
+                                    t("product_management.image_count")
+                                }}:</span
+                            >
+                            <span class="font-medium">{{
+                                selectedProduct.images.length
+                            }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h5 class="font-medium text-gray-800 mb-2">
+                        {{ t("product_management.system_status") }}
+                    </h5>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center space-x-2">
+                            <div
+                                [class]="
+                                    selectedProduct.status === 'In stock'
+                                        ? 'bg-green-500'
+                                        : 'bg-red-500'
+                                "
+                                class="w-2 h-2 rounded-full"
+                            ></div>
+                            <span class="text-gray-600">
+                                {{
+                                    selectedProduct.status === "In stock"
+                                        ? t("product_management.available")
+                                        : t("product_management.not_available")
+                                }}
+                            </span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                            <span class="text-gray-600">{{
+                                t("product_management.approved")
+                            }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div
+            class="flex items-center justify-end space-x-3 p-6 border-t bg-gray-50"
+        >
+            <button
+                (click)="onCloseModal()"
+                class="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+            >
+                {{ t("other.close") }}
+            </button>
+
+            <button
+                (click)="onEditProduct()"
+                class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            >
+                <i class="fas fa-edit mr-2"></i>
+                {{ t("product_management.btn_update") }}
+            </button>
+
+            <button
+                (click)="onDeleteProduct()"
+                class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+                [disabled]="isDeleting"
+            >
+                <i class="fas fa-trash mr-2"></i>
+                <span *ngIf="!isDeleting">{{
+                    t("product_management.btn_delete")
+                }}</span>
+                <span *ngIf="isDeleting">Đang xóa...</span>
+            </button>
+        </div>
+    </div>
+</div>

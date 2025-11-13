@@ -1,0 +1,98 @@
+<div class="flex flex-col items-center flex-auto w-full h-full bg-white max-w-[1920px]">
+    <div class='bg-black h-[7rem] w-full'></div>
+    <div class='flex flex-col items-center justify-center mt-5'>
+        <a href="destination" class="uppercase font-avenir text-[16px] font-bold">back to continents</a>
+        <span class='text-[48px] font-lexend_deca'>{{destinationData.name}}</span>
+        <button type="button" class="px-6 py-3 mt-4 text-base font-semibold uppercase transition duration-300 bg-yellow-500 cursor-pointer font-avenir hover:scale-105">
+            List Hotels
+        </button>
+    </div>
+    <app-map class='w-full h-[756px] z-0 mt-8 max-w-[1920px] px-16' [listData]="destinationData.totalHotels"></app-map>
+    <span class="font-clearface text-[30px] mb-5 mt-5">List Hotels</span>
+    <div class="grid w-full grid-cols-3 transition-all duration-150 max-md:grid-cols-1 mx-auto mt-8 place-items-center max-w-[1920px] px-16 auto-rows-[1fr]">
+        <ng-container *ngFor="let hotel of destinationData.totalHotels">
+            <div class="px-[10px] w-full h-full py-2 text-white grid grid-cols-1 justify-center transition-all duration-150"
+                [ngClass]="{'grid-cols-3 md:col-span-3 gap-[20px]': isChoose && isChoose == hotel.uuid}"
+            >
+                <div class="relative flex flex-col items-center justify-end w-full h-[300px] px-8 pb-5 bg-center bg-no-repeat bg-cover pt-[90px]"
+                    [style.background-image]="hotel.thumbnail ? 'url(' + baseUrl + encodeFileUrl(hotel.thumbnail) + ')' : 'none'"
+                >
+                    <div class="absolute top-0 left-0 w-full h-full bg-primary/50"></div>
+                    <div class="z-10 flex flex-col items-center w-full gap-8">
+                        <span class="font-avenir text-[30px]">{{hotel.name | capitalize}}</span>
+                        <a class="text-base uppercase border-b border-b-white font-lexend_deca">destination page</a>
+                        <button (click)="chooseHotel(hotel.uuid)">Quick view</button>
+                    </div>
+                </div>
+                <div class="h-full col-span-2 px-[10px] transition-all duration-500 ease-in-out"
+                    [ngClass]="{'opacity-100 max-h-[1000px] flex flex-col': isChoose && isChoose == hotel.uuid,
+                                'opacity-0 max-h-0': !isChoose || isChoose != hotel.uuid}"
+                >
+                    <span class="text-black">Amenities</span>
+                    <div class="flex mb-2">
+                        <div class="flex flex-col items-center justify-center">
+                            <img src="assets/images/ui/wifi-black.png" class="w-10" />
+                            <span class='text-black'>Wi-fi</span>
+                        </div>
+                    </div>
+                    <span class="text-black">Khách sạn Biển Xanh – Nghỉ dưỡng giữa lòng thiên nhiên</span>
+                    <p class="text-black">Tọa lạc ngay bên bờ biển cát trắng mịn màng, Khách sạn Biển Xanh mang đến trải nghiệm nghỉ dưỡng sang trọng và yên bình. Với kiến trúc hiện đại hòa quyện cùng không gian mở hướng biển, du khách có thể tận hưởng làn gió mát trong lành và ngắm bình minh tuyệt đẹp ngay từ ban công phòng. Hệ thống phòng tiện nghi, hồ bơi vô cực cùng nhà hàng ẩm thực địa phương sẽ khiến mọi kỳ nghỉ trở nên đáng nhớ.</p>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+    <div class="flex flex-col items-center w-full gap-6 mt-16">
+        <div class="flex flex-col items-center w-full">
+            <span class="font-clearface text-[30px] mb-5">{{'destination.introduce'|transloco}}</span>
+            <p class="w-[60%] text-center font-avenir text-[16px] mb-5">{{ 'destination.'+ destinationData.slug + '.introduce' | transloco }}</p>
+        </div>
+        <div class="flex flex-col items-center w-full">
+            <span class="font-clearface text-[30px] mb-5">Highlights</span>
+            <div class="relative flex items-center justify-center w-full h-auto gap-10">
+                <div class="absolute w-full self-center bg-[#f7f0ea]" style="height: calc(100% - 140px);"></div>
+                <div class="max-w-[37%] z-10 h-full text-right">
+                    <img
+                        src="assets/images/Americas-City-Break-LR.jpg"
+                        class="flex-grow object-cover max-h-full pt-3 max-sm:hidden"
+                        alt="logo"
+                    />
+                    <span class="italic font-parisienne">test</span>
+                </div>
+                <div class="flex flex-col justify-center z-10 h-full max-w-[42%] gap-5">
+                    <span class="font-clearface text-[24px]">{{ 'destination.'+ destinationData.slug + '.paragraph_1.title' | transloco }}</span>        
+                    <p class="font-avenir text-[16px]">{{ 'destination.'+ destinationData.slug + '.paragraph_1.content' | transloco }}</p>            
+                </div>
+            </div>
+            <div class="relative flex items-center justify-center w-full h-auto gap-10">
+                <div class="absolute self-center w-[90%] border border-black" style="height: calc(100% - 140px);"></div>
+                <div class="flex flex-col justify-center z-10 h-full max-w-[42%] gap-5">
+                    <span class="font-clearface text-[24px]">{{ 'destination.'+ destinationData.slug + '.paragraph_2.title' | transloco }}</span>        
+                    <p class="font-avenir text-[16px]">{{ 'destination.'+ destinationData.slug + '.paragraph_2.content' | transloco }}</p>            
+                </div>
+                <div class="max-w-[37%] z-10 h-full text-right">
+                    <img
+                        src="assets/images/Americas-City-Break-LR.jpg"
+                        class="flex-grow object-cover max-h-full pt-3 max-sm:hidden"
+                        alt="logo"
+                    />
+                    <span class="inline-flex items-center italic font-parisienne">test <img src="assets/images/map/hotel-icon.png" class="w-[14px] h-4 align-middle"/></span>
+                </div>
+            </div>
+            <div class="relative flex items-center justify-center w-full h-auto gap-10">
+                <div class="absolute w-full self-center bg-[#f7f0ea]" style="height: calc(100% - 140px);"></div>
+                <div class="max-w-[37%] z-10 h-full text-right">
+                    <img
+                        src="assets/images/Americas-City-Break-LR.jpg"
+                        class="flex-grow object-cover max-h-full pt-3 max-sm:hidden"
+                        alt="logo"
+                    />
+                    <span class="italic font-parisienne">test</span>
+                </div>
+                <div class="flex flex-col justify-center z-10 h-full max-w-[42%] gap-5">
+                    <span class="font-clearface text-[24px]">{{ 'destination.'+ destinationData.slug + '.paragraph_3.title' | transloco }}</span>        
+                    <p class="font-avenir text-[16px]">{{ 'destination.'+ destinationData.slug + '.paragraph_3.content' | transloco }}</p>            
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

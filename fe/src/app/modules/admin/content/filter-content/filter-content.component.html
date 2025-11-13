@@ -1,0 +1,46 @@
+
+  <ng-container *ngIf="mode === 'inline'">
+<div
+  *transloco="let t"
+>
+    <!-- Nút đóng -->
+
+    <h2 class="text-lg font-semibold  bg-blue-500 p-4 text-white">{{t('content.advanced_filters') }}</h2>
+
+    <form (ngSubmit)="applyFilter()" class="space-y-4 p-4">
+      <!-- Người tạo -->
+      <div>
+        <label>{{t('content.created_by') }}</label>
+        <select [(ngModel)]="filters.created_by" name="created_by"
+                class="w-full border border-gray-300 rounded px-3 py-2">
+          <option value="">{{t('content.select_creator') }}</option>
+          <option *ngFor="let user of users" [value]="user.id">{{ user.name || user.username }}</option>
+        </select>
+      </div>
+
+      <!-- Người cập nhật -->
+      <div>
+        <label>{{t('content.updated_by') }}</label>
+        <select [(ngModel)]="filters.updated_by" name="updated_by"
+                class="w-full border border-gray-300 rounded px-3 py-2">
+          <option value="">{{t('content.select_updater') }}</option>
+          <option *ngFor="let user of users" [value]="user.id">{{ user.name || user.username }}</option>
+        </select>
+      </div>
+
+      <!-- Ngày cập nhật -->
+      <div>
+        <label>{{t('content.updated_at') }}</label>
+        <input [(ngModel)]="filters.updated_at" name="updated_at" type="date"
+               class="w-full border border-gray-300 rounded px-3 py-2" />
+      </div>
+
+      <!-- Nút hành động -->
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" (click)="cancel()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">{{t('content.cancel') }}</button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded">{{t('content.filter') }}</button>
+      </div>
+    </form>
+  </div>
+
+</ng-container>

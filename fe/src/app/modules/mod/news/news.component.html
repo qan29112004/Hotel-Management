@@ -1,0 +1,641 @@
+<div class="flex-auto pt-3 sm:px-6 overflow-hidden max-h-screen">
+    <div class="relative w-full flex-1 h-full flex flex-col">
+        <div class="flex items-center justify-between text-lg">
+            <span class="lg:text-2xl text-3xl font-semibold">
+                {{ translocoService.translate('news.title') | titlecase}}
+            </span>
+        </div>
+        <div class="flex flex-col lg:flex-row lg:justify-between gap-2 mb-4 mt-2">
+            <div class="flex flex-wrap gap-3 items-center">
+                <div class="relative w-80 h-full">
+                    <!-- Khối input -->
+                    <div class="flex items-center h-full border border-primary rounded-md bg-white px-2 py-1 pr-10"> <!-- thêm pr-10 -->
+                        <mat-icon [svgIcon]="'heroicons_outline:magnifying-glass'" class="text-primary text-2xl mr-2"></mat-icon>
+                        <input
+                            type="text"
+                            class="flex-1 border-0 outline-none bg-transparent text-gray-700 text-base placeholder-gray-400"
+                            [placeholder]="translocoService.translate('news.search_placeholder')"
+                            [(ngModel)]="searchText"
+                            (ngModelChange)="onSearchChange()"
+                        />
+            
+                        <!-- Nút X -->
+                        <button
+                            *ngIf="searchText"
+                            type="button"
+                            (click)="clearSearch()"
+                            class="p-1 flex items-center justify-center rounded hover:bg-gray-200 transition"
+                        >
+                            <mat-icon [svgIcon]="'heroicons_outline:x-mark'" class="text-primary"></mat-icon>
+                        </button>
+                    </div>
+            
+                    <!-- Nút lọc đặt absolute trong container -->
+                    <button class="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1 flex items-center justify-center"
+                        [ngClass]="{
+                            'bg-gray-300 border border-gray-700': !selectedCategory && !selectedCreatedBy,
+                            'bg-[#E0EAFF] border border-[#E0EAFF] hover:bg-[#e6f0ff] transition': selectedCategory || selectedCreatedBy
+                        }"
+                        (click)="openFilterPopup()"
+                        type="button"
+                    >
+                        <mat-icon
+                            [svgIcon]="'heroicons_outline:funnel'"
+                            [ngClass]="{
+                                'text-primary': selectedCategory || selectedCreatedBy,
+                                'text-gray-700': !selectedCategory && !selectedCreatedBy
+                            }"
+                        ></mat-icon>
+                    </button>
+                </div>
+                <button type="button"
+                    *ngIf="selectedCategory || selectedCreatedBy"
+                    class="flex items-center gap-2 justify-between h-full px-3 rounded-md bg-gray-300 text-gray-700 hover:bg-gray-400"
+                    (click)="clearFilter()">
+                        <span class="material-icons">filter_alt_off</span>
+                        <span class="lg:text-base text-sm">
+                            {{ translocoService.translate("news.no_filter") }}
+                        </span>
+                </button>
+            </div>
+        
+            <!-- Nút tạo mới -->
+            <button
+                class="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 shadow hover:bg-primary-600 ml-2"
+                routerLink="/mod/add-news"
+            >
+                <span class="material-icons">add</span>
+                <span class="font-medium">{{ translocoService.translate("news.btn_create") }}</span>
+            </button>
+        </div>
+        <div *ngIf="checkboxSelected.length > 0" class="flex items-center gap-2 select-none cursor-pointer" (click)="openDeleteAllPopup()">
+            <mat-icon class="text-red-600 w-2 h-2" [svgIcon]="'heroicons_outline:trash'" style="font-size: 2.5rem;"> </mat-icon>
+            <span class="text-red-600 font-bold text-sm">{{ translocoService.translate('news.delete') }}</span>
+        </div>
+        
+
+        <!-- Filter -->
+        <div *ngIf="showFilterPopup" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 min-w-[320px] max-w-[90vw]">
+                <h3 class="text-lg font-semibold mb-4 flex items-center justify-between gap-2">{{ translocoService.translate('news.filter') }}
+                    <mat-icon class="cursor-pointer" [svgIcon]="'heroicons_outline:x-mark'" (click)="closeFilterPopup()"></mat-icon>
+                </h3>
+                <div class="flex flex-col gap-4">
+                    <!-- Filter hạng mục -->
+                    <div class="min-w-48">
+                        <label for="category" class="block text-xs font-medium text-gray-400 mb-1">
+                            {{ translocoService.translate('news.category') | titlecase }}
+                        </label>
+                        <select
+                            id="category"
+                            [(ngModel)]="selectedCategory"
+                            name="category"
+                            class="w-full p-2 border border-gray-200 rounded focus:ring-0 focus:border-gray-300 text-base text-gray-900"
+                        >
+                            <option [ngValue]="null">{{ translocoService.translate("news.all") }}</option>
+                            <option *ngFor="let cat of categories" [value]="cat.id">
+                                {{ cat.categoryParent ? '-- ' + (cat.name | titlecase) : (cat.name | titlecase) }}
+                            </option>
+                        </select>
+                    </div>
+                    <!-- Filter người tạo -->
+                    <div class="min-w-48">
+                        <label for="createdBy" class="block text-xs font-medium text-gray-400 mb-1">
+                            {{ translocoService.translate('news.created_by') | titlecase }}
+                        </label>
+                        <select
+                            id="createdBy"
+                            [(ngModel)]="selectedCreatedBy"
+                            name="createdBy"
+                            class="w-full p-2 border border-gray-200 rounded focus:ring-0 focus:border-gray-300 text-base text-gray-900"
+                        >
+                            <option [ngValue]="null">{{ translocoService.translate("news.all") }}</option>
+                            <option *ngFor="let user of users" [value]="user.id">
+                                {{ user.username }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" (click)="closeFilterPopup()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">
+                        {{ translocoService.translate("news.btn_cancel") }}
+                    </button>
+                    <button type="button" (click)="applyFilter()" class="px-4 py-2 bg-primary text-white rounded-md">
+                        {{ translocoService.translate("news.btn_apply") }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="flex-1 pt-4">
+            <div
+                class="bg-white overflow-y-auto max-h-[calc(100vh-290px)] relative rounded-xl shadow-md scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+                <table
+                    class="min-w-full bg-white border border-gray-200 rounded-lg"
+                >
+                    <thead class="sticky top-0 z-20 bg-sky-50 text-gray-700">
+                        <tr>
+                            <th class="th-cell p-3 border-b w-10">
+                                <input
+                                    type="checkbox"
+                                    class="form-checkbox h-5 w-5 text-primary-600"
+                                    [checked]="isAllSelected()"
+                                    (change)="onCheckboxChangeAll($event)"
+                                />
+                            </th>
+                            <th class="th-cell p-3 border-b w-20">STT</th>
+                            <th class="th-cell p-3 border-b min-w-20">
+                                Thumbnail
+                            </th>
+                            <th
+                                class="th-cell p-3 border-b min-w-80 cursor-pointer"
+                                (click)="sortBy('title')"
+                                [ngClass]="{
+                                    'bg-primary-100': sortField === 'title'
+                                }"
+                            >
+                                <span class="flex items-center">
+                                    {{
+                                        translocoService.translate("news.title")
+                                            | titlecase
+                                    }}
+                                    <div class="flex flex-col ml-2">
+                                        <!-- Khi chưa sort, hiển thị cả hai icon gần nhau -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField !== 'title' ||
+                                                sortOption === null
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_up</span
+                                            >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="
+                                                    line-height: 1;
+                                                    margin-top: -8px;
+                                                "
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+                                        <!-- Khi sort asc -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'title' &&
+                                                sortOption === 'asc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_up</span
+                                            >
+                                        </ng-container>
+                                        <!-- Khi sort desc -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'title' &&
+                                                sortOption === 'desc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+                                    </div>
+                                </span>
+                            </th>
+                            <th
+                                class="th-cell p-3 border-b w-10 cursor-pointer"
+                                (click)="sortBy('liked_by')"
+                                [ngClass]="{
+                                    'bg-primary-100': sortField === 'liked_by'
+                                }"
+                            >
+                                <span class="flex items-center">
+                                    {{
+                                        translocoService.translate("news.like")
+                                            | titlecase
+                                    }}
+                                    <div class="flex flex-col ml-2">
+                                        <!-- Khi chưa sort, hiển thị cả hai icon gần nhau -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField !== 'liked_by' ||
+                                                sortOption === null
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_up</span
+                                            >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="
+                                                    line-height: 1;
+                                                    margin-top: -8px;
+                                                "
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+                                        <!-- Khi sort asc -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'liked_by' &&
+                                                sortOption === 'asc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_up</span
+                                            >
+                                        </ng-container>
+                                        <!-- Khi sort desc -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'liked_by' &&
+                                                sortOption === 'desc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+                                    </div>
+                                </span>
+                            </th>
+                            <th class="th-cell text-start p-3 border-b min-w-50">
+                                {{
+                                    translocoService.translate("news.category")
+                                        | titlecase
+                                }}
+                            </th>
+                            <th class="th-cell text-start p-3 border-b min-w-50">
+                                {{
+                                    translocoService.translate(
+                                        "news.created_by"
+                                    ) | titlecase
+                                }}
+                            </th>
+                            <th
+                                class="th-cell p-3 border-b min-w-50 cursor-pointer"
+                                (click)="sortBy('created_at')"
+                                [ngClass]="{
+                                    'bg-primary-100': sortField === 'created_at'
+                                }"
+                            >
+                                <span class="flex items-center">
+                                    {{
+                                        translocoService.translate("news.created_at")
+                                            | titlecase
+                                    }}
+                                    <div class="flex flex-col ml-2">
+                                        <!-- Khi chưa sort, hiển thị cả hai icon gần nhau -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField !== 'created_at' ||
+                                                sortOption === null
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_up</span
+                                            >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="
+                                                    line-height: 1;
+                                                    margin-top: -8px;
+                                                "
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+                                        <!-- Khi sort asc -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'created_at' &&
+                                                sortOption === 'asc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_up</span
+                                            >
+                                        </ng-container>
+                                        <!-- Khi sort desc -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'created_at' &&
+                                                sortOption === 'desc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+                                    </div>
+                                </span>
+                            </th>
+                            <th class="th-cell text-start p-3 border-b min-w-50">
+                                {{
+                                    translocoService.translate(
+                                        "news.updated_by"
+                                    ) | titlecase
+                                }}
+                            </th>
+                            <th
+                                class="th-cell p-3 border-b min-w-50 cursor-pointer"
+                                (click)="sortBy('updated_at')"
+                                [ngClass]="{
+                                    'bg-primary-100': sortField === 'updated_at'
+                                }"
+                            >
+                                <span class="flex items-center">
+                                    {{
+                                        translocoService.translate("news.updated_at")
+                                            | titlecase
+                                    }}
+                                    <div class="flex flex-col ml-2">
+                                        <!-- Khi chưa sort, hiển thị cả hai icon gần nhau -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField !== 'updated_at' ||
+                                                sortOption === null
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_up</span
+                                            >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="
+                                                    line-height: 1;
+                                                    margin-top: -8px;
+                                                "
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+                                        <!-- Khi sort asc -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'updated_at' &&
+                                                sortOption === 'asc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_up</span
+                                            >
+                                        </ng-container>
+                                        <!-- Khi sort desc -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'updated_at' &&
+                                                sortOption === 'desc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="line-height: 1"
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+                                    </div>
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            *ngFor="let n of news; let i = index"
+                            class="hover:bg-blue-50 transition bg-white"
+                        >
+                            <td class="td-cell p-3 border-b">
+                                <input type="checkbox" class="form-checkbox h-5 w-5 text-primary-600"
+                                    [checked]="n.selected" (change)="onCheckboxChange($event, n)">
+                            </td>
+                            <td class="td-cell p-3 border-b">
+                                {{ (currentPage - 1) * pageSize + i + 1 }}
+                            </td>
+                            <td class="td-cell p-3 border-b">
+                                <img
+                                    *ngIf="n.thumbnail"
+                                    [src]="n.thumbnail"
+                                    alt="thumbnail"
+                                    class="w-16 h-9 object-contain rounded shadow mx-auto"
+                                />
+                            </td>
+                            <td class="td-cell p-3 border-b font-semibold">
+                                <a
+                                    [routerLink]="[
+                                        '/mod/news',
+                                        n.slug + '.html'
+                                    ]"
+                                    class="hover:underline text-blue-700 truncate max-w-xs block"
+                                    [title]="n.title"
+                                >{{ n.title | titlecase }}</a>
+                            </td>
+                            <td class="td-cell p-3 border-b">
+                                <span class="like-count cursor-pointer text-blue-600 hover:underline" (click)="openLikedUsersPopup(n)">
+                                    {{ n.likedBy?.total || 0 }}
+                                </span>
+                            </td>
+                            <td class="td-cell p-3 border-b">
+                                {{ n.category?.name | titlecase }}
+                            </td>
+                            <td class="td-cell p-3 border-b">
+                                {{ n.createdBy?.username || "-" }}
+                            </td>
+                            <td class="td-cell p-3 border-b">
+                                {{ n.createdAt | date : "dd/MM/yyyy HH:mm" }}
+                            </td>
+                            <td class="td-cell p-3 border-b">
+                                {{ n.updatedBy?.username || "-" }}
+                            </td>
+                            <td class="td-cell p-3 border-b">
+                                {{ n.updatedAt | date : "dd/MM/yyyy HH:mm" }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div *ngIf="news.length === 0"
+                class="flex flex-col items-center justify-center text-primary font-semibold text-center">
+                <img src="assets/images/ui/empty-folder-1.svg" alt="" class="w-fit" />
+                <p>Danh sách đang trống</p>
+            </div>
+        </div>
+        <div class="mt-4 mb-2">
+            <span class="text-[#2563EB] text-sm font-medium">Kết quả: {{ totalNews }}/{{ totalNews }}</span>
+            <app-custom-pagination *ngIf="news.length > 0" [totalRecords]="totalNews" [totalItems]="totalNews"
+                [currentPage]="currentPage" [pageSize]="pageSize" (pageChange)="onPageChange($event)"
+                (pageSizeChange)="onPageSizeChange($event)"></app-custom-pagination>
+        </div>
+    </div>
+</div>
+<div *ngIf="showCreateNewsPopup" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-[1000px] max-h-[90vh] overflow-y-auto">
+        <h1 class="text-lg font-semibold mb-4">{{ translocoService.translate('news.btn_create') | titlecase}}</h1>
+        <hr class="border border-gray-300 opacity-30 my-4" />
+        <form (ngSubmit)="submitCreateNews()">
+            <div class="flex gap-4">
+                <div class="w-2/3">
+                    <div class="mb-4">
+                        <label for="content" class="block text-sm font-medium text-gray-700">
+                            {{ translocoService.translate('news.content') | titlecase}}
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <angular-editor [(ngModel)]="newNews.content" [config]="editorConfig" name="content"
+                            class="mt-1 block w-full">
+                            <ng-template #customButtons let-executeCommandFn="executeCommandFn">
+                                <ae-toolbar-set>
+                                    <button aeButton (click)="openImagePopup(executeCommandFn)"
+                                        class="flex items-center justify-center">
+                                        <span class="material-icons text-center">image</span>
+                                    </button>
+                                </ae-toolbar-set>
+                            </ng-template>
+                        </angular-editor>
+                    </div>
+                </div>
+                <div class="w-1/3">
+                    <div class="mb-4">
+                        <label for="title" class="block text-sm font-medium text-gray-700">{{
+                            translocoService.translate('news.title_news') | titlecase}}<span
+                                class="text-red-500">*</span></label>
+                        <input id="title" [(ngModel)]="newNews.title" name="title" type="text"
+                            class="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                    </div>
+                    <!-- <div class="mb-4">
+                        <label for="title" class="block text-sm font-medium text-gray-700">Slug</label>
+                        <input id="title" [(ngModel)]="newNews.slug" name="slug" type="text"
+                            (ngModelChange)="clearFieldError('slug')"
+                            class="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        <span *ngIf="errorFields['slug']" class="text-xs text-red-500 block mt-1">
+                            {{ translocoService.translate(errorFields['slug']) }}
+                        </span>
+                    </div> -->
+                    <div class="mb-4">
+                        <label for="title" class="block text-sm font-medium text-gray-700">Thumbnail</label>
+                        <div class="flex gap-2">
+                            <input id="title" [(ngModel)]="newNews.thumbnail" name="thumbnail" type="text"
+                                class="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            <input type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden"
+                                #fileInput>
+                            <button type="button" (click)="fileInput.click()"
+                                class="mt-1 px-4 py-2 bg-primary text-white rounded-md">
+                                <span class="material-icons">upload</span>
+                            </button>
+                        </div>
+                        <div *ngIf="newNews.thumbnail" class="mt-2">
+                            <div class="relative w-full h-48 bg-gray-100 rounded-md overflow-hidden">
+                                <img [src]="newNews.thumbnail" alt="Thumbnail preview"
+                                    class="w-full h-full object-cover" (error)="handleImageError($event)"
+                                    (load)="handleImageLoad($event)">
+                                <div *ngIf="isImageLoading"
+                                    class="absolute inset-0 flex items-center justify-center bg-gray-100">
+                                    <span class="material-icons animate-spin">refresh</span>
+                                </div>
+                                <div *ngIf="imageError"
+                                    class="absolute inset-0 flex items-center justify-center bg-gray-100">
+                                    <span class="text-red-500">{{ translocoService.translate('news.error_image') |
+                                        titlecase}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="category" class="block text-sm font-medium text-gray-700">{{
+                            translocoService.translate('news.category') | titlecase}}<span
+                            class="text-red-500">*</span></label>
+                        <select id="category" [(ngModel)]="newNews.category" name="category"
+                            class="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+        
+                            <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name | titlecase}}</option>
+                        </select>
+                        <span *ngIf="errorFields['category']" class="text-xs text-red-500 block mt-1">
+                            {{ translocoService.translate(errorFields['category']) }}
+                        </span>
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button type="button" (click)="closeCreateNewsPopup()"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">{{
+                            translocoService.translate('news.btn_cancel') | titlecase}}</button>
+                        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-md">{{
+                            translocoService.translate('news.btn_create') | titlecase}}</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Popup danh sách người thích -->
+<div *ngIf="showLikedUsersPopup" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 min-w-[320px] max-w-[90vw]">
+        <h3 class="text-lg font-semibold mb-4">{{ translocoService.translate("news.list_liked") }}</h3>
+        <ul class="mb-4 max-h-60 overflow-y-auto">
+            <li *ngFor="let user of likedUsers" class="py-1 border-b last:border-b-0 flex items-center gap-2">
+                <img *ngIf="user.avatar" [src]="user.avatar" alt="avatar" class="w-8 h-8 rounded-full object-cover border border-gray-300" />
+                <span *ngIf="!user.avatar" class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm font-bold border border-gray-300">
+                    {{ user.username ? user.username.charAt(0).toUpperCase() : '?' }}
+                </span>
+                <span>{{ user.username }}</span>
+            </li>
+            <li *ngIf="!likedUsers || likedUsers.length === 0" class="text-gray-500 italic">{{ translocoService.translate("news.no_like") }}</li>
+        </ul>
+        <button (click)="closeLikedUsersPopup()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">{{ translocoService.translate("news.btn_close") }}</button>
+    </div>
+</div>
+
+<div *ngIf="showImagePopup" class="popup-overlay">
+    <div class="popup-content">
+        <h3>{{ translocoService.translate('news.insert_image') | titlecase}}</h3>
+
+        <div class="mb-4">
+            <label>{{ translocoService.translate('news.select_image') | titlecase}}:</label>
+            <input type="file" name="imageFile" (change)="onFileImageSelected($event)" accept="image/*" />
+        </div>
+
+        <div class="mb-4">
+            <label>{{ translocoService.translate('news.or_enter_image_url') | titlecase}}:</label>
+            <input type="text" [(ngModel)]="imageUrl" name="imageUrl" placeholder="https://..." class="url-input" />
+        </div>
+
+        <div class="flex justify-end gap-2">
+            <button type="button" (click)="closePopup()" class="bg-gray-300 text-gray-700 hover:bg-gray-400">
+                {{ translocoService.translate('news.btn_close') | titlecase}}
+            </button>
+            <button type="button" (click)="insertImage()" class="bg-primary text-white hover:bg-primary-dark">
+                {{ translocoService.translate('news.btn_insert_image') | titlecase}}
+            </button>
+        </div>
+    </div>
+</div>
+<div *ngIf="showDeleteAllPopup" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-[400px]">
+        <h2 class="text-lg font-semibold mb-4">{{ translocoService.translate('news.btn_delete') | titlecase}}</h2>
+        <p class="text-gray-700 mb-4">{{ translocoService.translate('news.delete_message') | titlecase}}</p>
+        <div class="flex justify-end gap-2" (click)="deleteAllNews()">
+            <button type="button" (click)="closeDeleteAllPopup()"
+                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">{{ translocoService.translate('news.btn_cancel')
+                | titlecase}}</button>
+            <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-md">{{
+                translocoService.translate('news.btn_delete') | titlecase}}</button>
+        </div>
+    </div>
+</div>

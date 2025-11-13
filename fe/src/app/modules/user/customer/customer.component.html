@@ -1,0 +1,450 @@
+<div *transloco="let t" class="inset-0 flex min-w-0 w-full flex-col overflow-y-auto" cdkScrollable>
+    <!-- Body -->
+    <div class="flex-auto sm:p-6">
+        <!-- Content -->
+        <div class="relative w-full bg-white">
+            <!-- Header Bar -->
+            <div class="flex justify-between">
+                <!-- Title -->
+                <div class="flex flex-col items-start">
+                    <span class="lg:text-2xl text-3xl font-semibold">{{
+                        t("customer.title")
+                        }}</span>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <hr class="border border-gray-300 opacity-30 my-4" />
+
+            <!-- Bộ lọc -->
+            <div class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-start">
+                <!-- Cột trái -->
+                <div class="flex flex-wrap justify-between gap-2 mb-2">
+                    <filter (submitFilter)="handleFilterSubmit($event)">
+                        ></filter>
+                    <div class="flex gap-2 xl:w-90 w-full">
+                        <!-- Thanh tìm kiếm -->
+                        <div class="lg:w-100 md:w-128 w-full text-gray-400 md:mb-0 mb-5">
+                            <div class="relative">
+                                <mat-icon
+                                    class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">search</mat-icon>
+                                <input type="text" [(ngModel)]="searchValue" (ngModelChange)="onSearchChange()"
+                                    placeholder="{{
+                                        t('customer.search_placeholder')
+                                    }}"
+                                    class="h-9 lg:text-base text-sm text-black pl-10 pr-3 py-2 border border-gray-300 rounded-lg w-full" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cột phải -->
+                <div class="flex flex-wrap justify-between gap-2 mb-2">
+                    <!-- Các nút khác -->
+                    <div class="flex flex-wrap gap-2">
+                        <button
+                            class="flex items-center gap-2 justify-between bg-primary text-white h-9 px-3 rounded-md"
+                            (click)="openImport()">
+                            <mat-icon class="text-white icon-size-6"
+                                svgIcon="heroicons_outline:cloud-arrow-up"></mat-icon>
+                            <span class="lg:text-base text-sm">{{
+                                t("customer.btn_import")
+                                }}</span>
+                        </button>
+                        <button
+                            class="flex items-center gap-2 justify-between bg-primary text-white h-9 px-3 rounded-md"
+                            [routerLink]="'../add-customer'">
+                            <mat-icon class="text-white icon-size-6" svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                            <span class="lg:text-base text-sm">{{
+                                t("customer.btn_add")
+                                }}</span>
+                        </button>
+                        <button
+                            class="flex items-center gap-2 justify-between bg-primary-100 text-primary h-9 px-3 rounded-md">
+                            <mat-icon class="text-primary icon-size-6"
+                                svgIcon="heroicons_outline:cloud-arrow-down"></mat-icon>
+                            <span class="lg:text-base text-sm">{{
+                                t("customer.btn_export")
+                                }}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="activeFilters.length > 0" class="flex items-center gap-2 pb-4">
+                <!-- Nút Bỏ lọc -->
+                <button (click)="clearFilter()"
+                    class="flex items-center gap-1 border border-orange-300 text-orange-500 bg-orange-100 px-3 py-1 rounded text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v2a1 1 0 001 1h4a1 1 0 001-1V4a1 1 0 00-1-1m-4 0h4" />
+                    </svg>
+                    Bỏ lọc
+                </button>
+
+                <!-- Tag lọc -->
+
+                <div class="flex items-center gap-2">
+                    <div *ngFor="let filter of activeFilters"
+                        class="flex items-center bg-blue-100 text-blue-600 px-3 py-1 rounded text-sm">
+                        {{ filter.label }}: ({{ filter.count }})
+                        <button class="ml-1 hover:text-blue-800" (click)="removeFilter(filter.key)">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="h-table-body-16">
+                <div class="bg-white overflow-x-auto h-full mb-3">
+                    <table class="table w-full border-separate border-spacing-0 text-base">
+                        <thead class="font-medium text-gray-700 text-left bg-sky-50">
+                            <tr>
+                                <th class="th-cell text-center p-0">
+                                    <mat-checkbox color="primary" class="custom-mat-checkbox" [checked]="
+                                            selectedCustomerIds.length > 0
+                                        " [indeterminate]="
+                                            selectedCustomerIds.length > 0
+                                        " (change)="onToggleSelectAll()">
+                                    </mat-checkbox>
+                                </th>
+                                <th class="text-center whitespace-nowrap px-2 py-2">
+                                    {{ t("customer.count") }}
+                                </th>
+                                <th class="th-cell cursor-pointer" (click)="sortBy('data__full_name')" [ngClass]="{
+                                        'bg-primary-100':
+                                            sortField === 'data__full_name'
+                                    }">
+                                    <span class="flex items-center">
+                                        {{ t("customer.name") }}
+                                        <div class="flex flex-col ml-2">
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !==
+                                                        'data__full_name' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                " fontIcon="arrow_drop_up">
+                                            </mat-icon>
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !==
+                                                        'data__full_name' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                " fontIcon="arrow_drop_down">
+                                            </mat-icon>
+                                        </div>
+                                    </span>
+                                </th>
+                                <!-- (click)="sortBy('status')"  -->
+                                <th class="th-cell" [ngClass]="{
+                                        'bg-primary-100': sortField === 'status'
+                                    }">
+                                    <span class="flex items-center">
+                                        {{ t("customer.status") }}
+                                        <!-- <div class="flex flex-col ml-2">
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !== 'status' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                " fontIcon="arrow_drop_up">
+                                            </mat-icon>
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !== 'status' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                " fontIcon="arrow_drop_down">
+                                            </mat-icon>
+                                        </div> -->
+                                    </span>
+                                </th>
+                                <th class="th-cell cursor-pointer" (click)="sortBy('data__email')" [ngClass]="{
+                                        'bg-primary-100':
+                                            sortField === 'data__email'
+                                    }">
+                                    <span class="flex items-center">
+                                        {{ t("customer.email") }}
+                                        <div class="flex flex-col ml-2">
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !==
+                                                        'data__email' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                " fontIcon="arrow_drop_up">
+                                            </mat-icon>
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !==
+                                                        'data__email' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                " fontIcon="arrow_drop_down">
+                                            </mat-icon>
+                                        </div>
+                                    </span>
+                                </th>
+                                <th class="th-cell cursor-pointer" (click)="sortBy('data__phone_number')" [ngClass]="{
+                                        'bg-primary-100':
+                                            sortField === 'data__phone_number'
+                                    }">
+                                    <span class="flex items-center">
+                                        {{ t("customer.phone") }}
+                                        <div class="flex flex-col ml-2">
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !==
+                                                        'data__phone_number' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                " fontIcon="arrow_drop_up">
+                                            </mat-icon>
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !==
+                                                        'data__phone_number' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                " fontIcon="arrow_drop_down">
+                                            </mat-icon>
+                                        </div>
+                                    </span>
+                                </th>
+                                <th class="th-cell cursor-pointer" (click)="sortBy('data__assigned_by')" [ngClass]="{
+                                        'bg-primary-100':
+                                            sortField === 'data__assigned_by'
+                                    }">
+                                    <span class="flex items-center">
+                                        {{ t("customer.owner") }}
+                                        <div class="flex flex-col ml-2">
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !==
+                                                        'data__assigned_by' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                " fontIcon="arrow_drop_up">
+                                            </mat-icon>
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !==
+                                                        'data__assigned_by' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                " fontIcon="arrow_drop_down">
+                                            </mat-icon>
+                                        </div>
+                                    </span>
+                                </th>
+                                <th class="th-cell cursor-pointer" (click)="sortBy('data__source_name')" [ngClass]="{
+                                        'bg-primary-100':
+                                            sortField === 'data__source_name'
+                                    }">
+                                    <span class="flex items-center">
+                                        {{ t("customer.source") }}
+                                        <div class="flex flex-col ml-2">
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !==
+                                                        'data__source_name' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                " fontIcon="arrow_drop_up">
+                                            </mat-icon>
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !==
+                                                        'data__source_name' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                " fontIcon="arrow_drop_down">
+                                            </mat-icon>
+                                        </div>
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="
+                                    let customer of customerData;
+                                    trackBy: trackByCustomerId;
+                                    let i = index
+                                ">
+                                <td class="td-cell text-center p-0">
+                                    <mat-checkbox color="primary" class="custom-mat-checkbox" [checked]="
+                                            selectedCustomerIds.includes(
+                                                customer.id
+                                            )
+                                        " (change)="
+                                            onIndividualCheckboxChange(
+                                                $event.checked,
+                                                customer
+                                            )
+                                        ">
+                                    </mat-checkbox>
+                                </td>
+                                <td class="td-cell min-w-6 max-w-10 px-1 py-2 text-center">
+                                    {{ (currentPage - 1) * pageSize + i + 1 }}
+                                </td>
+                                <td class="td-cell min-w-50 max-w-50">
+                                    <div class="flex items-center gap-2 cursor-pointer">
+                                        <div class="min-w-0">
+                                            <a class="font-semibold text-ellipsis overflow-hidden whitespace-nowrap hover:underline block"
+                                                [routerLink]="[
+                                                    '/user/customer',
+                                                    customer.id
+                                                ]" [title]="
+                                                    customer.data.full_name ||
+                                                    ''
+                                                ">
+                                                {{ customer.data.full_name }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="td-cell min-w-20 max-w-26 whitespace-nowrap font-semibold">
+                                    <select
+                                        class="custom-select w-fit rounded-lg px-2 py-1 bg-transparent appearance-none"
+                                        [(ngModel)]="customer.data.status" (change)="onStatusChange(customer)">
+                                        <option *ngFor="let s of statusOptions">
+                                            {{ s.name }}
+                                        </option>
+                                    </select>
+                                </td>
+                                <td class="td-cell min-w-40 max-w-40">
+                                    <div class="text-ellipsis overflow-hidden whitespace-nowrap" style="max-width: 70ch"
+                                        [title]="customer.data.email || ''">
+                                        {{ customer.data.email || "---" }}
+                                    </div>
+                                </td>
+                                <td class="td-cell min-w-20 max-w-20">
+                                    <div class="text-ellipsis overflow-hidden whitespace-nowrap" style="max-width: 70ch"
+                                        [title]="
+                                            customer.data.phone_number || ''
+                                        ">
+                                        {{
+                                        customer.data.phone_number || "---"
+                                        }}
+                                    </div>
+                                </td>
+                                <td class="td-cell min-w-50 max-w-50">
+                                    <div class="text-ellipsis overflow-hidden whitespace-nowrap" style="max-width: 70ch"
+                                        [title]="customer.data.assigned || ''">
+                                        {{ customer.data.assigned }}
+                                    </div>
+                                </td>
+                                <td class="td-cell min-w-20 max-w-20">
+                                    <div class="text-ellipsis overflow-hidden whitespace-nowrap" style="max-width: 70ch"
+                                        [title]="customer.data.source || ''">
+                                        {{ customer.data.source || "---" }}
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div *ngIf="customerData.length === 0"
+                        class="flex flex-col items-center justify-center text-primary font-semibold text-center">
+                        <img src="assets/images/ui/empty-folder.svg" alt="" class="w-fit" />
+                        <p>Không tìm thấy kết quả phù hợp với từ khóa tìm kiếm</p>
+                    </div>
+                </div>
+                <!-- Footer -->
+                <div *ngIf="customerData.length > 0" class="flex flex-col items-center md:flex-row gap-2 md:gap-0">
+                    <!-- <p class="text-base text-center md:text-left w-full md:w-1/3">
+                        <strong>{{ getItemRangeText() }}</strong> trên tổng {{ totalRecords }}
+                    </p> -->
+
+                    <div class="flex flex-wrap md:flex-nowrap w-full justify-end items-center text-md gap-2">
+                        <div class="relative inline-block w-36 font-semibold text-primary">
+                            <!-- Nút dropdown -->
+                            <div class="bg-primary-100 border border-primary-300 rounded-md px-4 py-2 cursor-pointer flex justify-between items-center"
+                                (click)="isDropdownOpen = !isDropdownOpen">
+                                {{ pageSize }} {{ t("customer.per_page") }}
+                                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+
+                            <!-- Dropdown list hiển thị phía trên -->
+                            <div *ngIf="isDropdownOpen"
+                                class="absolute text-center bottom-full mb-1 z-10 w-full bg-white border border-primary-300 rounded-md shadow-lg">
+                                <div *ngFor="let size of pageSizeOptions" (click)="selectPageSize(size)"
+                                    class="px-4 py-2 cursor-pointer" [ngClass]="{
+                                        'bg-primary-200': size === pageSize,
+                                        'hover:bg-primary-100':
+                                            size !== pageSize
+                                    }">
+                                    {{ size }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <ul class="flex items-center gap-2">
+                            <!-- Previous -->
+                            <li>
+                                <a (click)="goToPreviousPage($event)" [ngClass]="{
+                                        'text-gray-400 cursor-not-allowed pointer-events-none':
+                                            isFirstPage(),
+                                        'text-primary cursor-pointer hover:bg-primary-50':
+                                            !isFirstPage()
+                                    }" class="flex items-center font-bold pr-2 py-1 rounded">
+                                    <mat-icon class="text-inherit text-md font-bold"
+                                        fontIcon="arrow_back_ios"></mat-icon>
+                                    <span>{{ t("customer.previous") }}</span>
+                                </a>
+                            </li>
+
+                            <!-- Page numbers -->
+                            <li *ngFor="let page of pages" class="w-7 h-7 text-center">
+                                <a *ngIf="page !== '...'" (click)="goToPage(page, $event)" [ngClass]="{
+                                        'bg-primary-100': currentPage === page,
+                                        'hover:bg-primary-50':
+                                            currentPage !== page
+                                    }"
+                                    class="block w-full h-full content-center font-bold text-primary border border-primary-100 rounded-md cursor-pointer">
+                                    {{ page }}
+                                </a>
+                                <span *ngIf="page === '...'"
+                                    class="block w-full h-full content-center font-bold text-primary border border-primary-100 rounded-md cursor-pointer">
+                                    ...
+                                </span>
+                            </li>
+
+                            <!-- Next -->
+                            <li>
+                                <a (click)="goToNextPage($event)" [ngClass]="{
+                                        'text-gray-400 cursor-not-allowed pointer-events-none':
+                                            isLastPage(),
+                                        'text-primary cursor-pointer hover:bg-primary-50':
+                                            !isLastPage()
+                                    }" class="flex items-center font-bold pl-2 py-1 rounded">
+                                    <span>{{ t("customer.next") }}</span>
+                                    <mat-icon class="text-inherit text-md font-bold"
+                                        fontIcon="arrow_forward_ios"></mat-icon>
+                                </a>
+                            </li>
+                            <div class="relative w-32">
+                                <input type="number" min="1" [max]="pages.length" [(ngModel)]="inputPage"
+                                    (keydown.enter)="jumpToPage()"
+                                    class="w-full text-center border border-primary-300 rounded-md px-2 py-1 pr-8"
+                                    placeholder="Đi đến trang"
+                                />
+                                <mat-icon
+                                    class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                                    arrow_right_alt
+                                </mat-icon>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup hiển thị khi có ít nhất 1 customer được chọn -->
+    <div *ngIf="selectedCustomerIds.length > 0"
+        class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-4 z-50 min-w-4">
+        <span>{{ t("customer.selected") }} ({{
+            selectedCustomerIds.length
+            }})</span>
+        <button (click)="deleteSelected()" class="flex items-center gap-1 hover:opacity-90">
+            <mat-icon class="text-white">delete</mat-icon>
+            <span>{{ t("customer.delete") }}</span>
+        </button>
+    </div>
+
+    <app-import-file *ngIf="showImport" (close)="closeImport()"></app-import-file>
+</div>

@@ -1,0 +1,12 @@
+FROM image-base
+    
+WORKDIR /app
+COPY . .
+
+COPY run.sh /app/run.sh
+RUN chmod +x /app/run.sh
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app/hotel_management
+
+# ENTRYPOINT ["celery", "-A", "hotel_management", "worker", "--loglevel=INFO"]

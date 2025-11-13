@@ -1,0 +1,263 @@
+<div class="flex-auto pt-3 sm:px-6 overflow-hidden max-h-screen" *transloco="let t">
+  <div class="relative w-full flex-1 h-full flex flex-col">
+    
+    <div class="mb-4 w-full">
+      <!-- Tiêu đề -->
+      <h2 class="text-2xl font-semibold mb-2">{{ t('feedback.page_title') }}</h2>
+
+      <!-- Toolbar -->
+      <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
+        <div class="flex flex-wrap gap-3 items-center">
+          <!-- Tìm kiếm -->
+          <div class="relative w-[320px]">
+            <input
+              type="text"
+              placeholder="{{ t('feedback.search_placeholder') }}"
+              [(ngModel)]="searchValue"
+              (input)="onSearchChange()"
+              class="h-10 w-[320px] pl-10 pr-2 border border-blue-500 rounded-md text-sm placeholder-blue-600"
+            />
+            <div
+              #filterToggleBtn
+              (click)="toggleFilter()"
+              class="h-full px-3 bg-blue-100 hover:bg-blue-200 border-l text-white border-blue-500 flex items-center justify-center"
+            >
+            
+              <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-blue-300">search</span>
+              <button class="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1 flex items-center justify-center
+                            bg-[#E0EAFF] border border-[#E0EAFF] hover:bg-[#e6f0ff] transition"
+                        (click)="toggleFilter(); $event.stopPropagation()"
+                        type="button"
+                    >
+                        <mat-icon
+                            [svgIcon]="'heroicons_outline:funnel'"
+                           
+                        ></mat-icon>
+                    </button>
+            </div>
+            <app-filter-feedback
+              *ngIf="showFilter"
+             #filterContainer
+              
+              [mode]="'inline'"
+              (filter)="handleAdvancedFilter($event)"
+              (close)="showFilter = false"
+              class="absolute top-[110%] left-0 z-50 bg-white shadow-lg rounded-md w-[320px] border border-gray-300"
+              >
+            </app-filter-feedback>
+          </div>
+
+
+          <!-- Xoá -->
+         <button
+            (click)="deleteSelectedItems()"
+            [class.hidden]="!hasSelectedItems"
+            class="flex items-center bg-red-100 text-red-600 px-3 py-3 gap-1 rounded text-sm cursor-pointer">
+            <span class="material-icons text-base">delete</span>
+            <span class="font-semibold">{{ t('content.delete') }}</span>
+          </button>
+
+
+          <!-- Xoá bộ lọc -->
+          <button
+            *ngIf="isFiltered"
+            (click)="clearFilter()"
+            class="px-3 h-9 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition text-sm font-medium"
+          >
+            {{ t('feedback.clear_filter') }}
+          </button>
+        </div>
+
+        <!-- Thêm mới -->
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            (click)="openAddForm()"
+            class="flex items-center gap-1 h-9 px-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm"
+          >
+            <span class="material-icons">add</span>
+            <span>{{ t('feedback.add') }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="bg-white overflow-y-auto max-h-[70vh] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+        <table class="table w-full border-separate border-spacing-0 text-base">
+          <thead class="text-sm font-medium text-gray-700 text-left bg-sky-50">
+            <tr>
+              <th class="p-3 border-b text-center td-cell">
+                <input type="checkbox"  [checked]="isAllSelected" (change)="toggleSelectAll($event)"/>
+              </th>
+              <th class="p-3 border-b font-semibold text-center td-cell">
+                {{ t('feedback.STT') }}
+              </th>
+              <th class="p-3 text-center border-b td-cell">
+                <span class="flex items-center justify-start ">
+                  {{ t('feedback.title') }}
+                </span>
+              </th>
+
+              <!-- Cột Created By -->
+              <th
+                class="p-3 text-center border-b cursor-pointer td-cell"
+                (click)="sortBy('id')"
+                [ngClass]="{ 'bg-primary-100': sortField === 'createdBy' }"
+              >
+                <span class="flex items-center justify-start">
+                  {{ t('feedback.created_by') }}
+                  <div class="flex flex-col ml-2">
+                    <ng-container *ngIf="sortField !== 'createdBy'">
+                      <span class="material-icons leading-none h-4 text-base">arrow_drop_up</span>
+                      <span class="material-icons leading-none h-4 text-base" style="margin-top: -8px;">arrow_drop_down</span>
+                    </ng-container>
+                    <ng-container *ngIf="sortField === 'createdBy' && sortDirection === 'asc'">
+                      <span class="material-icons leading-none h-4 text-base text-blue-600">arrow_drop_up</span>
+                    </ng-container>
+                    <ng-container *ngIf="sortField === 'createdBy' && sortDirection === 'desc'">
+                      <span class="material-icons leading-none h-4 text-base text-blue-600">arrow_drop_down</span>
+                    </ng-container>
+                  </div>
+                </span>
+              </th>
+
+              <!-- Cột Created At -->
+              <th
+                class="p-3 text-center border-b cursor-pointer td-cell"
+                (click)="sortBy('created_at')"
+                [ngClass]="{ 'bg-primary-100': sortField === 'createdAt' }"
+              >
+                <span class="flex items-center justify-start">
+                  {{ t('feedback.created_at') }}
+                  <div class="flex flex-col ml-2">
+                    <ng-container *ngIf="sortField !== 'createdAt'">
+                      <span class="material-icons leading-none h-4 text-base">arrow_drop_up</span>
+                      <span class="material-icons leading-none h-4 text-base" style="margin-top: -8px;">arrow_drop_down</span>
+                    </ng-container>
+                    <ng-container *ngIf="sortField === 'createdAt' && sortDirection === 'asc'">
+                      <span class="material-icons leading-none h-4 text-base text-blue-600">arrow_drop_up</span>
+                    </ng-container>
+                    <ng-container *ngIf="sortField === 'createdAt' && sortDirection === 'desc'">
+                      <span class="material-icons leading-none h-4 text-base text-blue-600">arrow_drop_down</span>
+                    </ng-container>
+                  </div>
+                </span>
+              </th>
+              <th class="p-3 border-b font-semibold text-center td-cell">
+                      {{ t('feedback.action') }} 
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr
+              class="hover:bg-blue-50 transition cursor-pointer"
+              
+              *ngFor="let item of feedbacks; let i = index; trackBy: trackById"
+            >
+              <td class="p-3 border-b text-center td-cell">
+                <input type="checkbox" [(ngModel)]="item.selected"(change)="onItemSelectionChange()" />
+              </td>
+              <td class="p-3 border-b font-semibold text-center td-cell">
+                {{ (currentPage - 1) * pageSize + i + 1 }}
+              </td>
+              <td
+                class="p-5 border-b text-left font-semibold max-w-[400px] td-cell truncate text-blue-600"
+                [title]="item.feedback"
+                (click)="openUpdateForm(item)"  
+              >
+                {{ item.title }}
+              </td>
+              <td class="p-3 border-b text-center font-semibold td-cell">
+                <div class="flex items-center justify-start gap-2">
+                  <img
+                    [src]="item.createdBy?.avatar || 'assets/images/avatars/default-avatar.svg'"
+                    alt="avatar"
+                    class="w-8 h-8 rounded-full object-cover"
+                  />
+                  <span>{{ item.createdBy?.username || '---' }}</span>
+                </div>
+              </td>
+              <td class="p-3 border-b justify-start font-semibold td-cell">
+                {{ item.createdAt ? (item.createdAt | date:'dd/MM/yyyy HH:mm') : '---' }}
+              </td>
+              <td class="p-3 border-b text-center td-cell">
+          
+              <!-- nút sửa -->
+              <button
+                (click)="$event.stopPropagation(); openUpdateForm(item)"
+                title="{{ t('feedback.update') }}"
+                class="inline-flex items-center justify-center w-8 h-8 mr-1">
+                <img src="assets/images/ui/edit.svg" alt="appType" class="w-8 h-8 object-scale-down mx-auto">
+              </button>
+              
+              <!-- nut xóa -->
+               <button
+              (click)="$event.stopPropagation(); openDeleteForm(item.id)"
+              title="{{ t('feedback.delete') }}"
+              class="inline-flex items-center justify-center w-8 h-8 mr-1">
+              <img src="assets/images/ui/trash.png" alt="appType" class="w-8 h-8 object-scale-down mx-auto">
+            
+            </button>
+
+
+            </td>
+            </tr>
+
+            <!-- Không có dữ liệu -->
+            <tr *ngIf="feedbacks.length === 0">
+              <td colspan="8" class="py-10">
+                <div class="flex flex-col items-center justify-center text-blue-500">
+                  <img src="assets/images/ui/empty-folder-1.svg" alt="Empty" class="w-32 h-32 mb-4" />
+                 <p class="font-semibold">{{ t('errors.CO_E_023') }}</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PHÂN TRANG -->
+     <div class="mt-auto flex flex-row items-start justify-between flex-wrap gap-2">
+            <span class="text-[#2563EB] text-sm font-medium block">{{ t('feedback.result') }}: {{ feedbacks.length }}/{{ pageSize }}</span>
+          <app-custom-pagination
+            [currentPage]="currentPage"
+            [pageSize]="pageSize"
+            [totalItems]="totalItems"
+            (pageChange)="onPageChange($event)"
+            (pageSizeChange)="onPageSizeChange($event)">
+         </app-custom-pagination>
+      </div>
+    
+
+    <!-- Components -->
+<app-add-feedback
+   *ngIf="showAddForm"
+   (close)="cancelAddForm()"
+   (refresh)="loadFeedback()"
+></app-add-feedback>
+
+<app-update-feedback
+  *ngIf="showUpdateForm && selectedFeedbackToUpdate"
+  [feedbackData]="selectedFeedbackToUpdate"
+  (close)="cancelUpdateForm()"
+  (refresh)="loadFeedback()"
+></app-update-feedback>
+
+ <app-delete-feedback
+  *ngIf="showDeleteForm"
+  [feedbackId]="selectedIdToDelete"
+  [feedbackIds]="selectedIdsToDelete"
+  (close)="cancelDeleteForm()"
+  (refresh)="onDeleteRefresh()"
+></app-delete-feedback>
+
+<app-filter-feedback
+  *ngIf="showFilterModal"
+  [mode]="'modal'"
+  (filter)="handleAdvancedFilter($event)"
+  (close)="showFilterModal = false">
+</app-filter-feedback>
+
+  </div>
+</div>

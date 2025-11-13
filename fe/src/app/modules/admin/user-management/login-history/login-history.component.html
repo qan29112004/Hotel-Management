@@ -1,0 +1,186 @@
+<!-- login-history.component.html -->
+<div
+    *ngIf="show"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    (click)="onBackdropClick($event)"
+>
+    <div
+        class="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 max-h-[80vh] overflow-hidden"
+        (click)="stopPropagation($event)"
+    >
+        <!-- Header -->
+        <div
+            class="flex items-center justify-between p-6 border-b border-gray-200"
+        >
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">
+                    {{ t("user_management.login_history") }}
+                </h2>
+                <p class="text-sm text-gray-500 mt-1" *ngIf="user">
+                    {{ user.fullName }} ({{ user.email }})
+                </p>
+            </div>
+            <button
+                (click)="closePopup()"
+                class="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                type="button"
+            >
+                <mat-icon class="text-gray-400">close</mat-icon>
+            </button>
+        </div>
+
+        <!-- Content -->
+        <div class="p-6 overflow-y-auto max-h-[calc(80vh-140px)]">
+            <!-- Loading state -->
+            <div *ngIf="loading" class="flex items-center justify-center py-8">
+                <div
+                    class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"
+                ></div>
+                <span class="ml-3 text-gray-600">{{
+                    t("user_management.loading_login_history")
+                }}</span>
+            </div>
+
+            <!-- Login history table -->
+            <div
+                *ngIf="!loading && loginHistory.length > 0"
+                class="overflow-x-auto"
+            >
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th
+                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b"
+                            >
+                                {{ t("user_management.login_time") }}
+                            </th>
+                            <th
+                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b"
+                            >
+                                {{ t("user_management.ip_address") }}
+                            </th>
+                            <th
+                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b"
+                            >
+                                {{ t("user_management.device") }}
+                            </th>
+                            <th
+                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b"
+                            >
+                                {{ t("user_management.browser") }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr
+                            *ngFor="
+                                let login of loginHistory;
+                                let i = index;
+                                trackBy: trackByLoginId
+                            "
+                            class="hover:bg-gray-50 transition-colors"
+                        >
+                            <td
+                                class="px-4 py-3 whitespace-nowrap text-sm text-gray-900"
+                            >
+                                {{ formatDateTime(login.time) }}
+                            </td>
+                            <td
+                                class="px-4 py-3 whitespace-nowrap text-sm text-gray-600"
+                            >
+                                <span class="font-mono">{{
+                                    login.ip || "---"
+                                }}</span>
+                            </td>
+                            <td
+                                class="px-4 py-3 whitespace-nowrap text-sm text-gray-600"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400 text-sm">
+                                        {{ getDeviceIcon(login.device) }}
+                                    </mat-icon>
+                                    {{ login.device || "---" }}
+                                </div>
+                            </td>
+                            <td
+                                class="px-4 py-3 whitespace-nowrap text-sm text-gray-600"
+                            >
+                                {{ login.browser || "---" }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Pagination for login history if needed -->
+                <div
+                    *ngIf="loginHistory.length < total"
+                    class="mt-4 flex justify-center"
+                >
+                    <button
+                        class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors"
+                        (click)="loadMoreHistory()"
+                    >
+                        {{ t("user_management.load_more") }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- No data state -->
+            <div
+                *ngIf="!loading && loginHistory.length === 0"
+                class="text-center py-8"
+            >
+                <div
+                    class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4"
+                >
+                    <mat-icon class="text-gray-400 text-2xl">history</mat-icon>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">
+                    {{ t("user_management.no_login_history") }}
+                </h3>
+                <p class="text-gray-500">
+                    {{ t("user_management.no_login_history_description") }}
+                </p>
+            </div>
+
+            <!-- Error state -->
+            <div
+                *ngIf="!loading && loginHistory.length === 0 && hasError"
+                class="text-center py-8"
+            >
+                <div
+                    class="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4"
+                >
+                    <mat-icon class="text-red-400 text-2xl"
+                        >error_outline</mat-icon
+                    >
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">
+                    {{ t("user_management.error_loading_history") }}
+                </h3>
+                <p class="text-gray-500 mb-4">
+                    {{ t("user_management.error_loading_history_description") }}
+                </p>
+                <button
+                    (click)="loadLoginHistory()"
+                    class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-600 transition-colors"
+                >
+                    {{ t("user_management.retry") }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div
+            class="flex justify-end gap-3 p-2 border-t border-gray-200 bg-gray-50"
+        >
+            <button
+                (click)="closePopup()"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                type="button"
+            >
+                {{ t("user_management.close") }}
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,329 @@
+<!-- Backdrop -->
+
+<fuse-drawer
+    class="w-screen min-w-screen sm:w-140 sm:min-w-140 z-999"
+    fixed
+    [mode]="'over'"
+    [opened]="showAddUser"
+    (openedChanged)="onDrawerOpenedChange($event)"
+    [name]="'addUserDrawer'"
+    [position]="'right'"
+    #addUserDrawer
+>
+    <form
+        *transloco="let t"
+        [formGroup]="addUserForm"
+        #addForm="ngForm"
+        class="w-full h-full shadow-md flex flex-col animated-box-content"
+    >
+        <!-- Header -->
+        <!-- <div
+            class="flex items-center justify-between bg-primary p-5"
+        > -->
+        <div
+            class="flex flex-row items-center px-4 py-4 text-white bg-primary"
+        >
+            <div class="ml-3 text-2xl font-semibold tracking-tight">
+                {{ t("user_management.add_member") }}
+            </div>
+            <!-- <button
+                class="ml-auto"
+                mat-icon-button
+                (click)="onCloseDrawer()"
+            >
+                <mat-icon
+                    class="text-current"
+                    [svgIcon]="'heroicons_outline:x-mark'"
+                ></mat-icon>
+            </button> -->
+        </div>
+        <!-- </div> -->
+        <fuse-alert
+            class="m-2"
+            *ngIf="showAlert"
+            [appearance]="'outline'"
+            [showIcon]="false"
+            [type]="alert.type"
+            [@shake]="alert.type === 'error'"
+        >
+            <ul class="list-disc pl-4">
+                <li *ngFor="let code of alert.code">
+                    {{ t(code) || t("errors.default") }}
+                </li>
+            </ul>
+        </fuse-alert>
+
+        <!-- Form Scrollable Content -->
+        <div class="flex-1 overflow-y-auto p-2 bg-white border border-gray-200">
+            <div class="flex flex-col p-3 bg-card overflow-hidden space-y-2">
+                <!-- <fuse-alert
+                    class="mb-2"
+                    *ngIf="showAlert"
+                    [appearance]="'outline'"
+                    [showIcon]="false"
+                    [type]="alert.type"
+                    [@shake]="alert.type === 'error'"
+                >
+                    <ul class="list-disc pl-4">
+                        <li *ngFor="let code of alert.code">
+                            {{ t(code) || t("errors.default") }}
+                        </li>
+                    </ul>
+                </fuse-alert> -->
+                <!-- Username field -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{ t("user_management.username") }}</mat-label>
+                    <input
+                        id="username"
+                        matInput
+                        [formControlName]="'username'"
+                        placeholder="{{ t('user_management.enter_username') }}"
+                        appUsernameSanitize
+                        required
+                    />
+                    <mat-error
+                        *ngIf="addUserForm.get('username').hasError('required')"
+                    >
+                        {{ t("errors.fields.username_required") }}
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Email field -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>Email</mat-label>
+                    <input
+                        id="email"
+                        matInput
+                        placeholder="{{ t('user_management.enter_email') }}"
+                        [formControlName]="'email'"
+                        required
+                    />
+                    <mat-error
+                        *ngIf="addUserForm.get('email').hasError('required')"
+                    >
+                        {{ t("errors.fields.email_required") }}
+                    </mat-error>
+                    <mat-error
+                        *ngIf="addUserForm.get('email').hasError('email')"
+                    >
+                        {{ t("errors.fields.email_invalid") }}
+                    </mat-error>
+                </mat-form-field>
+                <!-- Password field -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{
+                        t("change_password.password_label")
+                    }}</mat-label>
+                    <input
+                        id="password"
+                        matInput
+                        [type]="isPasswordVisible ? 'text' : 'password'"
+                        placeholder="{{
+                            t('create_account.password_placeholder')
+                        }}"
+                        [formControlName]="'password'"
+                        (focus)="passwordTouched = true"
+                    />
+                    <button
+                        mat-icon-button
+                        type="button"
+                        (click)="togglePasswordVisibility()"
+                        matSuffix
+                    >
+                        <mat-icon
+                            class="icon-size-5"
+                            [svgIcon]="
+                                isPasswordVisible
+                                    ? 'heroicons_solid:eye-slash'
+                                    : 'heroicons_solid:eye'
+                            "
+                        ></mat-icon>
+                    </button>
+                    <mat-error
+                        *ngIf="
+                            addUserForm.get('password')?.hasError('required')
+                        "
+                    >
+                        {{ t("change_password.password_required") }}
+                    </mat-error>
+                </mat-form-field>
+
+                <!--Full name field-->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{ t("user_management.fullName") }}</mat-label>
+                    <input
+                        id="fullName"
+                        matInput
+                        placeholder="{{ t('user_management.enterFullName') }}"
+                        [formControlName]="'fullName'"
+                    />
+                </mat-form-field>
+                <!-- Role field -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{ t("user_management.role") }}</mat-label>
+                    <mat-select [formControlName]="'role'">
+                        <mat-option *ngFor="let type of role" [value]="type.id">
+                            {{ type.name }}
+                        </mat-option>
+                    </mat-select>
+                    <button
+                        mat-icon-button
+                        matSuffix
+                        disableRipple
+                        class="custom-icon"
+                    >
+                        <mat-icon>expand_more</mat-icon>
+                    </button>
+                </mat-form-field>
+                <!--Phone-->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{
+                        t("user_management.phone_number")
+                    }}</mat-label>
+                    <input
+                        id="phone"
+                        matInput
+                        placeholder="{{
+                            t('user_management.enter_phone_number')
+                        }}"
+                        [formControlName]="'phone'"
+                        required
+                    />
+                    <mat-error
+                        *ngIf="addUserForm.get('phone').hasError('required')"
+                    >
+                        {{ t("errors.fields.phone_number_required") }}
+                    </mat-error>
+                    <mat-error
+                        *ngIf="
+                            addUserForm.get('phone').hasError('invalidPhone')
+                        "
+                    >
+                        {{ t("errors.fields.phone_number_invalid") }}
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Address -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{ t("user_management.address") }}</mat-label>
+                    <input
+                        id="address"
+                        matInput
+                        type="text"
+                        placeholder="{{ t('user_management.enterAddress') }}"
+                        [formControlName]="'address'"
+                    />
+                </mat-form-field>
+                <!-- BirthDay -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{ t("user_management.birthday") }}</mat-label>
+                    <input
+                        matInput
+                        [matDatepicker]="picker"
+                        [formControlName]="'birthday'"
+                    />
+                    <mat-datepicker-toggle
+                        matSuffix
+                        [for]="picker"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                    <mat-error
+                        *ngIf="
+                            addUserForm
+                                .get('birthday')
+                                .hasError('invalidBirthDate')
+                        "
+                    >
+                        {{ t("errors.fields.birthdayInvalid") }}
+                    </mat-error>
+                </mat-form-field>
+                <!-- Gender -->
+                <div class="w-full fuse-mat-dense flex flex-col">
+                    <mat-label>
+                        {{ t("user_infor.gender") }}
+                    </mat-label>
+                    <mat-radio-group
+                        formControlName="gender"
+                        class="flex flex-row space-x-4"
+                    >
+                        <mat-radio-button value="male">
+                            {{ t("user_infor.gender_male") }}
+                        </mat-radio-button>
+                        <mat-radio-button value="female">
+                            {{ t("user_infor.gender_female") }}
+                        </mat-radio-button>
+                        <mat-radio-button value="other">
+                            {{ t("user_infor.gender_other") }}
+                        </mat-radio-button>
+                    </mat-radio-group>
+                </div>
+                <!--Status-->
+                <mat-form-field
+                    *ngIf="!isStatus"
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{ t("user_management.status") }}</mat-label>
+                    <mat-select [formControlName]="'status'">
+                        <mat-option *ngFor="let s of status" [value]="s.id">
+                            {{ t("user_management." + s.name) }}
+                        </mat-option>
+                    </mat-select>
+                    <button
+                        mat-icon-button
+                        matSuffix
+                        disableRipple
+                        class="custom-icon"
+                    >
+                        <mat-icon>expand_more</mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div
+            class="p-4 bg-gray-100 border-t border-gray-200 w-full flex items-center animated-box"
+        >
+            <button
+                (click)="onToggleClick()"
+                type="button"
+                class="w-auto border border-red-500  bg-white text-primary px-4 py-2 rounded font-bold text-base animated-box-content"
+            >
+                <span class = "text-red-500">{{ t("user_management.cancel") }}</span>
+            </button>
+            <button
+                type="button"
+                (click)="create()"
+                class="w-auto bg-primary text-white px-4 py-2 ml-3 rounded font-bold text-base"
+            >
+                {{ t("user_management.create_user") }}
+            </button>
+        </div>
+    </form>
+    <!-- </div> -->
+</fuse-drawer>

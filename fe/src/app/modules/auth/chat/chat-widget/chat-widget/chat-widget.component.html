@@ -1,0 +1,272 @@
+<div class="relative flex flex-col w-full h-full">
+    <div
+        class="flex items-center justify-between w-full bg-[#1255FB] h-15 rounded-t-xl"
+    >
+        <h3 class="pl-3 font-medium text-white">Chat</h3>
+
+        <div class="flex gap-2 pr-3">
+            <button
+                type="button"
+                (click)="openNewTab()"
+                title="Mở cửa sổ tin nhắn"
+                class="text-white hover:text-gray-200"
+            >
+                <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    ></path>
+                </svg>
+            </button>
+            <button
+                (click)="emitCloseChat()"
+                type="button"
+                class="text-white hover:text-gray-200"
+            >
+                <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                    ></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+    <div
+        #chatContainer
+        (scroll)="onScroll()"
+        class="relative flex flex-col flex-grow w-full h-64 gap-2 p-4 overflow-y-auto flex-shrink-1"
+    >
+        <ng-container *ngIf="isLoadingChat === true">
+            <div
+                class="fixed z-50 -translate-x-1/2 top-1/2 left-1/2"
+                [ngClass]="{
+                    'left-2/3': user.role === 1,
+                    ' left-1/2': user.role === 3
+                }"
+            >
+                <div class="loader"></div>
+            </div>
+        </ng-container>
+        <ng-container *ngFor="let chat of chats; let i = index">
+            <div
+                *ngIf="
+                    (chats[i - 1] &&
+                        compareDates(
+                            formatTimestamp(chats[i - 1].timestamp)[0],
+                            formatTimestamp(chats[i].timestamp)[0]
+                        ) !== 0) ||
+                    i === 0
+                "
+                class="flex justify-center w-full text-[#A0A0A0] text-xl font-normal font-lexend_deca"
+            >
+                {{
+                    formatTimestamp(chats[i].timestamp)[0] +
+                        " " +
+                        translocoService.translate("chat.at") +
+                        " " +
+                        formatTimestamp(chats[i].timestamp)[1]
+                }}
+            </div>
+            <div
+                class="flex max-w-full"
+                [ngClass]="{
+                    'justify-end': chat.position === 'right',
+                    'justify-start': chat.position === 'left'
+                }"
+            >
+                <app-chat-bubble
+                    class="max-w-[70%]"
+                    [config]="chat"
+                    [user]="users"
+                    [inforAdmin]="adminData"
+                ></app-chat-bubble>
+            </div>
+        </ng-container>
+        <ng-container
+            *ngIf="
+                isUploading &&
+                isSending &&
+                selectedFile &&
+                selectedFile.length > 0
+            "
+        >
+            <div class="flex items-start justify-end space-x-3 animate-fade-in">
+                <ng-container *ngFor="let img of selectedFile">
+                    <div
+                        class="relative max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl"
+                    >
+                        <div class="relative w-32 h-32">
+                            <div
+                                class="absolute inset-0 flex items-center justify-center"
+                            >
+                                <div class="loader"></div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </ng-container>
+        <ng-container *ngIf="isResponding">
+            <div class="flex items-start space-x-3">
+                <div
+                    class="w-10 text-center bg-gray-300 rounded-md animate-pulse"
+                >
+                    <div class="flex items-center justify-center h-6">
+                        <span
+                            class="dot inline-block w-2 h-2 bg-gray-600 rounded-full mx-0.5 animate-bounce"
+                        ></span>
+                        <span
+                            class="dot inline-block w-2 h-2 bg-gray-600 rounded-full mx-0.5 animate-bounce delay-500"
+                        ></span>
+                        <span
+                            class="dot inline-block w-2 h-2 bg-gray-600 rounded-full mx-0.5 animate-bounce delay-1000"
+                        ></span>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+    <form
+        class="flex items-stretch h-auto border-t"
+        [formGroup]="form"
+        (ngSubmit)="addMessage()"
+    >
+        <div class="flex items-center w-full gap-2 pl-2 pr-2">
+            <!-- Khối input chính -->
+            <div class="flex items-center flex-1 gap-2">
+                <!-- Khi KHÔNG ghi âm -->
+                <ng-container *ngIf="!isRecording; else recordingBlock">
+                    <!-- Mic -->
+                    <app-mic-button
+                        (click)="startRecording()"
+                        size="sm"
+                    ></app-mic-button>
+
+                    <!-- Upload -->
+                    <button
+                        type="button"
+                        (click)="TriggerInputFile()"
+                        (change)="InputChangeFile($event)"
+                        class="flex items-center justify-center w-10 h-10 transition-colors duration-200 rounded-full hover:bg-gray-100 group"
+                    >
+                        <mat-icon
+                            class="w-5 h-5 text-gray-600 group-hover:text-purple-600"
+                        >
+                            add_photo_alternate
+                        </mat-icon>
+                        <input
+                            #inputFile
+                            multiple
+                            type="file"
+                            accept="image/*"
+                            formControlName="file"
+                            class="hidden"
+                        />
+                    </button>
+
+                    <!-- Input + preview -->
+                    <div class="flex flex-col flex-1">
+                        <!-- Image preview -->
+                        <div
+                            *ngIf="imagePreview.length > 0"
+                            class="flex flex-wrap gap-2 px-2 mb-2"
+                        >
+                            <ng-container *ngFor="let item of imagePreview">
+                                <div class="relative flex">
+                                    <img
+                                        [src]="item.previewUrl"
+                                        class="object-cover w-16 h-16 border border-gray-500 rounded"
+                                    />
+                                    <button
+                                        (click)="
+                                            removeSelectedFile(item.fileName)
+                                        "
+                                        type="button"
+                                        class="absolute -top-2 -right-2 flex items-center justify-center w-5 h-5 text-white bg-[#3941ab] rounded-full cursor-pointer text-xs"
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            </ng-container>
+                        </div>
+
+                        <!-- Textarea -->
+                        <textarea
+                            #inputText
+                            (input)="autoGrow(inputText)"
+                            (keydown)="onKeyDown($event)"
+                            formControlName="message"
+                            placeholder="{{
+                                translocoService.translate(
+                                    'chat.input_placeholder'
+                                )
+                            }}"
+                            class="w-full pt-3 bg-transparent outline-none resize-none max-h-26"
+                            style="max-height: 200px; min-height: 40px"
+                        ></textarea>
+                    </div>
+                </ng-container>
+
+                <!-- Khi đang ghi âm -->
+                <ng-template #recordingBlock>
+                    <app-audio-wave
+                        (cancel)="onCancelRecording()"
+                        (send)="onStopRecording()"
+                        mode="widget"
+                        class="w-full"
+                        [isRecording]="isRecording"
+                        [isProcessing]="isProcessing"
+                    ></app-audio-wave>
+                </ng-template>
+            </div>
+
+            <!-- Nút gửi (luôn giữ) -->
+            <button
+                type="submit"
+                class="flex items-center justify-center w-12 h-12 overflow-hidden text-white transition-all duration-200 transform rounded-full shadow-lg bg-gradient-to-r hover:shadow-xl hover:scale-105 group"
+            >
+                <img
+                    class="w-6 h-6 object-contain group-hover:translate-x-0.5 transition-transform duration-200"
+                    [src]="
+                        messageValue
+                            ? 'assets/icons/marketplace/Icon Active.svg'
+                            : 'assets/icons/marketplace/Icon Disable.svg'
+                    "
+                />
+            </button>
+        </div>
+    </form>
+
+    <ng-container *ngIf="isImage === false">
+        <div class="absolute flex flex-col mt-[23rem] ml-[1rem]">
+            <div
+                class="relative p-4 border border-red-400 rounded-lg shadow-lg bg-gradient-to-r from-red-500 to-red-600"
+            >
+                <div class="flex items-center space-x-2">
+                    <mat-icon class="w-5 h-5 text-white">warning</mat-icon>
+                    <p class="text-sm font-medium text-white">
+                        Chỉ được phép gửi ảnh
+                    </p>
+                </div>
+                <div
+                    class="absolute w-0 h-0 border-t-8 border-l-8 border-r-8 -bottom-2 left-3 border-l-transparent border-r-transparent border-t-red-500"
+                ></div>
+            </div>
+        </div>
+    </ng-container>
+</div>

@@ -1,0 +1,34 @@
+<div class="p-4 sm:px-6 sm:py-4 h-full">
+    <div class="relative w-full h-full">
+        <div *ngIf="news" class="flex items-center justify-between text-lg mb-4">
+            <div class="flex flex-col">
+                <h1 class="text-3xl font-bold break-words max-w-2xl">{{ news.title | titlecase}}</h1>
+                <!-- Meta info -->
+                <div class="flex items-center text-sm text-gray-500 space-x-4">
+                    <span>{{ news.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="flex whitespace-nowrap items-center gap-2 justify-between bg-gray-300 text-gray-700 h-9 px-3 rounded-md"
+                    routerLink="/news">
+                    <span class="material-icons">arrow_back</span>
+                    <span class="lg:text-base text-sm">Quay lại</span>
+                </button>
+            </div>
+        </div>
+        <hr class="border border-gray-300 opacity-30 my-4" />
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div *ngIf="news" class="space-y-6">
+
+                <!-- Content -->
+                <div class="prose max-w-none" [innerHTML]="news.content"></div>
+            </div>
+
+            <!-- Loading state -->
+            <div *ngIf="!news" class="flex items-center justify-center h-64">
+                <span class="material-icons animate-spin">refresh</span>
+            </div>
+        </div>
+    </div>
+</div>

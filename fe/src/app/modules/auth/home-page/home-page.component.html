@@ -1,0 +1,136 @@
+<div class="flex-auto w-full h-full overflow-y-auto max-w-[1920px]">
+    <div class="relative flex flex-col items-center w-full h-full">
+        <div
+            class="md:min-h-[100svh] h-[100svh] pb-10 bg-center bg-no-repeat bg-cover text-white flex flex-col justify-center items-center relative w-full"
+            [style.background-image]="'url('+ ('assets/images/home-page/header.jpg')+ ')'"
+        >
+            <div class="absolute inset-0 bg-black/50"></div>
+            <!-- Search -->
+            <div class="z-10 flex w-max h-auto max-w-full bg-white/90 max-lg:bg-transparent">
+                <form (ngSubmit)="submitSearch()" class="flex w-auto max-w-full p-2 bg-transparent max-lg:grid max-lg:grid-cols-1 max-lg:gap-3">
+                    <div class="flex flex-col p-2 min-w-[300px] max-lg:bg-white">
+                        <span class="font-mono text-black">{{translocoService.translate('home-page.location')|uppercase}}</span>
+                        <mat-select name="selectDes" [(ngModel)]="selectedDes" [placeholder]="translocoService.translate('home-page.choose_location')"  (click)="testClick()">
+                            
+                            <mat-option *ngFor="let item of optionsDestinations" [value]="item.id">
+                            {{ item.name }}
+                            </mat-option>
+                            <mat-option class="hidden" [value]="1">
+                            1
+                            </mat-option>
+                        </mat-select>
+                    </div>
+                    <div class="flex gap-3 max-lg:grid-cols-2 max-lg:grid">
+                        <button type="button" class="flex flex-col p-2 border-l border-black/50 min-w-[105px] max-lg:bg-white" (click)="toggleCalendarCheckin()">
+                            <span class="self-start font-mono text-black">CHECK IN</span>
+                            <input readonly [min]="today" [matDatepicker]="pickerCheckin" name="pickerCheckin" [(ngModel)]="selectedDateCheckin"  [placeholder]="translocoService.translate('home-page.choose_day')" class="text-black placeholder:font-mono">
+                            <mat-datepicker #pickerCheckin></mat-datepicker>
+                        </button>
+                        <button type="button" [disabled]="!selectedDateCheckin" class="flex flex-col p-2 border-l border-black/50 min-w-[105px] max-lg:bg-white" (click)="toggleCalendarCheckout()">
+                            <span class="self-start font-mono text-black">CHECK OUT</span>
+                            <input readonly [min]="selectedDateCheckin" [matDatepicker]="pickerCheckout" name="pickerCheckout" [(ngModel)]="selectedDateCheckout"  [placeholder]="translocoService.translate('home-page.choose_day')" class="text-black placeholder:font-mono">
+                            <mat-datepicker #pickerCheckout></mat-datepicker>
+                        </button>
+                        <div class="relative min-w-[180px] max-lg:min-w-0 max-lg:bg-white">
+                            <button
+                                type="button"
+                                class="flex flex-col h-full p-2 border-l border-black/50"
+                                (click)="toggleGuestSelector()"
+                            >
+                                <span class="self-start font-mono text-black">{{translocoService.translate('home-page.guest')+ ', ' + translocoService.translate('home-page.room')}}</span>
+                                <span class="self-start font-mono text-black text-start">{{ guestSummary }}</span>
+                            </button>
+
+                            <!-- Popup chọn khách -->
+                            <div
+                                *ngIf="showGuestSelector"
+                                class="absolute left-0 z-50 flex flex-col gap-3 p-3 mt-2 text-black border border-gray-300 rounded-lg shadow-lg bg-[#F5F5F5] w-max"
+                            >
+                                <div class="flex flex-col">
+                                    <span class="text-xl font-charm">{{translocoService.translate('home-page.how_many_guests')}}</span>
+                                    <div class="flex items-center justify-between p-2 text-black">
+                                        <span class="font-mono">{{translocoService.translate('home-page.room')}}</span>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" class="px-2" (click)="removeRoom()">-</button>
+                                            <span class="font-mono">{{ roomList.length }}</span>
+                                            <button [attr.disabled]="roomList.length >= 5 ? true : null" type="button" class="px-2" (click)="addRoom()">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-xl font-charm">{{translocoService.translate('home-page.how_many_rooms')}}</span>
+                                    <div class="grid gap-3" [ngClass]="roomList.length > 1 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'">
+                                        <div class="flex flex-col bg-white shadow-md"  *ngFor="let r of roomList">
+                                            <div class="flex items-center justify-between p-2 text-black ">
+                                                <span class="font-mono">{{translocoService.translate('home-page.adults')}}</span>
+                                                <div class="flex items-center gap-2">
+                                                    <button type="button" class="px-2" (click)="r.adults = Math.max(1, r.adults - 1)">-</button>
+                                                    <span class="font-mono">{{ r.adults }}</span>
+                                                    <button [attr.disabled]="r.adults >= 10 ? true : null" type="button" class="px-2" (click)="r.adults = r.adults + 1">+</button>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center justify-between p-2 text-black">
+                                                <span class="font-mono">{{translocoService.translate('home-page.children')}}</span>
+                                                <div class="flex items-center gap-2">
+                                                    <button type="button" class="px-2" (click)="r.children = Math.max(0, r.children - 1)">-</button>
+                                                    <span class="font-mono">{{ r.children }}</span>
+                                                    <button [attr.disabled]="r.children >= 6 ? true : null" type="button" class="px-2" (click)="r.children = r.children + 1">+</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <button type="button" class="px-3 py-1 font-mono text-white bg-black rounded" (click)="closeGuestSelector()">{{translocoService.translate('home-page.done')}}</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col p-2 min-w-[170px] max-lg:min-w-0 border-l border-black/50 max-lg:bg-white">
+                            <span class="font-mono text-black">Code</span>
+                            <input type="text" name="code" [(ngModel)]="code" placeholder="" class="text-black placeholder:font-mono"/>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="flex items-center justify-center gap-3 px-8 py-6 bg-yellow-500">
+                        <mat-icon class="text-black" [svgIcon]="'heroicons_outline:magnifying-glass'"></mat-icon>
+                        <span class="font-mono text-black">{{translocoService.translate('home-page.search')}}</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="flex flex-col items-center justify-center w-full">
+            <div class="flex flex-col items-center justify-center text-center bg-white max-w-[1440px] w-full py-12">
+                <span class="text-[60px] font-classy text-[#9e693d]">{{translocoService.translate('home-page.pioneers.title')}}</span>
+                <div class="relative flex items-center justify-center w-full h-auto max-md:justify-start max-md:overflow-x-auto">
+                    <div class="absolute bg-[#f7f0ea] w-screen max-w-[1920px] self-center h-[144px]"></div>
+                    <div class="grid grid-cols-3 gap-2 max-w-[80%] max-md:min-w-[900px] z-10 items-stretch">
+                        <div class="p-2 bg-gray-50">
+                            <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
+                                <img class="object-cover w-full h-full" src="assets/images/home-page/curated_hotels.jpg" alt="curated_hotels" />
+                                <span class="text-black ext-2xl font-lexend_deca">{{translocoService.translate('home-page.pioneers.curated_hotels')}}</span>
+                                <p class="text-xl text-black font-avenir">{{translocoService.translate('home-page.pioneers.curated_hotels_content')}}</p>
+                                <a href="#" class="self-center text-base font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Explore Hotels </a>
+                            </div>
+                        </div>
+                        <div class="p-2 bg-gray-50">
+                            <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
+                                <img class="object-cover w-full h-full" src="assets/images/home-page/curated_hotels.jpg" alt="curated_hotels" />
+                                <span class="text-black ext-2xl font-lexend_deca">{{translocoService.translate('home-page.pioneers.pẻ')}}</span>
+                                <p class="text-xl text-black font-avenir">Over 650 hotels in more than 90 countries – vetted each year for the highest of individual quality.</p>
+                                <a href="#" class="self-center text-base font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Discover Destinations </a>
+                            </div>
+                        </div>
+                        <div class="p-2 bg-gray-50">
+                            <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
+                                <img class="object-cover w-full h-full" src="assets/images/home-page/curated_hotels.jpg" alt="curated_hotels" />
+                                <span class="text-black ext-2xl font-lexend_deca">Emotional Connections</span>
+                                <p class="text-xl text-black font-avenir">Over 650 hotels in more than 90 countries – vetted each year for the highest of individual quality.</p>
+                                <a href="#" class="self-center text-base font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Explore Hotels </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

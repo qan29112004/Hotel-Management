@@ -1,0 +1,182 @@
+<div *transloco="let t" class="absolute inset-0 flex min-w-0 w-full flex-col overflow-y-auto" cdkScrollable>
+
+    <!-- Body -->
+    <div class="flex-auto p-4 sm:px-6 sm:py-4">
+
+        <!-- Content -->
+        <div class="relative w-full bg-white">
+
+            <!-- Header Bar -->
+            <div class="flex justify-between">
+                <!-- Title -->
+                <div class="flex flex-col items-start">
+                    <span class="lg:text-2xl text-3xl font-semibold">{{t("personal_customer.title")}}</span>
+                    <span class="lg:text-md text-lg font-semibold text-gray-400">
+                        {{ totalRecords }} {{t("personal_customer.all_result")}}</span>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <hr class="border border-gray-300 opacity-30 my-4" />
+
+            <!-- Bộ lọc -->
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-5">
+                <!-- Cột trái: Tìm kiếm -->
+                <div class="w-full sm:max-w-sm">
+                    <div class="relative">
+                        <mat-icon class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">search</mat-icon>
+                        <input type="text" [(ngModel)]="searchValue" (ngModelChange)="onSearchChange()"
+                            placeholder="{{ t('personal_customer.search_placeholder') }}"
+                            class="h-9 sm:text-base text-sm text-black pl-10 pr-3 py-2 border border-gray-300 rounded-lg w-full" />
+                    </div>
+                </div>
+
+                <!-- Cột phải: Các nút -->
+                <div class="flex justify-start sm:justify-end gap-2">
+                    <button (click)="openAddForm()" class="flex items-center bg-primary text-white h-9 px-3 rounded-lg">
+                        <span class="sm:text-base text-sm">
+                            {{ t('personal_customer.btn_create') }}
+                        </span>
+                        <img src="assets/icons/icon-plus.svg" alt="" class="w-fit ml-2" />
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="h-table-body-17">
+                <div class="bg-white overflow-x-auto h-full mb-3">
+                    <table class="table w-full border-separate border-spacing-0 text-base">
+                        <thead class="font-medium text-gray-700 text-left bg-sky-50">
+                            <tr>
+                                <!-- <th class="th-cell min-w-10 max-w-10 text-center p-0">
+                                    <mat-checkbox color="primary" class="custom-mat-checkbox"
+                                        [checked]="selectedFormIds.length > 0"
+                                        [indeterminate]="selectedFormIds.length > 0" (change)="onToggleSelectAll()">
+                                    </mat-checkbox>
+                                </th> -->
+                                <th class="th-cell min-w-16 max-w-16 text-center">STT</th>
+                                <th class="th-cell min-w-96 max-w-96 cursor-pointer" (click)="sortBy('name')" [ngClass]="{
+                                        'bg-primary-100': sortField === 'name'
+                                    }">
+                                    <span class="flex items-center">
+                                        Tên biểu mẫu
+                                        <div class="flex flex-col ml-2">
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !== 'name' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                " fontIcon="arrow_drop_up">
+                                            </mat-icon>
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !== 'name' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                " fontIcon="arrow_drop_down">
+                                            </mat-icon>
+                                        </div>
+                                    </span>
+                                </th>
+                                <th class="th-cell min-w-120 max-w-120 cursor-pointer" (click)="sortBy('description')" [ngClass]="{
+                                        'bg-primary-100': sortField === 'description'
+                                    }">
+                                    <span class="flex items-center">
+                                        Mô tả biểu mẫu
+                                        <div class="flex flex-col ml-2">
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !== 'description' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                " fontIcon="arrow_drop_up">
+                                            </mat-icon>
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !== 'description' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                " fontIcon="arrow_drop_down">
+                                            </mat-icon>
+                                        </div>
+                                    </span>
+                                </th>
+                                <th class="th-cell min-w-30 max-w-30 cursor-pointer" (click)="sortBy('template_type')" [ngClass]="{
+                                        'bg-primary-100': sortField === 'template_type'
+                                    }">
+                                    <span class="flex items-center">
+                                        Loại
+                                        <div class="flex flex-col ml-2">
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !== 'template_type' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                " fontIcon="arrow_drop_up">
+                                            </mat-icon>
+                                            <mat-icon class="min-w-3 w-3 min-h-2 h-2" *ngIf="
+                                                    sortField !== 'template_type' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                " fontIcon="arrow_drop_down">
+                                            </mat-icon>
+                                        </div>
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                *ngFor=" let formTemplate of formTemplates; let i = index; trackBy: trackByFormTemplateId">
+                                <!-- <td class="td-cell min-w-10 max-w-10 text-center p-0">
+                                    <mat-checkbox color="primary" class="custom-mat-checkbox"
+                                        [checked]="selectedFormIds.includes(formTemplate.id)"
+                                        (change)="onIndividualCheckboxChange($event.checked, formTemplate)">
+                                    </mat-checkbox>
+                                </td> -->
+                                <td class="td-cell min-w-16 max-w-16 text-center">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+                                <td class="td-cell min-w-96 max-w-96">
+                                    <div class="min-w-0" (click)="navigateToEditFormTemplate(formTemplate)">
+                                        <div class="font-semibold text-primary text-ellipsis overflow-hidden whitespace-nowrap cursor-pointer hover:underline"
+                                            [title]="formTemplate.name || ''">
+                                            {{ formTemplate.name }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="td-cell min-w-120 max-w-120">
+                                    <div class="min-w-0">
+                                        <div class="text-ellipsis overflow-hidden whitespace-nowrap"
+                                            [title]="formTemplate.description || ''">
+                                            {{ formTemplate.description }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="td-cell min-w-30 max-w-30">{{ getTemplateTypeName(formTemplate.template_type) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div *ngIf="formTemplates.length === 0"
+                        class="flex flex-col items-center justify-center text-primary font-semibold text-center">
+                        <img src="assets/images/ui/empty-folder.svg" alt="" class="w-fit" />
+                        <p>{{ t("user_management.no_matching_data") }}</p>
+                    </div>
+                </div>
+
+                <app-custom-pagination *ngIf="formTemplates.length > 0"
+                    [totalRecords]="totalRecords" [totalItems]="totalItems"
+                    [currentPage]="currentPage" [pageSize]="pageSize"
+                    (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)">
+                </app-custom-pagination>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup hiển thị khi có ít nhất 1 user được chọn -->
+    <!-- <div *ngIf="selectedFormIds.length > 0"
+        class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-4 z-50 min-w-4">
+        <span>{{t("personal_customer.selected")}} ({{ selectedFormIds.length }})</span>
+        <button (click)="deleteSelected()" class="flex items-center gap-1 hover:opacity-90">
+            <mat-icon class="text-white">delete</mat-icon>
+            <span>{{t("personal_customer.delete")}}</span>
+        </button>
+    </div> -->
+</div>
+
+<!-- Gắn popup vào -->
+<app-add-form [isVisible]="showAddFormPopup" (closed)="closeAddForm()">
+</app-add-form>

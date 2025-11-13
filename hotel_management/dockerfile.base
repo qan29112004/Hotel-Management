@@ -1,0 +1,27 @@
+# Dockerfile.base
+FROM python:3.10-slim-bullseye
+
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        gcc \
+        python3-dev \
+        default-libmysqlclient-dev \
+        pkg-config \
+        libssl-dev \
+        libsasl2-dev \
+        libzstd-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir  -r requirements.txt
+
+COPY requirements-ai.txt ./
+RUN pip install --no-cache-dir -r requirements-ai.txt
+
+
+RUN apt-get purge -y gcc python3-dev && \
+    apt-get autoremove -y && \
+    rm -rf /root/.cache/pip

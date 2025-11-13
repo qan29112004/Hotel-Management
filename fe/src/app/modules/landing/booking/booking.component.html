@@ -1,0 +1,240 @@
+<div class='relative w-full h-full max-w-[1920px] flex flex-col items-center'>
+    <div class='w-full h-full max-h-[630px] relative bg-center bg-no-repeat bg-cover flex flex-col items-center'
+    [style.background-image]="'url('+ ('assets/images/home-page/header.jpg')+ ')'">
+        <div class="flex flex-col h-full w-full justify-center items-center pt-[10%] max-w-[1140px]">
+            <div class="absolute top-0 left-0 w-full h-full bg-primary/50"></div>
+            <span class="font-avenir text-[40px] font-semibold text-white uppercase z-10">hotel name</span>
+            <a href="#" class="underline font-avenir text-[14px] font-extrabold decoration-white uppercase z-10 text-white my-5">hotel details</a>
+            <div *ngIf="showSecondDiv" class="z-10 flex flex-col w-[calc(100%+60px)] px-[30px] text-black bg-white gap-2 py-2 mt-10"
+                [class.hidden]="isSmallScreen && !showSecondDiv"
+            >
+                <div class="flex justify-end">
+                    <button (click)="toggleToDiv1()" class="px-2 py-1 text-center text-black bg-yellow-500 text-[14px] font-avenir font-black uppercase">Edit</button>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-avenir text-[16px] font-normal">{{formatDateRange(checkInDate, checkOutDate)}}</span>
+                    <span class="font-avenir text-[16px] font-normal">{{ guestSummary }}</span>
+                </div>
+            </div>
+            <div *ngIf="!showSecondDiv" class="z-10 flex w-full h-auto max-w-full mt-5 bg-white/90 max-lg:bg-transparent mb-7"
+                [class.hidden]="!isSmallScreen && showSecondDiv"
+            >
+                
+                <form  (ngSubmit)="submitSearch()" class="flex w-full max-w-full p-2 bg-transparent max-lg:grid max-lg:grid-cols-1 max-lg:gap-3">
+                    <div class="flex flex-col p-2 min-w-[20%] max-lg:bg-white">
+                        <span class="font-mono text-black">{{translocoService.translate('home-page.name_hotel')|uppercase}}</span>
+                        <mat-select disabled name="selectedDes" [value]="payload['hotel_name']" [placeholder]="translocoService.translate('home-page.choose_location')">
+                            
+                            <mat-option class="" [value]="payload['hotel_name']">
+                            {{payload['hotel_name']}}
+                            </mat-option>
+                        </mat-select>
+                    </div>
+                    <div class="flex min-w-[70%] gap-3 max-lg:grid-cols-2 max-lg:grid">
+                        <button class="relative max-lg:bg-white flex flex-col p-2 border-l border-black/50 min-w-[105px] " >
+                            <span class="self-start font-mono text-black">CHECK IN</span>
+                            <input readonly (click)="toggleCalendarCheckin()" type="text" [(ngModel)]="checkInDate" name="DateCheckin" [placeholder]="translocoService.translate('home-page.choose_day')" class="text-black placeholder:font-mono">
+                            <!-- <app-calendar class="z-10 w-[360px] absolute top-8" [date]="date" [crrHotel]="crrHotel"></app-calendar> -->
+                            <app-calendar class="z-10 w-[342px] max-lg:w-auto absolute top-8" [date]="date" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckin" (selectedDayEmit)="selectedCheckin($event)"
+                                [ngClass]="{'hidden':!showCalendarCheckin}"
+                            ></app-calendar>
+                        </button>
+                        <button  class="relative max-lg:bg-white flex flex-col p-2 border-l border-black/50 min-w-[105px] " >
+                            <span class="self-start font-mono text-black">CHECK OUT</span>
+                            <input readonly [disabled]="!checkInDate" (click)="toggleCalendarCheckout()" type="text" name="DateCheckout" [(ngModel)]="checkOutDate"  [placeholder]="translocoService.translate('home-page.choose_day')" class="text-black placeholder:font-mono">
+                            <app-calendar *ngIf="checkInDate" class="z-10 max-lg:w-auto w-[342px] absolute top-8" [date]="checkOutDateObj" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckout" (selectedDayEmit)="selectedCheckout($event)"
+                                [ngClass]="{'hidden':!showCalendarCheckout}"
+                            ></app-calendar>
+                        </button>
+                        <div class="relative min-w-[20%] max-lg:min-w-0 max-lg:bg-white">
+                            <button
+                                type="button"
+                                class="flex flex-col h-full p-2 border-l border-black/50"
+                                (click)="toggleGuestSelector()"
+                            >
+                                <span class="self-start font-mono text-black">{{translocoService.translate('home-page.guest')+ ', ' + translocoService.translate('home-page.room')}}</span>
+                                <span class="self-start font-mono text-black text-start">{{ guestSummary }}</span>
+                            </button>
+
+                            <!-- Popup chọn khách -->
+                            <div
+                                *ngIf="showGuestSelector"
+                                class="absolute left-0 z-50 flex flex-col gap-3 p-3 mt-2 text-black border border-gray-300 rounded-lg shadow-lg bg-[#F5F5F5] w-max"
+                            >
+                                <div class="flex flex-col">
+                                    <span class="text-xl font-charm">{{translocoService.translate('home-page.how_many_guests')}}</span>
+                                    <div class="flex items-center justify-between p-2 text-black">
+                                        <span class="font-mono">{{translocoService.translate('home-page.room')}}</span>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" class="px-2" (click)="removeRoom()">-</button>
+                                            <span class="font-mono">{{ bookingState.rooms.length }}</span>
+                                            <button [attr.disabled]="bookingState.rooms.length >= 5 ? true : null" type="button" class="px-2" (click)="addRoom()">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-xl font-charm">{{translocoService.translate('home-page.how_many_rooms')}}</span>
+                                    <div class="grid gap-3" [ngClass]="bookingState.rooms.length > 1 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'">
+                                        <div class="flex flex-col bg-white shadow-md"  *ngFor="let r of bookingState.rooms">
+                                            <div class="flex items-center justify-between p-2 text-black ">
+                                                <span class="font-mono">{{translocoService.translate('home-page.adults')}}</span>
+                                                <div class="flex items-center gap-2">
+                                                    <button type="button" class="px-2" (click)="r.adults = Math.max(1, r.adults - 1)">-</button>
+                                                    <span class="font-mono">{{ r.adults }}</span>
+                                                    <button [attr.disabled]="r.adults >= 10 ? true : null" type="button" class="px-2" (click)="r.adults = r.adults + 1">+</button>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center justify-between p-2 text-black">
+                                                <span class="font-mono">{{translocoService.translate('home-page.children')}}</span>
+                                                <div class="flex items-center gap-2">
+                                                    <button type="button" class="px-2" (click)="r.children = Math.max(0, r.children - 1)">-</button>
+                                                    <span class="font-mono">{{ r.children }}</span>
+                                                    <button [attr.disabled]="r.children >= 6 ? true : null" type="button" class="px-2" (click)="r.children = r.children + 1">+</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <button type="button" class="px-3 py-1 font-mono text-white bg-black rounded" (click)="closeGuestSelector()">{{translocoService.translate('home-page.done')}}</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="flex flex-col p-2 min-w-[16%] max-lg:min-w-0 border-l border-black/50 max-lg:bg-white">
+                            <span class="font-mono text-black">Code</span>
+                            <input type="text" placeholder="" class="text-black placeholder:font-mono"/>
+                        </div> -->
+                    </div>
+                    
+                    <button type="submit" class="flex items-center justify-center gap-1 px-2 ml-auto bg-yellow-500">
+                        <mat-icon class="text-black" [svgIcon]="'heroicons_outline:magnifying-glass'"></mat-icon>
+                        <span class="font-mono text-black">{{translocoService.translate('home-page.search')}}</span>
+                    </button>
+                </form>
+                <div class="flex items-start"
+                    [class.hidden]="!isSmallScreen && !showSecondDiv"
+                >
+                    <button (click)="toggleToDiv2()" class="px-1 py-1 text-center text-black bg-yellow-500 text-[14px] font-avenir font-black uppercase rounded-full"><mat-icon class="text-[13px] text-black">close</mat-icon></button>
+                </div>
+            </div>
+            <app-booking-progress
+                class='w-full mt-[2.75rem]'
+            [currentStep]="bookingState.currentStep"
+            [currentRoom]="bookingState.currentRoomIndex + 1"
+            [totalRooms]="bookingState.rooms.length">
+            </app-booking-progress>
+        </div>
+        <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent"></div>
+    </div>
+    <!-- Container trượt ngang -->
+     <!-- <div class="absolute top-0 left-0 w-full mt-[588.8px]">
+        <div class="sticky flex justify-end w-full max-w-[1140px] right-0 top-0">
+            <div class='flex bg-black w-[350px]'>
+                test
+            </div>
+        </div>
+     </div> -->
+    <div class="relative w-full flex flex-col gap-9 max-w-[1140px] items-center">
+        <span class="font-clearface text-[30px] font-normal text-black w-full">booking.seleted_day {{bookingState.currentRoomIndex + 1}}</span>
+        <div
+            class="flex w-full transition-transform duration-700 ease-in-out"
+            
+        >
+            <!-- Rate Step -->
+            <div class="flex items-start min-w-full">
+                <ng-container *ngIf="listRoomType">
+                    <ng-container [ngSwitch]="bookingState.currentStep">
+                        <app-select-rate
+                            class="flex basis-[calc(100%-350px)]"
+                            *ngSwitchCase="'rate'"
+                            [listRoomType]="listRoomType"
+                            [roomIndex]="bookingState.currentRoomIndex"
+                            [roomData]="bookingState.rooms[bookingState.currentRoomIndex]"
+                            [list_room_selected]="list_room_selected[bookingState.currentRoomIndex]"
+                            (rateSelected)="onRateSelected($event)">
+                        </app-select-rate>
+
+                        <app-select-service
+                            class="flex basis-[calc(100%-350px)]"
+                            *ngSwitchCase="'service'"
+                            [roomIndex]="bookingState.currentRoomIndex"
+                            (servicesSelected)="onServicesSelected($event)">
+                        </app-select-service>
+
+                        <app-customer-info
+                            class="flex basis-[calc(100%-350px)]"
+                            *ngSwitchCase="'info'"
+                            [rooms]="bookingState.rooms"
+                            (submitBooking)="onSubmitBooking($event)">
+                        </app-customer-info>
+                    </ng-container>
+                    <div class="flex w-[350px]">
+                        <div class="w-full h-auto p-5 bg-black">
+                            <div class="flex flex-col w-full h-full">
+                                <span class="font-avenir text-[26px] text-white uppercase mb-5">booking.your_stay</span>
+                                <div class="flex flex-col w-full mb-5 border-white border-y">
+                                    <div class="flex items-center justify-between py-4 border-b border-white">
+                                        <span class="font-avenir text-[12px] text-white uppercase font-bold">check_in</span>
+                                        <div class="text-right text-white">
+                                            <p class="font-avenir text-[13px]">
+                                                {{formatDateToLong(payload.checkin)}}
+                                                <br>
+                                                booking.after 12:00 PM
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between py-4">
+                                        <span class="font-avenir text-[12px] text-white uppercase font-bold">check_out</span>
+                                        <div class="text-right text-white">
+                                            <p class="font-avenir text-[13px]">
+                                                {{formatDateToLong(payload.checkout)}}
+                                                <br>
+                                                booking.before 11:00 AM
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col w-full gap-2">
+                                    <ng-container *ngFor="let r of bookingState.rooms; let i = index">
+                                        <div class="text-center bg-[#d4d4d4] p-3" (click)="toggleDetail(i)">
+                                            <p class="font-bold text-black uppercase font-avenir">booking.room {{i+1}} <mat-icon class="text-black text-[11px]">keyboard_double_arrow_down</mat-icon></p>
+                                            
+                                        </div>
+                                        <div class="flex flex-col bg-[#f4f4f4] gap-6 p-5" *ngIf="selectedId === i" @slideToggle>
+                                            <div class="flex justify-between">
+                                                <span class=" text-[12px] font-bold uppercase">booking.guest</span>
+                                                <span class=" text-[12px] font-bold uppercase">{{r.adults}} booking.adults, {{r.children}} booking.children</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <div class="flex flex-col justify-center gap-1">
+                                                    <p class="font-avenir text-[12px] font-bold uppercase">{{list_room_selected[i]?.roomTypeName}}</p>
+                                                    <p class="font-avenir text-[13px]">{{list_room_selected[i]?.ratePlanName}}</p>
+                                                </div>
+                                                <div class="flex flex-col justify-center gap-1">
+                                                    <p class="font-avenir text-[12px] font-bold uppercase">{{list_room_selected[i]?.totalPrice | currency:'VND':'symbol':'1.0-0'}} <br> ~ {{list_room_selected[i]?.totalPrice | currency:'USD':'symbol-narrow':'1.0-2'}}</p>
+                                                    <p class="font-avenir text-[13px] text-right">booking.include_vat</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ng-container>
+                                </div>
+                                <div class="flex flex-col w-full mb-5 border-white border-y">
+                                    <div class="flex items-center justify-between py-4 border-b border-white">
+                                        <span class="font-avenir text-[12px] text-white uppercase font-bold">booking.total_price</span>
+                                        <div class="text-right text-white">
+                                            <p class="font-avenir text-[13px]">
+                                                {{totalBill.total_bill_vn | currency:'VND':'symbol':'1.0-0'}}
+                                                <br>
+                                                {{totalBill.total_bill_usd | currency:'USD':'symbol-narrow':'1.0-2'}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+
+        </div>
+    </div>

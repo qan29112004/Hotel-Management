@@ -1,0 +1,37 @@
+<!-- custom-input.component.html -->
+<mat-form-field floatLabel="always" class="w-full fuse-mat-dense">
+    <mat-label>{{ label }}</mat-label>
+    <input
+        matInput
+        #inputElement
+        [type]="type === 'password' ? (showPassword ? 'text' : 'password') : type"
+        [placeholder]="placeholder"
+        [formControl]="control"
+        [required]="required"
+        [class]="inputClass"
+        (blur)="control?.markAsTouched()"
+
+    />
+    <!-- Password toggle -->
+    <button
+        *ngIf="type === 'password'"
+        mat-icon-button
+        matSuffix
+        type="button"
+        (click)="showPassword = !showPassword"
+    >
+        <mat-icon
+            class="icon-size-5"
+            [svgIcon]="showPassword ? 'heroicons_outline:eye-slash' : 'heroicons_outline:eye'"
+        ></mat-icon>
+    </button>
+
+    <!-- Error messages -->
+    <mat-error *ngIf="shouldShowErrors" >
+            <ng-container *ngFor="let errorKey of errorKeys">
+                <span *ngIf="control.hasError(errorKey)">
+                    {{ errorMessages[errorKey] }}
+                </span>
+            </ng-container>
+    </mat-error>
+</mat-form-field>

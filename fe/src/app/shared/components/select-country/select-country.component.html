@@ -1,0 +1,54 @@
+<div class="w-full">
+  <div class="bg-white">
+    <span class="block text-[#787878] font-avenir text-[10px] tracking-[1px] uppercase font-bold"
+      [ngClass]="{'text-red-500':isValidSubmit}"
+    >booking.phone</span>
+
+    <div class="relative flex border border-[#d4d4d4] h-[50px]">
+      <!-- Country Button -->
+      <button
+        type="button"
+        (click)="toggleDropdown()"
+        class="flex items-center justify-between w-full gap-2 px-3 py-2 transition hover:bg-gray-100 whitespace-nowrap"
+      >
+        <span class="text-[#999] font-avenir text-[16px]">{{selectedCountry() ? selectedCountry().name :'booking.select_country'}}</span>
+        <svg class="w-4 h-4 ml-auto transition-transform" [class.rotate-180]="isDropdownOpen()"
+             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+
+      
+
+      <!-- Dropdown -->
+      <div
+        *ngIf="isDropdownOpen()"
+        class="absolute left-0 z-50 w-64 mt-1 bg-white border border-gray-200 rounded-md shadow-lg top-full max-h-64"
+      >
+        <input
+          #searchInput
+          id="country-search"
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchQueryChange($event)"
+          [placeholder]="'booking.placeholder_find_country' | transloco"
+          class="sticky top-0 w-full px-3 py-2 text-sm bg-white border-b border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        >
+
+        <div class="py-1 overflow-y-auto max-h-56">
+          <div
+            *ngFor="let country of filteredCountries()"
+            (click)="selectCountry(country)"
+            class="flex items-center gap-3 px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
+          >
+            <span class="flex-1">{{ country.name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <small *ngIf="isValidSubmit" class="text-red-500">Vui lòng chấp nhận</small>
+
+    <!-- Debug (xóa khi production) -->
+    <!-- <p class="mt-2 text-xs text-gray-500">Full: {{ fullPhoneNumber }}</p> -->
+  </div>
+</div>

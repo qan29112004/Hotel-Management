@@ -1,0 +1,748 @@
+<div
+    *transloco="let t"
+    class="absolute inset-0 flex flex-col min-w-0 overflow-y-auto"
+    cdkScrollable
+>
+    <!-- Main -->
+    <div class="flex-auto p-4 sm:px-6 sm:py-4">
+        <!-- CONTENT GOES HERE -->
+        <div class="relative w-full" *ngIf="!showImport">
+            <!-- Tiêu đề -->
+
+            <div class="flex items-center justify-between mb-4 text-lg">
+                <span class="text-[24px] font-bold text-primary">{{
+                    t("user_management.title")
+                }}</span>
+            </div>
+
+            <div
+                class="grid grid-cols-1 gap-4 mb-5 md:grid-cols-2 lg:grid-cols-4"
+            >
+                <app-card-user
+                    [title]="t('user_management.total_users')"
+                    [description]="t('user_management.total_users_description')"
+                    [value]="totalRecords"
+                    iconPath="assets/icons/profile-2user.svg"
+                    bgColor="bg-primary"
+                ></app-card-user>
+
+                <app-card-user
+                    [title]="t('user_management.active_users')"
+                    [description]="
+                        t('user_management.active_users_description')
+                    "
+                    [value]="statusSummary.active"
+                    iconPath="assets/icons/user-tick.svg"
+                    bgColor="bg-primary"
+                ></app-card-user>
+
+                <app-card-user
+                    
+                    [title]="t('user_management.inactive_users')"
+                    [description]="
+                        t('user_management.inactive_users_description')
+                    "
+                    [value]="statusSummary.inactive"
+                    iconPath="assets/icons/user-remove.svg"
+                    bgColor="bg-primary"
+                ></app-card-user>
+
+                <app-card-user
+                    [title]="t('user_management.pending_invites')"
+                    [description]="
+                        t('user_management.pending_invites_description')
+                    "
+                    [value]="statusSummary.waiting"
+                    iconPath="assets/icons/user-add.svg"
+                    bgColor="bg-primary"
+                ></app-card-user>
+            </div>
+
+            <!-- Bộ lọc -->
+            <div class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-start">
+                <!-- Cột trái -->
+                <div class="flex flex-col w-full gap-2 mb-4 sm:flex-row">
+                    <!-- Thanh tìm kiếm -->
+                    <div class="w-full text-gray-400 sm:w-auto">
+                        <div class="relative">
+                            <mat-icon class="absolute text-gray-400 -translate-y-1/2 left-2 top-1/2">search</mat-icon>
+                            <input
+                                type="text"
+                                [(ngModel)]="searchValue"
+                                (ngModelChange)="onSearchChange()"
+                                placeholder="{{ t('user_management.search_placeholder') }}"
+                                class="h-9 sm:h-9 text-sm sm:text-base text-black pl-10 pr-10 py-2 border border-gray-300 rounded-lg w-full sm:w-[300px] lg:w-[400px]"
+                            />
+                            <button
+                                class="absolute right-0 top-1/2 -translate-y-1/2 rounded-md p-1 flex items-center justify-center bg-[#E0EAFF] border border-[#E0EAFF] hover:bg-[#e6f0ff] transition"
+                                (click)="toggleEditFilterDrawer(); $event.stopPropagation()"
+                                type="button"
+                            >
+                                <mat-icon [svgIcon]="'heroicons_outline:funnel'"></mat-icon>
+                            </button>
+                            <app-filter-user
+                              #filterPopup
+                              [mode]="'inline'"
+                              (filter)="onApplyUserFilter($event)"
+                              (close)="showFilter = false"
+                              [ngClass]="{ 'hidden': !showFilter }"
+                              class="absolute top-[40px] sm:top-[50px] z-50 left-0 bg-white shadow-lg rounded-md w-full sm:w-[300px] lg:w-[400px] max-h-[400px] flex flex-col overflow-y-auto"
+                            >
+                            </app-filter-user>
+
+                        </div>
+                    </div>
+            
+                    <!-- Các nút lọc -->
+                    <div class="flex flex-wrap items-center w-full gap-2 sm:gap-3 sm:w-auto">
+                        <!-- Status Filter -->
+                        <div class="relative" #statusDropdownRef>
+                            <button
+                                (click)="toggleFilterDropdown('status')"
+                                class="flex items-center h-8 gap-2 px-2 transition-colors bg-white border border-gray-300 rounded-lg sm:h-9 sm:px-3 hover:bg-gray-50"
+                                [class.border-blue-500]="selectedStatusIds.length > 0"
+                            >
+                                <mat-icon class="text-sm text-gray-400">tune</mat-icon>
+                                <span class="text-xs text-gray-700 sm:text-sm">
+                                    {{ t("user_management.filter.status") }}
+                                    <span
+                                        *ngIf="selectedStatusIds.length > 0"
+                                        class="ml-1 px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs"
+                                    >
+                                        {{ selectedStatusIds.length }}
+                                    </span>
+                                </span>
+                                <mat-icon class="text-sm text-gray-400">keyboard_arrow_down</mat-icon>
+                            </button>
+                            <div
+                                *ngIf="isFilterDropdownOpen('status')"
+                                class="absolute left-0 z-50 w-48 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg top-full sm:w-56"
+                            >
+                                <div class="p-2 border-b border-gray-100 sm:p-3">
+                                    <h3 class="text-xs font-medium text-gray-900 sm:text-sm">
+                                        {{ t("user_management.filter.status") }}
+                                    </h3>
+                                </div>
+                                <div class="overflow-y-auto max-h-60">
+                                    <label
+                                        *ngFor="let status of statusOptions"
+                                        class="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-gray-50 cursor-pointer"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            [checked]="selectedStatusIds.includes(status.id)"
+                                            (change)="onStatusFilterChange(status.id, $event)"
+                                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                        />
+                                        <span class="flex items-center gap-2 text-xs text-gray-700 sm:text-sm">
+                                            <span class="w-2 h-2 rounded-full" [ngClass]="status.class"></span>
+                                            {{ t("user_management." + status.name) }}
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <!-- Role Filter -->
+                        <div class="relative" #roleDropdownRef>
+                            <button
+                                (click)="toggleFilterDropdown('role')"
+                                class="flex items-center h-8 gap-2 px-2 transition-colors bg-white border border-gray-300 rounded-lg sm:h-9 sm:px-3 hover:bg-gray-50"
+                                [class.border-blue-500]="selectedRoleIds.length > 0"
+                            >
+                                <mat-icon class="text-sm text-gray-400">person</mat-icon>
+                                <span class="text-xs text-gray-700 sm:text-sm">
+                                    {{ t("user_management.filter.role") }}
+                                    <span
+                                        *ngIf="selectedRoleIds.length > 0"
+                                        class="ml-1 px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs"
+                                    >
+                                        {{ selectedRoleIds.length }}
+                                    </span>
+                                </span>
+                                <mat-icon class="text-sm text-gray-400">keyboard_arrow_down</mat-icon>
+                            </button>
+                            <div
+                                *ngIf="isFilterDropdownOpen('role')"
+                                class="absolute left-0 z-50 w-48 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg top-full sm:w-56"
+                            >
+                                <div class="p-2 border-b border-gray-100 sm:p-3">
+                                    <h3 class="text-xs font-medium text-gray-900 sm:text-sm">
+                                        {{ t("user_management.filter.role") }}
+                                    </h3>
+                                </div>
+                                <div class="overflow-y-auto max-h-60">
+                                    <label
+                                        *ngFor="let role of roleOptions"
+                                        class="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-gray-50 cursor-pointer"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            [checked]="selectedRoleIds.includes(role.id)"
+                                            (change)="onRoleFilterChange(role.id, $event)"
+                                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                        />
+                                        <span class="flex items-center gap-2 text-xs text-gray-700 sm:text-sm">
+                                            <span class="w-2 h-2 rounded-full" [ngClass]="role.class"></span>
+                                            {{ t("user_management." + role.name) }}
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <!-- Clear Filter Button -->
+                        <button
+                            *ngIf="hasExternalFilters() || hasActiveFilters()"
+                            (click)="clearAllFilters()"
+                            class="flex items-center h-8 gap-2 px-2 text-xs text-white transition-colors bg-red-500 rounded-lg sm:h-9 sm:px-3 sm:text-sm hover:bg-red-600"
+                            matTooltip="{{ t('user_management.filter.clear_all') }}"
+                        >
+                            <span>{{ t("user_management.filter.clear") }}</span>
+                        </button>
+            
+                        <!-- Delete Selected Users Button -->
+                        <button
+                            (click)="deleteSelectedUsers()"
+                            [class.hidden]="!hasSelectedUsers"
+                            class="flex items-center bg-red-100 text-red-600 px-2 sm:px-3 py-1 sm:py-1.5 gap-1 rounded text-xs sm:text-sm cursor-pointer hover:bg-red-200 transition-colors"
+                        >
+                            <span class="text-base material-icons">delete</span>
+                            <span class="font-semibold">{{ t('content.delete') }}</span>
+                        </button>
+                    </div>
+                </div>
+            
+                <!-- Cột phải -->
+                <div class="flex flex-wrap w-full gap-2 mb-4 lg:w-auto">
+                    <button
+                        (click)="toggleAddUserDrawer()"
+                        class="flex items-center justify-between h-8 gap-2 px-4 text-xs text-white rounded-md bg-primary sm:h-9 sm:px-6 sm:text-sm"
+                    >
+                        <mat-icon
+                            class="text-white icon-size-5 sm:icon-size-6"
+                            svgIcon="heroicons_outline:plus-circle"
+                        ></mat-icon>
+                        <span class="whitespace-nowrap">{{ t("user_management.create_user") }}</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Active Filters Display - Xuống dòng riêng, full width -->
+            <div *ngIf="hasActiveFilters()" class="w-full mb-4">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-sm text-gray-600"
+                        >{{ t("user_management.filter.active_filters") }}:</span
+                    >
+
+                    <!-- Status Filter Tags -->
+                    <div
+                        *ngFor="let statusId of selectedStatusIds"
+                        class="flex items-center gap-1 px-2 py-1 text-xs text-blue-800 bg-blue-100 rounded-full"
+                    >
+                        <span>{{
+                            t("user_management." + getStatus(statusId, "name"))
+                        }}</span>
+                        <button
+                            (click)="removeStatusFilter(statusId)"
+                            class="hover:bg-blue-200 rounded-full p-0.5"
+                        >
+                            <mat-icon class="text-xs">close</mat-icon>
+                        </button>
+                    </div>
+
+                    <!-- Role Filter Tags -->
+                    <div
+                        *ngFor="let roleId of selectedRoleIds"
+                        class="flex items-center gap-1 px-2 py-1 text-xs text-green-800 bg-green-100 rounded-full"
+                    >
+                        <span>{{
+                            t("user_management." + getRole(roleId, "name"))
+                        }}</span>
+                        <button
+                            (click)="removeRoleFilter(roleId)"
+                            class="hover:bg-green-200 rounded-full p-0.5"
+                        >
+                            <mat-icon class="text-xs">close</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+        
+
+            <!-- Table -->
+            <div class="h-table-body-22">
+                <div class="h-full mb-3 overflow-x-auto bg-white">
+                    <table
+                        class="table w-full text-base border-separate border-spacing-0"
+                    >
+                        <thead
+                            class="font-medium text-left text-gray-700 bg-sky-50"
+                        >
+                            <tr>
+                                <th class="p-0 text-center th-cell">
+                                    <input
+                                        type="checkbox"
+                                        (change)="toggleSelectAll($event)"
+                                        (click)="$event.stopPropagation()"
+                                        class = "w-4 h-4 form-checkbox text-primary-600"
+                                    />
+                                </th>
+                                <th class="p-0 text-center th-cell">
+                                    {{ t("user_management.sequenceNumber") }}
+                                </th>
+                                <th
+                                    class="cursor-pointer th-cell"
+                                    (click)="sortBy('full_name')"
+                                    [ngClass]="{
+                                        'bg-primary-100':
+                                            sortField === 'full_name'
+                                    }"
+                                >
+                                    <span class="flex items-center">
+                                        {{ t("user_management.full_name") }}
+                                        <div class="flex flex-col ml-2">
+                                            <mat-icon
+                                                class="w-3 h-2 min-w-3 min-h-2"
+                                                *ngIf="
+                                                    sortField !== 'full_name' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                "
+                                                fontIcon="arrow_drop_up"
+                                            >
+                                            </mat-icon>
+                                            <mat-icon
+                                                class="w-3 h-2 min-w-3 min-h-2"
+                                                *ngIf="
+                                                    sortField !== 'full_name' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                "
+                                                fontIcon="arrow_drop_down"
+                                            >
+                                            </mat-icon>
+                                        </div>
+                                    </span>
+                                </th>
+                                <th class="th-cell">
+                                    {{ t("user_management.username") }}
+                                </th>
+
+                                <th class="th-cell">
+                                    {{ t("user_management.role") }}
+                                </th>
+
+                                <th class="th-cell">
+                                    {{ t("user_management.phone_number") }}
+                                </th>
+                                <th
+                                    class="cursor-pointer th-cell"
+                                    (click)="sortBy('last_login')"
+                                    [ngClass]="{
+                                        'bg-primary-100':
+                                            sortField === 'last_login'
+                                    }"
+                                >
+                                    <span class="flex items-center">
+                                        {{ t("user_management.last_login") }}
+                                        <div class="flex flex-col ml-2">
+                                            <mat-icon
+                                                class="w-3 h-2 min-w-3 min-h-2"
+                                                *ngIf="
+                                                    sortField !==
+                                                        'last_login' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                "
+                                                fontIcon="arrow_drop_up"
+                                            >
+                                            </mat-icon>
+                                            <mat-icon
+                                                class="w-3 h-2 min-w-3 min-h-2"
+                                                *ngIf="
+                                                    sortField !==
+                                                        'last_login' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                "
+                                                fontIcon="arrow_drop_down"
+                                            >
+                                            </mat-icon>
+                                        </div>
+                                    </span>
+                                </th>
+                                <th
+                                    class="cursor-pointer th-cell"
+                                    (click)="sortBy('created_at')"
+                                    [ngClass]="{
+                                        'bg-primary-100':
+                                            sortField === 'created_at'
+                                    }"
+                                >
+                                    <span class="flex items-center">
+                                        {{ t("user_management.created_at") }}
+                                        <div class="flex flex-col ml-2">
+                                            <mat-icon
+                                                class="w-3 h-2 min-w-3 min-h-2"
+                                                *ngIf="
+                                                    sortField !==
+                                                        'created_at' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                "
+                                                fontIcon="arrow_drop_up"
+                                            >
+                                            </mat-icon>
+                                            <mat-icon
+                                                class="w-3 h-2 min-w-3 min-h-2"
+                                                *ngIf="
+                                                    sortField !==
+                                                        'created_at' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                "
+                                                fontIcon="arrow_drop_down"
+                                            >
+                                            </mat-icon>
+                                        </div>
+                                    </span>
+                                </th>
+                                <th class="th-cell">
+                                    {{ t("user_management.updated_at") }}
+                                </th>
+                                <th class="th-cell">
+                                    {{ t("user_management.status") }}
+                                </th>
+                                <th class="th-cell">
+                                    {{ t("user_management.action") }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                *ngFor="
+                                    let user of userList;
+                                    let i = index;
+                                    trackBy: trackByUserId
+                                "
+                            >
+                                <td
+                                    class="p-0 text-center td-cell min-w-10 max-w-10"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        [(ngModel)]="user.selected"
+                                        (ngModelChange)="updateSelectedIds()"
+                                        (click)="$event.stopPropagation()"
+                                        class = "w-4 h-4 form-checkbox text-primary-600"
+                                    />
+                                </td>
+                                <td
+                                    class="p-0 text-center td-cell min-w-10 max-w-10"
+                                >
+                                    {{ (currentPage - 1) * pageSize + i + 1 }}
+                                </td>
+                                <td
+                                    class="td-cell min-w-48"
+                                    (click)="toggleEditUserDrawer(user)"
+                                >
+                                    <div
+                                        class="flex items-center gap-2 cursor-pointer"
+                                    >
+                                        <img
+                                            [src]=" user.avatar?
+                                                user.avatar :
+                                                'assets/images/avatars/default-avatar.svg'
+                                            "
+                                            class="w-8 h-8 rounded-full shrink-0"
+                                        />
+                                        <div class="min-w-0">
+                                            <div
+                                                class="overflow-hidden font-semibold cursor-pointer text-primary text-ellipsis whitespace-nowrap hover:underline"
+                                                [title]="user.full_name || ''"
+                                            >
+                                                {{ user.full_name }}
+                                            </div>
+                                            <div
+                                                class="overflow-hidden cursor-pointer text-ellipsis whitespace-nowrap hover:underline hover:text-primary"
+                                                [title]="user.email || ''"
+                                            >
+                                                {{ user.email }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="td-cell">
+                                    <div
+                                        (click) = "toggleEditUserDrawer(user)" 
+                                        class="overflow-hidden font-semibold cursor-pointer text-ellipsis whitespace-nowrap"
+                                        [title]="user.username || ''"
+                                    >
+                                        {{ user.username || "---" }}
+                                    </div>
+                                </td>
+
+                                <td
+                                    class="font-semibold text-center td-cell whitespace-nowrap"
+                                >
+                                    <ng-container [ngSwitch]="user.status">
+                                        <div class="flex justify-center">
+                                            <p
+                                                class="px-2 py-1 rounded-lg w-fit"
+                                                [ngClass]="
+                                                    getRole(user.role, 'class')
+                                                "
+                                            >
+                                                {{ getRole(user.role, "name") }}
+                                            </p>
+                                        </div>
+                                    </ng-container>
+                                </td>
+
+                                <td class="td-cell whitespace-nowrap">
+                                    {{ user.phone || "---" }}
+                                </td>
+                                <td class="td-cell whitespace-nowrap">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span>{{
+                                            formatDateTime(user.lastLogin) ||
+                                                "---"
+                                        }}</span>
+                                        <button
+                                            *ngIf="user.lastLogin"
+                                            (click)="
+                                                openLoginHistoryPopup(user);
+                                                $event.stopPropagation()
+                                            "
+                                            class="p-2 transition-colors rounded-full hover:bg-gray-100"
+                                            matTooltip="{{
+                                                t(
+                                                    'user_management.view_login_history'
+                                                )
+                                            }}"
+                                        >
+                                            <mat-icon
+                                                class="text-3xl text-gray-500"
+                                                >history</mat-icon
+                                            >
+                                        </button>
+                                    </div>
+                                </td>
+                                <td class="td-cell whitespace-nowrap">
+                                    <p>{{ formatDateTimeUnix(user.createdAt) }}</p>
+                                </td>
+                                <td class="td-cell whitespace-nowrap">
+                                    <p>
+                                        {{
+                                            formatDateTimeUnix(user.updatedAt) ||
+                                                "---"
+                                        }}
+                                    </p>
+                                    <p>
+                                        {{
+                                            user.updatedBy
+                                                ? user.updatedBy.username
+                                                : "---"
+                                        }}
+                                    </p>
+                                </td>
+
+                                <td
+                                    class="font-semibold text-center td-cell min-w-36 max-w-36 whitespace-nowrap"
+                                >
+                                    <div class="flex justify-center">
+                                        <div class="relative" #dropdownRef>
+                                            <!-- Dropdown Trigger -->
+                                            <button
+                                                type="button"
+                                                class="flex items-center gap-1 px-2 py-1 rounded-lg cursor-pointer w-fit"
+                                                [ngClass]="
+                                                    getStatus(
+                                                        user.status,
+                                                        'class'
+                                                    )
+                                                "
+                                                (click)="
+                                                    toggleDropdown(user.id)
+                                                "
+                                                [attr.aria-expanded]="
+                                                    isDropdownOpen(user.id)
+                                                "
+                                                aria-haspopup="true"
+                                            >
+                                                {{
+                                                    t(
+                                                        "user_management." +
+                                                            getStatus(
+                                                                user.status,
+                                                                "name"
+                                                            )
+                                                    )
+                                                }}
+                                                <svg
+                                                    class="w-4 h-4 ml-1 transition-transform"
+                                                    [class.rotate-180]="
+                                                        isDropdownOpen(user.id)
+                                                    "
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 9l-7 7-7-7"
+                                                    ></path>
+                                                </svg>
+                                            </button>
+
+                                            <!-- Dropdown Menu -->
+                                            <div
+                                                *ngIf="isDropdownOpen(user.id)"
+                                                class="absolute left-0 z-50 min-w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg top-full"
+                                            >
+                                                <div class="py-1">
+                                                    <button
+                                                        *ngFor="
+                                                            let status of statusOptions
+                                                        "
+                                                        type="button"
+                                                        class="flex items-center w-full gap-2 px-3 py-2 text-left transition-colors hover:bg-gray-100"
+                                                        [class.bg-gray-50]="
+                                                            status.value ===
+                                                            user.status
+                                                        "
+                                                        (click)="
+                                                            changeStatus(
+                                                                user,
+                                                                status.id
+                                                            )
+                                                        "
+                                                    >
+                                                        <span
+                                                            class="w-3 h-3 rounded-full"
+                                                            [ngClass]="
+                                                                getStatus(
+                                                                    status.id,
+                                                                    'class'
+                                                                )
+                                                            "
+                                                        ></span>
+                                                        {{
+                                                            t(
+                                                                "user_management." +
+                                                                    getStatus(
+                                                                        status.id,
+                                                                        "name"
+                                                                    )
+                                                            )
+                                                        }}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="td-cell whitespace-nowrap">
+                                    <div
+                                        class="flex items-center gap-2 justify-left"
+                                    >
+                                       
+                                        <button
+                                          (click)="toggleEditUserDrawer(user)                       "
+
+                                          class="inline-flex items-center justify-center w-8 h-8 mr-1">
+                                          <img src="assets/images/ui/edit.svg" alt="appType" class="object-scale-down w-8 h-8 mx-auto">
+                                        </button>
+
+                                          <button                                   
+                                          *ngIf="!user.isStaff"
+                                          (click)="openDeleteForm(user.id)"
+                                          title="{{ t('feedback.delete') }}"
+                                          class="inline-flex items-center justify-center w-8 h-8 mr-1">
+                                          <img src="assets/images/ui/trash.png" alt="appType" class="object-scale-down w-8 h-8 mx-auto">
+
+                                        </button>
+                                      
+                                         <!-- <button
+                                         *ngIf="!user.isStaff"
+                                          (click)="deleteUserComp.onDeleteUser()"
+                                          title="{{ t('feedback.delete') }}"
+                                          class="inline-flex items-center justify-center w-8 h-8 mr-1">
+                                          <img src="assets/images/ui/trash.png" alt="appType" class="object-scale-down w-8 h-8 mx-auto">
+                                                                
+                                        </button> -->
+                                       
+                                    </div>
+                                    
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div
+                        *ngIf="userList.length === 0"
+                        class="flex flex-col items-center justify-center font-semibold text-center text-primary"
+                    >
+                        <img
+                            src="assets/images/ui/empty-folder.svg"
+                            alt=""
+                            class="w-32 h-32 mb-4"
+                        />
+                        <p>{{ t("user_management.no_matching_search_data") }}</p>
+                    </div>
+                </div>
+
+                <app-custom-pagination
+                    *ngIf="userList.length > 0"
+                    [totalRecords]="totalRecords"
+                    [totalItems]="totalItems"
+                    [currentPage]="currentPage"
+                    [pageSize]="pageSize"
+                    (pageChange)="onPageChange($event)"
+                    (pageSizeChange)="onPageSizeChange($event)"
+                >
+                </app-custom-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-add-user
+    [showAddUser]="showAddUser"
+    (toggleAddUserDrawer)="toggleAddUserDrawer()"
+    (drawerOpenedChanged)="drawerOpenedChanged($event)"
+></app-add-user>
+<app-edit-user
+    [showEditUser]="showEditUser"
+    (drawerOpenedChangedEdit)="drawerOpenedChangedEdit($event)"
+    (toggleEditUserDrawer)="toggleEditUserDrawer($event)"
+></app-edit-user>
+<app-login-history
+    [show]="showLoginHistoryPopup"
+    [user]="selectedUserForHistory"
+    (close)="closeLoginHistoryPopup()"
+></app-login-history>
+<app-filter-user
+  *ngIf="showFilterModal"
+  [mode]="'modal'"
+  (filter)="onApplyUserFilter($event)"
+  (close)="showFilterModal = false">
+></app-filter-user>
+
+<app-delete-user
+  *ngIf="showBulkDeleteUserForm"
+  [userId]="showSingleDeleteUserId"
+  [userIds]="selectedUserIds"
+  (close)="cancelDeleteForm()"
+  (refresh)="onDeleteRefresh()"
+>
+</app-delete-user>
+
+
+
+

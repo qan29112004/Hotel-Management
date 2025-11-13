@@ -1,0 +1,93 @@
+<div class="flex gap-2 items-center" *transloco="let t">
+    <button
+        (click)="toggleAudio()"
+        [disabled]="isLoading"
+        class="rounded-full p-2 flex items-center bg-gray-200 hover:bg-gray-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+        <mat-icon
+            [ngClass]="{
+                'text-green-500': isPlaying && !isLoading,
+                'text-blue-500': isFinished && !isLoading,
+                'text-orange-500': isLoading,
+                'text-gray-600': !isPlaying && !isFinished && !isLoading
+            }"
+            [matTooltip]="
+                isLoading
+                    ? t('audio.loading')
+                    : isPlaying
+                    ? t('audio.pause')
+                    : isFinished
+                    ? t('audio.replay')
+                    : isStarted
+                    ? t('audio.play')
+                    : t('audio.play_first')
+            "
+        >
+            {{
+                isLoading
+                    ? "autorenew"
+                    : isPlaying
+                    ? "pause"
+                    : isFinished
+                    ? "replay"
+                    : isStarted
+                    ? "play_arrow"
+                    : "volume_up"
+            }}
+        </mat-icon>
+    </button>
+
+    <!-- Loading State -->
+    <span
+        *ngIf="isLoading"
+        class="text-orange-500 text-sm flex gap-1 items-center"
+    >
+        <div class="flex gap-0.5">
+            <div class="w-1 h-1 bg-orange-500 rounded-full animate-pulse"></div>
+            <div
+                class="w-1 h-1 bg-orange-500 rounded-full animate-pulse"
+                style="animation-delay: 0.1s"
+            ></div>
+            <div
+                class="w-1 h-1 bg-orange-500 rounded-full animate-pulse"
+                style="animation-delay: 0.2s"
+            ></div>
+        </div>
+        {{ t("audio.loading") }}
+    </span>
+
+    <!-- Playing State -->
+    <span
+        *ngIf="isPlaying && !isLoading"
+        class="text-green-600 flex gap-1 items-center"
+    >
+        <div class="flex gap-0.5">
+            <div class="w-1 h-1 bg-green-500 rounded-full animate-pulse"></div>
+            <div
+                class="w-1 h-1 bg-green-500 rounded-full animate-pulse"
+                style="animation-delay: 0.1s"
+            ></div>
+            <div
+                class="w-1 h-1 bg-green-500 rounded-full animate-pulse"
+                style="animation-delay: 0.2s"
+            ></div>
+        </div>
+        {{ t("audio.playing") }}
+    </span>
+
+    <!-- Finished State -->
+    <span
+        *ngIf="isFinished && !isLoading && !isPlaying"
+        class="text-blue-600 text-sm"
+    >
+        {{ t("audio.replay") }}
+    </span>
+
+    <!-- Paused State (Started but not playing and not finished) -->
+    <span
+        *ngIf="isStarted && !isPlaying && !isFinished && !isLoading"
+        class="text-gray-500 text-sm"
+    >
+        {{ t("audio.paused") }}
+    </span>
+</div>

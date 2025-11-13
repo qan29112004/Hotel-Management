@@ -1,0 +1,113 @@
+<div
+    [ngClass]="{
+        'justify-end': config.position === 'right'
+    }"
+    class="flex w-full h-auto max-w-full gap-1"
+>
+    <ng-container *ngIf="config.position === 'left'">
+        <div class="block w-9 h-9 shrink-0">
+            <img
+                class="rounded-full h-9 w-9"
+                src="{{
+                    inforUser?.avata ||
+                        inforAdmin?.avata ||
+                        'assets/images/avatars/default-avatar.svg'
+                }}"
+            />
+        </div>
+    </ng-container>
+
+    <div
+        [ngClass]="{
+            'items-end': config.position === 'right',
+            'items-start': config.position === 'left'
+        }"
+        class="flex flex-col w-full gap-2"
+    >
+        <ng-container *ngIf="config.urlFile.length > 0">
+            <div
+                [ngClass]="{
+                    'flex gap-1': config.urlFile.length > 1,
+
+                    'justify-end': config.position === 'right',
+                    'justify-start': config.position === 'left'
+                }"
+                class="flex-wrap justify-end"
+            >
+                <ng-container *ngFor="let i of config.urlFile">
+                    <div
+                        [ngClass]="{
+                            ' text-[#323232]': config.position === 'right',
+                            'text-white': config.position === 'left',
+                            'p-4':
+                                config.urlFile && config.urlFile.length === 0,
+                            'rounded-xl': true,
+                            border: true,
+                            'border-gray-200': true
+                        }"
+                        class="transition-transform duration-200 transform"
+                    >
+                        <div
+                            [ngClass]="{
+                                'max-w-60 w-full': config.urlFile.length === 1,
+                                'w-30 h-30': config.urlFile.length > 1
+                            }"
+                            class="flex overflow-hidden rounded-xl"
+                        >
+                            <img
+                                [src]="i"
+                                [ngClass]="{
+                                    'max-w-100 max-h-[12.5rem] object-cover':
+                                        config.urlFile.length === 1,
+                                    'max-w-100 max-h-100 object-cover':
+                                        config.urlFile.length > 1
+                                }"
+                                (load)="loadImage.emit()"
+                                class="block mx-auto rounded-xl"
+                            />
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </ng-container>
+        <ng-template #lenghtUrlFileGtOne></ng-template>
+        <ng-container *ngIf="config.text">
+            <div
+                [ngClass]="{
+                    'bg-[#EBEBEB] rounded-tr-md text-[#323232]':
+                        config.position === 'right',
+                    'bg-[#FFFFFF] rounded-tl-md text-[#323232]':
+                        config.position === 'left',
+                    'p-4': true,
+                    'rounded-2xl': true,
+                    border: true,
+                    'border-gray-100': true
+                }"
+                class="flex flex-col w-full gap-2 transition-transform duration-200 transform"
+            >
+                <markdown
+                    class="text-[14px] font-normal leading-relaxed break-words prose prose-sm max-w-none font-lexend_deca"
+                    [data]="config.text"
+                >
+                </markdown>
+            </div>
+        </ng-container>
+        <!-- Nút loa / pause / replay chỉ cho chatbot -->
+
+        <div class="flex justify-between items-center w-full">
+            <div *ngIf="config.position === 'left'">
+                <app-audio-player
+                    *ngIf="config.text"
+                    [text]="config.text"
+                ></app-audio-player>
+            </div>
+
+            <p class="m-0 text-gray-500">{{ config.time[1] }}</p>
+        </div>
+    </div>
+    <!-- <ng-container *ngIf="config.position === 'right'">
+        <div class="block w-9 h-9 shrink-0">
+            <img class="rounded-full h-9 w-9" src="{{inforUser?.avata || inforAdmin?.avata || 'assets/images/avatars/default-avatar.svg'}}">
+        </div>
+    </ng-container> -->
+</div>

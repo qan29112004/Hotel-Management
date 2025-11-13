@@ -1,0 +1,37 @@
+<ng-container>
+    <!-- Button -->
+    <button *ngIf="isAuth" style="vertical-align: middle;" [matMenuTriggerFor]="languages"
+        class="flex items-center justify-between gap-2 p-2 font-medium rounded-md text-primary-900 bg-primary-100">
+        <ng-container *ngTemplateOutlet="flagImage; context: { $implicit: activeLang }"></ng-container>
+
+        <mat-icon [color]="'primary'" class="icon-size-5" svgIcon="heroicons_outline:chevron-down"></mat-icon>
+    </button>
+
+    <!-- Button -->
+    <button *ngIf="!isAuth" mat-icon-button style="vertical-align: middle;" [matMenuTriggerFor]="languages">
+        <ng-container *ngTemplateOutlet="flagImage; context: { $implicit: activeLang }"></ng-container>
+    </button>
+
+    <!-- Language menu -->
+    <mat-menu [xPosition]="'before'" #languages="matMenu" class="px-4 mt-2 rounded-md">
+        <ng-container *ngFor="let lang of availableLangs; trackBy: trackByFn">
+            <button class="p-2 hover:bg-primary-100 hover:rounded-md text-primary" mat-menu-item
+                (click)="setActiveLang(lang.id)">
+                <span class="flex items-center">
+                    <ng-container *ngTemplateOutlet="flagImage; context: { $implicit: lang.id }"></ng-container>
+                    <span *ngIf="!isAuth" class="ml-3 font-medium">{{ lang.label }}</span>
+                </span>
+            </button>
+        </ng-container>
+    </mat-menu>
+
+    <!-- Flag image template -->
+    <ng-template let-lang #flagImage>
+        <span class="flex items-center justify-center gap-2 rounded-sm">
+            <!-- <span class="absolute inset-0 ring-1 ring-inset ring-black ring-opacity-10"></span> -->
+            <img class="w-10 h-10 rounded-full" [src]="'assets/images/flags/' + flagCodes[lang].toUpperCase() + '.svg'"
+                [alt]="'Flag image for ' + lang" />
+            <span *ngIf="isAuth" class="font-medium">{{ TextCodes[lang] }}</span>
+        </span>
+    </ng-template>
+</ng-container>

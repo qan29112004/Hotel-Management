@@ -1,0 +1,410 @@
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Import/write your custom styles here.
+/*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
+/* ----------------------------------------------------------------------------------------------------- */
+.mat-mdc-form-field-required-marker {
+    color: #E81A1A !important;
+}
+
+:root {
+    --tw-indigo-900: #3941ab;
+}
+
+button.my-date {
+  background: red;
+}
+
+@import 'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/7.2.1/css/flag-icons.min.css';
+
+/* Click outside directive (nếu chưa có) */
+[clickOutside] {
+  position: relative;
+}
+
+@font-face {
+  font-family: 'StayClassy';
+  src: url('/assets/fonts/StayClassy.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Avenir';
+  src: url('/assets/fonts/Avenir.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Clearface';
+  src: url('/assets/fonts/Clearface.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.marker-cluster-small {
+  background-color: rgb(158, 105, 61, 0.6); /* Màu cam nhạt */
+  color: #fff;
+}
+.marker-cluster-small div {
+  background-color: rgb(158, 105, 61); /* Màu cam đậm hơn */
+}
+
+.marker-cluster {
+	background-clip: padding-box;
+	border-radius: 100%;
+    padding: 5px 5px 5px 5px;
+	}
+.marker-cluster div {
+	width: 100%;
+	height: 100%;
+    margin:0;
+	text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: x-large;
+	border-radius: 100%;
+	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	}
+.marker-cluster span {
+	line-height: 30px;
+    font-size: x-large;
+    @apply font-lexend_deca;
+	}
+
+// custom drop down arrow for mat-select
+.custom-select .custom-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 1;
+    color: rgba(0, 0, 0, 0.54);
+
+}
+
+
+input[type="password"]::-ms-reveal {
+    display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button {
+    visibility: hidden;
+    display: none !important;
+}
+
+/* Ẩn icon mũi tên mặc định của mat-select toàn cục */
+.mat-mdc-select-arrow svg {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.appearance-none {
+    appearance: none;
+    /* Firefox & modern browsers */
+    -webkit-appearance: none;
+    /* Safari & Chrome */
+    -moz-appearance: none;
+    /* Firefox */
+    background-image: none;
+    /* Xóa icon nền */
+}
+
+.custom-mat-select.mat-mdc-form-field .mat-mdc-text-field-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: white !important;
+}
+
+.custom-mat-checkbox.mat-mdc-checkbox .mdc-form-field {
+    padding: 0;
+}
+
+
+//custom stepper
+/* Ẩn icon mặc định */
+.custom-stepper .mat-horizontal-stepper-header .mat-step-icon {
+    display: none;
+}
+
+.custom-stepper .mat-horizontal-stepper-header {
+    pointer-events: none;
+    cursor: default;
+}
+
+/* Custom icon tự tạo */
+.custom-stepper .step-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+}
+
+
+/* Default line */
+.custom-stepper.stepper-line-default .mat-stepper-horizontal-line {
+    border-top-width: 3px;
+    margin: 0 -38px 20px;
+}
+
+/* Khi bước hiện tại là step 2 (index = 1) */
+.custom-stepper.stepper-line-green .mat-stepper-horizontal-line {
+    border-color: var(--tw-indigo-900) !important;
+    border-top-width: 3px;
+    margin: 0 -38px 20px;
+}
+
+.custom-mat-checkbox .mdc-checkbox .mdc-checkbox__background {
+    border-radius: 5px;
+}
+
+.th-cell {
+    padding: 8px 12px;
+    white-space: nowrap;
+}
+
+.th-cell,
+.td-cell {
+    border-width: 1px;
+}
+
+// table th,
+// table td {
+//     border-width: 1px;
+// }
+
+table td {
+    padding: 8px;
+}
+
+table thead {
+    position: sticky;
+    top: -0;
+    z-index: 10;
+}
+
+/* Khi đang kéo: preview */
+.cdk-drag-preview {
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    width: 100%;
+    opacity: 0.9;
+    /* đảm bảo không bị giật khi kéo ngang */
+}
+
+/* Placeholder chiếm chỗ */
+.cdk-drag-placeholder {
+    opacity: 0.3;
+    border: 2px dashed #bbb;
+    border-radius: 6px;
+    background: #f9f9f9;
+    height: 48px;
+}
+
+/* Khi đang animate */
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+// Custom mat-select trang detail/edit user
+.custom-select-detail {
+    width: 11rem !important;
+    height: 3rem !important;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    caret-color: transparent !important;
+}
+
+.custom-select-detail .mat-mdc-form-field-flex {
+    background-color: #d1fae5;
+    color: #15803d;
+    border-radius: 6px;
+    padding: 0 3px !important;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.custom-select-detail .mat-mdc-select-trigger {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.custom-select-detail .mat-mdc-select-value {
+    color: #15803d;
+    font-weight: 500;
+    padding-left: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.5rem;
+    /* Thêm dòng này */
+    max-width: 80%;
+}
+
+.custom-select-detail .mat-mdc-floating-label {
+    display: none;
+    /* Nếu không cần label nổi */
+}
+
+.custom-select-detail .mat-mdc-select-min-line {
+    padding-bottom: 20px !important;
+}
+
+.custom-select-detail .custom-icon-detail {
+    position: fixed;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 1;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+// Ẩn border input trang detail user
+.no-input-border .mat-mdc-text-field-wrapper {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+// Ẩn dấu nháy text
+.mat-mdc-form-field-subscript-wrapper {
+    caret-color: transparent !important;
+}
+
+/* Chặn chỉ phần dropdown icon */
+.readonly-select .mat-select-trigger {
+    pointer-events: none;
+}
+
+/* Khôi phục độ rõ ràng của text */
+.readonly-select .mat-select-value {
+    color: rgba(0, 0, 0, 0.87);
+    /* hoặc #000 */
+    opacity: 1;
+}
+
+/* Khôi phục màu label */
+.readonly-select .mat-form-field-label {
+    color: rgba(0, 0, 0, 0.6);
+    /* hoặc đậm hơn nếu muốn */
+}
+
+.readonly-select .mat-mdc-floating-label {
+    pointer-events: none !important;
+}
+
+angular-editor {
+    .angular-editor-textarea {
+        min-height: 300px !important;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 10px;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-size: revert;
+        font-weight: revert;
+    }
+
+    ol, ul, menu {
+        list-style: revert;
+        padding: 10px;
+    }
+}
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90vw;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+    h3 {
+        margin-bottom: 15px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #666;
+    }
+
+    input[type="file"] {
+        width: 100%;
+        margin-bottom: 15px;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .url-input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+
+    button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+        font-weight: 500;
+        transition: all 0.2s;
+
+        &:first-of-type {
+            background: #4CAF50;
+            color: white;
+            &:hover {
+                background: #45a049;
+            }
+        }
+
+        &:last-of-type {
+            background: #f44336;
+            color: white;
+            &:hover {
+                background: #da190b;
+            }
+        }
+    }
+}
+
+// ẩn scrollbar
+ul::-webkit-scrollbar {
+    display: none;
+}
+ul {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

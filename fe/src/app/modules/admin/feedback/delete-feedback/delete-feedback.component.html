@@ -1,0 +1,35 @@
+
+<div 
+    *transloco="let t"
+    class="fixed inset-0 bg-gray-800 bg-opacity-50 flex flex-col items-center justify-center z-50">
+    <div class="flex items-center justify-between pr-4 pl-6 w-[450px] bg-white text-on-white rounded-t-lg">
+        <div class="text-lg font-medium leading-10 my-2">
+        {{t('content.confirm_delete') }}
+        </div>
+        <span class="material-icons text-black cursor-pointer" (click)="cancel()">close</span>
+    </div>
+    <div class="bg-white rounded-b-lg shadow-lg px-6 pb-6 w-[450px]">
+        <div class="flex items-center justify-start gap-4">
+            <img src="assets/images/ui/warning.svg" alt="Warning" class="w-16 h-16 mb-4">
+            <div>
+                <p class="text-gray-700 mb-4">{{t('feedback.confirm_feedback_deletion') }}</p>
+                <p class="text-gray-700 mb-4"><span class="font-semibold">{{t('other.warning') }}: </span>{{t('other.warning_text') }}</p>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2" (click)="delete()">
+            <button
+                type="button"
+                (click)="cancel()"
+                class="px-4 py-2 border border-red-500 bg-white text-red-500 font-semibold rounded-md"
+            >
+                                {{t('common.cancel') }}
+            </button>
+            <button
+                type="submit"
+                class="px-4 py-2 bg-red-500 text-white font-semibold rounded-md"
+            >
+                                {{t('common.delete') }}
+            </button>
+        </div>
+    </div>
+</div>

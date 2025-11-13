@@ -1,0 +1,177 @@
+<div class="flex-auto pt-3 sm:px-6 overflow-hidden h-full">
+    <div class="relative w-full flex-1 h-full flex flex-col">
+        <div class="flex items-center justify-between text-lg">
+            <span class="lg:text-2xl text-3xl font-semibold">
+                Tin tức
+            </span>
+        </div>
+        <div class="container ">
+            <nav class="bg-white border-b border-gray-200 py-2 ml-2">
+                <div class="flex justify-between items-center my-2 flex-row relative w-full overflow-x-auto">
+                    <button
+                    *ngIf="showChevronLeft"
+                        class="absolute left-0 z-10 bg-gray-100 shadow rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-200"
+                        style="box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+                        (click)="scrollCategoryListLeft()"
+                        type="button"
+                    >
+                        <span class="material-icons text-gray-400 hover:text-gray-500">chevron_left</span>
+                    </button>
+                    <ul #categoryList (scroll)="onCategoryListScroll()"
+                        class="flex justify-content-between items-center space-x-6 whitespace-nowrap m-0 p-0 list-none overflow-x-auto overflow-y-hidden">
+                        <li>
+                            <a href="#" (click)="onHomeClick($event)"
+                                class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 mr-2">
+                                <span class="material-icons text-gray-500">home</span>
+                            </a>
+                        </li>
+                        <li>
+                            <div
+                                class="flex items-center rounded-full border border-gray-300 transition-all duration-300 overflow-hidden cursor-pointer"
+                                [ngClass]="{
+                                    'w-8 h-8 justify-center': !isSearching,
+                                    'w-40 h-8 pl-3 pr-2': isSearching
+                                    }"
+                                (click)="toggleSearch($event)"
+                            >
+                                <span class="material-icons text-gray-500">search</span>
+
+                                <input
+                                *ngIf="isSearching"
+                                type="text"
+                                class="ml-2 w-full h-full outline-none text-sm text-gray-700 bg-transparent"
+                                placeholder="Tìm kiếm"
+                                [(ngModel)]="searchText"
+                                (ngModelChange)="onSearchChange()"
+                                (click)="$event.stopPropagation()"
+                                />
+                            </div>
+                        </li>
+                        <li *ngFor="let cat of categories_parent" class="flex-shrink-0">
+                            <a href="#" (click)="onCategoryClick($event, cat)"
+                                class="px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200"
+                                [ngClass]="{
+                                    'bg-blue-600 text-white border-blue-600': selectedSlug === cat.slug,
+                                    'bg-white text-gray-700 border-gray-300 hover:bg-blue-50': selectedSlug !== cat.slug
+                                }">
+                                {{ cat.name | titlecase}}
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- Child categories -->
+                    <button
+                        *ngIf="showChevronRight"
+                        class="fixed right-2 me-2 bg-gray-100 text-gray-400 shadow rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-200"
+                        style="box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+                        (click)="scrollCategoryListRight()"
+                        type="button"
+                    >
+                        <span class="material-icons text-gray-400 hover:text-gray-500">chevron_right</span>
+                    </button>
+                </div>
+                <!-- Child categories -->
+                <ul class=" ms-4 flex items-center space-x-6 whitespace-nowrap m-0 p-0 list-none overflow-x-auto overflow-y-hidden"
+                    *ngIf="selectedSlug">
+                    <li *ngFor="let child of getChildCategories(selectedSlug)" class="my-2">
+                        <a href="#" (click)="onCategoryClick($event, child)"
+                            class="px-3 py-1 rounded-full border text-sm font-normal italic transition-all" [ngClass]="{
+                                'bg-primary text-white border-primary': selectedSlug === child.slug,
+                                'bg-white text-gray-500 border-gray-300 hover:bg-primary hover:text-white': selectedSlug !== child.slug
+                            }">
+                            {{ child.name | titlecase}}
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="flex-1 pt-4">
+            <div
+                class="bg-white overflow-y-auto max-h-[calc(100vh-220px)] relative rounded-xl shadow-md px-4 py-3 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+                <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                    <thead class="sticky top-0 z-20 bg-sky-50 text-gray-700">
+                        <tr>
+                            <th class="p-3 text-center border-b w-20">STT</th>
+                            <th class="p-3 text-center border-b min-w-50">Thumbnail</th>
+                            <th class="p-3 text-center border-b min-w-80 cursor-pointer"   
+                                (click)="sortBy('title')"
+                                [ngClass]="{
+                                    'bg-primary-100': sortField === 'title'
+                                }">
+                                <span class="flex items-center">
+                                    Tiêu đề
+                                    <div class="flex flex-col ml-2">
+                                        <!-- Khi chưa sort, hiển thị cả hai icon gần nhau -->
+                                        <ng-container *ngIf="sortField !== 'title' || sortOption === null">
+                                            <span class="material-icons leading-none h-4 text-base" style="line-height: 1;">arrow_drop_up</span>
+                                            <span class="material-icons leading-none h-4 text-base" style="line-height: 1; margin-top: -8px;">arrow_drop_down</span>
+                                        </ng-container>
+                                        <!-- Khi sort asc -->
+                                        <ng-container *ngIf="sortField === 'title' && sortOption === 'asc'">
+                                            <span class="material-icons leading-none h-4 text-base" style="line-height: 1;">arrow_drop_up</span>
+                                        </ng-container>
+                                        <!-- Khi sort desc -->
+                                        <ng-container *ngIf="sortField === 'title' && sortOption === 'desc'">
+                                            <span class="material-icons leading-none h-4 text-base" style="line-height: 1;">arrow_drop_down</span>
+                                        </ng-container>
+                                    </div>
+                                </span>
+                            </th>
+                            <th class="p-3 text-center border-b min-w-50">Lượt thích</th>
+                            <th class="p-3 text-center border-b min-w-50">Danh mục</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let n of news; let i = index" class="hover:bg-blue-50 transition bg-white">
+                            <td class="p-3 text-center border-b">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+                            <td class="p-3 border-b text-center">
+                                <img *ngIf="n.thumbnail" [src]="n.thumbnail" alt="thumbnail"
+                                    class="w-16 h-12 object-cover rounded shadow mx-auto">
+                            </td>
+                            <td class="p-3 border-b font-semibold">
+                                <a [routerLink]="['/news-detail', n.slug + '.html']" 
+                                    class="hover:underline text-blue-700 truncate max-w-xs block"
+                                        [title]="n.title"
+                                    >{{ n.title | titlecase }}</a>
+                            </td>
+                            <td class="p-3 border-b text-center">
+                                <span class="like-count cursor-pointer text-blue-600 hover:underline" (click)="openLikedUsersPopup(n)">
+                                    {{ n.likedBy?.total || 0 }}
+                                </span>
+                            </td>
+                            <td class="p-3 border-b text-center">
+                                {{ n.category?.name ? n.category.name : getCategoryNameById(n.category) | titlecase}}
+                            </td>
+                        </tr>
+                        <tr *ngIf="news.length === 0">
+                            <td class="p-4 text-center text-gray-500 italic" colspan="9">
+                                Không có tin tức
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="mt-4 mb-2">
+            <app-custom-pagination *ngIf="news.length > 0" [totalRecords]="totalNews" [totalItems]="totalNews"
+                [currentPage]="currentPage" [pageSize]="pageSize" (pageChange)="onPageChange($event)"
+                (pageSizeChange)="onPageSizeChange($event)"></app-custom-pagination>
+        </div>
+    </div>
+</div>
+<!-- Popup danh sách người thích -->
+<div *ngIf="showLikedUsersPopup" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 min-w-[320px] max-w-[90vw]">
+        <h3 class="text-lg font-semibold mb-4">Danh sách người đã thích</h3>
+        <ul class="mb-4 max-h-60 overflow-y-auto">
+            <li *ngFor="let user of likedUsers" class="py-1 border-b last:border-b-0 flex items-center gap-2">
+                <img *ngIf="user.avatar" [src]="user.avatar" alt="avatar" class="w-8 h-8 rounded-full object-cover border border-gray-300" />
+                <span *ngIf="!user.avatar" class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm font-bold border border-gray-300">
+                    {{ user.username ? user.username.charAt(0).toUpperCase() : '?' }}
+                </span>
+                <span>{{ user.username }}</span>
+            </li>
+            <li *ngIf="!likedUsers || likedUsers.length === 0" class="text-gray-500 italic">Chưa có ai thích</li>
+        </ul>
+        <button (click)="closeLikedUsersPopup()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Đóng</button>
+    </div>
+</div>

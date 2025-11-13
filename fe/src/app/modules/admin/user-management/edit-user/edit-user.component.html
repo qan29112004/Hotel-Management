@@ -1,0 +1,312 @@
+<!-- Backdrop -->
+
+<!-- Popup -->
+<fuse-drawer
+    class="w-screen min-w-screen sm:w-140 sm:min-w-140 z-999"
+    fixed
+    [mode]="'over'"
+    [opened]="showEditUser"
+    (openedChanged)="onDrawerOpenedChange($event)"
+    [name]="'editUserDrawer'"
+    [position]="'right'"
+    #editUserDrawer
+    (keydown.enter)="save()"
+>
+    <!-- wrapper có height cố định và overflow -->
+    <form
+        *transloco="let t"
+        class="w-full h-full shadow-md flex flex-col animated-box-content"
+        [formGroup]="editUserForm"
+        #editForm="ngForm"
+    >
+        <div
+            class="flex flex-row items-center px-4 py-2.5 text-white bg-primary"
+        >
+            <!-- <mat-icon
+                    class="icon-size-7 text-current"
+                    [svgIcon]="'heroicons_solid:cog-8-tooth'"
+                ></mat-icon> -->
+            <div class="ml-3 text-2xl font-semibold tracking-tight">
+                {{ t("user_management.edit_member") }}
+            </div>
+            <!-- <button
+                class="ml-auto"
+                mat-icon-button
+                (click)="onCloseDrawer()"
+            >
+                <mat-icon
+                    class="text-current"
+                    [svgIcon]="'heroicons_outline:x-mark'"
+                ></mat-icon>
+            </button> -->
+        </div>
+
+        <!-- Form Scrollable Content -->
+        <div class="flex-1 overflow-y-auto p-2 bg-white border border-gray-200">
+            <div class="flex flex-col p-3 bg-card overflow-hidden space-y-1">
+                <fuse-alert
+                    class="mb-2"
+                    *ngIf="showAlert"
+                    [appearance]="'outline'"
+                    [showIcon]="false"
+                    [type]="alert.type"
+                    [@shake]="alert.type === 'error'"
+                >
+                    <ul class="list-disc pl-4">
+                        <li *ngFor="let code of alert.code">
+                            {{ t(code) }}
+                        </li>
+                    </ul>
+                </fuse-alert>
+                <!-- Tai Khoan field -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{ t("user_management.username") }}</mat-label>
+                    <input
+                        id="username"
+                        matInput
+                        [formControlName]="'username'"
+                        required
+                    />
+                    <mat-error
+                        *ngIf="
+                            editUserForm.get('username').hasError('required')
+                        "
+                    >
+                        {{ t("errors.fields.username_required") }}
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Email field -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>Email</mat-label>
+                    <input
+                        id="email"
+                        matInput
+                        [formControlName]="'email'"
+                        required
+                    />
+                    <mat-error
+                        *ngIf="editUserForm.get('email').hasError('required')"
+                    >
+                        {{ t("errors.fields.email_required") }}
+                    </mat-error>
+                    <mat-error
+                        *ngIf="editUserForm.get('email').hasError('email')"
+                    >
+                        {{ t("errors.fields.email_invalid") }}
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Role field -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{ t("user_management.role") }}</mat-label>
+                    <mat-select [formControlName]="'role'">
+                        <mat-option *ngFor="let type of role" [value]="type.id">
+                            {{ type.name }}
+                        </mat-option>
+                    </mat-select>
+                    <button
+                        mat-icon-button
+                        matSuffix
+                        disableRipple
+                        class="custom-icon"
+                    >
+                        <mat-icon>expand_more</mat-icon>
+                    </button>
+                </mat-form-field>
+
+                <!-- firstName field -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{ t("user_management.fullName") }}</mat-label>
+                    <input
+                        id="fullName"
+                        matInput
+                        type="text"
+                        placeholder="{{ t('user_management.enterFullName') }}"
+                        [formControlName]="'fullName'"
+                    />
+                </mat-form-field>
+
+                <!-- Address -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{ t("user_management.address") }}</mat-label>
+                    <input
+                        id="address"
+                        matInput
+                        type="text"
+                        placeholder="{{ t('user_management.enterAddress') }}"
+                        [formControlName]="'address'"
+                    />
+                </mat-form-field>
+
+                <!-- BirthDay -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{ t("user_management.birthday") }}</mat-label>
+                    <input
+                        matInput
+                        [matDatepicker]="picker"
+                        [formControlName]="'birthday'"
+                    />
+                    <mat-datepicker-toggle
+                        matSuffix
+                        [for]="picker"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                    <mat-error
+                        *ngIf="
+                            editUserForm
+                                .get('birthday')
+                                .hasError('invalidBirthDate')
+                        "
+                    >
+                        {{ t("errors.fields.birthdayInvalid") }}
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Gender -->
+                <div class="w-full fuse-mat-dense flex flex-col">
+                    <mat-label>
+                        {{ t("user_infor.gender") }}
+                    </mat-label>
+                    <mat-radio-group
+                        formControlName="gender"
+                        class="flex flex-row space-x-4"
+                    >
+                        <mat-radio-button value="male">
+                            {{ t("user_infor.gender_male") }}
+                        </mat-radio-button>
+                        <mat-radio-button value="female">
+                            {{ t("user_infor.gender_female") }}
+                        </mat-radio-button>
+                        <mat-radio-button value="other">
+                            {{ t("user_infor.gender_other") }}
+                        </mat-radio-button>
+                    </mat-radio-group>
+                </div>
+
+                <!-- Status field -->
+                <mat-form-field
+                    *ngIf="!isStatus"
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{ t("user_management.status") }}</mat-label>
+                    <mat-select [formControlName]="'status'">
+                        <mat-option *ngFor="let s of status" [value]="s.id">
+                            {{ t("user_management." + s.name) }}
+                        </mat-option>
+                    </mat-select>
+                    <button
+                        mat-icon-button
+                        matSuffix
+                        disableRipple
+                        class="custom-icon"
+                    >
+                        <mat-icon>expand_more</mat-icon>
+                    </button>
+                </mat-form-field>
+
+                <!-- Group field -->
+                <!-- <mat-form-field
+                        floatLabel="always"
+                        class="w-full fuse-mat-dense"
+                    >
+                        <mat-label>Nhóm</mat-label>
+                        <mat-select
+                            [formControlName]="'group'"
+
+                        >
+                            <mat-option
+                                *ngFor="let group of groups"
+                                [value]="group.value"
+                            >
+                                {{ group.label }}
+                            </mat-option>
+                        </mat-select>
+                        <button
+                            mat-icon-button
+                            matSuffix
+                            disableRipple
+                            class="custom-icon"
+                        >
+                            <mat-icon>expand_more</mat-icon>
+                        </button>
+                    </mat-form-field> -->
+
+                <!-- Phone field -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{
+                        t("user_management.phone_number")
+                    }}</mat-label>
+                    <input
+                        id="phone"
+                        matInput
+                        type="text"
+                        placeholder="{{
+                            t('user_management.enter_phone_number')
+                        }}"
+                        [formControlName]="'phone'"
+                    />
+                    <mat-error
+                        *ngIf="
+                            editUserForm.get('phone').hasError('required') &&
+                            (editUserForm.get('phone').touched ||
+                                editUserForm.get('phone').dirty)
+                        "
+                    >
+                        {{ t("errors.fields.phone_number_required") }}
+                    </mat-error>
+                    <mat-error
+                        *ngIf="
+                            editUserForm.get('phone')?.hasError('invalidPhone')
+                        "
+                    >
+                        {{ t("errors.fields.phone_number_invalid") }}
+                    </mat-error>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div
+            class="p-4 bg-gray-100 border-t border-gray-200 w-full flex items-center"
+        >
+            <button
+                (click)="onToggleClick()"
+                type="submit"
+                class="w-auto border border-red-500  bg-white text-primary px-4 py-2 rounded font-bold text-base"
+            >
+                <span class = "text-red-500">{{ t("user_management.cancel") }}</span>
+            </button>
+            <button
+                (click)="save()"
+                type="submit"
+                class="w-auto bg-primary text-white px-4 py-2 ml-3 rounded font-bold text-base"
+            >
+                {{ t("user_management.save") }}
+            </button>
+        </div>
+    </form>
+    <!-- </div> -->
+</fuse-drawer>

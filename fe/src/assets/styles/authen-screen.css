@@ -1,0 +1,10 @@
+body app-create-account{
+    width: 100%;
+    height: 100%
+}
+
+body auth-sign-in{
+    width:100vw;
+    height:100vh;
+    
+}

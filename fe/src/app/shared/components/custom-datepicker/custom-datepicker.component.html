@@ -1,0 +1,57 @@
+<div>
+    <div *ngIf="label" class="font-medium mb-1">{{ label }}</div>
+    <div class="flex gap-2">
+        <!-- Start Date -->
+        <div class="relative w-1/2 px-2 py-1 rounded border border-gray-400">
+            <input
+                [value]="startDisplay"
+                class="flex-1 w-full outline-none border-none py-1 bg-transparent"
+                placeholder="Từ ngày"
+                readonly
+                (click)="startPicker.open()"
+            />
+            <mat-icon
+                (click)="startPicker.open()"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 icon-size-5 text-current cursor-pointer"
+                svgIcon="heroicons_solid:calendar"
+            ></mat-icon>
+            <mat-form-field
+                class="fuse-mat-dense invisible absolute inset-0 -mt-2.5 opacity-0 pointer-events-none"
+            >
+                <input
+                    matInput
+                    [formControl]="startControl"
+                    [matDatepicker]="startPicker"
+                />
+                <mat-datepicker #startPicker></mat-datepicker>
+            </mat-form-field>
+        </div>
+
+        <!-- End Date -->
+        <div class="relative w-1/2 px-2 py-1 rounded border border-gray-400">
+            <input
+                [value]="endDisplay"
+                class="flex-1 w-full outline-none border-none py-1 bg-transparent"
+                placeholder="Đến ngày"
+                readonly
+                (click)="endPicker.open()"
+            />
+            <mat-icon
+                (click)="endPicker.open()"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 icon-size-5 text-current cursor-pointer"
+                svgIcon="heroicons_solid:calendar"
+            ></mat-icon>
+            <mat-form-field
+                class="fuse-mat-dense invisible absolute inset-0 -mt-2.5 opacity-0"
+            >
+                <input
+                    matInput
+                    [formControl]="endControl"
+                    [matDatepicker]="endPicker"
+                    [min]="minEndDate"
+                />
+                <mat-datepicker #endPicker></mat-datepicker>
+            </mat-form-field>
+        </div>
+    </div>
+</div>

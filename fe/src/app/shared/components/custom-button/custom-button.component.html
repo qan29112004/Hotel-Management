@@ -1,0 +1,60 @@
+<!-- button.component.html -->
+<ng-container [ngSwitch]="variant">
+    <!-- Flat Button -->
+    <button
+        *ngSwitchCase="'flat'"
+        mat-flat-button
+        [color]="color"
+        [type]="type"
+        [disabled]="disabled"
+        [routerLink]="routerLink"
+        [class]="getClassList()"
+        (click)="onClick()"
+    >
+        <div class="flex items-center gap-2">
+            <mat-progress-spinner
+                *ngIf="disabled"
+                [diameter]="dense ? 20 : 24"
+                [mode]="'indeterminate'"
+                class="button-spinner"
+            ></mat-progress-spinner>
+            <span *ngIf="!disabled">{{ label }}</span>
+        </div>
+    </button>
+
+    <!-- Stroked Button -->
+    <button
+        *ngSwitchCase="'stroked'"
+        mat-stroked-button
+        [color]="color"
+        [type]="type"
+        [disabled]="disabled"
+        [routerLink]="routerLink"
+        [class]="getClassList()"
+        (click)="onClick()"
+    >
+        {{ label }}
+    </button>
+
+    <!-- Raised Button -->
+    <button
+        *ngSwitchCase="'raised'"
+        mat-raised-button
+        [color]="color"
+        [type]="type"
+        [disabled]="disabled"
+        [routerLink]="routerLink"
+        [class]="getClassList()"
+        (click)="onClick()"
+    >
+        <div class="flex items-center gap-2">
+            <mat-progress-spinner
+                *ngIf="disabled"
+                [diameter]="dense ? 20 : 24"
+                [mode]="'indeterminate'"
+                class="button-spinner"
+            ></mat-progress-spinner>
+            <span *ngIf="!disabled">{{ label }}</span>
+        </div>
+    </button>
+</ng-container>

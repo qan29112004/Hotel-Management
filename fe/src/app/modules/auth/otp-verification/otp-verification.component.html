@@ -1,0 +1,101 @@
+
+<div *transloco="let t" class="w-full">
+    <div class="mt-5 text-4xl font-extrabold tracking-tight leading-tight">
+        <mat-icon class="text-4xl mr-2 content-center cursor-pointer text-[#292D32]"
+            [routerLink]="['/sign-in']">keyboard_backspace</mat-icon>
+        {{ t("otp_verification.title") }}
+    </div>
+
+    
+    <fuse-alert class="mt-5" *ngIf="showAlert" [appearance]="'outline'" [showIcon]="false" [type]="alert.type"
+        [@shake]="alert.type === 'error'">
+        {{ alert.message }}
+    </fuse-alert>
+
+    <form class="mt-6" [formGroup]="otpForm" #signInNgForm="ngForm">
+        <mat-label class="text-xs">{{ t("otp_verification.label") }}<span class="text-indigo-600 ml-1">{{ email }}</span></mat-label>
+        <div class="my-7 flex justify-start">
+            <ng-otp-input 
+                (onInputChange)="onOtpChange($event)" 
+                [config]="{
+                    length: 6,
+                    allowNumbersOnly: true,
+                    inputClass: 'otp-input focus:border-blue-500 border-gray-300 rounded-md transition-all'
+                }">
+            </ng-otp-input>
+        </div>
+        <div class="text-sm font-semibold">
+            <mat-label>{{ t("otp_verification.receive_code") }}</mat-label>
+            <button 
+            [disabled]="isButtonDisabled" 
+            (click)="sendOtp()"         
+            [class.opacity-50]="isButtonDisabled"
+            class="ml-1">
+                {{ t("otp_verification.btn_receive_code") }}
+            </button><br>
+            <div *ngIf="isButtonDisabled">
+                <mat-label>
+                {{ t("otp_verification.time") }}
+                  <span class="text-indigo-500 font-semibold">{{ countdown }}s</span>
+                </mat-label>
+              </div>
+        </div>
+
+    </form>
+</div>
+
+<!-- <div *transloco="let t" class="w-full">
+    <div class="mt-5 text-4xl font-extrabold tracking-tight leading-tight">
+        <mat-icon class="text-4xl mr-2 content-center cursor-pointer text-[#292D32]"
+            [routerLink]="['/sign-in']">keyboard_backspace</mat-icon>
+        Nhập mã xác thực
+    </div>
+
+
+    <fuse-alert class="mt-5" *ngIf="showAlert" [appearance]="'outline'" [showIcon]="false" [type]="alert.type"
+        [@shake]="alert.type === 'error'">
+        {{ alert.message }}
+    </fuse-alert>
+
+    <form class="mt-6" [formGroup]="otpForm" #signInNgForm="ngForm">
+        <mat-label class="text-sm">Mã OTP xác thực tài khoản đã được gửi đến email <span class="text-indigo-600 ml-1">{{
+                email }}</span> của bạn</mat-label><br>
+        <mat-label class="text-sm">Vui lòng kiểm tra hộp thư, bao gồm cả mục
+            <span class="text-indigo-600 ml-1">Promotion (Quảng cáo),</span>
+            <span class="text-indigo-600 ml-1">Spam (Thư rác),</span> và
+            <span class="text-indigo-600 ml-1 ">Update (Cập nhật)</span>
+        </mat-label>
+        <div class="my-7 flex">
+            <ng-otp-input 
+                (onInputChange)="onOtpChange($event)" 
+                [config]="{
+                    length: 6,
+                    allowNumbersOnly: true,
+                    inputClass: 'otp-input text-2xl h-14 focus:border-primary border-[2px] border-gray-300  rounded-md transition-all'
+                }">
+            </ng-otp-input>
+
+        </div>
+        <div class="text-sm font-semibold">
+            <mat-label>Bạn chưa nhận được mã OTP?</mat-label>
+            <button [disabled]="isButtonDisabled" (click)="sendOtp()" [class.opacity-50]="isButtonDisabled"
+                class="ml-1">
+                <span class="text-primary underline">Gửi lại mã</span>
+            </button><br>
+            <div *ngIf="isButtonDisabled">
+                <mat-label class="text-gray-400">
+                    Gửi lại sau
+                    <span>{{ countdown }}s</span>
+                </mat-label>
+            </div>
+        </div>
+        <label class="flex cursor-pointer select-none my-3">
+            <input type="checkbox" class="w-5 h-5 border-2 border-gray-500 rounded-sm focus:ring-0 focus:outline-none"/>
+
+            <span class="text-gray-800 ml-2">Bằng việc đăng ký tài khoản, bạn đã đồng ý với
+                <span class="text-primary">Điều khoản dịch vụ</span> và
+                <span class="text-primary">Chính sách bảo mật</span>
+                của chúng tôi.</span>
+        </label>
+    </form>
+</div> -->

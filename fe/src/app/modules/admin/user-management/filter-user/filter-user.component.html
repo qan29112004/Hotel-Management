@@ -1,0 +1,132 @@
+<ng-container *ngIf="mode === 'inline'">
+  <div *transloco="let t" class="flex flex-col h-full min-h-0">
+
+    <!-- Header cố định -->
+    <h2 class="text-lg font-semibold bg-blue-600 text-white p-3 rounded-t-md flex-shrink-0">
+      {{ t('content.advanced_filters') }}
+    </h2>
+
+    <!-- Nội dung cuộn -->
+    <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+      <form [formGroup]="filterForm" (ngSubmit)="applyFilter()">
+
+        <!-- Tên Đăng Nhập -->
+        <div class="w-full flex flex-col gap-1">
+          <label class="text-sm text-gray-700">{{ t("user_management.username") }}</label>
+          <select formControlName="username" class="px-3 py-2 border rounded text-sm text-gray-700">
+            <option value="">{{ t("user_management.enter_username") }}</option>
+            <option *ngFor="let user of users" [value]="user.username">
+              {{ user.username }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Vai trò -->
+        <div class="w-full flex flex-col gap-1 mt-5">
+          <label class="text-sm text-gray-700">{{ t("user_management.role") }}</label>
+          <select formControlName="role" class="px-3 py-2 border rounded text-sm text-gray-700">
+            <option value="">{{ t("user_management.select_role") }}</option>
+            <option *ngFor="let role of roles" [value]="role.id">
+              {{ role.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Số điện thoại -->
+        <div class="w-full flex flex-col gap-1 mt-5">
+          <label class="text-sm text-gray-700">{{ t("user_management.phone_number") }}</label>
+          <input
+            type="text"
+            formControlName="phone"
+            (input)="onPhoneInputChange()"
+            placeholder="{{t('user_management.enter_phone_number')}}"
+            class="px-3 py-2 border rounded text-base"
+            list="phoneList"
+          />
+          <datalist id="phoneList">
+            <option *ngFor="let phone of filteredPhones" [value]="phone"></option>
+          </datalist>
+        </div>
+
+        <!-- Lần truy cập gần nhất -->  
+      <div class="w-full flex flex-col gap-2 mt-5">
+        <label class="text-sm text-gray-700 font-medium">
+          {{ t('user_management.last_login') }}
+        </label>
+        <div class="flex gap-4">
+          <!-- Từ ngày -->
+          <div class="w-full flex flex-col gap-1">
+            <input
+              type="date"
+              formControlName="login_from"
+              placeholder="{{ t('user_management.from_date') }}"
+              class="px-3 py-2 border rounded text-base"
+            />
+          </div>
+        
+          <!-- Đến ngày -->
+          <div class="w-full flex flex-col gap-1">
+            <input
+              type="date"
+              formControlName="login_to"
+              placeholder="{{ t('user_management.to_date') }}"
+              class="px-3 py-2 border rounded text-base"
+            />
+          </div>
+        </div>
+      </div>
+
+
+        <!-- Lần chỉnh sửa gần nhất -->
+        <div class="w-full flex flex-col gap-2 mt-5">
+        <label class="text-sm text-gray-700 font-medium">
+          {{ t('user_management.updated_at') }}
+        </label>
+        <div class="flex gap-4">
+          <!-- Từ ngày -->
+          <div class="w-full flex flex-col gap-1">
+            <input
+              type="date"
+              formControlName="updated_from"
+              placeholder="{{ t('user_management.from_date') }}"
+              class="px-3 py-2 border rounded text-base"
+            />
+          </div>
+        
+          <!-- Đến ngày -->
+          <div class="w-full flex flex-col gap-1">
+            <input
+              type="date"
+              formControlName="updated_to"
+              placeholder="{{ t('user_management.updated_to') }}"
+              class="px-3 py-2 border rounded text-base"
+            />
+          </div>
+        </div>
+      </div>
+
+        <!-- Trạng thái -->
+        <div class="w-full flex flex-col gap-1 mt-5">
+          <label class="text-sm text-gray-700">{{ t("user_management.status") }}</label>
+          <select formControlName="status" class="px-3 py-2 border rounded text-sm text-gray-700">
+            <option value="">{{ t("news.select_status") }}</option>
+            <option *ngFor="let type of statuses" [value]="type.id">
+              {{ t("user_management." + type.name) }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Nút hành động -->
+        <div class="flex justify-end gap-2 pt-4">
+          <button type="button" (click)="cancel()" class="px-5 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm text-gray-700">
+            {{ t('user_management.cancel') || 'Huỷ' }}
+          </button>
+          <button type="submit" class="px-5 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded text-sm text-gray-700">
+            {{ t('user_management.button_filter') || 'Lọc' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</ng-container>

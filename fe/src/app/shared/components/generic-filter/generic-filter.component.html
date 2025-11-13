@@ -1,0 +1,167 @@
+<ng-container *ngIf="mode === 'inline' && showFilter">
+  <div *transloco="let t" class="flex flex-col h-full min-h-0">
+    <!-- Header cố định -->
+    <h2 class="flex-shrink-0 p-3 text-lg font-semibold text-white bg-primary rounded-t-md">
+      {{ t(titleKey) }}
+    </h2>
+
+    <!-- Nội dung cuộn -->
+    <div class="flex-1 px-6 py-4 space-y-4 overflow-y-auto">
+      <form [formGroup]="filterForm" (ngSubmit)="applyFilter()">
+        <ng-container *ngIf="filterForm">
+          <ng-container *ngFor="let field of fields">
+            <!-- Text Input (with optional autocomplete) -->
+            <div *ngIf="field.type === 'text'" class="flex flex-col w-full gap-1">
+              <label class="text-sm text-gray-700">{{ t(field.labelKey) }}</label>
+              <input
+                type="text"
+                [formControlName]="field.name"
+                [placeholder]="field.placeholderKey ? t(field.placeholderKey) : ''"
+                class="px-3 py-2 text-base border rounded"
+                [list]="field.name + 'List'"
+                (input)="onInputChange(field.name)"
+              />
+              <datalist *ngIf="field.autocompleteOptions" [id]="field.name + 'List'">
+                <option *ngFor="let option of field.autocompleteOptions" [value]="option"></option>
+              </datalist>
+              <div *ngIf="filterForm.get(field.name)?.hasError('invalidPhone') && field.name === 'phone'" class="text-sm text-red-500">
+                {{ t(field.errorMessages?.invalidPhone || 'errors.fields.phone_number_invalid') }}
+              </div>
+            </div>
+
+            <!-- Select Input -->
+            <div *ngIf="field.type === 'select'" class="flex flex-col w-full gap-1">
+              <label class="text-sm text-gray-700">{{ t(field.labelKey) }}</label>
+              <select
+                *ngIf="field.asyncOptionsKey; else staticSelect"
+                [formControlName]="field.name"
+                class="px-3 py-2 text-sm text-gray-700 border rounded"
+              >
+                <option value="">{{ t(field.placeholderKey || 'common.select') }}</option>
+                <option *ngFor="let option of optionDestination" [value]="option.id">
+                  {{ t(option.name) || option.name }}
+                </option>
+              </select>
+              <ng-template #staticSelect>
+                <select
+                  [formControlName]="field.name"
+                  class="px-3 py-2 text-sm text-gray-700 border rounded"
+                >
+                  <option value="">{{ t(field.placeholderKey || 'common.select') }}</option>
+                  <option *ngFor="let option of field.options" [value]="option.id">
+                    {{ t(option.name) || option.name }}
+                  </option>
+                </select>
+              </ng-template>
+              
+            </div>
+            <!-- Checkbox Input -->
+            <div
+                *ngIf="field.type === 'checkbox'"
+                class="flex flex-col w-full fuse-mat-dense"
+            >
+                <mat-label>{{ t(field.labelKey) }}</mat-label>
+                <!-- Khi có asyncOptionsKey -->
+                <div *ngIf="field.asyncOptionsKey; else staticCheckbox">
+                <mat-checkbox
+                    *ngFor="let option of optionRadio"
+                    [checked]="selectedRadioValues[field.name]?.includes(option.id)"
+                    (change)="onCheckboxChange($event.checked, field.name, option.id, option)"
+                    class="mr-4"
+                >
+                    {{ t(option.name) }}
+                </mat-checkbox>
+                </div>
+
+                <!-- Khi không có asyncOptionsKey -->
+                <ng-template #staticCheckbox>
+                <mat-checkbox
+                    *ngFor="let option of field.options"
+                    [checked]="selectedRadioValues[field.name]?.includes(option.id)"
+                    (change)="onCheckboxChange($event.checked, field.name, option.id, option)"
+                    class="mr-4"
+                >
+                    {{ t(option.name) }}
+                </mat-checkbox>
+                </ng-template>
+
+                <!-- Preview grid for radio -->
+                <div *ngIf="selectedRadioValues[field.name]?.length > 0" class="grid grid-cols-3 gap-2 mt-4">
+                    <div *ngFor="let value of displayCheckbox | keyvalue; let i = index" class="relative">
+                        <div class="flex text-black items-center justify-center w-full h-12 border border-black rounded">
+                            <!-- {{ field.options.find(opt => opt.id === value)?.name || value }} -->
+                              <img [src]="baseUrl + value.value" class="w-8 mr-1"/> {{value.key}}
+                        </div>
+                        <button
+                            class="absolute w-[16px] h-[16px] text-[11px] top-0 right-0 text-red-500 bg-white rounded-full"
+                            (click)="removeRadioValue(field.name, i,value.key)"
+                        >
+                            x
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Input -->
+            <div *ngIf="field.type === 'date'" class="flex flex-col w-full gap-1">
+              <label class="text-sm text-gray-700">{{ t(field.labelKey) }}</label>
+              <input
+                type="date"
+                [formControlName]="field.name"
+                [placeholder]="field.placeholderKey ? t(field.placeholderKey) : ''"
+                class="px-3 py-2 text-base border rounded"
+              />
+            </div>
+
+            <!-- Date Range Input -->
+            <div *ngIf="field.type === 'date-range'" class="flex flex-col w-full gap-2">
+              <label class="text-sm font-medium text-gray-700">{{ t(field.labelKey) }}</label>
+              <div class="flex gap-4">
+                <div class="flex flex-col w-full gap-1">
+                  <input
+                    type="date"
+                    [formControlName]="field.rangeFields.from"
+                    [placeholder]="t('user_management.from_date')"
+                    class="px-3 py-2 text-base border rounded"
+                  />
+                </div>
+                <div class="flex flex-col w-full gap-1">
+                  <input
+                    type="date"
+                    [formControlName]="field.rangeFields.to"
+                    [placeholder]="t('user_management.to_date')"
+                    class="px-3 py-2 text-base border rounded"
+                  />
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+
+        <!-- Nút hành động -->
+        <div class="flex justify-end gap-2 pt-4">
+          <button
+            type="button"
+            (click)="cancel()"
+            class="px-5 py-2 text-sm text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
+          >
+            {{ t('user_management.cancel') }}
+          </button>
+          <button
+            type="button"
+            (click)="resetFilter()"
+            class="px-5 py-2 text-sm text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
+          >
+            {{ t('destination.reset_button_filter') }}
+          </button>
+          <button
+            type="submit"
+            class="px-5 py-2 text-sm text-white text-gray-700 rounded bg-primary hover:bg-blue-700"
+          >
+            {{ t('user_management.button_filter') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-container>

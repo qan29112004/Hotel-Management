@@ -1,0 +1,38 @@
+<div 
+    *transloco="let t"
+    class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-800 bg-opacity-50">
+    <div class="flex items-center justify-between pr-4 pl-6 w-[450px] bg-white text-on-white rounded-t-lg">
+        <div class="my-2 text-lg font-medium leading-10">
+            {{ t(titleKey) }}
+        </div>
+        <span class="text-black cursor-pointer material-icons" (click)="cancel()">close</span>
+    </div>
+    <div class="bg-white rounded-b-lg shadow-lg px-6 pb-6 w-[450px]">
+        <div class="flex items-center justify-start gap-4">
+            <img src="assets/images/ui/warning.svg" alt="Warning" class="w-16 h-16 mb-4">
+            <div>
+                <p class="mb-4 text-gray-700">{{ t(messageKey) }}</p>
+                <p *ngIf="warningKey" class="mb-4 text-gray-700">
+                    <span class="font-semibold">{{ t('other.warning') }}: </span>{{ t(warningKey) }}
+                </p>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2">
+            <button
+                type="button"
+                (click)="cancel()"
+                class="px-4 py-2 font-semibold text-red-500 bg-white border border-red-500 rounded-md"
+            >
+                {{ t('common.cancel') }}
+            </button>
+            <button
+                type="button"
+                (click)="delete()"
+                [disabled]="isDeleting"
+                class="px-4 py-2 font-semibold text-white bg-red-500 rounded-md"
+            >
+                {{ t('common.delete') }}
+            </button>
+        </div>
+    </div>
+</div>

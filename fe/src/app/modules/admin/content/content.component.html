@@ -1,0 +1,532 @@
+<div
+    class="flex-auto pt-3 sm:px-6 overflow-auto max-h-full"
+    *transloco="let t"
+>
+    <div class="relative w-full flex-1 h-full flex flex-col">
+        <div class="mb-4 w-full">
+            <!-- Tiêu đề -->
+            <h2 class="text-[24px] font-bold text-primary mb-2">
+                {{ t("content.page_title") }}
+            </h2>
+
+            <!-- Toolbar -->
+
+            <div class="flex sm:flex-wrap max-sm:flex-col max-sm:items-start justify-between items-center mb-4 gap-4">
+                <div class="flex flex-wrap gap-3 items-center">
+                    <!-- Tìm kiếm -->
+                    <div class="relative w-[320px]">
+                        <input
+                            type="text"
+                            placeholder="{{ t('content.search_placeholder') }}"
+                            [(ngModel)]="filterKeyWord"
+                            (input)="applyFilter()"
+                            class="h-10 w-[330px] pl-10 pr-1 border border-blue-500 rounded-md text-sm placeholder-blue-600"
+                        />
+                        <div
+                            #filterToggleBtn
+                            (click)="toggleFilter()"
+                            class="h-full px-3 bg-blue-100 hover:bg-blue-200 border-l text-white border-blue-500 flex items-center justify-center"
+                        >
+                            <span
+                                class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-blue-300"
+                                >search</span
+                            >
+                            <button
+                                class="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1 flex items-center justify-center bg-[#E0EAFF] border border-[#E0EAFF] hover:bg-[#e6f0ff] transition translate-x-2"
+                                (click)="
+                                    toggleFilter(); $event.stopPropagation()
+                                "
+                                type="button"
+                            >
+                                <mat-icon
+                                    [svgIcon]="'heroicons_outline:funnel'"
+                                ></mat-icon>
+                            </button>
+                        </div>
+                        <app-filter-content
+                            [hidden]="!showFilter"
+                            #filterContainer
+                            [mode]="'inline'"
+                            (filter)="handleAdvancedFilter($event)"
+                            (close)="showFilter = false"
+                            class="absolute top-[110%] left-0 z-50 bg-white shadow-lg rounded-md w-[320px] border border-gray-300"
+                        >
+                        </app-filter-content>
+
+                    </div>
+
+                    <!-- xóa -->
+                    <button
+                        (click)="deleteSelectedItems()"
+                        [class.hidden]="!hasSelectedItems"
+                        class="flex items-center bg-red-100 text-red-600 px-3 py-3 gap-1 rounded text-sm cursor-pointer">
+                          <span class="material-icons text-base">delete</span>
+                         <span class="font-semibold">{{ t('content.delete') }}</span>
+                    </button>
+                    <button
+                        *ngIf="isFiltered"
+                        (click)="clearFilter()"
+                        class="flex items-center gap-2 h-9 p-5 text-sm text-white rounded-lg transition-colors bg-red-500"
+                    >
+                        {{ t("content.clear_filter") }}
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap max-sm:self-end items-center gap-3">
+                    <!-- Nút training -->
+                    <!-- Nút training -->
+                    <button
+                        (click)="startTraining()"
+                        class="flex items-center gap-1 h-9 px-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm"
+                    >
+                        <mat-icon
+                            [svgIcon]="'heroicons_solid:cpu-chip'"
+                            class="text-white"
+                        ></mat-icon>
+                        <span>Training</span>
+                    </button>
+
+                    <!-- Nút thêm -->
+                    <button
+                        (click)="openAddForm()"
+                        class="flex items-center gap-1 h-9 px-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm"
+                    >
+                        <span
+                            _ngcontent-ng-c1875381954=""
+                            class="material-icons"
+                            >add</span
+                        >
+                        <span>{{ t("content.add") }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <div
+                class="bg-white overflow-y-auto max-h-[70vh] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+            >
+                <table
+                    class="table w-full border-separate border-spacing-0 text-base"
+                >
+                    <thead
+                        class="text-sm font-medium text-gray-700 text-left bg-sky-50"
+                    >
+                        <tr>
+                            <th class="p-3 border-b text-center td-cell">
+                                <input
+                                    type="checkbox"
+                                    [checked]="isAllSelected"
+                                    (change)="toggleSelectAll($event)"
+                                    class="form-checkbox h-4 w-4 text-primary-600"
+                                />
+                            </th>
+                            <th
+                                class="p-3 border-b font-semibold text-center td-cell"
+                            >
+                                {{ t("content.STT") }}
+                            </th>
+                            <th class="p-3 text-center border-b td-cell">
+                                <span class="flex items-center justify-center">
+                                    {{ t("content.title") }}
+                                </span>
+                            </th>
+
+                            <th
+                                class="p-3 text-center border-b cursor-pointer td-cell"
+                                (click)="sortBy('updated_by')"
+                                [ngClass]="{
+                                    'bg-primary-100': sortField === 'updated_by'
+                                }"
+                            >
+                                <span class="flex items-center justify-center">
+                                    {{ t("content.updated_by") }}
+                                    <div class="flex flex-col ml-2">
+                                        <!-- Khi KHÔNG sort theo cột này -->
+                                        <ng-container
+                                            *ngIf="sortField !== 'updated_by'"
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                >arrow_drop_up</span
+                                            >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="margin-top: -8px"
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+
+                                        <!-- Khi sort ASC -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'updated_by' &&
+                                                sortDirection === 'asc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base text-blue-600"
+                                                >arrow_drop_up</span
+                                            >
+                                        </ng-container>
+
+                                        <!-- Khi sort DESC -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'updated_by' &&
+                                                sortDirection === 'desc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base text-blue-600"
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+                                    </div>
+                                </span>
+                            </th>
+                            <th
+                                class="p-3 text-center border-b cursor-pointer td-cell"
+                                (click)="sortBy('createdBy')"
+                                [ngClass]="{
+                                    'bg-primary-100': sortField === 'createdBy'
+                                }"
+                            >
+                                <span class="flex items-center justify-center">
+                                    {{ t("content.created_by") }}
+                                    <div class="flex flex-col ml-2">
+                                        <!-- Khi KHÔNG sort theo cột này -->
+                                        <ng-container
+                                            *ngIf="sortField !== 'createdBy'"
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                >arrow_drop_up</span
+                                            >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="margin-top: -8px"
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+
+                                        <!-- Khi sort ASC -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'createdBy' &&
+                                                sortDirection === 'asc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base text-blue-600"
+                                                >arrow_drop_up</span
+                                            >
+                                        </ng-container>
+
+                                        <!-- Khi sort DESC -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'createdBy' &&
+                                                sortDirection === 'desc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base text-blue-600"
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+                                    </div>
+                                </span>
+                            </th>
+                            <th
+                                class="p-3 text-center border-b cursor-pointer td-cell"
+                                (click)="sortBy('createdAt')"
+                                [ngClass]="{
+                                    'bg-primary-100': sortField === 'createdAt'
+                                }"
+                            >
+                                <span class="flex items-center justify-center">
+                                    {{ t("content.created_at") }}
+                                    <div class="flex flex-col ml-2">
+                                        <!-- Khi KHÔNG sort theo cột này -->
+                                        <ng-container
+                                            *ngIf="sortField !== 'createdAt'"
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                >arrow_drop_up</span
+                                            >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="margin-top: -8px"
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+
+                                        <!-- Khi sort ASC -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'createdAt' &&
+                                                sortDirection === 'asc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base text-blue-600"
+                                                >arrow_drop_up</span
+                                            >
+                                        </ng-container>
+
+                                        <!-- Khi sort DESC -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'createdAt' &&
+                                                sortDirection === 'desc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base text-blue-600"
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+                                    </div>
+                                </span>
+                            </th>
+
+                            <th
+                                class="p-3 text-center border-b cursor-pointer td-cell"
+                                (click)="sortBy('updated_at')"
+                                [ngClass]="{
+                                    'bg-primary-100': sortField === 'updated_at'
+                                }"
+                            >
+                                <span class="flex items-center justify-center">
+                                    {{ t("content.updated_at") }}
+                                    <div class="flex flex-col ml-2">
+                                        <!-- Khi KHÔNG sort theo cột này -->
+                                        <ng-container
+                                            *ngIf="sortField !== 'updated_at'"
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                >arrow_drop_up</span
+                                            >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base"
+                                                style="margin-top: -8px"
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+
+                                        <!-- Khi sort ASC -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'updated_at' &&
+                                                sortDirection === 'asc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base text-blue-600"
+                                                >arrow_drop_up</span
+                                            >
+                                        </ng-container>
+
+                                        <!-- Khi sort DESC -->
+                                        <ng-container
+                                            *ngIf="
+                                                sortField === 'updated_at' &&
+                                                sortDirection === 'desc'
+                                            "
+                                        >
+                                            <span
+                                                class="material-icons leading-none h-4 text-base text-blue-600"
+                                                >arrow_drop_down</span
+                                            >
+                                        </ng-container>
+                                    </div>
+                                </span>
+                            </th>
+                            <th
+                                class="p-3 border-b font-semibold text-center td-cell"
+                            >
+                                {{ t("feedback.action") }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            class="hover:bg-blue-50 transition cursor-pointer"
+                            (click)="openUpdateForm(item)"
+                            *ngFor="let item of contents; let i = index"
+                        >
+                            <!-- checkbox -->
+                            <td class="p-3 border-b text-center td-cell">
+                                <input
+                                    type="checkbox"
+                                    [(ngModel)]="item.selected"
+                                    (ngModelChange)="updateSelectedIds()"
+                                    (click)="$event.stopPropagation()"
+                                    class="form-checkbox h-4 w-4 text-primary-600"
+                                />
+                            </td>
+                            <!-- STT -->
+                            <td
+                                class="p-3 border-b font-semibold text-center td-cell"
+                            >
+                                {{ (currentPage - 1) * pageSize + i + 1 }}
+                            </td>
+                            <!-- Tiêu đề -->
+                            <td
+                                class="p-5 border-b text-left td-cell font-semibold max-w-[400px] truncate text-blue-600"
+                                [title]="item.content"
+                            >
+                                {{ item.title }}
+                            </td>
+                            <!-- updatedBy -->
+                            <td
+                                class="p-3 border-b text-center font-semibold td-cell"
+                            >
+                                {{ item.updatedBy || "---" }}
+                            </td>
+                            <!-- createdBy -->
+                            <td
+                                class="p-3 border-b text-center font-semibold td-cell"
+                            >
+                                <div
+                                    class="flex items-center justify-center gap-2"
+                                >
+                                    <img
+                                        [src]="
+                                            item.createdBy?.avatar ||
+                                            'assets/images/avatars/default-avatar.svg'
+                                        "
+                                        alt="avatar"
+                                        class="w-7 h-8 rounded-full object-cover inline-block"
+                                    />
+                                    <span>{{ item.createdBy || "---" }}</span>
+                                </div>
+                            </td>
+                            <!-- createdAt -->
+                            <td
+                                class="p-3 border-b text-center font-semibold td-cell"
+                            >
+                                {{
+                                    item.createdAt
+                                        ? (item.createdAt
+                                          | date : "dd/MM/yyyy ")
+                                        : "---"
+                                }}
+                            </td>
+                            <!-- updatedAt -->
+                            <td
+                                class="p-3 border-b text-center font-semibold td-cell"
+                            >
+                                {{
+                                    item.updatedAt
+                                        ? (item.updatedAt
+                                          | date : "dd/MM/yyyy ")
+                                        : "---"
+                                }}
+                            </td>
+                            <!-- Actions -->
+                            <td class="p-3 border-b text-center td-cell">
+                                <!-- nút sửa  -->
+                                <button
+                                    (click)="
+                                        $event.stopPropagation();
+                                        openUpdateForm(item)
+                                    "
+                                    title="{{ t('content.update') }}"
+                                    class="inline-flex items-center justify-center w-8 h-8 mr-1"
+                                >
+                                    <img
+                                        src="assets/images/ui/edit.svg"
+                                        alt="appType"
+                                        class="w-8 h-8 object-scale-down mx-auto"
+                                    />
+                                </button>
+
+                                <!-- nút xóa -->
+                                <button
+                                    (click)="
+                                        $event.stopPropagation();
+                                        openDeleteForm(item.id)
+                                    "
+                                    title="{{ t('content.delete') }}"
+                                    class="inline-flex items-center justify-center w-8 h-8 mr-1"
+                                >
+                                    <img
+                                        src="assets/images/ui/trash.png"
+                                        alt="appType"
+                                        class="w-8 h-8 object-scale-down mx-auto"
+                                    />
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr *ngIf="contents.length === 0">
+                            <td colspan="8" class="py-10">
+                                <div
+                                    class="flex flex-col items-center justify-center text-blue-500"
+                                >
+                                    <img
+                                        src="assets/images/ui/empty-folder-1.svg"
+                                        alt="Empty"
+                                        class="w-32 h-32 mb-4"
+                                    />
+                                    <p class="font-semibold">
+                                        {{ t("errors.CO_E_023") }}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- PHÂN TRANG -->
+        <div
+            class="mt-auto flex flex-row items-start justify-between flex-wrap gap-2"
+        >
+            <span class="text-[#2563EB] text-sm font-medium block"
+                >{{ t("content.result") }}: {{ contents.length }}/{{
+                    contents.length
+                }}</span
+            >
+            <app-custom-pagination
+                [currentPage]="currentPage"
+                [pageSize]="pageSize"
+                [totalItems]="totalItems"
+                (pageChange)="onPageChange($event)"
+                (pageSizeChange)="onPageSizeChange($event)"
+            >
+            </app-custom-pagination>
+        </div>
+    </div>
+</div>
+<!-- add content -->
+<app-add-content
+    *ngIf="showAddForm"
+    (close)="cancelAddForm()"
+    (refresh)="loadContent()"
+>
+</app-add-content>
+<!-- delete content -->
+<app-delete-content
+    *ngIf="showDeleteForm"
+    [contentId]="selectedIdToDelete"
+    [contentIds]="selectedIdsToDelete"
+    (close)="showDeleteForm = false"
+    (refresh)="onDeleteRefresh()"
+></app-delete-content>
+<app-update-content
+    *ngIf="showUpdateForm && selectedContentToUpdate"
+    [contentData]="selectedContentToUpdate"
+    (close)="cancelUpdateForm()"
+    (refresh)="loadContent()"
+>
+</app-update-content>
+<!-- filter content -->
+<app-filter-content
+    *ngIf="showFilterModal"
+    [mode]="'modal'"
+    (filter)="handleAdvancedFilter($event)"
+    (close)="showFilterModal = false"
+></app-filter-content>

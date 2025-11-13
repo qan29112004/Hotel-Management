@@ -1,0 +1,52 @@
+<div class="relative flex flex-col items-center justify-center w-screen h-screen bg-center bg-no-repeat bg-cover"
+    [style.background-image]="'url('+ ('assets/images/auth/INVITED-loginpage-bg.jpg')+ ')'"
+>
+    <div class="absolute z-20 flex items-center -translate-x-1/2 top-4 left-1/2">
+        <div class="flex items-center justify-center overflow-hidden w-30 h-30">
+            <img
+                src="assets/images/logo/logo_icon_hotel.svg"
+                class="object-cover min-w-full min-h-full scale-110 invert brightness-200"
+                alt="logo"
+            />
+        </div>
+        <label class="ml-2 font-bold text-white text-7xl font-lexend_deca">Luskibeck</label>
+    </div>
+    <div class="absolute w-full h-full bg-primary/50"></div>
+    <form class="z-20 flex flex-col justify-center w-full max-w-3xl gap-4 p-4 overflow-y-auto bg-white rounded-lg" [formGroup]="form" (ngSubmit)="signIn()">
+        <div id="googleButton"></div>
+        <mat-form-field floatLabel="always" class="w-full fuse-mat-dense">
+            <mat-label>Tài khoản</mat-label>
+            <input
+                id="username"
+                matInput
+                class="bg-gray-input"
+                [formControlName]="'username'"
+                placeholder="Nhập tài khoản"
+                required
+            />
+            <mat-error *ngIf="form.get('username').hasError('required')">
+                Cần nhập tài khoản
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field floatLabel="always" class="w-full fuse-mat-dense">
+            <mat-label>Mật khẩu</mat-label>
+            <input
+                id="password"
+                matInput
+                [type]="'password'"
+                placeholder="Nhập mật khẩu"
+                [formControlName]="'password'"
+                
+            />
+            
+            <mat-error
+                *ngIf="form.get('password')?.hasError('required')"
+            >
+                Cần nhập mật khẩu
+            </mat-error>
+        </mat-form-field>
+
+        <button type="submit" class="p-4 bg-yellow-300 rounded-lg">Login</button>
+        <p class='self-center'>Chưa có tài khoản? <a href="sign-up" class="text-orange-500 underline decoration-orange-500">Đăng ký ngay</a></p>
+    </form>
+</div>

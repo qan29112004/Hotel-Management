@@ -1,0 +1,14 @@
+{
+  "/proxy/google-image": {
+    "target": "https://lh3.googleusercontent.com",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/proxy/google-image": ""
+    },
+    "logLevel": "debug",
+    "headers": {
+      "User-Agent": "Mozilla/5.0"
+    }
+  }
+}

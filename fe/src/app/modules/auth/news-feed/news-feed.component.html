@@ -1,0 +1,951 @@
+<div class="flex-auto pt-3 sm:px-6 overflow-hidden max-h-screen">
+    <div class="flex justify-center w-full">
+        <div class="flex flex-col md:flex-row min-w-full md:min-w-[85%] md:max-w-[85%] items-start md:items-center justify-center px-4 gap-4">
+            <!-- Cột trái: đăng bài + feed -->
+            <div class="w-full md:w-2/3 h-[80vh] md:h-[calc(100vh-80px)]  overflow-y-auto pr-0 md:pr-2 space-y-4">
+                <!-- Khối đăng bài -->
+                <div class="bg-white border border-gray-200 p-4 rounded-lg shadow-md">
+                    <div class="flex items-center gap-2 mb-3">
+                        <img [src]="currentUser?.avatar || 'assets/images/avatars/default-avatar.svg'"
+                            class="w-10 h-10 rounded-full object-cover" />
+                        <input (click)="openCreateNewsPopup()" type="text" placeholder="{{ translocoService.translate('news-feed.post_placeholder') }}"
+                            class="w-full px-2 py-2 text-sm" />
+                    </div>
+                    <div class="flex justify-between text-sm border-t pt-2" (click)="openCreateNewsPopup()">
+                        <button class="flex items-center font-semibold justify-center gap-2 w-1/3">
+                            <mat-icon class="text-blue-500" [svgIcon]="'heroicons_solid:pencil-square'"></mat-icon>
+                            {{ translocoService.translate('news-feed.post') }}
+                        </button>
+                        <button class="flex items-center font-semibold border-x-2 justify-center gap-2 w-1/3"
+                            (click)="openCreateNewsPopup()">
+                            <mat-icon class="text-green-500" [svgIcon]="'heroicons_solid:photo'"></mat-icon>
+                            {{ translocoService.translate('news-feed.image') }}
+                        </button>
+                        <button class="flex items-center font-semibold justify-center gap-2 w-1/3"
+                            (click)="openCreateNewsPopup()">
+                            <span class="material-icons text-orange-500">file_present</span>
+                            File
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Khối lọc category -->
+                <div #categoryDropdownOutside
+                    class="flex flex-row items-center justify-between bg-white border border-gray-200 ps-4 py-2 rounded-lg shadow-md">
+                    <span class="material-icons text-primary">sticky_note_2</span>
+                    <div class="relative inline-block w-full">
+                        <button (click)="showCategoryDropdown = !showCategoryDropdown"
+                            class="flex items-center justify-between gap-2 h-9 w-full ps-3 pe-4 rounded-lg bg-white transition-colors"
+                            [class.border-blue-500]="selectedCategoryIds.length > 0" type="button">
+                            <span class="text-sm text-gray-700 flex flex-wrap gap-1 items-center">
+                                <ng-container *ngIf="selectedCategoryIds.length === 0; else selectedList">
+                                    <span class="font-semibold text-md">{{ translocoService.translate('news-feed.category') }}</span>
+                                </ng-container>
+                                <ng-template #selectedList>
+                                    <ng-container *ngFor="let cat of selectedCategories">
+                                        <span
+                                            class="flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-800 rounded-md text-md"
+                                            (click)="$event.stopPropagation()">
+                                            {{ cat.name | titlecase }}
+                                            <button type="button" class="text-gray-800 hover:text-red-600"
+                                                (click)="removeCategory(cat.id); $event.stopPropagation();">
+                                                ×
+                                            </button>
+                                        </span>
+                                    </ng-container>
+                                </ng-template>
+                            </span>
+                            <mat-icon class="text-gray-500 text-sm"
+                                [svgIcon]="'heroicons_outline:chevron-down'"></mat-icon>
+                        </button>
+                        <!-- Dropdown -->
+                        <div *ngIf="showCategoryDropdown"
+                            class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                            <div class="flex flex-row justify-between p-3 border-b border-gray-100">
+                                <h3 class="text-sm font-medium text-gray-900">
+                                    {{ translocoService.translate('news.category') }}
+                                </h3>
+                            </div>
+                            <div class="max-h-30 overflow-y-auto">
+                                <label *ngFor="let cat of categories"
+                                    class="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer">
+                                    <input type="checkbox" [checked]="selectedCategoryIds.includes(cat.id)"
+                                        (change)="onCategoryFilterChange(cat.id, $event)"
+                                        class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
+                                    <span class="flex items-center gap-2 text-sm text-gray-700">
+                                        {{ cat.name }}
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh sách bài viết -->
+                <ng-container *ngFor="let post of news">
+                    <div class="bg-white border border-gray-200 p-4 pb-4 rounded-lg shadow-md">
+                        <div class="flex items-center gap-3 mb-2">
+                            <img [src]="post.createdBy?.avatar || 'assets/images/avatars/default-avatar.svg'"
+                                class="w-10 h-10 rounded-full object-cover" />
+                            <div>
+                                <div class="font-semibold text-sm">{{ post.createdBy.fullName || post.createdBy.username
+                                    }}</div>
+                                <div class="text-xs text-gray-500">{{ post.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="post.categories?.length > 0" class="flex flex-wrap gap-2 mb-2">
+                            <span *ngFor="let cat of post.categories"
+                                class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">{{ cat.name | titlecase
+                                }}</span>
+                        </div>
+
+                        <!-- Title -->
+                        <!-- <h2 class="font-medium text-base mb-2">{{ post.title }}</h2> -->
+                        <!-- File (nếu có) -->
+                        <div *ngIf="post.attachments?.length > 0" class="space-y-2 mb-2">
+                            <div *ngFor="let att of post.attachments"
+                                class="flex items-center justify-between bg-gray-100 p-2 rounded-md shadow-sm">
+                                <div class="flex items-center gap-2">
+                                    <!-- Icon file -->
+                                    <span class="material-icons text-orange-500">file_present</span>
+
+                                    <!-- Link tải file -->
+                                    <a [href]="att.file" [download]="att.filename"
+                                        class="text-sm font-medium text-blue-600 hover:underline" target="_blank"
+                                        rel="noopener noreferrer">
+                                        {{ att.filename }}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Nội dung không có ảnh -->
+                        <div class="text-sm text-gray-800 mb-2 whitespace-pre-line break-words text-justify"
+                            [ngClass]="{ 'line-clamp-3': !isExpanded(post.id) }">
+                            {{ post.content }}
+                        </div>
+                        
+                        <!-- Hiển thị nút nếu nội dung có vẻ dài (tuỳ ý, bạn có thể cải tiến sau khi tính toán độ dài) -->
+                        <button
+                            *ngIf="isClamped(post)"
+                            class="text-blue-600 text-sm font-medium hover:underline mb-1"
+                            (click)="toggleExpand(post.id)">
+                            {{ isExpanded(post.id) 
+                                ? translocoService.translate('news-feed.hide') 
+                                : translocoService.translate('news-feed.expand') }}
+                        </button>
+
+                        <!-- Layout ảnh -->
+                        <ng-container *ngIf="post.images.length > 0">
+
+                            <!-- 1 ảnh: full width -->
+                            <div *ngIf="post.images.length === 1">
+                                <img (click)="openImagePopup(0, post)" [src]="post.images[0].image" alt="Ảnh"
+                                    class="w-full h-full bg-white shadow-md object-cover" />
+                            </div>
+
+                            <!-- 2 ảnh: chia đôi -->
+                            <div *ngIf="post.images.length === 2" class="grid grid-cols-2 gap-1">
+                                <img *ngFor="let img of post.images; let i = index" (click)="openImagePopup(i, post)"
+                                    [src]="img.image" alt="Ảnh" class="w-full h-full shadow-md object-cover" />
+                            </div>
+
+                            <!-- 3 ảnh: 1 ảnh trái, 2 ảnh phải -->
+                            <div *ngIf="post.images.length === 3" class="grid grid-cols-2 gap-1">
+                                <div class="h-full">
+                                    <img [src]="post.images[0].image" (click)="openImagePopup(0, post)" alt="Ảnh"
+                                        class="w-full h-full shadow-md object-cover" />
+                                </div>
+                                <div class="flex flex-col gap-1 h-full">
+                                    <img [src]="post.images[1].image" (click)="openImagePopup(1, post)" alt="Ảnh"
+                                        class="w-full h-full flex-1 shadow-md object-cover" />
+                                    <img [src]="post.images[2].image" (click)="openImagePopup(2, post)" alt="Ảnh"
+                                        class="w-full h-full flex-1 shadow-md object-cover" />
+                                </div>
+                            </div>
+
+                            <!-- 4 ảnh: chia đều 2x2 -->
+                            <div *ngIf="post.images.length === 4" class="grid grid-cols-2 gap-1">
+                                <img *ngFor="let img of post.images; let i = index" (click)="openImagePopup(i, post)"
+                                    [src]="img.image" alt="Ảnh" class="w-full h-full shadow-md object-cover" />
+                            </div>
+
+                            <!-- 5 ảnh: ảnh đầu tiên full, 4 ảnh còn lại 4 cột -->
+                            <div *ngIf="post.images.length === 5" class="flex flex-col gap-1">
+                                <div>
+                                    <img [src]="post.images[0].image" (click)="openImagePopup(0, post)" alt="Ảnh"
+                                        class="w-full h-full shadow-md object-cover" />
+                                </div>
+                                <div class="grid grid-cols-4 gap-1">
+                                    <img *ngFor="let img of post.images.slice(1); let i = index"
+                                        (click)="openImagePopup(i+1, post)" [src]="img.image" alt="Ảnh"
+                                        class="w-full h-full shadow-md object-cover" />
+                                </div>
+                            </div>
+
+                            <!-- > 5 ảnh: ảnh đầu full, 4 ảnh kế tiếp chia 4 cột, ảnh thứ 5 overlay số dư -->
+                            <div *ngIf="post.images.length > 5" class="flex flex-col gap-1">
+                                <img [src]="post.images[0].image" (click)="openImagePopup(0, post)" alt="Ảnh"
+                                    class="w-full h-full shadow-md object-cover" />
+                                <div class="grid grid-cols-4 gap-1">
+                                    <ng-container *ngFor="let img of post.images.slice(1, 4); let i = index">
+                                        <div class="relative">
+                                            <img [src]="img.image" (click)="openImagePopup(i+1, post)" alt="Ảnh"
+                                                class="w-full h-full object-cover shadow-md" />
+                                        </div>
+                                    </ng-container>
+
+                                    <!-- Ảnh cuối có overlay nếu còn dư -->
+                                    <div class="relative" *ngIf="post.images.length > 5">
+                                        <img [src]="post.images[4].image" (click)="openImagePopup(4, post)" alt="Ảnh"
+                                            class="w-full h-full object-cover shadow-md" />
+                                        <div *ngIf="post.images.length > 5" (click)="openImagePopup(4, post)"
+                                            class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-lg font-semibold">
+                                            +{{ post.images.length - 5 }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-container>
+
+                        <!-- URL nếu có -->
+                        <!-- <div *ngIf="post.url" class="text-blue-600 text-sm mb-2 underline break-words">
+                            {{ post.url }}
+                        </div> -->
+
+                        <!-- Hình ảnh -->
+                        <!-- <app-news-images [images]="post.images"></app-news-images> -->
+
+                        <!-- Biểu cảm + tương tác -->
+                        <div class="mt-3">
+                            <!-- Biểu cảm -->
+                            <div class="flex items-center gap-2 text-sm mb-2">
+                                <span class="flex items-center gap-1">
+                                    <img src="assets/images/ui/like-icon.svg"
+                                        class="w-5 h-5 rounded-full object-cover" />
+                                    <span class="cursor-pointer hover:underline" (click)="openLikedUsersPopup(post)">{{
+                                        post.likedBy?.total || 0}}</span>
+                                </span>
+                                <span class="ml-auto text-md text-gray-500">
+                                    {{ commentTotalMap[post.id] || 0 }} {{ translocoService.translate('news-feed.comment') }}
+                                </span>
+                            </div>
+
+                            <!-- Hành động -->
+                            <div class="flex justify-around border-t pt-2 text-sm text-gray-700">
+                                <button *ngIf="!isLiked(post.id)" (click)="likeNews(post.id)"
+                                    class="flex items-center gap-1 hover:text-blue-600 transition">
+                                    <mat-icon [svgIcon]="'heroicons_outline:hand-thumb-up'"></mat-icon><span
+                                        class="font-medium">{{ translocoService.translate('news-feed.like') }}</span>
+                                </button>
+                                <button *ngIf="isLiked(post.id)" (click)="likeNews(post.id)"
+                                    class="flex items-center gap-1 hover:text-blue-600 transition">
+                                    <mat-icon class="text-blue-500"
+                                        [svgIcon]="'heroicons_solid:hand-thumb-up'"></mat-icon><span
+                                        class="font-medium">{{ translocoService.translate('news-feed.like') }}</span>
+                                </button>
+                                <button (click)="openDetail(post)"
+                                    class="flex items-center gap-1 hover:text-blue-600 transition">
+                                    <mat-icon
+                                        [svgIcon]="'heroicons_outline:chat-bubble-oval-left-ellipsis'"></mat-icon><span
+                                        class="font-medium">{{ translocoService.translate('news-feed.comment') }}</span>
+                                </button>
+                                <div class="relative inline-block group">
+                                    <button disabled class="flex items-center gap-1 hover:text-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <mat-icon [svgIcon]="'heroicons_outline:chat-bubble-oval-left'"></mat-icon><span
+                                            class="font-medium">{{ translocoService.translate('news-feed.exchange') }}</span>
+                                    </button>
+                                    <!-- Tooltip -->
+                                    <span class="absolute px-2 py-1 mb-2 text-xs text-white transition-opacity transform -translate-x-1/2 bg-gray-800 rounded opacity-0 pointer-events-none bottom-full left-1/2 group-hover:opacity-100 whitespace-nowrap">
+                                        {{ translocoService.translate('other.is_developing') }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+
+            <!-- Cột phải -->
+            <div class="w-full md:w-1/3 h-[20vh] md:h-[calc(100vh-80px)] md:sticky md:top-[80px] border-t md:border-0">
+                <div class="bg-white h-full overflow-y-auto p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-md font-semibold mb-3">{{ translocoService.translate('news-feed.contact') }}</h3>
+                        <mat-icon (click)="openSearchPopup()" [svgIcon]="'heroicons_outline:magnifying-glass'" class="text-gray text-2xl mr-2 cursor-pointer"></mat-icon>
+                    </div>
+                    <div class="space-y-2 hidden md:block">
+                        <div *ngFor="let user of users" class="flex items-center gap-2 text-sm">
+                            <img [src]="user?.avatar || 'assets/images/avatars/default-avatar.svg'"
+                                class="w-6 h-6 rounded-full object-cover" />
+                            {{ user?.fullName || user.username }}
+                        </div>
+                    </div>
+                </div>
+                <!-- Popup tìm kiếm người liên hệ -->
+                <div *ngIf="showSearchPopup" class="absolute right-0 mt-2 w-full bg-white shadow-lg rounded-lg border border-gray-200 z-30" style="bottom: 0px;">
+                    <div class="bg-white border h-100 border-gray-200 rounded-lg shadow-md">
+                        <!-- Header -->
+                        <div class="flex items-center px-4 py-2 flex justify-between">
+                          <h3 class="text-base font-semibold">{{ translocoService.translate('news-feed.contact') }}</h3>
+                          <span class="material-icons text-black cursor-pointer" (click)="closeSearchPopup()">close</span>
+                        </div>
+                      
+                        <!-- Search box -->
+                        <div class="flex items-center px-4 py-2 border-t border-b border-gray-200">
+                            <mat-icon [svgIcon]="'heroicons_outline:magnifying-glass'" class="text-gray-400 text-lg mr-2"></mat-icon>
+                            <input
+                                type="text"
+                                [(ngModel)]="searchText"
+                                placeholder="{{ translocoService.translate('news-feed.search_placeholder') }}"
+                                class="flex-1 bg-transparent text-sm placeholder-gray-400 focus:outline-none"
+                                (ngModelChange)="onSearchChange()"    
+                            />
+
+                            <button
+                                *ngIf="searchText"
+                                type="button"
+                                (click)="clearSearch()"
+                                class="p-1 flex items-center justify-center rounded hover:bg-gray-200 transition"
+                            >
+                                <mat-icon [svgIcon]="'heroicons_outline:x-mark'" class="text-primary"></mat-icon>
+                            </button>
+                        </div>
+                      
+                        <!-- List -->
+                        <div class="bg-white max-h-90 overflow-y-auto">
+                            <div
+                                *ngFor="let user of users_search"
+                                class="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                            >
+                                <img
+                                [src]="user?.avatar || 'assets/images/avatars/default-avatar.svg'"
+                                alt="avatar"
+                                class="w-6 h-6 rounded-full object-cover"
+                                />
+                                <span class="text-sm">{{ user?.fullName || user.username }}</span>
+                            </div>
+                        </div>
+                    </div>                      
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Popup tạo bài đăng-->
+<div *ngIf="showCreateNewsPopup" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div class="w-full sm:w-[90%] md:w-[80%] lg:w-[50%] max-w-full md:max-h-[90vh] rounded-lg overflow-hidden">
+        <div class="flex items-center px-4 py-2 flex justify-between bg-primary text-on-primary rounded-t-lg">
+            <div class="text-lg font-medium leading-10 text-white">{{ translocoService.translate('news-feed.create_news') }}</div>
+            <span class="material-icons text-white cursor-pointer" (click)="closeCreateNewsPopup()">close</span>
+        </div>
+        <div class="p-4 space-y-4 bg-white max-h-[80vh] overflow-y-auto">
+            <!-- User + Danh mục -->
+            <div class="flex items-start gap-3">
+                <img [src]="currentUser?.avatar || 'assets/images/avatars/default-avatar.svg'" alt="Avatar"
+                    class="w-10 h-10 rounded-full object-cover" />
+                <div class="flex-1">
+                    <div class="font-medium text-sm text-black mb-2">
+                        {{ currentUser.fullName || currentUser.username }}
+                    </div>
+                    <!-- Danh mục -->
+                    <div #categoryDropdownPopup class="w-full relative inline-block">
+                        <button (click)="showCategory = !showCategory"
+                            class="flex items-center justify-between gap-2 ps-2 py-1 rounded-lg bg-blue-100 hover:bg-blue-150 transition-colors"
+                            [class.border-blue-500]="selectedCatIds.length > 0" type="button">
+                            <span class="text-md text-primary-700 flex flex-wrap gap-1 items-center">
+                                <ng-container *ngIf="selectedCatIds.length === 0; else selectedList">
+                                    {{ translocoService.translate('news-feed.category') }}
+                                </ng-container>
+                                <ng-template #selectedList>
+                                    <ng-container *ngFor="let cat of selectedCat">
+                                        <span
+                                            class="flex items-center gap-1 px-2 py-0.5 bg-white text-blue-800 rounded-lg text-md"
+                                            (click)="$event.stopPropagation()">
+                                            {{ cat.name }}
+                                            <button type="button" class="text-blue-800 hover:text-red-600"
+                                                (click)="removeCat(cat.id); $event.stopPropagation();">
+                                                ×
+                                            </button>
+                                        </span>
+                                    </ng-container>
+                                </ng-template>
+                            </span>
+                            <mat-icon class="text-gray-400 text-sm">keyboard_arrow_down</mat-icon>
+                        </button>
+                        <!-- Dropdown -->
+                        <div *ngIf="showCategory"
+                            class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                            <div class="p-3 border-b border-gray-100">
+                                <h3 class="text-sm font-medium text-gray-900">
+                                    {{ translocoService.translate('news.category') }}
+                                </h3>
+                            </div>
+                            <div class="max-h-30 overflow-y-auto">
+                                <label *ngFor="let cat of categories"
+                                    class="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer">
+                                    <input type="checkbox" [checked]="selectedCatIds.includes(cat.id)"
+                                        (change)="onCategorySelect(cat.id, $event)"
+                                        class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
+                                    <span class="flex items-center gap-2 text-sm text-gray-700">
+                                        {{ cat.name }}
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        <span *ngIf="errorFields['categories'] && selectedCatIds.length === 0" class="text-xs text-red-500 block mt-1">
+                            {{ translocoService.translate('news-feed.category_required') }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File (nếu có) -->
+            <div *ngIf="newPost.attachments?.length > 0" class="space-y-2">
+                <div *ngFor="let att of newPost.attachments"
+                    class="flex items-center justify-between bg-gray-100 p-2 rounded-md shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <!-- Icon PDF hoặc loại file -->
+                        <span class="material-icons text-orange-500">file_present</span>
+                        <!-- Tên file -->
+                        <span class="text-sm font-medium">{{ att.filename }}</span>
+                    </div>
+
+                    <!-- Nút xoá -->
+                    <button class="text-gray-500 hover:text-red-500" (click)="removeAttachment(att)">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Textarea -->
+            <textarea [(ngModel)]="newPost.content" name="content"
+                placeholder="{{ translocoService.translate('news.content_placeholder') }}" class="p-2 block w-full resize-none whitespace-pre-line break-words text-justify"
+                rows="4"></textarea>
+
+
+            <!-- Ảnh (nếu có) -->
+            <div *ngIf="newPost.images?.length > 0" class="relative">
+                <!-- 1 ảnh -->
+                <div *ngIf="newPost.images.length == 1" class="relative">
+                    <img [src]="newPost.images[0]"
+                        class="w-full h-full shadow-md object-cover" />
+                    <button (click)="removeImage(0)"
+                        class="absolute top-2 right-2 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                        <mat-icon class="text-sm text-white">close</mat-icon>
+                    </button>
+                </div>
+
+                <div *ngIf="newPost.images?.length === 2" class="grid grid-cols-2 gap-1">
+                    <div *ngFor="let img of newPost.images; let i = index" class="relative">
+                        <img [src]="img" alt="Ảnh" class="w-full h-full shadow-md object-cover" />
+                        <button (click)="removeImage(i)"
+                            class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                            <mat-icon class="text-sm text-white">close</mat-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <div *ngIf="newPost.images.length === 3" class="grid grid-cols-2 gap-1">
+                    <div class="relative h-full">
+                        <img [src]="newPost.images[0]" alt="Ảnh" class="w-full h-full shadow-md object-cover" />
+                        <button (click)="removeImage(0)"
+                            class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                            <mat-icon class="text-sm text-white">close</mat-icon>
+                        </button>
+                    </div>
+                    <div class="flex flex-col gap-1 h-full">
+                        <div class="relative flex-1">
+                            <img [src]="newPost.images[1]" alt="Ảnh" class="w-full h-full shadow-md object-cover" />
+                            <button (click)="removeImage(1)"
+                                class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                                <mat-icon class="text-sm text-white">close</mat-icon>
+                            </button>
+                        </div>
+                        <div class="relative flex-1">
+                            <img [src]="newPost.images[2]" alt="Ảnh" class="w-full h-full shadow-md object-cover" />
+                            <button (click)="removeImage(2)"
+                                class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                                <mat-icon class="text-sm text-white">close</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="newPost.images.length === 4" class="grid grid-cols-2 gap-1">
+                    <div *ngFor="let img of newPost.images; let i = index" class="relative">
+                        <img [src]="img" alt="Ảnh" class="w-full h-full shadow-md object-cover" />
+                        <button (click)="removeImage(i)"
+                            class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                            <mat-icon class="text-sm text-white">close</mat-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 5 ảnh: ảnh đầu tiên full, 4 ảnh còn lại 4 cột -->
+                <div *ngIf="newPost.images.length === 5" class="flex flex-col gap-1">
+                    <div class="relative">
+                        <img [src]="newPost.images[0]" class="w-full h-full shadow-md object-cover" />
+                        <button (click)="removeImage(0)"
+                            class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                            <mat-icon class="text-sm text-white">close</mat-icon>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-4 gap-1">
+                        <div *ngFor="let img of newPost.images.slice(1); let i = index" class="relative">
+                            <img [src]="img" class="w-full h-full shadow-md object-cover" />
+                            <button (click)="removeImage(i + 1)"
+                                class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                                <mat-icon class="text-sm text-white">close</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- > 5 ảnh: ảnh đầu full, 4 ảnh kế tiếp chia 4 cột, ảnh thứ 5 overlay số dư -->
+                <div *ngIf="newPost.images.length > 5" class="flex flex-col gap-1">
+                    <div class="relative">
+                        <img [src]="newPost.images[0]" class="w-full h-full shadow-md object-cover" />
+                        <button (click)="removeImage(0)"
+                            class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                            <mat-icon class="text-sm text-white">close</mat-icon>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-4 gap-1">
+                        <div *ngFor="let img of newPost.images.slice(1, 5); let i = index" class="relative">
+                            <img [src]="img" class="w-full h-full object-cover shadow-md" />
+                            <button (click)="removeImage(i + 1)"
+                                class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                                <mat-icon class="text-sm text-white">close</mat-icon>
+                            </button>
+
+                            <!-- Overlay nếu là ảnh cuối -->
+                            <div *ngIf="i === 3 && newPost.images.length > 5"
+                                class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-lg font-semibold">
+                                +{{ newPost.images.length - 5 }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Chọn ảnh & file -->
+            <div class="flex justify-around pt-2 border-t border-gray-200">
+                <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
+                    <mat-icon class="text-green-500" [svgIcon]="'heroicons_solid:photo'"></mat-icon>
+                    {{ translocoService.translate('news-feed.image') }}
+                    <input accept="image/*" type="file" hidden (change)="onImageChange($event)" multiple />
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
+                    <span class="material-icons text-orange-500">file_present</span>File
+                    <input type="file" hidden (change)="onFileChange($event)" multiple />
+                </label>
+            </div>
+
+            <!-- Nút đăng -->
+            <button (click)="createdPost(newPost)"
+                class="w-full bg-primary text-white font-medium py-2 rounded mt-2">
+                {{ translocoService.translate('news-feed.post') }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Popup danh sách người thích -->
+<div *ngIf="showLikedUsersPopup" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 min-w-[320px] max-w-[90vw]">
+        <h3 class="text-lg font-semibold mb-4">{{ translocoService.translate("news.list_liked") }}</h3>
+        <ul class="mb-4 max-h-60 overflow-y-auto">
+            <li *ngFor="let user of likedUsers" class="py-1 border-b last:border-b-0 flex items-center gap-2">
+                <img *ngIf="user.avatar" [src]="user.avatar" alt="avatar"
+                    class="w-8 h-8 rounded-full object-cover border border-gray-300" />
+                <span *ngIf="!user.avatar"
+                    class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm font-bold border border-gray-300">
+                    {{ user.username ? user.username.charAt(0).toUpperCase() : '?' }}
+                </span>
+                <span>{{ user.fullName || user.username }}</span>
+            </li>
+            <li *ngIf="!likedUsers || likedUsers.length === 0" class="text-gray-500 italic">{{
+                translocoService.translate("news.no_like") }}</li>
+        </ul>
+        <button (click)="closeLikedUsersPopup()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            {{ translocoService.translate("news.btn_close") }}
+        </button>
+    </div>
+</div>
+
+<!-- Popup xem ảnh + bình luận -->
+<div *ngIf="showImageViewPopup && selectedPost"
+    class="fixed inset-0 z-[201] bg-black bg-opacity-90 flex items-center justify-center">
+    <!-- Khung 2 cột -->
+    <div class="w-full h-full bg-white flex flex-col lg:flex-row overflow-hidden shadow-lg">
+        <!-- Ảnh bên trái -->
+        <div class="relative flex-1 bg-black flex items-center justify-center border border-black">
+            <!-- Nút đóng -->
+            <button (click)="closeImagePopup()" class="absolute top-5 left-4 bg-gray-700 bg-opacity-50 rounded-full 
+                        hover:bg-opacity-70 text-white w-10 h-10 flex items-center justify-center text-2xl">
+                <mat-icon class="text-lg text-white">close</mat-icon>
+            </button>
+            <img [src]="selectedPost.images[selectedImageIndex].image" class="max-h-[90vh] max-w-full bg-white object-contain" />
+
+            <!-- Prev/Next -->
+            <button *ngIf="selectedImageIndex > 0" (click)="selectedImageIndex = selectedImageIndex - 1" class="absolute left-4 top-1/2 transform -translate-y-1/2 
+                        text-white text-2xl w-10 h-10 bg-gray-700 bg-opacity-50 rounded-full 
+                        hover:bg-opacity-70 transition flex items-center justify-center">
+                ‹
+            </button>
+            <button *ngIf="selectedImageIndex < selectedPost.images.length - 1"
+                (click)="selectedImageIndex = selectedImageIndex + 1" class="absolute right-4 top-1/2 transform -translate-y-1/2 
+                        text-white text-2xl w-10 h-10 bg-gray-700 bg-opacity-50 rounded-full 
+                        hover:bg-opacity-70 transition flex items-center justify-center">
+                ›
+            </button>
+        </div>
+
+        <!-- Bình luận bên phải -->
+        <div class="w-full lg:w-[400px] h-[60vh] lg:h-full bg-white p-4 flex flex-col">
+            <div class="flex-1 overflow-y-auto space-y-3">
+                <!-- Thông tin người đăng -->
+                <div class="flex items-center gap-2 mb-3">
+                    <img [src]="selectedPost.createdBy?.avatar || 'assets/images/avatars/default-avatar.svg'"
+                        class="w-10 h-10 rounded-full object-cover" />
+                    <div>
+                        <div class="font-semibold">{{ selectedPost.createdBy?.fullName || selectedPost.createdBy?.username }}</div>
+                        <div class="text-xs text-gray-500">{{ selectedPost.createdAt | date : "dd/MM/yyyy HH:mm" }}
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="selectedPost.categories?.length > 0" class="flex flex-wrap gap-2 mb-2">
+                    <span *ngFor="let cat of selectedPost.categories"
+                        class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">{{ cat.name | titlecase }}
+                    </span>
+                </div>
+
+                <div *ngIf="selectedPost.attachments?.length > 0" class="space-y-2 mb-2">
+                    <div *ngFor="let att of selectedPost.attachments"
+                        class="flex items-center justify-between bg-gray-100 p-2 rounded-md shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <!-- Icon file -->
+                            <span class="material-icons text-orange-500">file_present</span>
+
+                            <!-- Link tải file -->
+                            <a [href]="att.file" [download]="att.filename"
+                                class="text-sm font-medium text-blue-600 hover:underline" target="_blank"
+                                rel="noopener noreferrer">
+                                {{ att.filename }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Nội dung không có ảnh -->
+                <div class="text-sm text-gray-800 mb-2 whitespace-pre-line break-words text-justify" 
+                    [ngClass]="{ 'line-clamp-2': !isExpanded(selectedPost.id) }">
+                    {{ selectedPost.content }}
+                </div>
+                
+                <!-- Hiển thị nút nếu nội dung có vẻ dài (tuỳ ý, bạn có thể cải tiến sau khi tính toán độ dài) -->
+                <button
+                    *ngIf="isClamped(selectedPost)"
+                    class="text-blue-600 text-sm font-medium hover:underline"
+                    (click)="toggleExpand(selectedPost.id)">
+                    {{ isExpanded(selectedPost.id) 
+                        ? translocoService.translate('news-feed.hide') 
+                        : translocoService.translate('news-feed.expand') }}
+                </button>
+                
+
+                <div class="mt-3">
+                    <!-- Biểu cảm -->
+                    <div class="flex items-center gap-2 text-sm mb-2">
+                        <span class="flex items-center gap-1">
+                            <img src="assets/images/ui/like-icon.svg" class="w-5 h-5 rounded-full object-cover" />
+                            <span class="cursor-pointer hover:underline" (click)="openLikedUsersPopup(post)">{{
+                                selectedPost.likedBy?.total || 0}}</span>
+                        </span>
+                        <span class="ml-auto text-md text-gray-500">
+                            {{ commentTotalMap[selectedPost.id] || 0 }} {{ translocoService.translate('news-feed.comment') }}
+                        </span>
+                    </div>
+
+                    <!-- Hành động -->
+                    <div class="flex justify-around border-y py-2 text-sm text-gray-700">
+                        <button *ngIf="!isLiked(selectedPost.id)" (click)="likeNews(selectedPost.id)"
+                            class="flex items-center gap-1 hover:text-blue-600 transition">
+                            <mat-icon [svgIcon]="'heroicons_outline:hand-thumb-up'"></mat-icon><span
+                                class="font-medium">{{ translocoService.translate('news-feed.like') }}</span>
+                        </button>
+                        <button *ngIf="isLiked(selectedPost.id)" (click)="likeNews(selectedPost.id)"
+                            class="flex items-center gap-1 hover:text-blue-600 transition">
+                            <mat-icon class="text-blue-500" [svgIcon]="'heroicons_solid:hand-thumb-up'"></mat-icon><span
+                                class="font-medium">{{ translocoService.translate('news-feed.like') }}</span>
+                        </button>
+                        <button (click)="focusCommentInput()"
+                            class="flex items-center gap-1 hover:text-blue-600 transition">
+                            <mat-icon [svgIcon]="'heroicons_outline:chat-bubble-oval-left-ellipsis'"></mat-icon><span
+                                class="font-medium">{{ translocoService.translate('news-feed.comment') }}</span>
+                        </button>
+                        <div class="relative inline-block group">
+                            <button disabled class="flex items-center gap-1 hover:text-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                <mat-icon [svgIcon]="'heroicons_outline:chat-bubble-oval-left'"></mat-icon><span
+                                    class="font-medium">{{ translocoService.translate('news-feed.exchange') }}</span>
+                            </button>
+                            <!-- Tooltip -->
+                            <span class="absolute px-2 py-1 mb-2 text-xs text-white transition-opacity transform -translate-x-1/2 bg-gray-800 rounded opacity-0 pointer-events-none bottom-full left-1/2 group-hover:opacity-100 whitespace-nowrap">
+                                {{ translocoService.translate('other.is_developing') }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh sách bình luận -->
+                <div class="space-y-3 mt-2">
+                    <div *ngFor="let cmt of commentOfNews" class="flex items-start gap-2 w-full">
+                        <!-- Avatar -->
+                        <img [src]="cmt.user?.avatar || 'assets/images/avatars/default-avatar.svg'"
+                            class="w-9 h-9 rounded-full object-cover" />
+
+                        <!-- Nội dung bình luận -->
+                        <div class="flex flex-col w-full">
+                            <div class="bg-gray-100 px-4 py-2 rounded-2xl w-full">
+                                <div class="font-semibold text-sm leading-tight">{{ cmt.user?.fullName || cmt.user?.username }}</div>
+                                <div class="text-sm">{{ cmt.content }}</div>
+                            </div>
+
+                            <!-- Thời gian + hành động -->
+                            <div class="flex items-center gap-3 text-xs text-gray-500 mt-1 px-1">
+                                <span>{{ getTimeAgo(cmt.createdAt) }}</span>
+                                <button *ngIf="!isLikedCmt(cmt.id)" class="hover:underline"
+                                    (click)="likeComment(cmt.id)">{{ translocoService.translate('news-feed.like') }}</button>
+                                <button *ngIf="isLikedCmt(cmt.id)" class="text-blue-700 font-semibold hover:underline"
+                                    (click)="likeComment(cmt.id)">{{ translocoService.translate('news-feed.like') }}</button>
+                                <div class="relative inline-block group">
+                                    <button disabled class="disabled:opacity-50 disabled:cursor-not-allowed">
+                                        {{ translocoService.translate('news-feed.reply') }}
+                                    </button>
+                                    <!-- Tooltip -->
+                                    <span class="absolute px-2 py-1 mb-2 text-xs text-white transition-opacity transform -translate-x-1/2 bg-gray-800 rounded opacity-0 pointer-events-none bottom-full left-1/2 group-hover:opacity-100 whitespace-nowrap">
+                                        {{ translocoService.translate('other.is_developing') }}
+                                    </span>
+                                </div>
+                                <!-- Like icon (nếu có like) -->
+                                <div *ngIf="cmt.likedBy?.total > 0" 
+                                    class="flex items-center text-xs ml-2"
+                                    [ngClass]="isLikedCmt(cmt.id) ? 'text-blue-600' : 'text-gray-500'">
+                                    <div class="flex items-center gap-1 px-2 py-1">
+                                        <img src="assets/images/ui/like-icon.svg"
+                                                class="w-4 h-4 rounded-full object-cover" />
+                                        <span>{{ cmt.likedBy?.total }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- Ô nhập bình luận -->
+            <div class="mt-4 flex items-start gap-2">
+                <img [src]="currentUser?.avatar || 'assets/images/avatars/default-avatar.svg'"
+                    class="w-9 h-9 rounded-full object-cover" />
+
+                <textarea [(ngModel)]="newComment.content" 
+                    #commentInput name="content" 
+                    placeholder="{{ translocoService.translate('news-feed.comment_placeholder') }}"
+                    class="flex-1 px-3 py-2 border rounded-lg text-sm resize-none" rows="3">
+                </textarea>
+                <button (click)="sendComment(selectedPost.id, newComment)"
+                    class="font-medium text-sm w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                    <!-- <mat-icon class="text-gray-400 w-2 h-2" [svgIcon]="'heroicons_solid:paper-airplane'"></mat-icon> -->
+                    <img 
+                        [src]="newComment?.content?.trim() 
+                        ? 'assets/images/ui/icon-active.svg' 
+                        : 'assets/images/ui/icon-disable.svg'" 
+                        alt="">
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Popup xem bình luận -->
+<div *ngIf="showCommentViewPopup && selectedPost"
+    class="fixed inset-0 z-[201] bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="w-full h-full md:max-w-[400px] md:max-h-[90vh] bg-white flex overflow-hidden shadow-lg">
+        <div class="w-[400px] h-[90vh] bg-white p-4 flex flex-col">
+            
+            <button (click)="closeDetail()" class="absolute top-5 right-4 bg-gray-700 bg-opacity-50 rounded-full 
+                hover:bg-opacity-70 text-white w-10 h-10 flex items-center justify-center text-2xl">
+                <mat-icon class="text-lg text-white">close</mat-icon>
+            </button>
+            <div class="flex-1 overflow-y-auto space-y-3">
+                <!-- Thông tin người đăng -->
+                <div class="flex items-center gap-2 mb-3">
+                    <img [src]="selectedPost.createdBy?.avatar || 'assets/images/avatars/default-avatar.svg'"
+                        class="w-10 h-10 rounded-full object-cover" />
+                    <div>
+                        <div class="font-semibold">{{ selectedPost.createdBy?.fullName || selectedPost.createdBy?.username }}</div>
+                        <div class="text-xs text-gray-500">{{ selectedPost.createdAt | date : "dd/MM/yyyy HH:mm" }}
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="selectedPost.categories?.length > 0" class="flex flex-wrap gap-2 mb-2">
+                    <span *ngFor="let cat of selectedPost.categories"
+                        class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">{{ cat.name | titlecase }}
+                    </span>
+                </div>
+                <!-- file -->
+                <div *ngIf="selectedPost.attachments?.length > 0" class="space-y-2 mb-2">
+                    <div *ngFor="let att of selectedPost.attachments"
+                        class="flex items-center justify-between bg-gray-100 p-2 rounded-md shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <!-- Icon file -->
+                            <span class="material-icons text-orange-500">file_present</span>
+
+                            <!-- Link tải file -->
+                            <a [href]="att.file" [download]="att.filename"
+                                class="text-sm font-medium text-blue-600 hover:underline" target="_blank"
+                                rel="noopener noreferrer">
+                                {{ att.filename }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nội dung không có ảnh -->
+                <div class="text-sm text-gray-800 mb-2 whitespace-pre-line break-words text-justify" 
+                    [ngClass]="{ 'line-clamp-2': !isExpanded(selectedPost.id) }">
+                    {{ selectedPost.content }}
+                </div>
+                
+                <!-- Hiển thị nút nếu nội dung có vẻ dài (tuỳ ý, bạn có thể cải tiến sau khi tính toán độ dài) -->
+                <button
+                    *ngIf="isClamped(selectedPost)"
+                    class="text-blue-600 text-sm font-medium hover:underline"
+                    (click)="toggleExpand(selectedPost.id)">
+                    {{ isExpanded(selectedPost.id) 
+                        ? translocoService.translate('news-feed.hide') 
+                        : translocoService.translate('news-feed.expand') }}
+                </button>
+
+                <div class="mt-3">
+                    <!-- Biểu cảm -->
+                    <div class="flex items-center gap-2 text-sm mb-2">
+                        <span class="flex items-center gap-1">
+                            <img src="assets/images/ui/like-icon.svg" class="w-5 h-5 rounded-full object-cover" />
+                            <span class="cursor-pointer hover:underline" (click)="openLikedUsersPopup(post)">{{
+                                selectedPost.likedBy?.total || 0}}</span>
+                        </span>
+                        <span class="ml-auto text-md text-gray-500">
+                            {{ commentTotalMap[selectedPost.id] || 0 }} {{ translocoService.translate('news-feed.comment') }}
+                        </span>
+                    </div>
+
+                    <!-- Hành động -->
+                    <div class="flex justify-around border-y py-2 text-sm text-gray-700">
+                        <button *ngIf="!isLiked(selectedPost.id)" (click)="likeNews(selectedPost.id)"
+                            class="flex items-center gap-1 hover:text-blue-600 transition">
+                            <mat-icon [svgIcon]="'heroicons_outline:hand-thumb-up'"></mat-icon><span
+                                class="font-medium">{{ translocoService.translate('news-feed.like') }}</span>
+                        </button>
+                        <button *ngIf="isLiked(selectedPost.id)" (click)="likeNews(selectedPost.id)"
+                            class="flex items-center gap-1 hover:text-blue-600 transition">
+                            <mat-icon class="text-blue-500" [svgIcon]="'heroicons_solid:hand-thumb-up'"></mat-icon><span
+                                class="font-medium">{{ translocoService.translate('news-feed.like') }}</span>
+                        </button>
+                        <button (click)="focusCommentInput()"
+                            class="flex items-center gap-1 hover:text-blue-600 transition">
+                            <mat-icon [svgIcon]="'heroicons_outline:chat-bubble-oval-left-ellipsis'"></mat-icon><span
+                                class="font-medium">{{ translocoService.translate('news-feed.comment') }}</span>
+                        </button>
+                        <div class="relative inline-block group">
+                            <button disabled class="flex items-center gap-1 hover:text-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                <mat-icon [svgIcon]="'heroicons_outline:chat-bubble-oval-left'"></mat-icon><span
+                                    class="font-medium">{{ translocoService.translate('news-feed.exchange') }}</span>
+                            </button>
+                            <!-- Tooltip -->
+                            <span class="absolute px-2 py-1 mb-2 text-xs text-white transition-opacity transform -translate-x-1/2 bg-gray-800 rounded opacity-0 pointer-events-none bottom-full left-1/2 group-hover:opacity-100 whitespace-nowrap">
+                                {{ translocoService.translate('other.is_developing') }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh sách bình luận -->
+                <div class="space-y-3 mt-2">
+                    <div *ngFor="let cmt of commentOfNews" class="flex items-start gap-2 w-full">
+                        <!-- Avatar -->
+                        <img [src]="cmt.user?.avatar || 'assets/images/avatars/default-avatar.svg'"
+                            class="w-9 h-9 rounded-full object-cover" />
+
+                        <!-- Nội dung bình luận -->
+                        <div class="flex flex-col w-full">
+                            <div class="bg-gray-100 px-4 py-2 rounded-2xl w-full">
+                                <div class="font-semibold text-sm leading-tight">{{ cmt.user?.fullName || cmt.user?.username }}</div>
+                                <div class="text-sm">{{ cmt.content }}</div>
+                            </div>
+
+                            <!-- Thời gian + hành động -->
+                            <div class="flex items-center gap-3 text-xs text-gray-500 mt-1 px-1">
+                                <span>{{ getTimeAgo(cmt.createdAt) }}</span>
+                                <button *ngIf="!isLikedCmt(cmt.id)" class="hover:underline"
+                                    (click)="likeComment(cmt.id)">{{ translocoService.translate('news-feed.like') }}</button>
+                                <button *ngIf="isLikedCmt(cmt.id)" class="text-blue-700 font-semibold hover:underline"
+                                    (click)="likeComment(cmt.id)">{{ translocoService.translate('news-feed.like') }}</button>
+                                <div class="relative inline-block group">
+                                    <button disabled class="disabled:opacity-50 disabled:cursor-not-allowed">
+                                        {{ translocoService.translate('news-feed.reply') }}
+                                    </button>
+                                    <!-- Tooltip -->
+                                    <span class="absolute px-2 py-1 mb-2 text-xs text-white transition-opacity transform -translate-x-1/2 bg-gray-800 rounded opacity-0 pointer-events-none bottom-full left-1/2 group-hover:opacity-100 whitespace-nowrap">
+                                        {{ translocoService.translate('other.is_developing') }}
+                                    </span>
+                                </div>
+                                <!-- Like icon (nếu có like) -->
+                                <div *ngIf="cmt.likedBy?.total > 0" 
+                                    class="flex items-center text-xs ml-2"
+                                    [ngClass]="isLikedCmt(cmt.id) ? 'text-blue-600' : 'text-gray-500'">
+                                    <div class="flex items-center gap-1 px-2 py-1">
+                                        <img src="assets/images/ui/like-icon.svg"
+                                                class="w-4 h-4 rounded-full object-cover" />
+                                        <span>{{ cmt.likedBy?.total }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- Ô nhập bình luận -->
+            <div class="mt-4 flex items-start gap-2">
+                <img [src]="currentUser?.avatar || 'assets/images/avatars/default-avatar.svg'"
+                    class="w-9 h-9 rounded-full object-cover" />
+
+                <textarea [(ngModel)]="newComment.content" 
+                    #commentInput name="content" 
+                    placeholder="{{ translocoService.translate('news-feed.comment_placeholder') }}"
+                    class="flex-1 px-3 py-2 border rounded-lg resize-none text-sm" rows="3"></textarea>
+                <button (click)="sendComment(selectedPost.id, newComment)"
+                    class="font-medium text-sm w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                    <button (click)="sendComment(selectedPost.id, newComment)"
+                    class="font-medium text-sm w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                    <!-- <mat-icon class="text-gray-400 w-2 h-2" [svgIcon]="'heroicons_solid:paper-airplane'"></mat-icon> -->
+                    <img 
+                        [src]="newComment?.content?.trim() 
+                        ? 'assets/images/ui/icon-active.svg' 
+                        : 'assets/images/ui/icon-disable.svg'" 
+                        alt="">
+                </button>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

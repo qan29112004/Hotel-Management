@@ -1,0 +1,260 @@
+<div *transloco="let t" class="relative flex flex-col items-center justify-center min-h-screen bg-center bg-no-repeat bg-cover min-w-screen"
+    [style.background-image]="'url('+ ('assets/images/auth/INVITED-loginpage-bg.jpg')+ ')'"
+>
+    <div class="absolute w-full h-full bg-primary/50"></div>
+    <fuse-alert
+            class="z-30 mt-4"
+            *ngIf="showAlert"
+            [appearance]="'outline'"
+            [showIcon]="false"
+            [type]="alert.type"
+            [@shake]="alert.type === 'error'"
+        >
+            <ul class="pl-4 list-disc">
+                <li *ngFor="let code of alert.code">
+                    {{ t(code) }}
+                </li>
+            </ul>
+        </fuse-alert>
+        <!-- Create form -->
+        <form
+            *ngIf="createForm"
+            class="z-20 flex flex-col justify-center w-full max-w-3xl gap-1 p-4 overflow-y-auto bg-white rounded-lg"
+            [formGroup]="createForm"
+            #createNgForm="ngForm"
+        >
+            <div class="flex items-center self-center">
+                <div class="flex items-center justify-center overflow-hidden w-30 h-30">
+                    <img
+                        src="assets/images/logo/logo_icon_hotel.svg"
+                        class="object-cover min-w-full min-h-full scale-110"
+                        alt="logo"
+                    />
+                </div>
+                <label class="ml-2 font-bold text-7xl font-lexend_deca">Luskibeck</label>
+            </div>
+            <!-- User Name field -->
+            <mat-form-field floatLabel="always" class="w-full fuse-mat-dense">
+                <mat-label>{{ t("create_account.username_label") }}</mat-label>
+                <input
+                    id="username"
+                    matInput
+                    class="bg-gray-input"
+                    [formControlName]="'username'"
+                    placeholder="{{ t('create_account.username_placeholder') }}"
+                    required
+                />
+                <mat-error *ngIf="createForm.get('username').hasError('required')">
+                    {{ t("create_account.username_required") }}
+                </mat-error>
+            </mat-form-field>
+            <!-- Email field -->
+            <mat-form-field floatLabel="always" class="w-full fuse-mat-dense">
+                <mat-label>{{ t("create_account.email_label") }}</mat-label>
+                <input
+                    id="email"
+                    matInput
+                    class="bg-gray-input"
+                    [formControlName]="'email'"
+                    placeholder="{{ t('create_account.email_placeholder') }}"
+                    required
+                />
+                <mat-error *ngIf="createForm.get('email').hasError('required')">
+                    {{ t("create_account.email_required") }}
+                </mat-error>
+                <mat-error
+                    *ngIf="createForm.get('phone')?.hasError('invalidEmail')"
+                >
+                    {{ t("create_account.invalid_email") }}
+                </mat-error>
+            </mat-form-field>
+            
+            <!-- Phone field -->
+            <mat-form-field floatLabel="always" class="w-full fuse-mat-dense">
+                <mat-label>{{ t("create_account.phone_label") }}</mat-label>
+                <input
+                    id="phone"
+                    matInput
+                    class="bg-gray-input"
+                    [formControlName]="'phone'"
+                    placeholder="{{ t('create_account.phone_placeholder') }}"
+                    required
+                />
+                <mat-error *ngIf="createForm.get('phone').hasError('required')">
+                    {{ t("create_account.phone_required") }}
+                </mat-error>
+                <mat-error
+                    *ngIf="createForm.get('phone')?.hasError('invalidPhone')"
+                >
+                    {{ t("create_account.phone_invalid") }}
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Password field -->
+            <mat-form-field floatLabel="always" class="w-full fuse-mat-dense">
+                <mat-label>{{ t("change_password.password_label") }}</mat-label>
+                <input
+                    id="password"
+                    matInput
+                    [type]="isPasswordVisible ? 'text' : 'password'"
+                    placeholder="{{ t('create_account.password_placeholder') }}"
+                    [formControlName]="'password'"
+                    (focus)="passwordTouched = true"
+                />
+                <button
+                    mat-icon-button
+                    type="button"
+                    (click)="togglePasswordVisibility()"
+                    matSuffix
+                >
+                    <mat-icon
+                        class="icon-size-5"
+                        [svgIcon]="
+                            isPasswordVisible
+                                ? 'heroicons_solid:eye-slash'
+                                : 'heroicons_solid:eye'
+                        "
+                    ></mat-icon>
+                </button>
+                <mat-error
+                    *ngIf="createForm.get('password')?.hasError('required')"
+                >
+                    {{ t("change_password.password_required") }}
+                </mat-error>
+            </mat-form-field>
+
+            <div class="mb-3 text-gray-400">
+                <p
+                    class="flex items-center gap-2"
+                    [ngClass]="getValidationClass(passwordValidLength)"
+                >
+                    <img
+                        *ngIf="passwordTouched"
+                        [src]="
+                            passwordValidLength
+                                ? 'assets/icons/tick-circle.svg'
+                                : 'assets/icons/close-circle.svg'
+                        "
+                        alt=""
+                        class="w-fit"
+                    />
+                    {{ t("change_password.min_length") }}
+                </p>
+                <p
+                    class="flex items-center gap-2"
+                    [ngClass]="getValidationClass(passwordHasLowerCase)"
+                >
+                    <img
+                        *ngIf="passwordTouched"
+                        [src]="
+                            passwordHasLowerCase
+                                ? 'assets/icons/tick-circle.svg'
+                                : 'assets/icons/close-circle.svg'
+                        "
+                        alt=""
+                        class="w-fit"
+                    />
+                    {{ t("change_password.lowercase_required") }}
+                </p>
+                <p
+                    class="flex items-center gap-2"
+                    [ngClass]="getValidationClass(passwordHasUpperCase)"
+                >
+                    <img
+                        *ngIf="passwordTouched"
+                        [src]="
+                            passwordHasUpperCase
+                                ? 'assets/icons/tick-circle.svg'
+                                : 'assets/icons/close-circle.svg'
+                        "
+                        alt=""
+                        class="w-fit"
+                    />
+                    {{ t("change_password.uppercase_required") }}
+                </p>
+                <p
+                    class="flex items-center gap-2"
+                    [ngClass]="getValidationClass(passwordHasSpecialChar)"
+                >
+                    <img
+                        *ngIf="passwordTouched"
+                        [src]="
+                            passwordHasSpecialChar
+                                ? 'assets/icons/tick-circle.svg'
+                                : 'assets/icons/close-circle.svg'
+                        "
+                        alt=""
+                        class="w-fit"
+                    />
+                    {{ t("change_password.special_char_required") }}
+                </p>
+            </div>
+
+            <!-- Password Confirm field -->
+            <mat-form-field floatLabel="always" class="w-full fuse-mat-dense">
+                <mat-label>{{
+                    t("change_password.confirm_password_label")
+                }}</mat-label>
+                <input
+                    id="passwordConfirm"
+                    matInput
+                    [type]="isPasswordConfirmVisible ? 'text' : 'password'"
+                    placeholder="{{
+                        t('create_account.confirm_password_placeholder')
+                    }}"
+                    [formControlName]="'passwordConfirm'"
+                />
+                <button
+                    mat-icon-button
+                    type="button"
+                    (click)="togglePasswordConfirmVisibility()"
+                    matSuffix
+                >
+                    <mat-icon
+                        class="icon-size-5"
+                        [svgIcon]="
+                            isPasswordConfirmVisible
+                                ? 'heroicons_solid:eye-slash'
+                                : 'heroicons_solid:eye'
+                        "
+                    ></mat-icon>
+                </button>
+                <mat-error
+                    *ngIf="
+                        createForm.get('passwordConfirm')?.hasError('required')
+                    "
+                >
+                    {{ t("change_password.confirm_password_required") }}
+                </mat-error>
+                <mat-error
+                    *ngIf="
+                        createForm.get('passwordConfirm')?.hasError('mustMatch')
+                    "
+                >
+                    {{ t("change_password.confirm_password_not_match") }}
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Password required -->
+
+            <!-- Submit button -->
+            <button
+                type="submit"
+                class="w-full p-4 mt-4 bg-yellow-300 rounded-lg cursor-pointer fuse-mat-button-large disabled:!cursor-not-allowed"
+                [matToolTip]="!isPasswordValid? 'Cần nhập đầy đủ thông tin' :''"
+                [disabled]="!isPasswordValid || createForm.disabled"
+                (click)="createAccount()"
+                disabled
+            >
+                <span *ngIf="!createForm.disabled">
+                    {{ t("create_account.title") }}
+                </span>
+                <mat-progress-spinner
+                    *ngIf="createForm.disabled"
+                    [diameter]="24"
+                    [mode]="'indeterminate'"
+                >
+                </mat-progress-spinner>
+            </button>
+        </form>
+</div>

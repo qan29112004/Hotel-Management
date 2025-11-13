@@ -1,0 +1,51 @@
+<div class="flex-auto pt-3 sm:px-6 overflow-hidden max-h-screen">
+    <div class="relative w-full h-full">
+        <div class="flex items-center justify-between text-lg mb-4">
+            <span class="lg:text-2xl text-3xl font-semibold">
+                {{ translocoService.translate('app_type.title') | titlecase}}
+            </span>
+        </div>
+        <hr class="border border-gray-300 opacity-30 my-4" />
+        <div class="container mx-auto mb-10 overflow-y-auto max-h-[calc(100vh-200px)]">
+            <div class="overflow-x-auto rounded-lg shadow">
+                <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                    <thead class="bg-sky-50 text-gray-700">
+                        <tr>
+                            <th class="p-3 text-center border-b">STT
+                            </th>
+                            <th class="p-3 text-center border-b">Logo
+                            </th>
+                            <th class="p-3 text-center border-b">{{
+                                    translocoService.translate('app_type.title_field') |
+                                    titlecase}}
+                            </th>
+                            <th class="p-3 text-center border-b">App Type
+                            </th>
+                            <th class="p-3 text-center border-b">secretKey
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let appType of appTypes; let i = index">
+                            <tr class="hover:bg-blue-50 transition">
+                                
+                                <td class="p-3 text-center border-b">
+                                    {{ i + 1 }}
+                                </td>
+                                <td class="p-3 border-b text-center">
+                                    <img *ngIf="appType.logo" [src]="appType.logo" alt="appType"
+                                        class="w-16 h-12 object-cover rounded shadow mx-auto">
+                                </td>
+                                <td class="p-3 border-b text-gray-600 text-center"><a [href]="appType.secretKey" target="_blank" class="font-bold">{{ appType.title | titlecase}}</a></td>
+                                <td class="p-3 border-b text-gray-600 text-center">{{ appType.appType}}</td>
+                                <td class="p-3 border-b text-gray-600 text-center"><a [href]="appType.secretKey" target="_blank">{{ appType.url }}</a></td>
+                                
+                            </tr>
+                            
+                        </ng-container>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

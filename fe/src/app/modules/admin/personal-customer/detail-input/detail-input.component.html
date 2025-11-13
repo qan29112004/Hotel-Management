@@ -1,0 +1,40 @@
+<div *ngIf="showDetail" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @fadeInOut
+    (@fadeInOut.done)="onAnimationDone($event)">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+        <h2 class="text-xl font-bold mb-4">Chi tiết cấu hình trường dữ liệu</h2>
+
+        <hr class="border border-gray-300 opacity-30 my-4" />
+
+        <div class="space-y-4">
+            <!-- Tên trường hiển thị -->
+            <div>
+                <label class="block font-semibold text-base mb-1">Tên trường hiển thị</label>
+                <input type="text" [value]="data.label" class="w-full p-2 bg-gray-100 rounded border border-gray-200"
+                    readonly>
+            </div>
+
+            <!-- Kiểu hiển thị -->
+            <div>
+                <label class="block font-semibold text-base mb-1">Kiểu hiển thị & lựa chọn</label>
+                <input type="text" [value]="capitalizeFirst(data.type, false)"
+                    class="w-full p-2 bg-gray-100 rounded border border-gray-200" readonly>
+            </div>
+
+            <!-- Nguồn dữ liệu liên kết -->
+            <div *ngIf="data.type == 'select'">
+                <label class="block text-sm mb-1">Nguồn dữ liệu liên kết</label>
+                <input type="text" [value]="capitalizeFirst(data.config?.related_model, true)"
+                    class="w-full p-2 bg-gray-100 rounded border border-gray-200" readonly>
+            </div>
+
+            <!-- Người dùng nhập tối đa -->
+            <div *ngIf="data.config?.max_length">
+                <p class="w-full text-sm font-semibold">Cho phép người dùng nhập tối đa {{ data.config.max_length }} ký tự</p>
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+            <button (click)="onClose()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg">Thoát</button>
+        </div>
+    </div>
+</div>

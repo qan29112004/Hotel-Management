@@ -1,0 +1,8 @@
+fe/node_modules/
+hotel_management/.env
+hotel_management/.venv/
+
+**/migrations/
+**/__pycache__/
+**/*.pyc
+.vscode/

@@ -1,0 +1,238 @@
+<div *transloco="let t" class="absolute inset-0 flex min-w-0 flex-col overflow-y-auto" cdkScrollable>
+    <!-- Main -->
+    <div class="flex-auto p-4 sm:px-6 sm:py-4">
+        <div class="relative w-full space-y-5" *ngIf="!showPreview">
+            <!-- top -->
+            <div class="w-full space-y-5" [formGroup]="formTemplateForm">
+                <!-- Template name -->
+                <div class="flex w-full items-center space-x-6">
+                    <h2 class="font-medium w-80">Tên biểu mẫu</h2>
+                    <p *ngIf="formTemplate?.template_type == 'default'"
+                        class="w-full bg-gray-100 rounded-md p-2 truncate overflow-hidden whitespace-nowrap">
+                        {{ formTemplate?.name }}
+                    </p>
+                    <input *ngIf="formTemplate?.template_type == 'custom'" type="text"
+                        class="w-full border rounded-md p-2" formControlName="name">
+                </div>
+
+                <!-- Description -->
+                <div class="flex w-full items-center space-x-6">
+                    <h2 class="font-medium w-80">Mô tả</h2>
+                    <p *ngIf="formTemplate?.template_type == 'default'"
+                        class="w-full bg-gray-100 rounded-md p-2 truncate overflow-hidden whitespace-nowrap">
+                        {{ formTemplate?.description || 'Chưa có mô tả' }}
+                    </p>
+                    <input *ngIf="formTemplate?.template_type == 'custom'" type="text"
+                        class="w-full border rounded-md p-2" formControlName="description">
+                </div>
+            </div>
+
+            <!-- Tab Bar -->
+            <div class="border-b border-gray-300 overflow-x-auto">
+                <nav class="flex space-x-8 min-w-max" aria-label="Tabs">
+                    <button (click)="selectTab('edit')" [ngClass]="getTabClass('edit')"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-base">
+                        Sửa biểu mẫu
+                    </button>
+
+                    <!-- <button (click)="selectTab('json')" [ngClass]="getTabClass('json')"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-base">
+                        JSON
+                    </button> -->
+                </nav>
+            </div>
+
+            <div *ngIf="activeTab == 'edit'" cdkDropListGroup>
+                <div class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-3 text-sm xl:text-md">
+                    <!-- Left sidebar -->
+                    <div cdkDropList [cdkDropListData]="fieldList" id="sidebar"
+                        class="w-full lg:w-1/5 h-[calc(66vh-2rem)] lg:sticky lg:top-4 border-2 rounded-lg p-4"
+                        (cdkDropListDropped)="dropField($event)">
+                        <div class="relative">
+                            <div class="flex items-center bg-gray-100 rounded-lg px-2 py-1 mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 text-gray-400" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <input type="text" [(ngModel)]="searchFieldText" (ngModelChange)="onSearchChange()"
+                                    placeholder="Tìm kiếm" class="w-full bg-gray-100 p-1 outline-none" />
+                            </div>
+
+                            <div class="flex flex-col space-y-3">
+                                <button type="button" (click)="openAddSectionDialog()"
+                                    class="w-full h-12 bg-primary-50 font-semibold rounded-lg p-2 text-left hover:bg-primary-100">
+                                    Thêm vùng dữ liệu mới
+                                </button>
+                                <div
+                                    class="w-full max-h-[calc(66vh-11rem)] overflow-y-auto flex flex-col space-y-2 pb-1">
+                                    <div *ngFor="let field of fieldList; let i = index" cdkDrag>
+                                        <button type="button"
+                                            class="w-full h-12 bg-white border border-blue-100 rounded-lg p-2 text-left cursor-move">
+                                            {{ field.label }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main content -->
+                    <div class="main-content w-full lg:w-4/5 h-full">
+                        <div class="flex flex-col">
+                            <div *ngFor="let section of mainSections; let sectionIndex = index">
+                                <div cdkDropList [cdkDropListData]="section.fields"
+                                    (cdkDropListDropped)="dropField($event)"
+                                    class="border-2 rounded-lg mb-4 p-2 relative">
+                                    <!-- Nút xóa nếu không phải vùng general_info -->
+                                    <button *ngIf="section.section !== 1" type="button"
+                                        class="absolute top-0 right-2 text-red-500 hover:text-red-700 text-3xl"
+                                        (click)="removeSection(sectionIndex)">
+                                        &times;
+                                    </button>
+                                    <h2 class="w-fit font-semibold text-base xl:text-lg mb-5 cursor-pointer hover:underline hover:text-primary"
+                                        (click)="openEditSectionDialog(sectionIndex)">
+                                        {{ section.title }}
+                                    </h2>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 cursor-move">
+                                        <div *ngFor="let field of section.fields; let i = index" cdkDrag
+                                            class="flex flex-col md:flex-row h-20 items-center border-2 border-dashed border-primary-500 rounded-lg relative pl-2 pr-8">
+                                            <!-- Input -->
+                                            <mat-form-field
+                                                *ngIf="['text', 'number', 'email', 'password', 'datetime-local'].includes(field.type)"
+                                                floatLabel="always" class="w-full fuse-mat-dense">
+                                                <mat-label>
+                                                    {{field.label}}
+                                                </mat-label>
+                                                <input matInput [type]="field.type" [name]="field.name"
+                                                    [placeholder]="field.placeholder"
+                                                    [required]="field.config?.required" class="h-full" readonly/>
+                                            </mat-form-field>
+
+                                            <mat-form-field *ngIf="field.type === 'date'" floatLabel="always"
+                                                class="w-full fuse-mat-dense">
+                                                <mat-label>{{ field.label }}</mat-label>
+                                                <input matInput type="text" [name]="field.name" placeholder="dd/mm/yyyy"
+                                                    [required]="field.config?.required" class="h-full" readonly />
+                                            </mat-form-field>
+
+                                            <!-- Select combobox -->
+                                            <mat-form-field *ngIf="field.type === 'select'" floatLabel="always"
+                                                class="w-full fuse-mat-dense">
+                                                <mat-label>{{field.label}}</mat-label>
+                                                <mat-select [name]="field.name" [placeholder]="field.placeholder"
+                                                    [required]="field.config?.required" readonly>
+                                                    <mat-option *ngFor="let option of field.selectOptions"
+                                                        [value]="option.id">
+                                                        {{ option.name }}
+                                                    </mat-option>
+                                                </mat-select>
+                                                <span mat-icon-button matSuffix disableRipple class="custom-icon">
+                                                    <mat-icon>expand_more</mat-icon>
+                                                </span>
+                                            </mat-form-field>
+
+                                            <!-- Textarea -->
+                                            <mat-form-field *ngIf="field.type === 'textarea'" floatLabel="always"
+                                                class="w-full fuse-mat-dense">
+                                                <mat-label>{{ field.label }}</mat-label>
+                                                <textarea matInput [name]="field.name" [placeholder]="field.placeholder"
+                                                    [required]="field.config?.required" rows="1" readonly></textarea>
+                                            </mat-form-field>
+
+                                            <!-- File Upload -->
+                                            <div *ngIf="field.type === 'file'" class="w-full">
+                                                <label class="block font-semibold text-base">
+                                                    {{ field.label }} <span *ngIf="field.config?.required"
+                                                        class="text-red-500">*</span>
+                                                </label>
+                                                <input [type]="field.type" [name]="field.name"
+                                                    [placeholder]="field.placeholder" [required]="field.config?.required"
+                                                    disabled readonly
+                                                    class="block w-full file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-100 file:text-primary-700 hover:file:bg-primary-200" />
+                                            </div>
+
+                                            <!-- Icon setup ở góc trên bên phải -->
+                                            <div class="absolute top-0 right-0">
+                                                <button type="button" class="text-primary-500"
+                                                    (click)="toggleOptions($event, section, i)">
+                                                    <!-- SVG Icon -->
+                                                    <svg fill="currentColor" width="12px" version="1.1" id="Layer_1"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512"
+                                                        xml:space="preserve">
+                                                        <g id="SVGRepo_iconCarrier">
+                                                            <path
+                                                                d="M498.723,89.435H183.171V76.958c0-18.3-14.888-33.188-33.188-33.188h-51.5c-18.3,0-33.188,14.888-33.188,33.188v12.477H13.275C5.943,89.435,0,95.38,0,102.711c0,7.331,5.943,13.275,13.275,13.275h52.018v12.473c0,18.3,14.888,33.188,33.188,33.188h51.501c18.3,0,33.188-14.888,33.188-33.188v-12.473h315.553c7.332,0,13.275-5.945,13.275-13.275C511.999,95.38,506.055,89.435,498.723,89.435z M156.621,128.459c0,3.66-2.978,6.638-6.638,6.638H98.482c-3.66,0-6.638-2.978-6.638-6.638V76.958c0-3.66,2.978-6.638,6.638-6.638h51.501c3.66,0,6.638,2.978,6.638,6.638V128.459z">
+                                                            </path>
+                                                            <path
+                                                                d="M498.725,237.295h-52.019v-12.481c0-18.3-14.888-33.188-33.188-33.188h-51.501c-18.3,0-33.188,14.888-33.188,33.188v12.481H13.275C5.943,237.295,0,243.239,0,250.57c0,7.331,5.943,13.275,13.275,13.275h315.553v12.469c0,18.3,14.888,33.188,33.188,33.188h51.501c18.3,0,33.188-14.888,33.188-33.188v-12.469h52.019c7.332,0,13.275-5.945,13.275-13.275C512,243.239,506.057,237.295,498.725,237.295z M420.155,276.315c0,3.66-2.978,6.638-6.638,6.638h-51.501c-3.66,0-6.638-2.978-6.638-6.638v-51.501c0-3.66,2.978-6.638,6.638-6.638h51.501c3.66,0,6.638,2.978,6.638,6.638V276.315z">
+                                                            </path>
+                                                            <path
+                                                                d="M498.725,396.014H276.432v-12.473c0-18.3-14.888-33.188-33.188-33.188h-51.501c-18.3,0-33.188,14.888-33.188,33.188v12.473H13.275C5.943,396.014,0,401.959,0,409.289c0,7.331,5.943,13.275,13.275,13.275h145.279v12.477c0,18.3,14.888,33.188,33.188,33.188h51.501c18.3,0,33.188-14.888,33.188-33.188v-12.477h222.293c7.332,0,13.275-5.945,13.275-13.275C512,401.957,506.057,396.014,498.725,396.014z M249.881,435.042c0,3.66-2.978,6.638-6.638,6.638h-51.501c-3.66,0-6.638-2.978-6.638-6.638v-51.501c0-3.66,2.978-6.638,6.638-6.638h51.501c3.66,0,6.638,2.978,6.638,6.638V435.042z">
+                                                            </path>
+                                                        </g>
+                                                    </svg>
+                                                </button>
+                                            </div>
+
+                                            <!-- Popup options -->
+                                            <div *ngIf="field.show_field_options"
+                                                class="popup-options absolute right-0 top-6 bg-white border border-gray-300 shadow-lg rounded-xl p-2 min-w-[180px] z-50">
+                                                <button type="button"
+                                                    *ngIf="field.name != 'full_name' && field.name != 'assigned_by'"
+                                                    class="block w-full text-left font-medium text-gray-700 hover:bg-gray-100 rounded-md px-3 py-2 transition-all duration-150"
+                                                    (click)="markAsRequired(section, i)">
+                                                    Trường bắt buộc
+                                                </button>
+                                                <button type="button"
+                                                    class="block w-full text-left font-medium text-gray-700 hover:bg-gray-100 rounded-md px-3 py-2 transition-all duration-150"
+                                                    (click)="viewDetails(section, i)">
+                                                    Xem chi tiết
+                                                </button>
+                                                <button type="button"
+                                                    *ngIf="field.name != 'full_name' && field.name != 'assigned_by'"
+                                                    class="block w-full text-left font-medium text-red-600 hover:bg-red-100 rounded-md px-3 py-2 transition-all duration-150"
+                                                    (click)="removeField(section, i)">
+                                                    Xóa khỏi biểu mẫu
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action buttons -->
+                            <div class="flex flex-col sm:flex-row justify-end gap-2 mt-2">
+                                <button type="button"
+                                    class="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white text-sm sm:text-md px-3 sm:px-5 py-1 sm:py-2 rounded-md"
+                                    (click)="onCancel()">{{ t('other.cancel') }}</button>
+                                <button type="button"
+                                    class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white text-sm sm:text-md px-3 sm:px-5 py-1 sm:py-2 rounded-md"
+                                    (click)="openPreview()">{{ t('other.preview') }}</button>
+                                <button type="submit"
+                                    class="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white text-sm sm:text-md px-3 sm:px-5 py-1 sm:py-2 rounded-md"
+                                    (click)="onSubmit()">{{ t('other.update') }}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hiển thị JSON Output -->
+            <div *ngIf="activeTab == 'json'" class="m-5">
+                <label class="block font-medium mb-1">JSON Output:</label>
+                <textarea class="w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-sm font-mono" rows="20"
+                    [value]="jsonOutput" readonly></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Popup nhập tên vùng -->
+<app-section-name-dialog [isVisible]="showSectionDialog" [initialName]="sectionInitialName" [isEdit]="isEditingSection"
+    (confirmed)="onSectionSaved($event)" (closed)="onDialogClosed()">
+</app-section-name-dialog>
+
+<app-preview *ngIf="showPreview" (close)="closePreview()" [formJson]="formJson"></app-preview>
+<app-detail-input *ngIf="popupDetail" (close)="closeDetail()" [data]="popupDetail"></app-detail-input>

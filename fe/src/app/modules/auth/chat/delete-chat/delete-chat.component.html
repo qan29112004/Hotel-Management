@@ -1,0 +1,11 @@
+<div class="flex absolute z-10 bg-gray-500 opacity-50 w-full h-full justify-center items-center">
+        
+</div>
+<div class="flex absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 flex-col p-5 w-auto h-auto bg-white">
+    <p class="font-bold text-3xl">Bạn có chắc chắn là muốn xóa đoạn chat không?</p>
+    <hr>
+    <div class="flex gap-3 justify-end">
+        <button (click)="cancelModal()" type="button" class="p-3 shadow-md rounded-lg hover:bg-sky-400 hover:text-white transition-all duration-300">Hủy</button>
+        <button (click)="submitModal()" type="button" class="p-3 shadow-md rounded-lg hover:bg-red-500 hover:text-white transition-all duration-300">Xóa</button>
+    </div>
+</div>

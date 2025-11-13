@@ -1,0 +1,154 @@
+<div class="flex-auto p-4 sm:px-6 sm:py-4">
+    <div class="relative w-full">
+        <div class="flex items-center justify-between text-lg mb-4">
+            <div class="flex flex-col">
+                <h1 class="text-3xl font-bold">
+                    {{ translocoService.translate("news.edit_news") }}
+                </h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button
+                    class="flex whitespace-nowrap items-center gap-2 justify-between bg-gray-300 text-gray-700 h-9 px-3 rounded-md"
+                    [routerLink]="['/mod/news', news.slug + '.html']">
+                    <span class="material-icons">close</span>
+                    <span class="lg:text-base text-sm">{{ translocoService.translate('news.btn_cancel') |
+                        titlecase}}</span>
+                </button>
+            </div>
+        </div>
+        <hr class="border border-gray-300 opacity-30 my-4" />
+        <form (ngSubmit)="submitUpdateNews()">
+            <div class="flex flex-col gap-8">
+                <div class="flex items-center w-2/3 gap-8">
+                    <div class="flex-1">
+                        <div class="mb-4">
+                            <label for="title" class="block text-base font-semibold text-gray-800 mb-1">{{
+                                translocoService.translate('news.title_news') | titlecase}}<span
+                                    class="text-red-500">*</span></label>
+                            <input 
+                                id="title" 
+                                [(ngModel)]="news.title" 
+                                name="title" 
+                                type="text"
+                                placeholder="{{ translocoService.translate('news.title_placeholder') }}"
+                                class="p-2 block w-full border border-gray-300 rounded-md focus:ring-primary focus:border-primary">
+                            <span *ngIf="errorFields['title']" class="text-xs text-red-500 block mt-1">
+                                {{ translocoService.translate(errorFields['title']) }}
+                            </span>
+                        </div>
+                        <div class="mb-4">
+                            <label for="thumbnail" class="block text-base font-semibold text-gray-800 mb-1">Thumbnail</label>
+                            <div class="flex gap-2">
+                                <input 
+                                    id="thumbnail" 
+                                    [(ngModel)]="news.thumbnail" 
+                                    name="thumbnail" 
+                                    type="text"
+                                    placeholder="{{ translocoService.translate('news.thumbnail_placeholder') }}"
+                                    class="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    (change)="onFileSelected($event)" 
+                                    class="hidden"
+                                    #fileInput>
+                                <button 
+                                    type="button" 
+                                    (click)="fileInput.click()"
+                                    class="mt-1 px-4 py-2 bg-primary text-white rounded-md">
+                                    <span class="material-icons">upload</span>
+                                </button>
+                            </div>
+                            <span *ngIf="errorFields['thumbnail']" class="text-xs text-red-500 block mt-1">
+                                {{ translocoService.translate(errorFields['thumbnail']) }}
+                            </span>
+                        </div>
+                        <div class="mb-4">
+                            <label for="category" class="block text-base font-semibold text-gray-800 mb-1">{{
+                                translocoService.translate('news.category') | titlecase}}
+                                <span class="text-red-500">*</span>
+                            </label>
+                            <select 
+                                id="category" 
+                                [(ngModel)]="news.category" 
+                                name="category"
+                                class="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+
+                                <option *ngFor="let cat of categories" [value]="cat.id">
+                                    {{ cat.categoryParent ? '-- ' + (cat.name | titlecase) : (cat.name | titlecase) }}
+                                </option>
+                            </select>
+                            <span *ngIf="errorFields['category']" class="text-xs text-red-500 block mt-1">
+                                {{ translocoService.translate(errorFields['category']) }}
+                            </span>
+                        </div>
+                    </div>
+                    <!-- Thumbnail Preview -->
+                    <div class="w-48 h-48 flex items-center justify-center bg-white ml-2">
+                        <ng-container *ngIf="news.thumbnail">
+                            <img [src]="news.thumbnail" alt="Preview Thumbnail" class="max-w-full max-h-full object-contain" (error)="handleImageError($event)" (load)="handleImageLoad($event)" />
+                        </ng-container>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="content" class="block text-base font-semibold text-gray-800 mb-1">{{
+                        translocoService.translate('news.content') | titlecase}}<span
+                            class="text-red-500">*</span></label>
+                    <angular-editor 
+                        [(ngModel)]="news.content" 
+                        [config]="editorConfig" 
+                        name="content"
+                        placeholder="{{ translocoService.translate('news.content_placeholder') }}"
+                        class="mt-1 block w-full min-h-1000">
+                        <ng-template #customButtons let-executeCommandFn="executeCommandFn">
+                            <ae-toolbar-set>
+                                <button aeButton (click)="openImagePopup(executeCommandFn)"
+                                    class="flex items-center justify-center">
+                                    <span class="material-icons text-center">image</span>
+                                </button>
+                            </ae-toolbar-set>
+                        </ng-template>
+                    </angular-editor>
+                </div>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button type="submit" class="px-6 py-2 bg-primary text-white rounded-md text-base font-semibold shadow hover:bg-primary-600">{{
+                    translocoService.translate('news.btn_update') | titlecase}}</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div *ngIf="showImagePopup" class="popup-overlay">
+    <div class="popup-content">
+        <h3>
+            {{ translocoService.translate("news.insert_image") | titlecase }}
+        </h3>
+
+        <div class="mb-4">
+            <label>{{
+                translocoService.translate("news.select_image") | titlecase
+                }}:</label>
+            <input type="file" name="imageFile" (change)="onFileImageSelected($event)" accept="image/*" />
+        </div>
+
+        <div class="mb-4">
+            <label>{{
+                translocoService.translate("news.or_enter_image_url")
+                | titlecase
+                }}:</label>
+            <input type="text" [(ngModel)]="imageUrl" name="imageUrl" placeholder="https://..." class="url-input" />
+        </div>
+
+        <div class="flex justify-end gap-2">
+            <button type="button" (click)="closePopup()" class="bg-gray-300 text-gray-700 hover:bg-gray-400">
+                {{ translocoService.translate("news.btn_close") | titlecase }}
+            </button>
+            <button type="button" (click)="insertImage()" class="bg-primary text-white hover:bg-primary-dark">
+                {{
+                translocoService.translate("news.btn_insert_image")
+                | titlecase
+                }}
+            </button>
+        </div>
+    </div>
+</div>

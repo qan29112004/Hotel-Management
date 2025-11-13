@@ -1,0 +1,71 @@
+.mf-lines {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+
+}
+
+foreignObject .icon-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: #2854f1;
+    width: 100%;
+    height: 100%;
+}
+
+foreignObject .icon-box img {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+}
+
+foreignObject .icon-box p {
+    font-size: 14px;
+    margin-top: 6px;
+    line-height: 1.2;
+}
+
+
+.mf-conn .mf-base {
+    fill: none;
+    stroke: url(#mf-grad-base);
+    stroke-width: 2;
+    opacity: 0.28;
+}
+
+.mf-conn .mf-pulse {
+    fill: none;
+    stroke: url(#mf-grad);
+    stroke-width: 2;
+    stroke-dasharray: calc(var(--len) * 0.18) calc(var(--len) * 0.82);
+    stroke-dashoffset: 0;
+    animation: mf-move 1.2s linear infinite alternate;
+}
+
+.mf-conn .mf-glow {
+    fill: none;
+    stroke: url(#mf-grad);
+    stroke-width: 8;
+    opacity: 0.30;
+    filter: blur(6px);
+    stroke-dasharray: calc(var(--len) * 0.18) calc(var(--len) * 0.82);
+    animation: mf-move 3.2s linear infinite alternate;
+}
+
+.mf-conn path {
+  pointer-events: none; /* không chặn click */
+}
+
+.icon-box {
+  cursor: pointer;
+  pointer-events: all; /* đảm bảo click được */
+}
+
+@keyframes mf-move {
+    to {
+        stroke-dashoffset: var(--len);
+    }
+}
