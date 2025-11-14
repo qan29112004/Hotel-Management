@@ -157,21 +157,8 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
             // Nếu backend báo session hết hạn
             
         });
-        const storageHandler = (e: StorageEvent) => {
-            if (e.key === 'idChatWidget') {
-                this.isCompleteNewChat = !!e.newValue;
-                if (!e.newValue) {
-                    this._chatService.isOpenChatBot = false;
-                }
-            }
-        };
-        window.addEventListener('storage', storageHandler);
-        // Also check localStorage directly for changes within the same window
-        const storedChatWidget = localStorage.getItem('idChatWidget');
-        this.isCompleteNewChat = !!storedChatWidget;
-        if (!storedChatWidget) {
-            this._chatService.isOpenChatBot = false;
-        }
+        console.log("check init:" ,this.isAccessChat)
+        
         this._userService.user$.subscribe((user)=>{
             this.crrUser = user;
             
@@ -240,141 +227,9 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
                 console.log('MENU DEFAULT: ', this.navigation.default);
             })
 
-        // Subscribe to navigation data và user data để filter theo role
-        // combineLatest([
-        //     this._navigationService.navigation$,
-        //     this._userService.user$,
-        // ])
-        //     .pipe(takeUntil(this._unsubscribeAll))
-        //     .subscribe(([navigation, user]) => {
-        //         console.log('MENU VUA CALL API: ', navigation.compact);
-        //         // if (!user) {
-        //         //     this.navigation = {
-        //         //         compact: [],
-        //         //         default: [],
-        //         //         futuristic: [],
-        //         //         horizontal: [],
-        //         //     };
-        //         //     return;
-        //         // }
-        //         let includeIds = [];
-        //         if (!user) {
-        //             // Trường hợp khách vãng lai
-        //             includeIds = ['home-page', 'news-feed', 'marketplace', 'list-app', 'destination']; // Các mục công khai cho khách vãng lai
-        //             this.crrUser = null;
-        //         } else {
-        //             // Trường hợp người dùng đã đăng nhập
-        //             this.crrUser = user;
-        //             if (user.role === 3) {
-        //                 includeIds = [
-        //                     'home-page',
-        //                     'chat',
-        //                     'news-feed',
-        //                     'marketplace',
-        //                     'list-app',
-        //                     'feedback',
-        //                     'destination'
-        //                 ];
-        //             } else {
-        //                 includeIds = ['home-page', 'chat', 'news-feed', 'list-app', 'destination'];
-        //             }
 
-        //             if (user.role === 1) {
-        //                 // admin
-        //                 includeIds.push('admin');
-        //                 includeIds = [
-        //                     ...includeIds,
-        //                     ...pushItemNavigation(navigation, includeIds, 'admin', 'sticky'),
-        //                 ];
-        //             } else if (user.role === 2) {
-        //                 // mod
-        //                 includeIds.push('mod');
-        //                 includeIds = [
-        //                     ...includeIds,
-        //                     ...pushItemNavigation(navigation, includeIds, 'mod', 'sticky'),
-        //                 ];
-        //             } else if (user.role === 3) {
-        //                 // user
-        //                 includeIds.push('user');
-        //                 includeIds = [
-        //                     ...includeIds,
-        //                     ...pushItemNavigation(navigation, includeIds, 'user', 'sticky'),
-        //                 ];
-        //             }
-        //         }
-        //         console.log('Include IDs for navigation:', includeIds);
-
-        //         // Filter theo danh sách được phép
-        //         this.navigation = {
-        //             compact: navigation.compact.filter((item) =>
-        //                 includeIds.includes(item.id)
-        //             ),
-        //             default: navigation.default.filter((item) =>
-        //                 includeIds.includes(item.id)
-        //             ),
-        //             futuristic: navigation.futuristic.filter((item) =>
-        //                 includeIds.includes(item.id)
-        //             ),
-        //             horizontal: navigation.horizontal.filter((item) =>
-        //                 includeIds.includes(item.id)
-        //             ),
-        //         };
-        //         console.log('MENU COMPACT: ', this.navigation.compact);
-        //         console.log('MENU DEFAULT: ', this.navigation.default);
-        //     });
-
-        // Subscribe to media changes
-        // this._fuseMediaWatcherService.onMediaChange$
-        //     .pipe(takeUntil(this._unsubscribeAll))
-        //     .subscribe(({ matchingAliases }) => {
-        //         // Check if the screen is small
-        //         this.isScreenSmall = !matchingAliases.includes('md');
-
-        //         // Change the navigation appearance
-        //         // this.navigationAppearance = this.isScreenSmall ? 'default' : 'compact';
-        //         this.navigationAppearance = 'compact';
-        //     });
-
-        // Cập nhật trạng thái ngay khi khởi tạo
-        this.updateIsAccessChat(this._router.url);
         window.addEventListener('open-feedback', this.openFeedback.bind(this));
 
-        // Lắng nghe route thay đổi để cập nhật isAccessChat
-        // this._router.events
-        //     .pipe(
-        //         filter((event) => {
-        //             return event instanceof NavigationEnd || (event instanceof Scroll && event.routerEvent instanceof NavigationEnd);
-        //         }),
-        //         takeUntil(this._unsubscribeAll)
-        //     )
-        //     .subscribe((event) => {
-        //         const navigationEndEvent = event instanceof Scroll ? event.routerEvent : event;
-        //         console.log('Router event:', navigationEndEvent);
-        //         const currentUrl = navigationEndEvent.urlAfterRedirects;
-        //         this.isAdminPage = currentUrl.includes('/admin/');
-        //         console.log('isAdminPage:', this.isAdminPage);
-        //         this.updateIsAccessChat(currentUrl)
-        //     });
-        this._router.events.pipe(
-            filter((event) => {
-                return event instanceof NavigationEnd || (event instanceof Scroll && event.routerEvent instanceof NavigationEnd);
-            }),
-            takeUntil(this._unsubscribeAll)
-        )
-        .subscribe(event => {
-            console.log('Router event:', event);
-            if (event instanceof Scroll) {
-            const routerEvent = event.routerEvent;
-
-            if (routerEvent instanceof NavigationEnd) {
-                console.log('NavigationEnd (from Scroll):', routerEvent);
-                console.log('URL:', routerEvent.urlAfterRedirects);
-                const currentUrl = routerEvent.urlAfterRedirects;
-                this.isAdminPage = currentUrl.includes('/admin/');
-                console.log('isAdminPage:', this.isAdminPage);
-                this.updateIsAccessChat(currentUrl)
-            }
-        }});
         
         // Khởi tạo vị trí button chat
         this.updateChatButtonPosition();
@@ -384,11 +239,6 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
             this.updateChatButtonPosition();
         });
 
-        // Check if chat widget ID exists and set isCompleteNewChat
-        const idChatWidget = localStorage.getItem('idChatWidget');
-        if (idChatWidget) {
-            this.isCompleteNewChat = true;
-        }
     }
     openFeedback(): void {
         this.isFeedbackOpen = true;
@@ -418,15 +268,7 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
      * On destroy
      */
     ngOnDestroy(): void {
-        // Remove storage event listener
-        window.removeEventListener('storage', (e: StorageEvent) => {
-            if (e.key === 'idChatWidget') {
-                this.isCompleteNewChat = !!e.newValue;
-                if (!e.newValue) {
-                    this._chatService.isOpenChatBot = false;
-                }
-            }
-        });
+        
 
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
@@ -504,30 +346,9 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     openChatbot(Event: MouseEvent): void {
-        if (this._wasDragging) {
-            Event.preventDefault();
-            this._wasDragging = false;
-            return;
-        }
 
         console.log('Open chat bubble clicked');
-        // this._chatService.createNewSessionChat(this.crrUser, this._isNavigate)
-        //     .pipe(
-        //         takeUntil(this._unsubscribeAll)
-        //     )
-        //     .subscribe({
-        //         next: (idChatWidget) => {
-        //             console.log('Got chat widget ID:', idChatWidget);
-        //             localStorage.setItem('idChatWidget', idChatWidget);
-        //             this.isCompleteNewChat=true;
-        //             this.toggleChatVisibility();
-
-        //         },
-        //         error: (error) => {
-        //             console.error('Error creating chat session:', error);
-        //         }
-        //     });
-        this.isCompleteNewChat = true;
+        this.isAccessChat = true;
         this.toggleChatVisibility();
     }
 
@@ -538,90 +359,12 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
 
-    // Hàm nay sẽ thay thế hàm openChatbot nếu width screen là mobile
-    navigateToChat(): void {
-        this._userService
-            .get()
-            .pipe(
-                switchMap((user) => this._chatUserService.getIdUser(user)), // lấy userId trong Firestore
-                switchMap((userId) =>
-                    this._chatRoomService.getChatRoomIdByUserId(userId)
-                ) // lấy chatRoomId từ userId
-            )
-            .subscribe({
-                next: (chatId) => {
-                    if (chatId) {
-                        localStorage.setItem('idChatWidget', chatId);
-                        this._router.navigate(['/chat', chatId]);
-                    }
-                },
-                error: (err) => {
-                    console.error('Error fetching chatId:', err);
-                },
-            });
-    }
+    
 
     handleChatClick(event: MouseEvent) {
-        if (this.innerWidth <= 480) {
-            this.navigateToChat();
-        } else {
             this.openChatbot(event);
-        }
-    }
-
-    @HostListener('window:scroll', [])
-    onWindowScroll() {
-        const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
-        this.isScrollDown = scrollY > 1; // thay đổi ngưỡng tùy bạn
-    }
-
-    @HostListener('document:pointerdown', ['$event'])
-    onPointerDown(event: PointerEvent) {
-        if (event.target === this.bubbleChatBot?.nativeElement) {
-            console.log('Pointer down on chat bubble');
-            event.preventDefault();
-            this._wasDragging = false;
-            this._isDragging = true;
-            this._startPosition.x = event.clientX - this.position.x;
-            this._startPosition.y = event.clientY - this.position.y;
-        }
-    }
-    @HostListener('document:pointermove', ['$event'])
-    onPointerMove(event: PointerEvent) {
-        if (this._isDragging) {
-            const deltaX =
-                event.clientX - (this.position.x + this._startPosition.x);
-            const deltaY =
-                event.clientY - (this.position.y + this._startPosition.y);
-            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-            if (distance > 5) {
-                this._wasDragging = true;
-            }
-
-            let newX = event.clientX - this._startPosition.x;
-            let newY = event.clientY - this._startPosition.y;
-
-            const ButtonSize = 95;
-            const Margin = 55;
-
-            newX = Math.max(
-                Margin,
-                Math.min(newX, window.innerWidth - ButtonSize - Margin)
-            );
-            newY = Math.max(
-                Margin,
-                Math.min(newY, window.innerHeight - ButtonSize - Margin)
-            );
-
-            this.position.x = newX;
-            this.position.y = newY;
-        }
-    }
-
-    @HostListener('document:pointerup')
-    onPointerUp() {
-        this._isDragging = false;
+            console.log("check init:" ,this.isAccessChat)
+        
     }
 
     private updateIsAccessChat(url: string) {

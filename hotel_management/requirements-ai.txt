@@ -1,8 +1,17 @@
-chromadb==0.4.22
-langchain==0.1.0
-langchain-groq==0.0.1
-langgraph==0.0.20
-sentence-transformers==2.3.1
-peft==0.8.0
-transformers==4.36.0
-groq==0.4.1
+# Core AI & LangChain ecosystem
+langchain==0.3.7
+langchain-core==0.3.17
+langchain-community==0.3.7
+langchain-groq==0.2.0
+langgraph==0.2.33
+
+# Vector DB & embeddings
+chromadb==0.5.20
+sentence-transformers==3.1.1
+transformers==4.45.2
+peft==0.12.0
+accelerate==0.33.0
+huggingface-hub==0.24.5
+
+# Groq official client (updated)
+groq==0.13.0

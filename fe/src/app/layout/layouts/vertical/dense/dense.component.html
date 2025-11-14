@@ -133,78 +133,78 @@
             <div>alo</div>
         </div>
     </div>
-    <ng-container *ngIf="!isAccessChat">
-        <ng-container *ngIf="isCompleteNewChat">
-            <div
-                #bubbleChatBot
-                class="fixed flex flex-col w-[18rem] h-[24rem] sm:w-[24rem] sm:h-[28rem] md:w-[28rem] md:h-[32rem] xl:w-[32rem] xl:h-[36rem] bg-white shadow-2xl rounded-xl z-[49] origin-bottom-right transition-[transform,opacity] duration-300"
-                [class.scale-100]="isOpenChatBot"
-                [class.scale-0]="!isOpenChatBot"
-                [class.opacity-100]="isOpenChatBot"
-                [class.opacity-0]="!isOpenChatBot"
-                [class.pointer-events-auto]="isOpenChatBot"
-                [class.pointer-events-none]="!isOpenChatBot"
-                [style.left.px]="
-                    window.innerHeight <= 700
-                        ? position.x - 460
-                        : position.x - 400
-                "
-                [style.top.px]="
-                    window.innerHeight <= 700
-                        ? position.y - 470
-                        : position.y - 580
-                "
+    <ng-container *ngIf="isAccessChat">
+        <div
+            #bubbleChatBot
+            class="fixed max-sm:hidden flex flex-col w-[28rem] h-[32rem] xl:w-[32rem] xl:h-[36rem] xl:top-[12rem] bg-white shadow-2xl rounded-xl z-[49] origin-bottom-right transition-[transform,opacity] duration-300"
+            [class.scale-100]="isOpenChatBot"
+            [class.scale-0]="!isOpenChatBot"
+            [class.opacity-100]="isOpenChatBot"
+            [class.opacity-0]="!isOpenChatBot"
+            [class.pointer-events-auto]="isOpenChatBot"
+            [class.pointer-events-none]="!isOpenChatBot"
+            [style.left.px]="
+                window.innerHeight <= 700
+                    ? position.x - 460
+                    : position.x - 400
+            "
+            [style.top.px]="
+                window.innerHeight <= 700
+                    ? position.y - 470
+                    : position.y -450
+            "
+        >
+            <app-chat-widget
+                class="w-full h-full"
+                [class.hidden]="!isOpenChatBot"
+                [isOpenChatBot]="isOpenChatBot"
+                (closeChat)="closeChat()"
             >
-                <app-chat-widget
-                    class="w-full h-full"
-                    [class.hidden]="!isOpenChatBot"
-                    [isOpenChatBot]="isOpenChatBot"
-                    (closeChat)="closeChat()"
-                >
-                </app-chat-widget>
-            </div>
-        </ng-container>
-        <ng-container *ngIf="isBtnOpenChat; else notBtnOpenChat">
-            <div
-                #btnOpenChat
-                [class.hidden]="!crrUser || crrUser.role === 1"
-                (mousedown)="onMouseDown($event)"
-                [style.left.px]="position.x"
-                [style.top.px]="position.y"
-                class="fixed z-[20] w-48 flex items-center justify-center p-0 bg-transparent border-none shadow-none"
-            >
-                <button
-                    type="button"
-                    (click)="TurnOffBtnOpenChat()"
-                    class="absolute top-2 right-5 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-[#ED772F] cursor-pointer group hover:scale-110 transition-all duration-300"
-                >
-                    <mat-icon class="text-white">close</mat-icon>
-                </button>
-                <button
-                    (click)="handleChatClick($event)"
-                    type="button"
-                    class="flex items-center justify-center w-full h-full shake"
-                >
-                    <img
-                        [src]="
-                            'assets/images/chatbot/AI-3.png'
-                        "
-                        class="h-full w-30"
-                        alt="Logo"
-                    />
-                </button>
-            </div>
-        </ng-container>
-        <ng-template #notBtnOpenChat>
+            </app-chat-widget>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="isBtnOpenChat; else notBtnOpenChat">
+        <div
+            #btnOpenChat
+            [class.hidden]="!crrUser || crrUser.role === 1"
+            [style.left.px]="position.x"
+            [style.top.px]="position.y"
+            class="fixed z-[20] max-sm:hidden w-48 flex items-center justify-center p-0 bg-transparent border-none shadow-none"
+        >
             <button
                 type="button"
-                (click)="TurnOnBtnOpenChat()"
-                class="fixed bottom-20 right-0 z-[1001] w-8 h-8 hover:scale-110 flex items-center justify-center p-0 bg-blue-400 text-white border-none shadow-none rounded-tl-xl rounded-bl-xl"
+                (click)="TurnOffBtnOpenChat()"
+                class="absolute top-2 right-5 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-black cursor-pointer group hover:scale-110 transition-all duration-300"
             >
-                <h2>+</h2>
+                <mat-icon class="text-white">close</mat-icon>
             </button>
-        </ng-template>
+            <button
+                (click)="handleChatClick($event)"
+                type="button"
+                class="flex items-center justify-center w-full h-full shake"
+            >
+                <img
+                    [src]="
+                        'assets/images/chatbot/AI-3.png'
+                    "
+                    class="h-full w-30"
+                    alt="Logo"
+                />
+            </button>
+        </div>
     </ng-container>
+    <ng-template #notBtnOpenChat>
+        <button
+            type="button"
+            (click)="TurnOnBtnOpenChat()"
+            class="fixed bottom-20 right-0 z-[1001] w-8 h-8 hover:scale-110 flex items-center justify-center p-0 text-white border-none shadow-none rounded-tl-xl rounded-bl-xl"
+        >
+            <span class="relative flex size-3 w-full h-full">
+                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-yellow-300 opacity-75"></span>
+                <span class="relative inline-flex size-3 rounded-full bg-yellow-500 w-full h-full justify-center items-center text-black text-[11px]">+</span>
+            </span>
+        </button>
+    </ng-template>
 </div>
 <div class="fixed top-6 right-4 z-[1000]">
     <app-global-alert></app-global-alert>

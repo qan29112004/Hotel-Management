@@ -121,13 +121,6 @@ export const appRoutes: Route[] = [
                     import('app/modules/auth/list-app/list-app.routes'),
             },
             {
-                path: routeConfig.CHAT,
-                data: { title: 'chat.title' },
-                loadChildren: () => import('app/modules/auth/chat/chat.routes'),
-                    
-                
-            },
-            {
                 path: routeConfig.MARKETPLACE,
                 data: { title: 'marketplace.title' },
                 loadChildren: () => import('app/modules/auth/marketplace/marketplace.routes'),
@@ -186,12 +179,6 @@ export const appRoutes: Route[] = [
             {
                 path: routeConfig.ROUTER_ADMIN,
                 children: [
-                    {
-                        path: routeConfig.DASH_BOARD,
-                        data: { title: 'Dashboard' },
-                        loadChildren: () =>
-                            import('app/modules/admin/dashboard/dashboard.route'),
-                    },
                     {
                         path: routeConfig.APP_TYPE,
                         data: { title: 'app_type.title' },
@@ -335,11 +322,6 @@ export const appRoutes: Route[] = [
                 path: 'example',
                 loadChildren: () =>
                     import('app/modules/admin/example/example.routes'),
-            },
-            {
-                path: 'dashboard',
-                loadChildren: () =>
-                    import('app/modules/admin/dashboard/dashboard.route'),
             },
 
             // 404 & Catch all

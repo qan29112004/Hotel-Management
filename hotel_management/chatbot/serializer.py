@@ -8,3 +8,9 @@ class KnowlegdeBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model=KnowlegdeBaseModel
         fields='__all__'
+        
+class ChatBotRequestSerializer(serializers.Serializer):
+    user_input = serializers.CharField()
+    
+class ChatBotResponseSerializer(serializers.Serializer):
+    response = serializers.CharField()

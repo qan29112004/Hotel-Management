@@ -12,6 +12,6 @@ python manage.py migrate --noinput
 echo "================================✅ DONE MIGRATES======================================"
 
 
-uvicorn myproject.asgi:application --host 0.0.0.0 --port 8000 --reload
+uvicorn hotel_management.asgi:application --host 0.0.0.0 --port 8000 --reload --log-level info --access-log --use-colors
 
 

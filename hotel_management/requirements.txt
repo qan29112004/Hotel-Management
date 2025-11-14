@@ -29,3 +29,6 @@ confluent_kafka
 channels 
 uvicorn
 channels-redis
+
+#serve staticfile
+whitenoise

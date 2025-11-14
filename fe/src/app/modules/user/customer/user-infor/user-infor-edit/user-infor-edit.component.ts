@@ -149,7 +149,6 @@ export class UserInforEditComponent implements OnInit {
             username:this.user.username
         }
         console.log("DATA UPDATE FIREBASE: ", dataUserUpdateFirebase)
-        this._chatService.updateUserDoc(this.user.id, this.user, dataUserUpdateFirebase);
         this._userService.update(this.user).subscribe({
             next: () => {
                 

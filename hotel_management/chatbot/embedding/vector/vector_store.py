@@ -15,6 +15,7 @@ class VectorStore:
             name="knowledge_base",
             metadata={"hnsw:space": "cosine"}
         )
+        
     
     def add_documents(self, documents: List[Dict]):
         """
@@ -26,10 +27,11 @@ class VectorStore:
         """
         from chatbot.embedding.service.embedding import EmbeddingService
         
+        # Reuse singleton instance - không tạo mới mỗi lần
         embedding_service = EmbeddingService()
         
         texts = [doc["text"] for doc in documents]
-        embeddings = embedding_service.embed_batch(texts)
+        embeddings = embedding_service.embed_documents(texts)
         
         self.collection.add(
             ids=[doc["id"] for doc in documents],
@@ -42,8 +44,9 @@ class VectorStore:
         """Tìm kiếm documents tương tự"""
         from chatbot.embedding.service.embedding import EmbeddingService
         
+        # Reuse singleton instance - không tạo mới mỗi lần
         embedding_service = EmbeddingService()
-        query_embedding = embedding_service.embed_text(query)
+        query_embedding = embedding_service.embed_query(query)
         
         results = self.collection.query(
             query_embeddings=[query_embedding],

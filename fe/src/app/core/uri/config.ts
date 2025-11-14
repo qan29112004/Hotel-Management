@@ -183,5 +183,8 @@ export const uriConfig = {
     API_CHECK_SESSION: baseUrl + '/api/booking/check-session/',
 
     //sse
-    API_SSE : (session_id:string)=> baseUrl + `/api/sse/session/${session_id}/`
+    API_SSE : (session_id:string)=> baseUrl + `/api/sse/session/${session_id}/`,
+
+    //websocket
+    WEBSOCKET_URL : 'ws://localhost:8000/ws/chat/'
 };

@@ -204,7 +204,6 @@ export class UserInforComponent extends NewsFeedComponent implements OnInit {
             userId: this.user.id,
             username:this.user.username
         }
-        this._chatService.updateUserDoc(this.user.id, this.user, dataUserUpdateFirebase);
         this._userService.update(this.user).subscribe({
             next: () => {
                 

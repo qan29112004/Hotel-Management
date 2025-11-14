@@ -1,5 +1,5 @@
 # Dockerfile.base
-FROM python:3.10-slim-bullseye
+FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 
@@ -13,13 +13,15 @@ RUN apt-get update && \
         libsasl2-dev \
         libzstd-dev && \
     rm -rf /var/lib/apt/lists/*
+    
+COPY requirements-ai.txt ./
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements-ai.txt
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir  -r requirements.txt
 
-COPY requirements-ai.txt ./
-RUN pip install --no-cache-dir -r requirements-ai.txt
 
 
 RUN apt-get purge -y gcc python3-dev && \

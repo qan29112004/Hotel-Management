@@ -15,15 +15,16 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from pathlib import Path
 from chatbot.routing import websocket_urlpatterns
-from chatbot.middleware.jwt_middleware import JWTAuthMidderwareSocket
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hotel_management.settings')
+django_asgi_app = get_asgi_application()
+from chatbot.middleware.jwt_middleware import JWTAuthMidderwareSocket
 
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
+    "http": django_asgi_app,
     "websocket": JWTAuthMidderwareSocket(
         AuthMiddlewareStack(
             URLRouter(

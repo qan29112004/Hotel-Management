@@ -24,7 +24,7 @@ from libs.querykit.querykit_serializer import (
 from django.db import transaction
 from libs.querykit.querykit import Querykit
 from utils.utils import Utils
-from .tasks import embed_pending_data
+from chatbot.tasks import embed_pending_data
 
 @auto_schema_post(KnowlegdeBaseSerializer)
 @permission_classes([IsAdminUser])
@@ -34,7 +34,7 @@ def add_knowlegde_base(request):
         
         serializers = KnowlegdeBaseSerializer(data=request.data, context={'request':request})
         if serializers.is_valid():
-            new_knowlegde_base = serializers.save(created_by = request.user)
+            new_knowlegde_base = serializers.save()
             embed_pending_data.delay()
             return AppResponse.success(SuccessCodes.CREATE_AMENITY, data={"data":KnowlegdeBaseSerializer(new_knowlegde_base).data})
         return AppResponse.error(ErrorCodes.CREATE_DATASET, serializers.errors)
@@ -55,7 +55,7 @@ def knowlegde_base_detail(request, uuid):
             serializer = KnowlegdeBaseSerializer(knowlegde_base, data=request.data, partial=True)
             if serializer.is_valid():
                 with transaction.atomic():
-                    updated = serializer.save(updated_by=request.user)
+                    updated = serializer.save()
                     embed_pending_data.delay()
                 return AppResponse.success(SuccessCodes.UPDATE_DATASET, data={"data": KnowlegdeBaseSerializer(updated).data})
             return AppResponse.error(ErrorCodes.UPDATE_DATASET_FAIL, serializer.errors)
