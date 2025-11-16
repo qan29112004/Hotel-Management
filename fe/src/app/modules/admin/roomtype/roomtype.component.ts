@@ -30,6 +30,7 @@ import { User } from 'app/core/profile/user/user.types';
 import { environment } from 'environments/environment.fullstack';
 import { RoomtypeService } from 'app/core/admin/roomtype/roomtype.service';
 import { AmenityService } from 'app/core/admin/amenity/amenity.service';
+import { MarkdownComponent } from 'ngx-markdown';
 @Component({
   selector: 'app-roomtype',
   standalone: true,
@@ -53,7 +54,8 @@ import { AmenityService } from 'app/core/admin/amenity/amenity.service';
     MatToolbarModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MarkdownComponent
   ],
   templateUrl: './roomtype.component.html',
   styles: ``
@@ -108,24 +110,24 @@ export class RoomTypeComponent {
         name: 'name',
         labelKey: 'room_type.name',
         type: 'text',
-        placeholderKey: 'destination.enterFullName',
+        placeholderKey: 'room_type.enterFullName',
         required: true,
         
     },
     {
         name: 'description',
         labelKey: 'room_type.description',
-        type: 'text',
-        placeholderKey: 'destination.enterdDescription',
+        type: 'textarea',
+        placeholderKey: 'room_type.enterDescription',
         required: true,
         
     },
     
     {
         name: 'maxOccupancy',
-        labelKey: 'room_type.enterPhone',
+        labelKey: 'room_type.max_occupancy',
         type: 'number',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room_type.enterPhone',
         required: true,
         
     },
@@ -133,7 +135,7 @@ export class RoomTypeComponent {
         name: 'totalRooms',
         labelKey: 'room_type.total_rooms',
         type: 'number',
-        placeholderKey: 'room_type.total_rooms',
+        placeholderKey: 'room_type.enterTotalRooms',
         required: true,
         
     },
@@ -141,45 +143,45 @@ export class RoomTypeComponent {
         name: 'thumbnail',
         labelKey: 'room_type.thumbnail',
         type: 'file',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room_type.enterThumbnail',
         accept: 'image/*',
     },
     {
         name: 'images',
         labelKey: 'room_type.images',
         type: 'files',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room_type.enterImages',
         accept: 'image/*',
     },
     {
         name: 'hotelId',
-        labelKey: 'destination.name',
+        labelKey: 'room_type.hotel',
         type: 'select',
-        placeholderKey: 'destination.enterFullName',
+        placeholderKey: 'room_type.enterHotel',
         asyncOptionsKey: true,
         isForeignKey:true
     },
     {
         name: 'basePrice',
-        labelKey: 'destination.description',
+        labelKey: 'room_type.price',
         type: 'text',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room_type.enterPrice',
         
         
     },
     {
         name: 'size',
-        labelKey: 'destination.description',
+        labelKey: 'room_type.size',
         type: 'text',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room_type.enterSize',
         
         
     },
     {
         name: 'amenity',
-        labelKey: 'destination.description',
+        labelKey: 'room_type.amenity',
         type: 'checkbox',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room_type.enterAmenity',
         relatedName:"roomtype_amenity__uuid",
         asyncOptionsKey: true,
     },
@@ -190,24 +192,24 @@ export class RoomTypeComponent {
         name: 'name',
         labelKey: 'room_type.name',
         type: 'text',
-        placeholderKey: 'destination.enterFullName',
+        placeholderKey: 'room_type.enterFullName',
         required: true,
         
     },
     {
         name: 'description',
         labelKey: 'room_type.description',
-        type: 'text',
-        placeholderKey: 'destination.enterdDescription',
+        type: 'textarea',
+        placeholderKey: 'room_type.enterDescription',
         required: true,
         
     },
     
     {
         name: 'max_occupancy',
-        labelKey: 'room_type.enterPhone',
+        labelKey: 'room_type.max_occupancy',
         type: 'number',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room_type.enterPhone',
         required: true,
         
     },
@@ -215,7 +217,7 @@ export class RoomTypeComponent {
         name: 'total_rooms',
         labelKey: 'room_type.total_rooms',
         type: 'number',
-        placeholderKey: 'room_type.total_rooms',
+        placeholderKey: 'room_type.enterTotalRooms',
         required: true,
         
     },
@@ -223,45 +225,45 @@ export class RoomTypeComponent {
         name: 'thumbnail',
         labelKey: 'room_type.thumbnail',
         type: 'file',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room_type.enterThumbnail',
         accept: 'image/*',
     },
     {
         name: 'images',
         labelKey: 'room_type.images',
         type: 'files',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room_type.enterImages',
         accept: 'image/*',
     },
     {
         name: 'hotel_id',
-        labelKey: 'destination.name',
+        labelKey: 'room_type.hotel',
         type: 'select',
-        placeholderKey: 'destination.enterFullName',
+        placeholderKey: 'room_type.enterHotel',
         asyncOptionsKey: true,
         isForeignKey:true
     },
     {
-        name: 'base_price',
-        labelKey: 'destination.description',
+        name: 'price',
+        labelKey: 'room_type.price',
         type: 'text',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room_type.enterPrice',
         
         
     },
     {
         name: 'size',
-        labelKey: 'destination.description',
+        labelKey: 'room_type.size',
         type: 'text',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room_type.enterSize',
         
         
     },
     {
         name: 'amenity',
-        labelKey: 'destination.description',
+        labelKey: 'room_type.amenity',
         type: 'checkbox',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room_type.enterAmenity',
         relatedName:"roomtype_amenity__uuid",
         asyncOptionsKey: true,
     },
@@ -280,27 +282,24 @@ export class RoomTypeComponent {
         labelKey: 'room_type.status',
         type: 'select',
         options: [
-            { id: 'Live', name: 'Live' },
-            { id: 'Draft', name: 'Draft' },
-            { id: 'Rejected', name: 'Rejected' },
-            { id: 'Disabled', name: 'Disabled' },
-            { id: 'In Preview', name: 'In Preview' },
+            { id: 'Active', name: 'Active' },
+            { id: 'Inactive', name: 'Inactive' }
         ],
         placeholderKey: 'room_type.selectStatus',
     },
     {
         name: 'hotel_id',
-        labelKey: 'destination.name',
+        labelKey: 'room_type.name',
         type: 'select',
-        placeholderKey: 'destination.enterFullName',
+        placeholderKey: 'room_type.enterFullName',
         asyncOptionsKey: true,
         isForeingKey:true
     },
     {
         name: 'amenity',
-        labelKey: 'destination.description',
+        labelKey: 'room_type.description',
         type: 'checkbox',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room_type.enterDescription',
         relatedName:"roomtype_amenity__amenity__uuid",
         asyncOptionsKey: true,
     },
@@ -320,25 +319,30 @@ export class RoomTypeComponent {
   
   ngOnInit(): void {
       this.loadRoomTypes();
-      this.amenityService.getAmenities().pipe(
-        map(amenities => {
-  
-          if (amenities) {
-            return amenities.data.map(amenity => ({
-              id: amenity.uuid,
-              name: amenity.name,
-              icon: amenity.icon
-            }));
+      if(this.amenityService.check.length > 0){
+        this.amenityService.amenity$.subscribe(option=>{
+          this.radioAmenityOptions = option;
+        })
+      }else{
+        this.amenityService.getAmenities().pipe(
+          map(amenities => {
+    
+            if (amenities) {
+              return amenities.data.map(amenity => ({
+                id: amenity.uuid,
+                name: amenity.name,
+                icon: amenity.icon
+              }));
+            }
+            return []; 
           }
-          return []; 
-        }
-        ),
-      takeUntil(this._unsubscribeAll)
-      ).subscribe((options)=>{
-        this.radioAmenityOptions = options;
-        console.log("amenity options:", options)
-      });
-
+          ),
+        takeUntil(this._unsubscribeAll)
+        ).subscribe((options)=>{
+          this.radioAmenityOptions = options;
+          console.log("amenity options:", options)
+        });
+      }
       this.hotelService.getHotels().pipe(
         map(destinations => {
   

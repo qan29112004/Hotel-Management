@@ -1,7 +1,7 @@
 export const environment = {
     production: false,
-    baseUrl: 'http://localhost:8000',
-    mediaUrl: 'http://localhost:8000',
+    baseUrl: 'http://192.168.100.135:8000',
+    mediaUrl: 'http://192.168.100.135:8000',
     keycloakUrl: 'https://portal-stag.duckdns.org',
     keycloakRealm: 'Portal-Dev',
     keycloakClientId: 'CMS-Portal-Dev',

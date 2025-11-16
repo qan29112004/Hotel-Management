@@ -4,20 +4,22 @@ function pad(n: number): string {
     return n < 10 ? `0${n}` : `${n}`;
 }
 
-export function formatTimestamp(timestamp: any): string[] {
-    if (!timestamp || typeof timestamp.toDate !== 'function') return [];
+export function formatTimestamp(timestamp: number): string[] {
+  if (!timestamp || typeof timestamp !== 'number') return [];
 
-    const date: Date = timestamp.toDate(); 
-    const day = pad(date.getDate());
-    const month = pad(date.getMonth() + 1);
-    const year = date.getFullYear();
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
-    const getDay = `${day}/${month}/${year}`;
-    const getTime = `${hours}:${minutes}`
+  const date: Date = new Date(timestamp * 1000); // nhân 1000 để từ giây -> milliseconds
+  const day = pad(date.getDate());
+  const month = pad(date.getMonth() + 1);
+  const year = date.getFullYear();
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
 
-    return [getDay, getTime];
+  const getDay = `${day}/${month}/${year}`;
+  const getTime = `${hours}:${minutes}`;
+
+  return [getDay, getTime];
 }
+
 
 
 export function subTime(timestamp: any, transloco: TranslocoService): string {

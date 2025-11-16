@@ -85,7 +85,7 @@ def list_booking(request):
         list_booking = Booking.objects.all()
         paginated_booking, total = Querykit.apply_filter_paginate_search_sort(request=request, queryset=list_booking).values()
         serializers = BookingSerializer(paginated_booking, many=True)
-        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data})
+        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data, 'total':total})
     except Exception as e:
         return AppResponse.error(ErrorCodes.LIST_AMENITY_FAIL, str(e))
     

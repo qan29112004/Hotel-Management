@@ -32,6 +32,7 @@ import { FieldConfig } from 'app/core/admin/destination/destination.type';
 import { environment } from 'environments/environment.fullstack';
 import { AlertService } from 'app/core/alert/alert.service';
 import { camelToSnake } from 'app/shared/utils/util';
+import { SelectCountryComponent } from '../select-country/select-country.component';
 
 @Component({
     selector: 'app-generic-edit',
@@ -51,6 +52,7 @@ import { camelToSnake } from 'app/shared/utils/util';
         MatDatepickerModule,
         MatRadioModule,
         MatIconModule,
+        SelectCountryComponent
     ],
     templateUrl: './generic-edit.component.html',
 })
@@ -69,6 +71,8 @@ export class GenericEditComponent implements OnInit {
     filePreviews: { [key: string]: { url: string; name: string, isRemote: boolean }[] } = {}; // Lưu preview URLs cho gri
     deletedPaths: { [key: string]: string | string[] } = {}; // Path cần xóa ở backend
     @ViewChild('editForm') editForm: NgForm;
+
+    userCountry:any;
 
     baseUrl:string = environment.baseUrl;
     editFormGroup: UntypedFormGroup;
@@ -99,7 +103,7 @@ export class GenericEditComponent implements OnInit {
         if (field.type === 'file' || field.type === 'files') {
             return controls;
         }
-
+        this.userCountry = {name:this.entityData?.['userCountry'],code:""}
         // Xác định giá trị khởi tạo
         let initialValue = '';
         const rawValue = this.entityData?.[field.name];
@@ -150,13 +154,13 @@ export class GenericEditComponent implements OnInit {
 
                 const existingData = this.entityData[field.name];
                 console.log(`this.entityData[${field.name}]`, this.entityData[field.name])
-                if ((field.name === 'thumbnail' || field.name === 'icon') && existingData) {
+                if ((field.name === 'thumbnail' || field.name === 'icon' || (field.name === 'images' && field.type =="file")) && existingData) {
                     this.filePreviews[field.name] = [{
                         url: environment.baseUrl + existingData,
                         name: this.extractFileName(existingData),
                         isRemote: true
                     }];
-                } else if (field.name === 'images' && Array.isArray(existingData) && existingData.length > 0) {
+                } else if ((field.name === 'images' && field.type =="files") && Array.isArray(existingData) && existingData.length > 0) {
                     this.filePreviews[field.name] = existingData.map((img: any) => ({
                         url: environment.baseUrl + img.imageUrl,
                         name: this.extractFileName(img.imageUrl),
@@ -259,6 +263,10 @@ export class GenericEditComponent implements OnInit {
         this.editFormGroup.get(fieldName)?.updateValueAndValidity();
     }
 
+    selectCountry(country:string, fieldName:string){
+        this.editFormGroup.get(`${fieldName}`).setValue(country);
+    }
+
     onToggleClick(): void {
         this.showAlert = false;
         this.toggleDrawer.emit();
@@ -315,7 +323,7 @@ export class GenericEditComponent implements OnInit {
                 const files = this.selectedFiles[field.name];
                 console.log("Uploading files for field", field.name, files);
                 if (files) {
-                    if (field.name === 'images') {
+                    if (field.name === 'images' && field.type =="files") {
                         // Dùng images_upload[] cho field images
                         (files as File[]).forEach((file) => formData.append('images_upload', file));
                     } else {
@@ -359,9 +367,9 @@ export class GenericEditComponent implements OnInit {
             error: (err) => {
                 this.alert = {
                     type: 'error',
-                    code: [`errors.${err?.error?.code || 'default'}`],
+                    code: [`errors.${err?.error?.errors?.[0]?.field || err?.error?.code || 'default'}`],
                 };
-                console.log("alert code: ", this.alert.code)
+                console.log("alert code: ", this.alert.code )
                 this.showAlert = true;
                 this.editFormGroup.enable();
             },

@@ -5,7 +5,7 @@
     >
         <div class="absolute inset-0 bg-black/50"></div>
         <div class="flex flex-col items-center gap-5 w-full-col z-[1] mb-[100px]">
-            <span class="font-avenir text-[40px] text-white uppercase">{{hotel_data.name}}</span>
+            <span class="font-avenir text-[40px] text-white uppercase">{{hotel_data?.name}}</span>
             <span class="italic font-lexend_deca text-[12px] text-white"></span>
         </div>
         <!-- Search -->
@@ -31,14 +31,14 @@
                         <span class="self-start font-mono text-black">CHECK IN</span>
                         <input readonly (click)="toggleCalendarCheckin()" type="text" [(ngModel)]="checkInDate" name="DateCheckin"  [placeholder]="translocoService.translate('home-page.choose_day')" class="text-black placeholder:font-mono">
                         <!-- <app-calendar class="z-10 w-[360px] absolute top-8" [date]="date" [crrHotel]="crrHotel"></app-calendar> -->
-                         <app-calendar class="z-10 w-[200%] absolute top-8" [date]="date" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckin" (selectedDayEmit)="selectedCheckin($event)"
+                         <app-calendar class="z-10 w-[200%] absolute top-8" [roomList]="roomList" [date]="date" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckin" (selectedDayEmit)="selectedCheckin($event)"
                             [ngClass]="{'hidden':!showCalendarCheckin}"
                          ></app-calendar>
                     </button>
                     <button type="button" class="relative flex flex-col p-2 border-b border-black/30 min-w-[105px] " >
                         <span class="self-start font-mono text-black">CHECK OUT</span>
                         <input readonly [disabled]="!checkInDate" (click)="toggleCalendarCheckout()" type="text" name="DateCheckout" [(ngModel)]="checkOutDate"  [placeholder]="translocoService.translate('home-page.choose_day')" class="text-black placeholder:font-mono">
-                        <app-calendar *ngIf="checkInDate" class="z-10 w-[200%] absolute top-8 left-[-102%]" [date]="checkOutDateObj" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckout" (selectedDayEmit)="selectedCheckout($event)"
+                        <app-calendar *ngIf="checkInDate" class="z-10 w-[200%] absolute top-8 left-[-102%]" [roomList]="roomList" [date]="checkOutDateObj" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckout" (selectedDayEmit)="selectedCheckout($event)"
                             [ngClass]="{'hidden':!showCalendarCheckout}"
                         ></app-calendar>
                     </button>

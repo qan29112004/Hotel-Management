@@ -26,7 +26,7 @@ import { environment } from 'environments/environment.fullstack';
 export interface FieldFilterConfig {
     name: string;
     labelKey: string;
-    type: 'text' | 'select' | 'date' | 'date-range' | 'checkbox';
+    type: 'text' | 'select' | 'date' | 'date-range' | 'checkbox' | 'range';
     required?: boolean;
     validators?: any[];
     options?: { id: string | number; name: string }[];
@@ -86,7 +86,7 @@ export class GenericFilterComponent {
     ngOnInit(): void {
         // Tạo form động dựa trên fields
         const controls = this.fields.reduce((controls, field) => {
-            if (field.type === 'date-range' && field.rangeFields) {
+            if ((field.type === 'date-range'||field.type === 'range') && field.rangeFields) {
                 controls[field.rangeFields.from] = [null, field.validators || []];
                 controls[field.rangeFields.to] = [null, field.validators || []];
             } else {
@@ -124,7 +124,7 @@ export class GenericFilterComponent {
 
         this.fields.forEach(field => {
             console.log("value field: ", field.name)
-            if (field.type === 'date-range' && field.rangeFields) {
+            if ((field.type === 'date-range'||field.type === 'range') && field.rangeFields) {
                 const from = this.formatDate(formValues[field.rangeFields.from]);
                 const to = this.formatDate(formValues[field.rangeFields.to]);
                 if (from && to) {

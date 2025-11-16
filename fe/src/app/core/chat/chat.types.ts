@@ -4,12 +4,10 @@ import { UploadTask } from "@angular/fire/storage";
 
 export interface Message{
     id?:string;
-    senderUser: string;
     text: string;
-    timestamp: Timestamp;        
+    timestamp?: Timestamp;        
     role:string;
-    urlFile:string[] | [];
-    chatRoomId?:any
+    urlFile?:string[] | []
 }
 export interface ChatRoom{
     chatRoomId?: string                       
@@ -35,4 +33,12 @@ export interface FileUpload {
     storageRef?: any;
     status: 'uploading' | 'uploaded' | 'urlFetched' | 'canceled';
     url?: string;
+}
+
+type action = 'join_group'| 'out_group'| 'send_message'| 'send_requirement'
+
+export interface MessageSocket{
+    action:action
+    text?:string
+    sender?:string
 }

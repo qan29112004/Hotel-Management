@@ -30,11 +30,11 @@ export interface DestinationUpdateRequest {
 export interface FieldConfig {
     name: string;
     labelKey: string;
-    type: 'text' | 'email' | 'select' | 'date' | 'radio' | 'number' | 'password' | 'file' | 'files' | 'checkbox'; // Thêm 'file' và 'files'
+    type: 'text' | 'email' | 'select' | 'date' | 'radio' | 'number' | 'password' | 'file' | 'files' | 'checkbox' | 'textarea' | 'country'; // Thêm 'file' và 'files'
     required?: boolean;
     disabled?: boolean;
     validators?: any[];
-    options?: { id: string | number; name: string }[];
+    options?: { id: string | number | boolean; name: string }[];
     placeholderKey?: string;
     errorMessages?: { [key: string]: string };
     accept?: string; // Optional: Để giới hạn loại file, ví dụ: 'image/*' hoặc '.pdf'

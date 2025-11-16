@@ -10,9 +10,15 @@ from hotel_management_be.models.offer import RatePlan
 
 class BookingSerializer(serializers.ModelSerializer):
     hotel_id = serializers.PrimaryKeyRelatedField(queryset = Hotel.objects.all())
+    updated_by = serializers.SerializerMethodField()
     class Meta:
         model = Booking
-        fields = ['uuid', 'user_email','user_fullname','user_phone','user_country', 'hotel_id', 'check_in', 'check_out', 'num_guest', 'total_price', 'status', 'total_rooms']
+        fields = ['uuid', 'user_email','user_fullname','user_phone','user_country', 'hotel_id', 'check_in', 'check_out', 'num_guest', 'total_price', 'status', 'total_rooms', 'created_by', 'updated_by','created_at','updated_at']
+    
+    def get_updated_by(self,obj):
+        return {
+            'username':obj.updated_by.username if obj.updated_by else None
+        }
         
 class BookingRoomSerializer(serializers.ModelSerializer):
     booking_id = serializers.PrimaryKeyRelatedField(queryset = Booking.objects.all())

@@ -3,8 +3,12 @@ import json
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        user = self.scope.get("user")
-        self.room_group_name = "chat_room"
+        
+        self.user = self.scope.get("user")
+        if(self.user.role == 2):
+            self.room_group_name = "receptionist"
+        elif (self.user.role == 3):
+            self.room_group_name = self.user.username
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
@@ -13,33 +17,38 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        content = data.get("content", "")
-
+        print("CHECK TEXT DATA:",type(data))
+        print("CHECK USER:",self.user.role)
         # Gửi lại message user
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 "type": "chat_message",
-                "sender": "user",
-                "content": content
+                "role": str(self.user.role),
+                "text": data.get('text', '')
             }
         )
 
-        # Xử lý (giả lập AI response)
-        response = f"AI trả lời: {content[::-1]}"
 
         # Gửi lại message AI
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                "type": "chat_message",
-                "sender": "ai",
-                "content": response
-            }
-        )
+        if(self.user.role != 2):
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "chat_message",
+                    "role": "1",
+                    "text": data.get('text', '')
+                }
+            )
 
     async def chat_message(self, event):
+        from chatbot.views.chatbot import chat_bot_test_socket
+        if(event['role']=='1'):
+            text = await chat_bot_test_socket(event['text'])
+        else:text = event['text']
+        
         await self.send(text_data=json.dumps({
-            "sender": event["sender"],
-            "content": event["content"]
+            "role": event["role"],
+            "text": text,
+            "timestamp":1700046000
         }))

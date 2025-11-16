@@ -45,7 +45,7 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
   showCloseButton:boolean = false;
 
   crrHotel:string = 'fqrmuqqnqu' ;
-  date = new Date();
+  date:Date = new Date();
   getCurrentDateString = getCurrentDateString;
   listImageExploreHotel = [
     'assets/images/explore-hotel/images_1.jpg', 'assets/images/explore-hotel/images_2.jpg', 'assets/images/explore-hotel/images_3.jpg'
@@ -105,8 +105,10 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
     this.activeRouter.queryParams.subscribe(param=>{
       console.log("parma:", param)
       this.searchData = { ...param };
-      this.date = parseDate(this.searchData.checkin)
-      this.checkOutDateObj = parseDate(this.searchData.checkout)
+      if(this.searchData.checkin && this.searchData.checkout){
+        this.date = parseDate(this.searchData.checkin)
+        this.checkOutDateObj = parseDate(this.searchData.checkout)
+      }
       this.crrHotel = param['hotel']
       let i = 0;
       const rooms =[];
@@ -272,7 +274,7 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
   booking(){
     const queryParams: { [key: string]: any } = {};
 
-    queryParams.hotel = this.hotel_data.name; // 🔹 thay dest bằng hotel
+    queryParams.hotel = this.hotel_data?.name; // 🔹 thay dest bằng hotel
     queryParams.checkin = this.checkInDate;
     queryParams.checkout = this.checkOutDate;
     queryParams.code = '';

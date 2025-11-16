@@ -24,53 +24,7 @@
         }"
         class="flex flex-col w-full gap-2"
     >
-        <ng-container *ngIf="config.urlFile.length > 0">
-            <div
-                [ngClass]="{
-                    'flex gap-1': config.urlFile.length > 1,
-
-                    'justify-end': config.position === 'right',
-                    'justify-start': config.position === 'left'
-                }"
-                class="flex-wrap justify-end"
-            >
-                <ng-container *ngFor="let i of config.urlFile">
-                    <div
-                        [ngClass]="{
-                            ' text-[#323232]': config.position === 'right',
-                            'text-white': config.position === 'left',
-                            'p-4':
-                                config.urlFile && config.urlFile.length === 0,
-                            'rounded-xl': true,
-                            border: true,
-                            'border-gray-200': true
-                        }"
-                        class="transition-transform duration-200 transform"
-                    >
-                        <div
-                            [ngClass]="{
-                                'max-w-60 w-full': config.urlFile.length === 1,
-                                'w-30 h-30': config.urlFile.length > 1
-                            }"
-                            class="flex overflow-hidden rounded-xl"
-                        >
-                            <img
-                                [src]="i"
-                                [ngClass]="{
-                                    'max-w-100 max-h-[12.5rem] object-cover':
-                                        config.urlFile.length === 1,
-                                    'max-w-100 max-h-100 object-cover':
-                                        config.urlFile.length > 1
-                                }"
-                                (load)="loadImage.emit()"
-                                class="block mx-auto rounded-xl"
-                            />
-                        </div>
-                    </div>
-                </ng-container>
-            </div>
-        </ng-container>
-        <ng-template #lenghtUrlFileGtOne></ng-template>
+        
         <ng-container *ngIf="config.text">
             <div
                 [ngClass]="{

@@ -255,27 +255,44 @@ export const appRoutes: Route[] = [
                     },
                     {
                         path: routeConfig.HOTEL,
-                        data: { title: 'destination.title' },
+                        data: { title: 'hotel.title' },
                         loadChildren: () =>
                             import('app/modules/admin/hotel/hotel.routes'),
                     },
                     {
                         path: routeConfig.ROOM_TYPE,
-                        data: { title: 'destination.title' },
+                        data: { title: 'room_type.title' },
                         loadChildren: () =>
                             import('app/modules/admin/roomtype/roomtype.routes'),
                     },
                     {
                         path: routeConfig.ROOM,
-                        data: { title: 'destination.title' },
+                        data: { title: 'room.title' },
                         loadChildren: () =>
                             import('app/modules/admin/room/room.routes'),
                     },
                     {
                         path: routeConfig.AMENITY,
-                        data: { title: 'destination.title' },
+                        data: { title: 'amenity.title' },
                         loadChildren: () =>
                             import('app/modules/admin/amenity/amenity.routes'),
+                    },
+                    {
+                        path: routeConfig.OFFER,
+                        data: { title: 'offer.title' },
+                        loadChildren: () =>
+                            import('app/modules/admin/offer/offer.routes'),
+                    },
+                    {
+                        path: routeConfig.BOOKING,
+                        data: { title: 'booking.title' },
+                        loadChildren: () =>
+                            import('app/modules/admin/booking/booking.route'),
+                    },{
+                        path: routeConfig.SERVICE,
+                        data: { title: 'service.title' },
+                        loadChildren: () =>
+                            import('app/modules/admin/service/service.route'),
                     },
                     {
                         path: routeConfig.ADMIN_FEEDBACK,

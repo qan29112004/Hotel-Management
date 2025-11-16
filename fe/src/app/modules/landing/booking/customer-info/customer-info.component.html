@@ -25,7 +25,7 @@
             />
             <small *ngIf="isSubmitted && bookingForm.get('email')?.invalid" class="text-red-500">Vui lòng nhập email</small>
           </div>
-          <app-select-country (countryName)="selectCountry($event)" [isValidSubmit]="isSubmitted && bookingForm.get('country')?.invalid"></app-select-country>
+          <app-select-country [isAccessFromAdminPage]="true" (countryName)="selectCountry($event)" [isValidSubmit]="isSubmitted && bookingForm.get('country')?.invalid"></app-select-country>
           
           <app-phone-input (phoneNumberEmit)="selectedPhone($event)" [isValidSubmit]="isSubmitted && bookingForm.get('phone')?.invalid"> </app-phone-input>
           

@@ -69,22 +69,46 @@ class FilterItem:
             is_date_field = False
             print(f"[DEBUG] Field Info: Defaulting to is_text_field={is_text_field}")
             
-        # XỬ LÝ RANGE
+        # XỬ LÝ RANGE (ngày, số, timestamp, ...)
         if self.option == OptionChoices.RANGE:
             if not isinstance(self.value, list) or len(self.value) != 2:
                 raise AppException(ErrorCodes.INVALID_FILTER_FIELD_CHOICE)
-            
-            # dt_parser = DateTimeField()
+
+            import re
+            from datetime import datetime, timedelta
+
+            def parse_value(v):
+                """Tự động parse kiểu dữ liệu cho RANGE."""
+                # Nếu là số (int/float) → dùng trực tiếp
+                if isinstance(v, (int, float)):
+                    return v
+
+                # Nếu là dạng số nhưng kiểu string → convert
+                if isinstance(v, str) and re.fullmatch(r"^-?\d+(\.\d+)?$", v):
+                    return float(v) if "." in v else int(v)
+
+                # Nếu là ngày YYYY-MM-DD → convert sang timestamp
+                if isinstance(v, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", v):
+                    dt = datetime.strptime(v, "%Y-%m-%d")
+                    return dt.timestamp()
+
+                # Nếu là datetime ISO 2025-11-15T10:20:30
+                try:
+                    dt = datetime.fromisoformat(v)
+                    return dt.timestamp()
+                except:
+                    pass
+
+                raise AppException(ErrorCodes.INVALID_FILTER_FIELD_CHOICE, detail=f"Invalid RANGE value: {v}")
 
             try:
-                start_raw, end_raw = self.value[0], self.value[1]
-                start =  datetime.strptime(start_raw, "%Y-%m-%d").timestamp()
-                end = datetime.strptime(end_raw, "%Y-%m-%d").timestamp()
+                start = parse_value(self.value[0])
+                end = parse_value(self.value[1])
 
-                # Nếu người dùng chỉ nhập ngày (không có giờ), cộng thêm 1 ngày cho end
-                if isinstance(end_raw, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", end_raw):
-                    end_dt = datetime.fromtimestamp(end) + timedelta(days=1)
-                    end = end_dt.timestamp()
+                # Nếu user dùng YYYY-MM-DD cho end → cộng 1 ngày để inclusive
+                if isinstance(self.value[1], str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", self.value[1]):
+                    end = (datetime.fromtimestamp(end) + timedelta(days=1)).timestamp()
+
             except Exception as e:
                 raise AppException(ErrorCodes.INVALID_FILTER_FIELD_CHOICE, detail=str(e))
 
@@ -259,7 +283,10 @@ class Querykit:
         sort_rule: SortItem = None,
     ):
         self.page_index = page_index
-        self.page_size = page_size
+        if page_size is None or page_size <= 0:
+            self.page_size = None
+        else:
+            self.page_size = page_size
         self.filter_rules = filter_rules if filter_rules else []
         self.search_rule = search_rule if search_rule else None
         self.sort_rule = sort_rule if sort_rule else None
@@ -296,6 +323,11 @@ class Querykit:
 
     # Queryset passed to this function must have .order_by() to prevent inconsistent pagination result.
     def get_paginated_data(self, queryset: QuerySet):
+        if self.page_size is None:
+            return {
+                "queryset": queryset,
+                "count": queryset.count()
+            }
         if not queryset.query.order_by:
             queryset = queryset.order_by("-created_at")  # 'id': ASC ; '-id': DESC (reverse)
         paginator = Paginator(queryset, self.page_size)
@@ -304,6 +336,13 @@ class Querykit:
         return {"page": page, "count": count}
 
     def get_paginated_queryset(self, queryset: QuerySet):
+        # Không phân trang khi page_size is None
+        if self.page_size is None:
+            return {
+                "page": queryset,      # trả full queryset
+                "count": queryset.count()
+            }
+
         if not queryset.query.order_by:
             queryset = queryset.order_by("-created_at")
 

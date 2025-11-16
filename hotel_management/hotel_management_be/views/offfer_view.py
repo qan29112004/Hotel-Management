@@ -30,7 +30,8 @@ from utils.utils import Utils
 @api_view(['POST'])
 def add_offer(request):
     try:
-        
+        if(request.data.get('images')):
+            request.data['images']= Utils.upload_thumnail(request,'images')
         serializers = OfferSerializer(data=request.data, context={'request':request})
         if serializers.is_valid():
             new_offer = serializers.save(created_by = request.user)
@@ -49,7 +50,13 @@ def offer_detail(request, uuid):
         offer = Offer.objects.get(uuid__icontains=uuid)
 
         if request.method == 'PATCH':
-            
+            deleted_thumbnail = Utils.get_path_from_url(request.data.get('deleted_thumbnail'))
+            if deleted_thumbnail and deleted_thumbnail == offer.images:
+                default_storage.delete(deleted_thumbnail.replace('/media/', ''))
+                offer.images = None
+            if 'images' in request.data:
+                images = Utils.upload_thumnail(request, 'images')
+                request.data['images'] = images
             serializer = OfferSerializer(offer, data=request.data, partial=True)
             if serializer.is_valid():
                 with transaction.atomic():
@@ -58,6 +65,8 @@ def offer_detail(request, uuid):
             return AppResponse.error(ErrorCodes.UPDATE_AMENITY_FAIL, serializer.errors)
 
         elif request.method == 'DELETE':
+            if offer.images not in [None, '']:
+                default_storage.delete(offer.images.replace('/media/', ''))
             offer.delete()
             return AppResponse.success(SuccessCodes.DELETE_AMENITY)
 

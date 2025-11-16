@@ -146,9 +146,9 @@
                                         </div>
                                     </span>
                                 </th>
-                                <th class="th-cell">
+                                <!-- <th class="th-cell">
                                     {{ t("room_type.description") }}
-                                </th>
+                                </th> -->
 
                                 
                                 <th
@@ -193,13 +193,13 @@
 
                                 <th class="th-cell">
                                     <!-- {{ t("user_management.updated_at") }} -->
-                                    {{ t("room_type.maxOccupancy") }}
+                                    {{ t("room_type.max_occupancy") }}
                                 </th>
                                 <th class="th-cell">
                                     {{ t("room_type.thumbnail") }}
                                 </th>
                                 <th class="th-cell">
-                                    {{ t("room_type.base_price") }}
+                                    {{ t("room_type.price") }}
                                 </th>
                                 
                                 <th class="th-cell">
@@ -249,15 +249,16 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="td-cell">
-                                    <div
+                                <!-- <td class="td-cell">
+                                    <markdown
+                                        [data]="room_type.description || '---'"
                                         (click) = "toggleEditUserDrawer(room_type)" 
                                         class="overflow-hidden font-semibold cursor-pointer text-ellipsis whitespace-nowrap"
                                         [title]="room_type.description || ''"
                                     >
-                                        {{ room_type.description || "---" }}
-                                    </div>
-                                </td>
+                                        
+                                    </markdown>
+                                </td> -->
                                 <td class="td-cell whitespace-nowrap">
                                     <p>{{ formatDateTimeUnix(room_type.createdAt) }}</p>
                                 </td>
@@ -277,7 +278,7 @@
                                     </p>
                                 </td>
                                 <td class="td-cell whitespace-nowrap">
-                                    <p>{{ room_type.maxOccupancy }}</p>
+                                    <p>{{ room_type.max_occupancy }}</p>
                                 </td>
                                 <td class="td-cell whitespace-nowrap">
                                     <img 

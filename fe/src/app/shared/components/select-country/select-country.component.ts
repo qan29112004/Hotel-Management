@@ -26,6 +26,12 @@ export class SelectCountryComponent implements OnInit, OnDestroy {
   isDropdownOpen = signal<boolean>(false);
   @Output() countryName = new EventEmitter<string>();
   @Input() isValidSubmit:boolean;
+  @Input() isAccessFromAdminPage:boolean;
+  @Input() set country(value: Country | null) {
+    if (value) {
+      this.selectedCountry.set(value);
+    }
+  }
 
   private debounceSearch = new Subject<string>();
   private destroy = new Subject<any>();

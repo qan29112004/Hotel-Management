@@ -1,7 +1,7 @@
 <div class="w-full">
   <div class="bg-white">
     <span class="block text-[#787878] font-avenir text-[10px] tracking-[1px] uppercase font-bold"
-      [ngClass]="{'text-red-500':isValidSubmit}"
+      [ngClass]="{'text-red-500':isValidSubmit, 'hidden':!isAccessFromAdminPage}"
     >booking.phone</span>
 
     <div class="relative flex border border-[#d4d4d4] h-[50px]">

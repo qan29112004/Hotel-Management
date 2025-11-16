@@ -9,6 +9,7 @@ from channels.db import database_sync_to_async
 
 User = get_user_model()
 
+@database_sync_to_async
 def get_user_from_token(token):
     try:
         UntypedToken(token)

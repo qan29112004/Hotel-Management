@@ -186,5 +186,23 @@ export const uriConfig = {
     API_SSE : (session_id:string)=> baseUrl + `/api/sse/session/${session_id}/`,
 
     //websocket
-    WEBSOCKET_URL : 'ws://localhost:8000/ws/chat/'
+    WEBSOCKET_URL : 'ws://localhost:8000/ws/chat/',
+
+    //offer
+    API_OFFER_ALL: baseUrl + '/api/offer/list/',
+    API_OFFER_UPDATE: (uuid:string) => baseUrl + `/api/offer/${uuid}/`,
+    API_OFFER_DELETE: (uuid:string) => baseUrl + `/api/offer/${uuid}/`,
+    API_OFFER_CREATE: baseUrl + '/api/offer/',
+
+    //booking
+    API_BOOKING_ALL: baseUrl + '/api/booking/list/',
+    API_BOOKING_UPDATE: (uuid:string) => baseUrl + `/api/booking/${uuid}/`,
+    API_BOOKING_DELETE: (uuid:string) => baseUrl + `/api/booking/${uuid}/`,
+    API_BOOKING_CREATE: baseUrl + '/api/booking/',
+
+    //service
+    API_SERVICE_ALL: baseUrl + '/api/service/list/',
+    API_SERVICE_UPDATE: (uuid:string) => baseUrl + `/api/service/${uuid}/`,
+    API_SERVICE_DELETE: (uuid:string) => baseUrl + `/api/service/${uuid}/`,
+    API_SERVICE_CREATE: baseUrl + '/api/service/',
 };

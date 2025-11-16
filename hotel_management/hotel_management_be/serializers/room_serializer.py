@@ -18,7 +18,7 @@ class RoomSerializer(serializers.ModelSerializer):
     images_upload = serializers.ListField(child=serializers.FileField(), write_only=True, required=False)
     class Meta:
         model = Room
-        fields = ['uuid', 'room_number', 'status', 'floor', 'room_type_id','images_upload']
+        fields = ['uuid', 'room_number', 'status', 'floor',"housekeeping_status", 'room_type_id','images_upload']
         
     def create(self, validated_data):
         images_upload = validated_data.pop('images_upload', [])
@@ -50,7 +50,7 @@ class RoomListSerializer(serializers.ModelSerializer):
     updated_by = serializers.SerializerMethodField()
     class Meta:
         model = Room
-        fields = ['uuid', 'room_number', 'status', 'floor', 'room_type_id','images','created_at','created_by', 'updated_at', 'updated_by']
+        fields = ['uuid', 'room_number', 'status', 'floor', 'room_type_id', "housekeeping_status",'images','created_at','created_by', 'updated_at', 'updated_by']
     
     def get_updated_by(self, obj):
         return {

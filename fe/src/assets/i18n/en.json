@@ -53,7 +53,9 @@
             "address": "Address must not exceed 255 characters.",
             "news_required": "News must have content, image or attachment",
             "empty": "No data available",
-            "industry": "Industry is required"
+            "industry": "Industry is required",
+            "size":"Invalid size value",
+            "base_price":"Invalid base price value"
         },
         "default": "An error occurred. Please try again later.",
         "undefined": "An error occurred. Please try again later.",
@@ -108,7 +110,13 @@
             "feedback": "FeedBack management",
             "management_user": "User Management",
             "management": "Management",
-            "destination":"Destination"
+            "destination":"Destination",
+            "room":"Room",
+            "room_type":"Room Type",
+            "hotel":"Hotel",
+            "amenity":"Amenity",
+            "offer":"Offer",
+            "booking":"Booking"
         },
         "mod": {
             "app_type": "App Type",
@@ -1124,10 +1132,40 @@
         
     },
 
+    "room":{
+        "title":"Room"
+    },
+
+    "room_type":{
+        "name": "Room Name",
+        "detail": "Detail",
+        "description": "Description",
+        "phone": "Phone",
+        "total_rooms": "Total Rooms",
+        "thumbnail": "Thumbnail",
+        "images": "Images",
+        "hotel": "Hotel",
+        "price": "Price",
+        "size": "Size",
+        "amenity": "Amenity",
+        "max_occupancy": "Max Occupancy"
+    },
+
     "phone_input":{
         "check":{
             "valid":"Valid phone number",
             "invalid":"Invalid phone number"
+        },
+        "placeholder_find_country":"Find country.."
+    },
+    "offer":{
+        "title":"Offer"
+    },
+    "booking":{
+        "title":"Booking",
+        "check":{
+            "valid":"Valid number phone",
+            "invalid":"Invalid number phone"
         },
         "placeholder_find_country":"Find country.."
     }

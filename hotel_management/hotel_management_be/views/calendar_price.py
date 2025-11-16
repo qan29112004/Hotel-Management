@@ -24,9 +24,12 @@ def get_calendar_prices(request):
     from hotel_management_be.celery_hotel.task import compute_hotel_calendar_prices
     hotel_id = request.data.get('hotel_id')
     crr_date = request.data.get('crr_date')
+    rooms = request.data.get('rooms',[])  
+    room_requirements = [room['adults'] + room['children'] for room in rooms]
+    count_children = sum([room['children'] for room in rooms])
     year_month = "-".join(crr_date.split('-')[:2])
     redis_key = f"hotel:{hotel_id}:calendar_prices:{year_month}"
-
+    print("check total guest and children", sum(room_requirements), count_children)
     # 1️⃣ Kiểm tra cache trong Redis
     cached_data = RedisWrapper.get(redis_key)
     if cached_data:
@@ -55,6 +58,6 @@ def get_calendar_prices(request):
 
     # 3️⃣ Nếu DB chưa có → tạm tính runtime và trigger Celery
     # compute_hotel_calendar_prices.delay(hotel_id, selected_date)
-    data = Utils.compute_calendar_runtime(hotel_id, selected_date)
+    data = Utils.compute_calendar_runtime(hotel_id, selected_date, sum(room_requirements), count_children)
     RedisWrapper.save(redis_key, data, 600)
     return AppResponse.success(SuccessCodes.CALENDAR_PRICE,data)

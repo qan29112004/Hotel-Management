@@ -24,7 +24,7 @@ import { GenericAddComponent } from 'app/shared/components/generic-components';
 import { GenericFilterComponent, FieldFilterConfig } from 'app/shared/components/generic-components';
 import { GenericDeleteComponent } from 'app/shared/components/generic-components';
 import { FieldConfig } from 'app/core/admin/destination/destination.type';
-import { map, Observable, Subject, takeUntil } from 'rxjs';
+import { map, Observable, Subject, takeUntil, debounceTime } from 'rxjs';
 import { UserService } from 'app/core/profile/user/user.service';
 import { User } from 'app/core/profile/user/user.types';
 import { environment } from 'environments/environment.fullstack';
@@ -97,6 +97,9 @@ export class RoomComponent {
   optionsRoomType:any = [];
   radioAmenityOptions:any = [];
 
+  private debounceSearch = new Subject<string>();
+  private destroy$ = new Subject<any>();
+
   fields: FieldConfig[] =[
     {
         name: 'uuid',
@@ -119,6 +122,11 @@ export class RoomComponent {
         labelKey: 'room.status',
         type: 'select',
         placeholderKey: 'room.status',
+        options: [
+            { id: 'Available', name: 'Available' },
+            { id: 'Booked', name: 'Booked' },
+            { id: "Maintenance", name:"Maintenance"}
+        ],
         required: true,
         
     },
@@ -135,6 +143,11 @@ export class RoomComponent {
         name: 'housekeepingStatus',
         labelKey: 'room.housekeeping_status',
         type: 'select',
+        options: [
+            { id: 'Cleaned', name: 'Cleaned' },
+            { id: 'Dirty', name: 'Dirty' },
+            { id: 'In Progress', name: 'In Progress' }
+        ],
         placeholderKey: 'room.housekeeping_status',
     },
     {
@@ -172,12 +185,6 @@ export class RoomComponent {
         
     },
     {
-        name: 'housekeeping_status',
-        labelKey: 'room.housekeeping_status',
-        type: 'select',
-        placeholderKey: 'room.housekeeping_status',
-    },
-    {
         name: 'images',
         labelKey: 'room.images',
         type: 'files',
@@ -207,6 +214,11 @@ export class RoomComponent {
         name: 'housekeeping_status',
         labelKey: 'room.housekeeping_status',
         type: 'select',
+        options: [
+            { id: 'Cleaned', name: 'Cleaned' },
+            { id: 'Dirty', name: 'Dirty' },
+            { id: 'In Progress', name: 'In Progress' }
+        ],
         placeholderKey: 'room.housekeeping_status',
     },
     {
@@ -222,11 +234,9 @@ export class RoomComponent {
         labelKey: 'room_type.status',
         type: 'select',
         options: [
-            { id: 'Live', name: 'Live' },
-            { id: 'Draft', name: 'Draft' },
-            { id: 'Rejected', name: 'Rejected' },
-            { id: 'Disabled', name: 'Disabled' },
-            { id: 'In Preview', name: 'In Preview' },
+            { id: 'Available', name: 'Available' },
+            { id: 'Booked', name: 'Booked' },
+            { id: "Maintenance", name:"Maintenance"}
         ],
         placeholderKey: 'room_type.selectStatus',
     },
@@ -247,6 +257,14 @@ export class RoomComponent {
   
   ngOnInit(): void {
       this.loadRooms();
+
+      this.debounceSearch.pipe(
+        debounceTime(500),
+        takeUntil(this.destroy$)
+      ).subscribe(value=>{
+        this.loadRooms();
+      })
+
       this.amenityService.getAmenities().pipe(
         map(amenities => {
   
@@ -353,7 +371,7 @@ export class RoomComponent {
   
     onSearch(): void {
       this.currentPage = 1;
-      this.loadRooms();
+      this.debounceSearch.next(this.searchTerm);
     }
   
     clearSearch(): void {
@@ -397,7 +415,7 @@ export class RoomComponent {
     }
     getSearchRule(): any {
       const defaultSearchFields = {
-          fields: ['name', 'uuid'],
+          fields: ['room_number'],
           option: 'contains',
           value: this.searchTerm.trim(),
       };

@@ -163,6 +163,26 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
             this.crrUser = user;
             
         })
+        this._router.events.pipe(
+            filter((event) => {
+                return event instanceof NavigationEnd || (event instanceof Scroll && event.routerEvent instanceof NavigationEnd);
+            }),
+            takeUntil(this._unsubscribeAll)
+        )
+        .subscribe(event => {
+            console.log('Router event:', event);
+            if (event instanceof Scroll) {
+            const routerEvent = event.routerEvent;
+
+            if (routerEvent instanceof NavigationEnd) {
+                console.log('NavigationEnd (from Scroll):', routerEvent);
+                console.log('URL:', routerEvent.urlAfterRedirects);
+                const currentUrl = routerEvent.urlAfterRedirects;
+                this.isAdminPage = currentUrl.includes('/admin/');
+                console.log('isAdminPage:', this.isAdminPage);
+                this.updateIsAccessChat(currentUrl)
+            }
+        }});
         this._navigationService.navigation$.subscribe((navigation)=>{
         
                 let includeIds = ['home-page', 'news-feed', 'marketplace', 'list-app', 'destination'];
@@ -377,6 +397,11 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
     resetChatButtonPosition(): void {
         this._wasDragging = false;
         this.updateChatButtonPosition();
+    }
+    @HostListener('window:scroll', [])
+    onWindowScroll() {
+        const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+        this.isScrollDown = scrollY > 1; // thay đổi ngưỡng tùy bạn
     }
 
     private updateChatButtonPosition(): void {

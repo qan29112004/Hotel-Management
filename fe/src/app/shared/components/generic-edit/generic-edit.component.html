@@ -14,7 +14,7 @@
         <form 
             *transloco="let t"
             
-            class="w-full h-full shadow-md flex flex-col animated-box-content"
+            class="flex flex-col w-full h-full shadow-md animated-box-content"
             [formGroup]="editFormGroup"
             #editForm="ngForm"
         >
@@ -28,8 +28,8 @@
             </div>
 
             <!-- Form Scrollable Content -->
-            <div class="flex-1 overflow-y-auto p-2 bg-white border border-gray-200">
-                <div class="flex flex-col p-3 bg-card overflow-hidden space-y-1">
+            <div class="flex-1 p-2 overflow-y-auto bg-white border border-gray-200">
+                <div class="flex flex-col p-3 space-y-1 overflow-hidden bg-card">
                     <fuse-alert
                         class="mb-2"
                         *ngIf="showAlert"
@@ -38,7 +38,7 @@
                         [type]="alert.type"
                         [@shake]="alert.type === 'error'"
                     >
-                        <ul class="list-disc pl-4">
+                        <ul class="pl-4 list-disc">
                             <li *ngFor="let code of alert.code">
                                 {{ t(code) }}
                             </li>
@@ -100,7 +100,39 @@
                                 <mat-icon>expand_more</mat-icon>
                             </button>
                         </mat-form-field>
+                        <!-- Textarea -->
+                        <mat-form-field
+                            *ngIf="field.type === 'textarea'"
+                            floatLabel="always"
+                            class="w-full fuse-mat-dense"
+                        >
+                            <mat-label>{{ t(field.labelKey) }}</mat-label>
+                            <textarea
+                                matInput
+                                [id]="field.name"
+                                [formControlName]="field.name"
+                                [placeholder]="field.placeholderKey ? t(field.placeholderKey) : ''"
+                                [required]="field.required"
+                                rows="4"
+                            ></textarea>
+                            <mat-error
+                                *ngIf="editFormGroup.get(field.name)?.hasError('required')"
+                            >
+                                {{ t(field.errorMessages?.required || 'errors.fields.required') }}
+                            </mat-error>
+                        </mat-form-field>
 
+                        <ng-container *ngIf="field.type === 'country'">
+                            <label>{{ t(field.labelKey) }}</label>
+                            <app-select-country [isAccessFromAdminPage]="false" [country]='userCountry'
+                                (countryName)="selectCountry($event, field.name)"
+                            ></app-select-country>
+
+                            <div class="text-sm text-red-500" *ngIf="editFormGroup.get(field.name)?.invalid">
+                                {{ t(field.errorMessages?.invalid || 'errors.fields.invalid') }}
+                            </div>
+                        </ng-container>
+                        
                         <!-- Date Input -->
                         <mat-form-field
                             *ngIf="field.type === 'date'"
@@ -128,7 +160,7 @@
                         <!-- Radio Input -->
                         <div
                             *ngIf="field.type === 'radio'"
-                            class="w-full fuse-mat-dense flex flex-col"
+                            class="flex flex-col w-full fuse-mat-dense"
                         >
                             <mat-label>{{ t(field.labelKey) }}</mat-label>
                             <mat-radio-group
@@ -206,7 +238,7 @@
                                 (click)="fileInput.click()"
                                 class="mt-2"
                             >
-                                {{ t('common.upload') }} {{ field.type === 'files' ? t('common.files') : t('common.file') }}
+                                {{ t(field.labelKey) }} 
                             </button>
 
                             <!-- Preview grid -->
@@ -240,19 +272,19 @@
 
             <!-- Footer -->
             <div
-                class="p-4 bg-gray-100 border-t border-gray-200 w-full flex items-center"
+                class="flex items-center w-full p-4 bg-gray-100 border-t border-gray-200"
             >
                 <button
                     (click)="onToggleClick()"
                     type="button"
-                    class="w-auto border border-red-500 bg-white text-primary px-4 py-2 rounded font-bold text-base"
+                    class="w-auto px-4 py-2 text-base font-bold bg-white border border-red-500 rounded text-primary"
                 >
                     <span class="text-red-500">{{ t('common.cancel') }}</span>
                 </button>
                 <button
                     (click)="save()"
                     type="submit"
-                    class="w-auto bg-primary text-white px-4 py-2 ml-3 rounded font-bold text-base"
+                    class="w-auto px-4 py-2 ml-3 text-base font-bold text-white rounded bg-primary"
                 >
                     {{ t('other.update') }}
                 </button>

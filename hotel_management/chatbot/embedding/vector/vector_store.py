@@ -2,19 +2,42 @@ import chromadb
 from chromadb.config import Settings
 from typing import List, Dict
 from django.conf import settings
+import threading
 
 class VectorStore:
     """Quản lý ChromaDB"""
+    _instance = None
+    _lock = threading.Lock()
+    _client = None
+    
+    def __new__(cls):
+        """Singleton pattern - chỉ tạo một instance duy nhất"""
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super(VectorStore, cls).__new__(cls)
+        return cls._instance
     
     def __init__(self):
-        self.client = chromadb.PersistentClient(
-            path=settings.CHROMA_PATH,
-            settings=Settings(anonymized_telemetry=False)
-        )
+        if VectorStore._client is None:
+            with self._lock:
+                if VectorStore._client is None:
+                    client = chromadb.PersistentClient(
+                        path=settings.CHROMA_PATH,
+                        settings=Settings(anonymized_telemetry=False)
+                    )
+                    VectorStore._client = client
+        self._client = VectorStore._client
         self.collection = self.client.get_or_create_collection(
             name="knowledge_base",
             metadata={"hnsw:space": "cosine"}
         )
+    @property
+    def client(self):
+        """Get model instance - đảm bảo model đã được load"""
+        if VectorStore._client is None:
+            self.__init__()
+        return VectorStore._client
         
     
     def add_documents(self, documents: List[Dict]):

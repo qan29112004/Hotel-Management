@@ -3,7 +3,7 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from hotel_management_be.models.hotel import *
 from hotel_management_be.models.offer import Offer
-from hotel_management_be.models.booking import Payment
+from hotel_management_be.models.booking import Payment, HoldRecord
 from .celery_hotel.task import compute_hotel_calendar_prices
 from datetime import date
 from libs.Redis import RedisWrapper
@@ -79,8 +79,10 @@ def trigger_calendar_recompute(hotel):
     RedisWrapper.remove_by_prefix(redis_key)
     logger.info(f"[RECOMPUTE] Hotel {hotel.uuid}")
     
-@receiver(post_save, sender=Payment)
+@receiver(pre_save, sender=Room)
 def payment_update_paid(sender, instance, **kwargs):
-    if(instance.status == "PAID"):
-        pass
-    pass
+    old_room = Room.objects.get(uuid = instance.uuid)
+    if(instance.housekeeping_status == "In Progress"):
+        instance.status = "Maintenance"
+    elif(instance.housekeeping_status == "Cleaned"):
+        instance.status = "Available"

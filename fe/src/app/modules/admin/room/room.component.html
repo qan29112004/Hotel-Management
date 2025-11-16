@@ -187,13 +187,74 @@
                                         </div>
                                     </span>
                                 </th>
-                                <th class="th-cell">
-                                    {{ t("user_management.updated_at") }}
+                                <th
+                                    class="cursor-pointer th-cell"
+                                    (click)="sortBy('updated_at')"
+                                    [ngClass]="{
+                                        'bg-primary-100':
+                                            sortField === 'updated_at'
+                                    }"
+                                >
+                                    <span class="flex items-center">
+                                        {{ t("user_management.updated_at") }}
+                                        <div class="flex flex-col ml-2">
+                                            <mat-icon
+                                                class="w-3 h-2 min-w-3 min-h-2"
+                                                *ngIf="
+                                                    sortField !== 'updated_at' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                "
+                                                fontIcon="arrow_drop_up"
+                                            >
+                                            </mat-icon>
+                                            <mat-icon
+                                                class="w-3 h-2 min-w-3 min-h-2"
+                                                *ngIf="
+                                                    sortField !== 'updated_at' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                "
+                                                fontIcon="arrow_drop_down"
+                                            >
+                                            </mat-icon>
+                                        </div>
+                                    </span>
                                 </th>
 
-                                <th class="th-cell">
-                                    <!-- {{ t("user_management.updated_at") }} -->
-                                    {{ t("room.floor") }}
+                                <th
+                                    class="cursor-pointer th-cell"
+                                    (click)="sortBy('floor')"
+                                    [ngClass]="{
+                                        'bg-primary-100':
+                                            sortField === 'floor'
+                                    }"
+                                >
+                                    <span class="flex items-center">
+                                        {{ t("room.floor") }}
+                                        <div class="flex flex-col ml-2">
+                                            <mat-icon
+                                                class="w-3 h-2 min-w-3 min-h-2"
+                                                *ngIf="
+                                                    sortField !== 'floor' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'asc'
+                                                "
+                                                fontIcon="arrow_drop_up"
+                                            >
+                                            </mat-icon>
+                                            <mat-icon
+                                                class="w-3 h-2 min-w-3 min-h-2"
+                                                *ngIf="
+                                                    sortField !== 'floor' ||
+                                                    sortOption === null ||
+                                                    sortOption === 'desc'
+                                                "
+                                                fontIcon="arrow_drop_down"
+                                            >
+                                            </mat-icon>
+                                        </div>
+                                    </span>
                                 </th>
                                 <th class="th-cell">
                                     {{ t("room.housekeeping_status") }}
@@ -270,7 +331,7 @@
                                     </p>
                                     <p>
                                         {{
-                                            room.updatedBy
+                                            room.updatedBy.username
                                                 ? room.updatedBy.username
                                                 : "---"
                                         }}
@@ -280,7 +341,7 @@
                                     <p>{{ room.floor }}</p>
                                 </td>
                                 <td class="td-cell whitespace-nowrap">
-                                    <p>{{room.housekeeping_status}}</p>
+                                    <p>{{room.housekeepingStatus}}</p>
                                 </td>
                                 <td class="td-cell whitespace-nowrap">
                                     <p>{{ room.roomTypeId?.name }}</p>

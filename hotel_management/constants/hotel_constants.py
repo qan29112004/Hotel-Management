@@ -73,3 +73,9 @@ class HotelConstants:
         ("Pending","Pending"),
         ("Fail","Fail")
     )
+    
+    SERVICE_STATUS = (
+        ("Include", "Include"),
+        ("Paid","Paid"),
+        ("Bonus","Bonus")
+    )

@@ -20,12 +20,22 @@ class Offer(BaseModel):
     min_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     amount_days = models.IntegerField(default=0)
+    images = models.CharField(null=True, blank=True, max_length = 200, default='')
     
     
     hotel = models.ForeignKey('hotel_management_be.Hotel', on_delete=models.CASCADE, related_name='offers_hotel', null=True, blank=True)
     
     def __str__(self):
         return self.title
+    
+class Service(BaseModel):
+    uuid  = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
+    name = models.CharField( max_length=50, null=True, blank=True)
+    image = models.CharField(max_length=100,null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    type = models.CharField(max_length=20, default="Include", choices=HotelConstants.SERVICE_STATUS)  # include, paid, bonus...
+    description = models.TextField(null=True, blank=True, default='')
+    
     
     
 class RatePlan(BaseModel):
@@ -34,13 +44,14 @@ class RatePlan(BaseModel):
     description = models.TextField(blank=True, null=True)
     price_modifier = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    need_login = models.BooleanField(default=False)
     refundable = models.BooleanField(default=False)
     is_breakfast = models.BooleanField(default=False)
     guarantee_policy = models.TextField(null=True, blank=True, default='')
     cancellation_policy = models.TextField(null=True, blank=True, default='')
     
     hotel = models.ForeignKey('hotel_management_be.Hotel', on_delete=models.CASCADE, related_name='rate_plans_hotel', null=True, blank=True)
-    #service
+    services = models.ManyToManyField(Service, related_name="rate_plans", blank=True)
     def __str__(self):
         return self.name
     

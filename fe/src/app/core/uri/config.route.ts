@@ -90,4 +90,9 @@ export const routeConfig = {
 
     //room
     ROOM: 'room',
+
+    OFFER:'offer',
+
+    BOOKING: "booking",
+    SERVICE: 'service'
 };

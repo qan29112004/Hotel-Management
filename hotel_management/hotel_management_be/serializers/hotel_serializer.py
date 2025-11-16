@@ -100,6 +100,29 @@ class RoomTypeCreateSerializer(serializers.ModelSerializer):
         model = RoomType
         fields=['uuid','hotel_id','name','size','max_occupancy', 'base_price','total_rooms', 'description', 'amenity', 'thumbnail', 'images_upload']
     
+    def validate_base_price(self, value):
+        try:
+            # Chuyển giá trị sang số (int hoặc float)
+            number = float(value)
+        except ValueError:
+            raise serializers.ValidationError("Age must be a number")
+        
+        if number < 0:
+            raise serializers.ValidationError("Age must be greater than or equal to 0")
+        
+        return value  # trả về kiểu số
+    def validate_size(self, value):
+        try:
+            # Chuyển giá trị sang số (int hoặc float)
+            number = float(value)
+        except ValueError:
+            raise serializers.ValidationError("Age must be a number")
+        
+        if number < 0:
+            raise serializers.ValidationError("Age must be greater than or equal to 0")
+        
+        return value  # trả về kiểu số
+    
     def create(self, validated_data):
         images_upload = validated_data.pop('images_upload', [])
         amenities_uuids = validated_data.pop('amenity', [])

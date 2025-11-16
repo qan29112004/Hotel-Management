@@ -40,6 +40,7 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
 
   @Input() crrHotel:string = '';
   @Input() isDisplayCalendar:boolean = false;
+  @Input() roomList:any[];
   @Output() selectedDayEmit: EventEmitter<Date> = new EventEmitter<Date>();
   @Output() nextMonth:EventEmitter<string> = new EventEmitter<string>();
   @Output() prevMonth:EventEmitter<string> = new EventEmitter<string>();
@@ -120,11 +121,11 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
   // }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['date'] && !changes['date'].currentValue) {
+    if ((changes['date'] && changes['date'].currentValue) && (changes['roomList'] && changes['roomList'].currentValue)) {
       this.currYear = changes['date'].currentValue.getFullYear();
       this.currMonth = changes['date'].currentValue.getMonth();
       console.log("change")
-      this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(changes['date'].currentValue)}).subscribe(res =>{
+      this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(changes['date'].currentValue), 'rooms':changes['roomList'].currentValue}).subscribe(res =>{
         this.priceList = res.data;
         console.log("this.priceList:" , this.priceList)
         this.renderCalendar();
@@ -133,16 +134,16 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
   }
   ngOnInit(): void {
     console.log("init")
-    if(!this.date){
-      this.date = new Date();
-      this.currMonth  = this.date.getMonth();
-      this.currYear  = this.date.getFullYear();
-      this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(this.date)}).subscribe(res =>{
-        this.priceList = res.data;
-        console.log("this.priceList:" , this.priceList)
-        this.renderCalendar();
-      })
-    }
+    // if(!this.date){
+    //   this.date = new Date();
+    //   this.currMonth  = this.date.getMonth();
+    //   this.currYear  = this.date.getFullYear();
+    //   this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(this.date), 'rooms':this.roomList}).subscribe(res =>{
+    //     this.priceList = res.data;
+    //     console.log("this.priceList:" , this.priceList)
+    //     this.renderCalendar();
+    //   })
+    // }
   }
   ngAfterViewInit(): void {
     this.setupNavigationListeners();
@@ -164,7 +165,7 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
       this.currYear--;
     }
     console.log("prev")
-    this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(new Date(this.currYear, this.currMonth, 1))}).subscribe(res =>{
+    this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(new Date(this.currYear, this.currMonth, 1)), 'rooms':this.roomList}).subscribe(res =>{
       this.priceList = res.data;
       console.log("this.priceList:" , this.priceList)
       this.renderCalendar();
@@ -178,7 +179,7 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
       this.currMonth = 0;
       this.currYear++;
     }console.log("next")
-    this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(new Date(this.currYear, this.currMonth, 1))}).subscribe(res =>{
+    this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(new Date(this.currYear, this.currMonth, 1)),'rooms':this.roomList}).subscribe(res =>{
       this.priceList = res.data;
       console.log("this.priceList:" , this.priceList)
       this.renderCalendar();

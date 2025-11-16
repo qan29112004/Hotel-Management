@@ -185,7 +185,7 @@ class Utils:
         return percentage
     
     @staticmethod
-    def compute_calendar_runtime(hotel_id, selected_date):
+    def compute_calendar_runtime(hotel_id, selected_date, total_guest, amount_children):
         from hotel_management_be.models.hotel import Hotel
         from hotel_management_be.models.offer import PriceRule
         from datetime import date, timedelta, datetime
@@ -212,9 +212,9 @@ class Utils:
         result = []
         for i in range((last_day - first_day).days + 1):
             d = first_day + timedelta(days=i)
-            final_price = base_price
+            final_price = base_price * Decimal(total_guest) * Decimal((0.9 * amount_children)) if amount_children > 0 else base_price * Decimal(total_guest)
             if Utils.get_offer_multiplier(hotel) != 0:
-                final_price = base_price * Utils.get_offer_multiplier(hotel)
+                final_price *= Utils.get_offer_multiplier(hotel)
             
             
             if d.weekday() >=5:
@@ -230,7 +230,7 @@ class Utils:
         return result
     
     @staticmethod
-    def compute_price_per_night(rate_plan, room_types, check_in, check_out):
+    def compute_price_per_night(rate_plan, room_types, check_in, check_out, amount_chilren=1, total_guest=1):
         from decimal import Decimal
         from datetime import timedelta
         from hotel_management_be.serializers.rate_plan_serializer import RatePlanSerializer
@@ -270,10 +270,13 @@ class Utils:
             for rp in rate_plan:
                 rp_data = rate_plan_data[rp.uuid]
                 offer_mul = offer_mul_cache[rp.hotel_id]
-
+                included_services = rp.services.filter(type="include")
+                included_service_total = sum([
+                    Decimal(s.price or 0) for s in included_services
+                ]) if included_services else 0
                 price_list = []
                 for day, mul in date_multipliers.items():
-                    final_price = base_price * mul * offer_mul
+                    final_price = base_price *total_guest * mul * offer_mul * Decimal(0.9 * amount_chilren) + included_service_total if amount_chilren > 0 else base_price * mul * offer_mul *total_guest + included_service_total
                     price_list.append({"date": day.isoformat(), "price": str(final_price)})
 
                 room_info["rate"].append({**rp_data, "price": price_list})

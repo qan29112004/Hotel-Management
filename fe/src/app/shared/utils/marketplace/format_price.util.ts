@@ -11,6 +11,6 @@ export function formatPrice(value: number | string): string {
     } else {
         // Có phần thập phân
         const [integerPart, decimalPart] = num.toString().split(".");
-        return `${Number(integerPart).toLocaleString("vi-VN")},${decimalPart}`;
+        return `${Number(integerPart).toLocaleString("vi-VN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
 }

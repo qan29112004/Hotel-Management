@@ -208,6 +208,8 @@ def cal_price_per_night(request):
         
         total_rooms_needed = len(rooms)
         room_requirements = [room['adults'] + room['children'] for room in rooms]
+        total_guest = sum(room_requirements)
+        count_children = sum([room['children'] for room in rooms])
         check_in_date =  datetime.strptime(check_in, "%Y-%m-%d").date()
         check_out_date =  datetime.strptime(check_out, "%Y-%m-%d").date()
         hotel = Hotel.objects.prefetch_related('RoomType', 'rate_plans_hotel').get(name=hotel)
@@ -245,7 +247,7 @@ def cal_price_per_night(request):
             _,result_rt = Utils.check_accomodate_roomtype(hotel_availability,room_requirements[int(index_room)], 1)
         rate_plan = hotel.rate_plans_hotel.all()
         response_json = []
-        data = Utils.compute_price_per_night(rate_plan, result_rt, check_in_date, check_out_date)
+        data = Utils.compute_price_per_night(rate_plan, result_rt, check_in_date, check_out_date, count_children,total_guest)
         return AppResponse.success(SuccessCodes.get_room_type_by_hotel_id, data)
     except Exception as e:
         return AppResponse.error(ErrorCodes.INTERNAL_SERVER_ERROR, str(e))

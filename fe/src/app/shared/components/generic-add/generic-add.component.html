@@ -94,6 +94,27 @@
                                 {{ t(field.errorMessages?.invalidBirthDate || 'errors.fields.birthdayInvalid') }}
                             </mat-error>
                         </mat-form-field>
+                        <!-- Textarea -->
+                        <mat-form-field
+                            *ngIf="field.type === 'textarea'"
+                            floatLabel="always"
+                            class="w-full fuse-mat-dense"
+                        >
+                            <mat-label>{{ t(field.labelKey) }}</mat-label>
+                            <textarea
+                                matInput
+                                [id]="field.name"
+                                [formControlName]="field.name"
+                                [placeholder]="field.placeholderKey ? t(field.placeholderKey) : ''"
+                                [required]="field.required"
+                                rows="4"
+                            ></textarea>
+                            <mat-error
+                                *ngIf="addFormGroup.get(field.name)?.hasError('required')"
+                            >
+                                {{ t(field.errorMessages?.required || 'errors.fields.required') }}
+                            </mat-error>
+                        </mat-form-field>
 
                         <!-- Select Input -->
                         <mat-form-field

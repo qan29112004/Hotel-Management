@@ -13,6 +13,7 @@ from hotel_management_be.views.offfer_view import *
 from hotel_management_be.views.price_rule_view import *
 from hotel_management_be.views.payment_view import *
 from hotel_management_be.views.sse_view import *
+from hotel_management_be.views.service_view import *
 
 
 urlpatterns = [
@@ -78,6 +79,10 @@ urlpatterns = [
     path('offer/list/', list_offer),
     path('offer/<str:uuid>/', offer_detail),
     path('offer/', add_offer),
+    
+    path('service/list/', list_service),
+    path('service/<str:uuid>/', service_detail),
+    path('service/', add_service),
     
     path('price-rule/list/', list_price_rule),
     path('price-rule/<str:uuid>/', price_rule_detail),
