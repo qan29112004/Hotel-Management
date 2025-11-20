@@ -1,0 +1,127 @@
+<!-- <button (click)="createRating()">add rating</button> -->
+<div class="flex flex-col items-center w-full">
+    <div class="w-full bg-black h-28 mb-[60px]">
+
+    </div>
+    <div class='flex flex-col gap-[40px] items-center'>
+        <span class="font-clearface text-[30px]">booking.my_booking</span>
+        <span *ngIf="myBooking?.length <=0" class="font-lexend_deca text-[16px] font-bold">booking.no_booking</span>
+        <ng-container *ngIf="myBooking?.length >0">
+            <div class="grid grid-cols-2 gap-3">
+                
+                <div *ngFor="let booking of myBooking; let i = index" class="bg-[#f4f4f4] w-full p-5 mb-5">
+                    <div class="flex flex-col w-full p-5 bg-white">
+                        <!-- Hotel Info Section -->
+                        <div class="flex gap-5 mb-6">
+                            <div class="flex-shrink-0 w-[240px] h-[160px] overflow-hidden rounded-lg shadow-md">
+                                <img [src]="baseUrl + booking.hotel.thumbnail" class="object-cover w-full h-full" />
+                            </div>
+                            <div class="flex flex-col justify-between flex-1">
+                                <div>
+                                    <h3 class="text-[20px] font-bold text-gray-800 mb-3 font-lexend_deca">{{booking?.hotel.name}}</h3>
+                                    <div class="space-y-2 text-gray-600 font-lexend_deca">
+                                        <div class="flex items-start gap-2">
+                                            <span class="text-[14px] font-medium min-w-[80px]">booking.address:</span>
+                                            <span class="text-[14px]">{{booking?.hotel.address}}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[14px] font-medium min-w-[80px]">booking.country:</span>
+                                            <span class="text-[14px]">{{booking?.userCountry}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="inline-flex items-center self-start px-3 py-1 mt-2 text-[13px] font-semibold rounded-full font-lexend_deca"
+                                     [ngClass]="{
+                                         'bg-green-100 text-green-700': booking?.status === 'Confirm',
+                                         'bg-yellow-100 text-yellow-700': booking?.status === 'Pending',
+                                         'bg-red-100 text-red-700': booking?.status === 'Cancelled',
+                                         'bg-blue-100 text-blue-700': booking?.status === 'Check In',
+                                         'bg-purple-100 text-purple-700': booking?.status === 'Check Out' 
+                                     }">
+                                    {{booking?.status}}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Check-in/out Section -->
+                        <div class="grid grid-cols-2 gap-4 p-4 mb-6 rounded-lg bg-gray-50">
+                            <div class="flex flex-col">
+                                <span class="text-[12px] text-gray-500 mb-1 font-lexend_deca uppercase tracking-wide">booking.check_in</span>
+                                <span class="text-[16px] font-semibold text-gray-800 font-lexend_deca">{{booking?.checkIn}}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[12px] text-gray-500 mb-1 font-lexend_deca uppercase tracking-wide">booking.check_out</span>
+                                <span class="text-[16px] font-semibold text-gray-800 font-lexend_deca">{{booking?.checkOut}}</span>
+                            </div>
+                        </div>
+
+                        <!-- Booking Room Section -->
+                        <ng-container *ngIf="booking?.bookingRoom">
+                            <div class="flex flex-col w-full">
+                                <h4 class="text-[16px] font-bold text-gray-800 mb-3 font-lexend_deca">booking.booking_room</h4>
+                                <div *ngFor="let room of booking?.bookingRoom; let j = index" class="mb-4 overflow-hidden border border-gray-200 rounded-lg">
+                                    <div class="flex items-center justify-between p-3 transition-colors bg-gray-100 cursor-pointer hover:bg-gray-200" (click)="toggleDetailRoom(i,j)">
+                                        <span class="text-[15px] font-semibold text-gray-800 font-lexend_deca" >booking.room {{i+1}}</span>
+                                        <mat-icon class="text-gray-600">expand_more</mat-icon>
+                                    </div>
+                                    <div class="p-4 bg-white" *ngIf="selectDetailRoom?.id_bk === i && selectDetailRoom?.id_room === j" @slideToggle>
+                                        <div class="grid grid-cols-2 mb-3 gap-y-3 gap-x-4">
+                                            <div class="flex flex-col">
+                                                <span class="text-[12px] text-gray-500 mb-1">booking.number_room</span>
+                                                <span class="text-[14px] font-medium text-gray-800">{{room.numberRoom}}</span>
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="text-[12px] text-gray-500 mb-1">booking.rate_name</span>
+                                                <span class="text-[14px] font-medium text-gray-800">{{room.rateName}}</span>
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="text-[12px] text-gray-500 mb-1">booking.room_type_name</span>
+                                                <span class="text-[14px] font-medium text-gray-800">{{room.roomTypeName}}</span>
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="text-[12px] text-gray-500 mb-1">booking.price</span>
+                                                <span class="text-[16px] font-bold text-green-600">{{room.price | currency:'VND':'symbol':'1.0-0'}} <span class="text-gray-500 text-[13px]">~ {{room.price | currency:'VND':'symbol':'1.0-0'}}</span></span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Services Section -->
+                                        <div *ngIf="room.services && room.services.length > 0" class="pt-3 border-t border-gray-200">
+                                            <span class="text-[13px] font-semibold text-gray-700 mb-2 block">booking.services:</span>
+                                            <div class="space-y-2">
+                                                <ng-container *ngFor="let service of room.services; let t = index">
+                                                    <div class="flex items-center justify-between p-2 rounded bg-gray-50">
+                                                        <span class="text-[13px] text-gray-800">{{service.name}}</span>
+                                                        <div class="flex gap-3 text-[12px] text-gray-600">
+                                                            <span>SL: {{service.quantity}}</span>
+                                                            <span class="font-semibold text-gray-800">{{service.price}} ~ <span class="text-gray-500">{{service.price | currency:'VND':'symbol':'1.0-0'}}</span></span>
+                                                        </div>
+                                                    </div>
+                                                </ng-container>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-container>
+                        <div *ngIf="booking?.rating" class="w-full py-8 border-t border-black mb-[30px]">
+                            <div class="flex items-center gap-1 mb-[20px]">
+                                <ng-container *ngFor="let star of stars">
+                                    <app-rating [starId]="star" [rating]="booking?.rating.rating" (enter)="enter($event)" (leave)="leave($event)"
+                                        (bigClick)="updateRating(star)">
+                                    </app-rating>
+                                </ng-container>
+                                <span class="text-black font-clearface text-[30px]"></span>
+                            </div>
+                            <h3 class="font-clearface text-[18px] text-black font-normal mb-[20px]">{{booking?.rating.subject}}</h3>
+                            <p class="w-full truncate font-avenir text-[14px] font-normal mb-[20px]">{{booking?.rating.review}}</p>
+                            <div class="flex gap-8">
+                                <span class="font-avenir text-[14px] font-normal">By {{booking?.rating.createdBy}}</span>
+                                <span class="font-avenir text-[14px] font-normal">At {{booking?.rating.createdAt}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>
