@@ -8,6 +8,8 @@ import { count } from 'firebase/firestore';
 import { BookingService } from 'app/core/booking/booking.service';
 import { Subject, takeUntil,map } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { timeDate } from 'app/shared/utils/util';
+import { UserService } from 'app/core/profile/user/user.service';
 
 declare var paypal: any;
 @Component({
@@ -18,26 +20,37 @@ declare var paypal: any;
   styles: ``
 })
 export class CustomerInfoComponent implements OnInit, OnDestroy {
+  timeDate=timeDate;
   @Input() rooms!: any[];
+  @Input() billVND:any;
+  @Input()billUSD:any;
   @Output() submitBooking = new EventEmitter<any>();
+  @Input() bookingState:any;
+  @Input() dataBooking:any;
+  @Input() dataRate:any[];
   info = { name: '', email: '' };
   isSubmitted:boolean = false;
   isChecked:boolean = false;
   showAgreeError:boolean = false;
   bookingForm:FormGroup;
+  crrUser:any;
   @ViewChild('formBooking') formBooking!:ElementRef;
   bookingPayload = signal<{ fullname: string; email: string; amount: number } | null>(null);
   bookingId:string;
   @ViewChild('paypalContainer', { static: false }) paypalContainer!: ElementRef<HTMLDivElement>;
   private destroy = new Subject();
 
-  constructor(private fb: FormBuilder, private bookingService: BookingService, private activeRoute:ActivatedRoute, private router:Router) {
+  constructor(private fb: FormBuilder, private bookingService: BookingService, private activeRoute:ActivatedRoute, private router:Router, private userService:UserService) {
   }
 
   ngOnInit(): void {
+    this.userService.user$.subscribe(user=>{
+      this.crrUser = user;
+      console.log("this crrUser: ", this.crrUser)
+    })
     this.bookingForm = this.fb.group({
-      fullname:[null, Validators.required],
-      email: [null,[Validators.required, Validators.email]],
+      fullname:[this.crrUser?.fullName ?this.crrUser?.fullName:null, Validators.required],
+      email: [this.crrUser?.email ?this.crrUser?.email:null,[Validators.required, Validators.email]],
       phone: [null,Validators.required],
       country : [null,Validators.required]
     })
@@ -47,6 +60,25 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
     this.destroy.next('');
     this.destroy.complete();
   }
+  // Tính tổng phòng
+  getTotalRooms(): number {
+    return this.bookingState.rooms.length;
+  }
+
+  // Tính tổng số người lớn
+  getTotalAdults(): number {
+    return this.bookingState.rooms.reduce((total, room) => total + room.adults, 0);
+  }
+
+  // Tính tổng số trẻ em
+  getTotalChildren(): number {
+    return this.bookingState.rooms.reduce((total, room) => total + room.children, 0);
+  }
+
+  // Tính tổng số khách (người lớn + trẻ em)
+  getTotalGuests(): number {
+    return this.getTotalAdults() + this.getTotalChildren();
+  } 
 
   submitForm() {
     this.submitBooking.emit(this.info);
@@ -97,12 +129,12 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
       user_fullname: this.bookingForm.get('fullname').value,
       user_country: this.bookingForm.get('country').value,
       user_phone: this.bookingForm.get('phone').value,
-      hotel_name: 'Đà Nẵng Hotel',
-      check_in: '2025-11-09',
-      check_out: '2025-11-16',
-      num_guest: 2,
-      total_rooms: 2,
-      total_price: 100000,
+      hotel_name: this.dataBooking['hotel_name'],
+      check_in: this.dataBooking['checkin'],
+      check_out: this.dataBooking['checkout'],
+      num_guest: this.getTotalGuests(),
+      total_rooms: this.getTotalRooms(),
+      total_price: this.billVND,
       currency: 'VND',
       session_id :localStorage.getItem('session_id')
     };
@@ -128,12 +160,12 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
           user_fullname: this.bookingForm.get('fullname').value,
           user_country: this.bookingForm.get('country').value,
           user_phone: this.bookingForm.get('phone').value,
-          hotel_name: 'Đà Nẵng Hotel',
-          check_in: '2025-11-09',
-          check_out: '2025-11-16',
-          num_guest: 2,
-          total_rooms: 2,
-          total_price: 1,
+          hotel_name: this.dataBooking['hotel_name'],
+          check_in: this.dataBooking['checkin'],
+          check_out: this.dataBooking['checkout'],
+          num_guest: this.getTotalGuests(),
+          total_rooms: this.getTotalRooms(),
+          total_price: this.billUSD,
           currency: 'USD'
         };
 

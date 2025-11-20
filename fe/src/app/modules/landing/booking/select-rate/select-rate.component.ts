@@ -32,7 +32,7 @@ export class SelectRateComponent implements OnInit {
   @Input() listRoomType:any[];
   @Input() roomIndex!: number;
   @Input() roomData: any;
-  @Output() rateSelected = new EventEmitter<{ratePlanName:string, roomTypeName:string, totalPrice:number}>();
+  @Output() rateSelected = new EventEmitter<{ratePlanName:string, roomTypeName:string, totalPrice:number , guaranteePolicy:string, cancellationPolicy:string}>();
   selectedId:number = null;
   selectDetailRate: { id_rt: number; id_rate: number } | null = null;
   baseUrl:string = environment.baseUrl;
@@ -52,6 +52,10 @@ export class SelectRateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    setTimeout(()=>{
+      console.log("check list_room_selected", this.list_room_selected)
+      this.cdr.detectChanges()
+    },2000)
     setTimeout(() => {
       this.initializeSwipers(this.swiperElements,this.swipers, this.currentIndexes);
     }, 0);
@@ -105,11 +109,14 @@ export class SelectRateComponent implements OnInit {
     if (swiper) swiper.slideNext();
   }
   
-  selectRate(roomtype_name:string, rate_name:string, total_price:string) {
+  selectRate(roomtype_name:string, rate_name:string, total_price:string, guaranteePolicy:string, cancellationPolicy:string) {
+    console.log("check select rate:", roomtype_name, rate_name, total_price )
     this.rateSelected.emit({
         ratePlanName: rate_name,
         roomTypeName: roomtype_name,
-        totalPrice: parseFloat(total_price)
+        totalPrice: parseFloat(total_price),
+        cancellationPolicy: cancellationPolicy,
+        guaranteePolicy: guaranteePolicy
       });  }
 
   toggleDetail(id:number){
@@ -124,20 +131,20 @@ export class SelectRateComponent implements OnInit {
     }
   } 
 
-  selectRateToBooking(roomtype_name:string, rate_name:string, total_price:string){
+  selectRateToBooking(roomtype_name:string, rate_name:string, total_price:number, guaranteePolicy:string, cancellationPolicy:string){
     const payload = {
         "session_id":localStorage.getItem('session_id'),
         "room_type_name":roomtype_name,
         "rate_plan_name":rate_name,
         "user_email":"qan29112004@gmail.com",
-        "total_price":total_price,
+        "total_price":String(total_price),
         "quantity":"1",
         "room_index":this.roomIndex
     }
     this.bookingService.createHoldRoom(payload).subscribe(
       res=>{
         if(res.ok){
-          this.selectRate(rate_name, roomtype_name, total_price)
+          this.selectRate(roomtype_name,rate_name, String(total_price), guaranteePolicy, cancellationPolicy)
         }else{
           alert(`${res.error}`)
         }

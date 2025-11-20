@@ -20,6 +20,7 @@ import { User } from 'app/core/profile/user/user.types';
 import { routeConfig } from 'app/core/uri/config.route';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslocoService } from '@ngneat/transloco';
+import { SharedModule } from 'app/shared/shared.module';
 
 @Component({
     selector: 'user',
@@ -35,6 +36,7 @@ import { TranslocoService } from '@ngneat/transloco';
         MatIconModule,
         NgClass,
         MatDividerModule,
+        SharedModule
     ],
 })
 export class UserComponent implements OnInit, OnDestroy {
@@ -118,5 +120,8 @@ export class UserComponent implements OnInit, OnDestroy {
     }
     navigateToChangePassword() {
         this._router.navigateByUrl(`${routeConfig.AUTH_CHANGE_PASS}`);
+    }
+    navigateToMyBooking(){
+        this._router.navigateByUrl(`${routeConfig.MY_BOOKING}`)
     }
 }

@@ -181,7 +181,7 @@ export const uriConfig = {
     API_CREATE_HOLE : baseUrl + '/api/booking/create-hold/',
     API_LIST_HOLD_ROOM : baseUrl + '/api/booking/get-list-hold-room/',
     API_CHECK_SESSION: baseUrl + '/api/booking/check-session/',
-
+    
     //sse
     API_SSE : (session_id:string)=> baseUrl + `/api/sse/session/${session_id}/`,
 
@@ -193,16 +193,32 @@ export const uriConfig = {
     API_OFFER_UPDATE: (uuid:string) => baseUrl + `/api/offer/${uuid}/`,
     API_OFFER_DELETE: (uuid:string) => baseUrl + `/api/offer/${uuid}/`,
     API_OFFER_CREATE: baseUrl + '/api/offer/',
-
-    //booking
+    
+    //booking admin
     API_BOOKING_ALL: baseUrl + '/api/booking/list/',
     API_BOOKING_UPDATE: (uuid:string) => baseUrl + `/api/booking/${uuid}/`,
     API_BOOKING_DELETE: (uuid:string) => baseUrl + `/api/booking/${uuid}/`,
     API_BOOKING_CREATE: baseUrl + '/api/booking/',
-
+    
     //service
     API_SERVICE_ALL: baseUrl + '/api/service/list/',
     API_SERVICE_UPDATE: (uuid:string) => baseUrl + `/api/service/${uuid}/`,
     API_SERVICE_DELETE: (uuid:string) => baseUrl + `/api/service/${uuid}/`,
+    API_ADD_UPDATE_SERVICE_BOOKING: baseUrl + '/api/booking/add-and-update-service-to-hold-record/',
     API_SERVICE_CREATE: baseUrl + '/api/service/',
+
+    //rate plan
+    API_RATE_PLAN_ALL: baseUrl + '/api/rate-plan/list/',
+    API_RATE_PLAN_UPDATE: (uuid:string) => baseUrl + `/api/rate-plan/${uuid}/`,
+    API_RATE_PLAN_DELETE: (uuid:string) => baseUrl + `/api/rate-plan/${uuid}/`,
+    API_RATE_PLAN_CREATE: baseUrl + '/api/rate-plan/',
+
+    //rating
+    API_RATING_ALL: baseUrl + '/api/rating/list/',
+    API_RATING_UPDATE: (uuid:string) => baseUrl + `/api/rating/${uuid}/`,
+    API_RATING_DELETE: (uuid:string) => baseUrl + `/api/rating/${uuid}/`,
+    API_RATING_CREATE: baseUrl + '/api/rating/',
+
+    //my-booking
+    API_MY_BOOKING: baseUrl + '/api/my-booking/list/'
 };

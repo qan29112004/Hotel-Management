@@ -77,6 +77,7 @@ export class UserInforEditComponent implements OnInit {
 
     loadUserInfo(): void {
         this.isLoading = true;
+        console.log("before call api")
         this._userService
             .get()
             // .pipe(switchMap(() => this._userService.itemUser$))

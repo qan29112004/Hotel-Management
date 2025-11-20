@@ -24,11 +24,12 @@ import { GenericAddComponent } from 'app/shared/components/generic-components';
 import { GenericFilterComponent, FieldFilterConfig } from 'app/shared/components/generic-components';
 import { GenericDeleteComponent } from 'app/shared/components/generic-components';
 import { FieldConfig } from 'app/core/admin/destination/destination.type';
-import { map, Observable } from 'rxjs';
+import { map, Observable, takeUntil } from 'rxjs';
 import { UserService } from 'app/core/profile/user/user.service';
 import { User } from 'app/core/profile/user/user.types';
 import { environment } from 'environments/environment.fullstack';
 import { DestinationService } from 'app/core/admin/destination/destination.service';
+import { ServiceService } from 'app/core/admin/service/service.service';
 
 @Component({
   selector: 'app-hotel',
@@ -93,6 +94,7 @@ export class HotelComponent {
   showDeleteDialog:boolean = false; 
 
   optionsDestination:any = [];
+  checkboxService:any = [];
 
   fields: FieldConfig[] =[
     {
@@ -179,6 +181,14 @@ export class HotelComponent {
         placeholderKey: 'destination.enterdDescription',
         
         
+    },
+    {
+        name: 'service',
+        labelKey: 'hotel.service',
+        type: 'checkbox',
+        placeholderKey: 'hotel.enterService',
+        relatedName:"hotel_services__service__uuid",
+        asyncOptionsKey: true,
     },
   ]
 
@@ -268,6 +278,14 @@ export class HotelComponent {
         
         
     },
+    {
+        name: 'service',
+        labelKey: 'hotel.service',
+        type: 'checkbox',
+        placeholderKey: 'hotel.enterService',
+        relatedName:"hotel_services__service__uuid",
+        asyncOptionsKey: true,
+    },
   ]
 
   filterFields: FieldFilterConfig[] =[
@@ -300,6 +318,14 @@ export class HotelComponent {
         isForeingKey:true
         
     },
+    {
+        name: 'service',
+        labelKey: 'hotel.service',
+        type: 'checkbox',
+        placeholderKey: 'hotel.enterService',
+        relatedName:"hotel_services__service__uuid",
+        asyncOptionsKey: true,
+    },
   ]
 
   constructor(
@@ -310,11 +336,13 @@ export class HotelComponent {
       private snackBar: MatSnackBar,
       private datePipe: DatePipe,
       private userService: UserService,
-      private destinationService: DestinationService
+      private destinationService: DestinationService,
+      private serviceService:ServiceService
     ) {}
 
   ngOnInit(): void {
     this.loadHotels();
+    this.loadAllService();
     this.destinationService.getDestinations().pipe(
       map(destinations => {
 
@@ -335,6 +363,26 @@ export class HotelComponent {
       this.user = user;
     })
     console.log(this.showFilter)
+  }
+
+  loadAllService(){
+      this.serviceService.getAllService({page_size:0}).pipe(
+        map(services=>{
+          if(services){
+            return services.data
+            .filter(service => service.type === 'Paid' ||service.type === 'Add on' )
+            .map(service=>({
+              id: service.uuid,
+              name:service.name,
+              icon:service.image
+            }))
+          }
+          return [];
+        }),
+      ).subscribe(option=>{
+        this.checkboxService=option
+      })
+    
   }
 
   loadHotels(): void {
@@ -506,6 +554,7 @@ export class HotelComponent {
         componentRef.instance.saveHandler = this.saveHandler.bind(this);
         componentRef.instance.loadData = this.loadHotels.bind(this);
         componentRef.instance.optionDestination = this.optionsDestination;
+        componentRef.instance.optionRadio = this.checkboxService;
 
         // ✅ Lắng nghe sự kiện Output
         componentRef.instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());

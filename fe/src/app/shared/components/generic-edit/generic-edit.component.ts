@@ -103,6 +103,7 @@ export class GenericEditComponent implements OnInit {
         if (field.type === 'file' || field.type === 'files') {
             return controls;
         }
+        
         this.userCountry = {name:this.entityData?.['userCountry'],code:""}
         // Xác định giá trị khởi tạo
         let initialValue = '';
@@ -177,22 +178,26 @@ export class GenericEditComponent implements OnInit {
                 }
                 
             }
-            if (field.type=='checkbox' && this.entityData?.amenities && this.entityData.amenities.length > 0) {
+            console.log("entity checkob:",field.name, this.entityData[field.name])
+            if (field.type=='checkbox' && this.entityData[field.name] && this.entityData[field.name].length > 0) {
                 // Khởi tạo selectedRadioValues[fieldName] = danh sách id
-                this.selectedRadioValues[field.name] = this.entityData.amenities.map((a: any) => a.amenityId);
-
+                this.selectedRadioValues[field.name] = this.entityData[field.name].map((a: any) => a[`${field.name}Id`]);
+                console.log("selectedRadioValues", this.selectedRadioValues)
                 // Nếu bạn có displayCheckbox để hiển thị preview
                 this.displayCheckbox = {};
-                this.entityData.amenities.forEach((amenity: any) => {
-                    this.displayCheckbox[amenity.amenityName] = amenity.amenityIcon || ''; 
-                    console.log("entity amen: ", this.entityData.amenities)
+                this.entityData[field.name].forEach((f: any) => {
+                    this.displayCheckbox[f[`${field.name}Name`]] = f[`${field.name}Icon`] || null; 
                     console.log(this.displayCheckbox, this.selectedRadioValues)
                 });
             }
             
         });
         
-        console.log('Check file:')
+        console.log('Check form:')
+        Object.keys(this.editFormGroup.controls).forEach(key => {
+  const value = this.editFormGroup.get(key)?.value;
+  console.log(`Key: ${key}, Value:`, value);
+});
     }
 
     private extractFileName(path: string): string {
@@ -316,6 +321,10 @@ export class GenericEditComponent implements OnInit {
                 formData.append(camelToSnake(key), this.editFormGroup.value[key]);
             }
         });
+        console.log("check formdata 1:")
+formData.forEach((value, key) => {
+  console.log(key, value);
+});
 
         // Append file(s) mới upload
         this.fields.forEach((field) => {
@@ -342,12 +351,16 @@ export class GenericEditComponent implements OnInit {
                 }
             }
             if(field.type=='checkbox'){
+                console.log("before checkbox: ", this.selectedRadioValues)
                 this.selectedRadioValues[field.name].forEach(select =>{
                     formData.append(camelToSnake(field.name), select);
                 })
             }
         });
-
+        console.log("check formdata 2:")
+        formData.forEach((value, key) => {
+        console.log(key, value);
+        });
         this.saveHandler(formData).subscribe({
             next: () => {
                 this._alertService.showAlert({
@@ -391,6 +404,7 @@ export class GenericEditComponent implements OnInit {
             if (!this.selectedRadioValues[fieldName].includes(value)) {
             this.selectedRadioValues[fieldName].push(value);
             this.displayCheckbox[option.name] = option.icon;
+            console.log("checkbox:", this.selectedRadioValues)
             }
         } else {
             this.selectedRadioValues[fieldName] = this.selectedRadioValues[fieldName].filter(v => v !== value);

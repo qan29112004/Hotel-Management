@@ -19,7 +19,7 @@ from hotel_management_be.serializers.room_serializer import *
 from django.contrib.auth import authenticate
 from constants.error_codes import ErrorCodes
 from django.contrib.auth.models import update_last_login
-from libs.Redis import RedisWrapper
+from libs.Redis import RedisUtils, RedisWrapper
 from libs.querykit.querykit import Querykit
 from libs.querykit.querykit_serializer import (
     QuerykitSerializer,
@@ -198,6 +198,7 @@ def get_room_type_by_hotel_id(request):
 def cal_price_per_night(request):
     from datetime import date, timedelta, datetime
     from hotel_management_be.models.offer import RatePlan
+    from hotel_management_be.views.booking_view import ensure_inventory_for_range
     try:
         hotel = request.data.get('hotel','')
         check_in = request.data.get('check_in','')
@@ -220,6 +221,10 @@ def cal_price_per_night(request):
             
         for room_type in room_types:
             # Lấy tất cả phòng của room type này
+            ensure_inventory_for_range(hotel.uuid, room_type.uuid, datetime.strptime(check_in, "%Y-%m-%d").date(), datetime.strptime(check_out, "%Y-%m-%d").date())
+            ok = RedisUtils.check_inventory_for_range(hotel.uuid, room_type.uuid, check_in, check_out, quantity=1)
+            if not ok:continue
+
             all_rooms = room_type.room.filter(status='Available')
             print("all rooom", all_rooms)
             # Đếm số phòng chưa bị book

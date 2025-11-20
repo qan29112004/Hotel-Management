@@ -320,11 +320,25 @@ export class RoomTypeComponent {
   ngOnInit(): void {
       this.loadRoomTypes();
       if(this.amenityService.check.length > 0){
-        this.amenityService.amenity$.subscribe(option=>{
+        this.amenityService.amenity$.pipe(
+          map(amenities => {
+    
+            if (amenities) {
+              return amenities.map(amenity => ({
+                id: amenity.uuid,
+                name: amenity.name,
+                icon: amenity.icon
+              }));
+            }
+            return []; 
+          }
+          ),
+        takeUntil(this._unsubscribeAll)
+        ).subscribe(option=>{
           this.radioAmenityOptions = option;
         })
       }else{
-        this.amenityService.getAmenities().pipe(
+        this.amenityService.getAllAmenities({page_size:0}).pipe(
           map(amenities => {
     
             if (amenities) {
@@ -343,7 +357,7 @@ export class RoomTypeComponent {
           console.log("amenity options:", options)
         });
       }
-      this.hotelService.getHotels().pipe(
+      this.hotelService.getAllHotels({page_size:0}).pipe(
         map(destinations => {
   
           if (destinations) {

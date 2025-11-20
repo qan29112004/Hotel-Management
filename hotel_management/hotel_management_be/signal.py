@@ -3,7 +3,7 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from hotel_management_be.models.hotel import *
 from hotel_management_be.models.offer import Offer
-from hotel_management_be.models.booking import Payment, HoldRecord
+from hotel_management_be.models.booking import Payment, HoldRecord, Booking
 from .celery_hotel.task import compute_hotel_calendar_prices
 from datetime import date
 from libs.Redis import RedisWrapper
@@ -81,8 +81,52 @@ def trigger_calendar_recompute(hotel):
     
 @receiver(pre_save, sender=Room)
 def payment_update_paid(sender, instance, **kwargs):
-    old_room = Room.objects.get(uuid = instance.uuid)
-    if(instance.housekeeping_status == "In Progress"):
-        instance.status = "Maintenance"
-    elif(instance.housekeeping_status == "Cleaned"):
-        instance.status = "Available"
+    # Chỉ override status dựa trên housekeeping_status nếu:
+    # 1. Room mới được tạo, HOẶC
+    # 2. Status không phải là "Booked" (để tránh override khi check-in)
+    if instance.pk:
+        try:
+            old_room = Room.objects.get(uuid=instance.uuid)
+            # Nếu status đã là "Booked", không override
+            # if instance.status == "Booked":
+            #     return
+            # Chỉ override khi housekeeping_status thay đổi
+            if old_room.housekeeping_status != instance.housekeeping_status:
+                if instance.housekeeping_status == "In Progress":
+                    instance.status = "Maintenance"
+                elif instance.housekeeping_status == "Cleaned":
+                    instance.status = "Available"
+        except Room.DoesNotExist:
+            # Room mới, áp dụng logic mặc định
+            if instance.housekeeping_status == "In Progress":
+                instance.status = "Maintenance"
+            elif instance.housekeeping_status == "Cleaned":
+                instance.status = "Available"
+    else:
+        # Room mới, áp dụng logic mặc định
+        if instance.housekeeping_status == "In Progress":
+            instance.status = "Maintenance"
+        elif instance.housekeeping_status == "Cleaned":
+            instance.status = "Available"
+@receiver(post_save, sender=Booking)
+def update_status_room_book(sender, instance, **kwargs):
+    print(">>> SIGNAL RUNNING <<<")
+    booking_room = instance.booking_booking_room.select_related('room_id')
+    if(instance.status=="Check In"):
+        print(">>> SIGNAL RUNNING CHECK IN<<<")
+        for room in booking_room:
+            print("check status", room.room_id.status)
+            room.room_id.status='Booked'
+            room.room_id.save()
+            room.room_id.refresh_from_db()
+
+            print(">>> AFTER:", room.room_id.status)
+    elif(instance.status == "Check Out"):
+        print(">>> SIGNAL RUNNING CHECK OUT<<<")
+        for room in booking_room:
+            print("check status", room.room_id.status)
+            room.room_id.housekeeping_status = 'Dirty'
+            room.room_id.save()
+            room.room_id.refresh_from_db()
+
+            print(">>> AFTER:", room.room_id.status)

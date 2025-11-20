@@ -395,6 +395,18 @@ export const compactNavigation: FuseNavigationItem[] = [
                 title: 'Service',
                 type: 'basic',
                 link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.SERVICE}`,
+            },
+            {
+                id: 'admin.rateplan',
+                title: 'Rate plan',
+                type: 'basic',
+                link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.RATEPLAN}`,
+            },
+            {
+                id: 'admin.rating',
+                title: 'Rating',
+                type: 'basic',
+                link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.RATING}`,
             }
         ]
     },

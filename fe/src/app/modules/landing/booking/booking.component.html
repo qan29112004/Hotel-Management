@@ -20,7 +20,7 @@
                 [class.hidden]="!isSmallScreen && showSecondDiv"
             >
                 
-                <form  (ngSubmit)="submitSearch()" class="flex w-full max-w-full p-2 bg-transparent max-lg:grid max-lg:grid-cols-1 max-lg:gap-3">
+                <form  (ngSubmit)="booking()" class="flex w-full max-w-full p-2 bg-transparent max-lg:grid max-lg:grid-cols-1 max-lg:gap-3">
                     <div class="flex flex-col p-2 min-w-[20%] max-lg:bg-white">
                         <span class="font-mono text-black">{{translocoService.translate('home-page.name_hotel')|uppercase}}</span>
                         <mat-select disabled name="selectedDes" [value]="payload['hotel_name']" [placeholder]="translocoService.translate('home-page.choose_location')">
@@ -31,18 +31,18 @@
                         </mat-select>
                     </div>
                     <div class="flex min-w-[70%] gap-3 max-lg:grid-cols-2 max-lg:grid">
-                        <button class="relative max-lg:bg-white flex flex-col p-2 border-l border-black/50 min-w-[105px] " >
+                        <button type='button' class="relative max-lg:bg-white flex flex-col p-2 border-l border-black/50 min-w-[105px] " >
                             <span class="self-start font-mono text-black">CHECK IN</span>
                             <input readonly (click)="toggleCalendarCheckin()" type="text" [(ngModel)]="checkInDate" name="DateCheckin" [placeholder]="translocoService.translate('home-page.choose_day')" class="text-black placeholder:font-mono">
                             <!-- <app-calendar class="z-10 w-[360px] absolute top-8" [date]="date" [crrHotel]="crrHotel"></app-calendar> -->
-                            <app-calendar class="z-10 w-[342px] max-lg:w-auto absolute top-8" [date]="date" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckin" (selectedDayEmit)="selectedCheckin($event)"
+                            <app-calendar class="z-10 w-[200%] absolute top-8" [roomList]="roomList" [date]="date" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckin" (selectedDayEmit)="selectedCheckin($event)"
                                 [ngClass]="{'hidden':!showCalendarCheckin}"
                             ></app-calendar>
                         </button>
-                        <button  class="relative max-lg:bg-white flex flex-col p-2 border-l border-black/50 min-w-[105px] " >
+                        <button type="button" class="relative max-lg:bg-white flex flex-col p-2 border-l border-black/50 min-w-[105px] " >
                             <span class="self-start font-mono text-black">CHECK OUT</span>
                             <input readonly [disabled]="!checkInDate" (click)="toggleCalendarCheckout()" type="text" name="DateCheckout" [(ngModel)]="checkOutDate"  [placeholder]="translocoService.translate('home-page.choose_day')" class="text-black placeholder:font-mono">
-                            <app-calendar *ngIf="checkInDate" class="z-10 max-lg:w-auto w-[342px] absolute top-8" [date]="checkOutDateObj" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckout" (selectedDayEmit)="selectedCheckout($event)"
+                            <app-calendar *ngIf="checkInDate" class="z-10 w-[200%] absolute top-8 left-[-102%]" [roomList]="roomList" [date]="checkOutDateObj" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckout" (selectedDayEmit)="selectedCheckout($event)"
                                 [ngClass]="{'hidden':!showCalendarCheckout}"
                             ></app-calendar>
                         </button>
@@ -121,6 +121,7 @@
                 class='w-full mt-[2.75rem]'
             [currentStep]="bookingState.currentStep"
             [currentRoom]="bookingState.currentRoomIndex + 1"
+            (step)="changeStep($event)"
             [totalRooms]="bookingState.rooms.length">
             </app-booking-progress>
         </div>
@@ -157,7 +158,9 @@
                         <app-select-service
                             class="flex basis-[calc(100%-350px)]"
                             *ngSwitchCase="'service'"
+                            [selectedService]="bookingState.rooms"
                             [roomIndex]="bookingState.currentRoomIndex"
+                            [hotelName]="payload.hotel_name"
                             (servicesSelected)="onServicesSelected($event)">
                         </app-select-service>
 
@@ -165,6 +168,11 @@
                             class="flex basis-[calc(100%-350px)]"
                             *ngSwitchCase="'info'"
                             [rooms]="bookingState.rooms"
+                            [billVND]="totalBill.total_bill_vn"
+                            [billUSD]="totalBill.total_bill_usd"
+                            [bookingState]="bookingState"
+                            [dataRate]="list_room_selected"
+                            [dataBooking]="payload"
                             (submitBooking)="onSubmitBooking($event)">
                         </app-customer-info>
                     </ng-container>
@@ -205,16 +213,25 @@
                                                 <span class=" text-[12px] font-bold uppercase">booking.guest</span>
                                                 <span class=" text-[12px] font-bold uppercase">{{r.adults}} booking.adults, {{r.children}} booking.children</span>
                                             </div>
-                                            <div class="flex justify-between">
+                                            <div *ngIf="list_room_selected[i]" class="flex justify-between">
                                                 <div class="flex flex-col justify-center gap-1">
                                                     <p class="font-avenir text-[12px] font-bold uppercase">{{list_room_selected[i]?.roomTypeName}}</p>
                                                     <p class="font-avenir text-[13px]">{{list_room_selected[i]?.ratePlanName}}</p>
                                                 </div>
                                                 <div class="flex flex-col justify-center gap-1">
-                                                    <p class="font-avenir text-[12px] font-bold uppercase">{{list_room_selected[i]?.totalPrice | currency:'VND':'symbol':'1.0-0'}} <br> ~ {{list_room_selected[i]?.totalPrice | currency:'USD':'symbol-narrow':'1.0-2'}}</p>
-                                                    <p class="font-avenir text-[13px] text-right">booking.include_vat</p>
+                                                    <p class="font-avenir text-[12px] font-bold uppercase text-end">{{list_room_selected[i]?.totalPrice | currency:'VND':'symbol':'1.0-0'}} <br> ~ {{list_room_selected[i]?.totalPrice | currency:'USD':'symbol-narrow':'1.0-2'}}</p>
+                                                    <p class="font-avenir text-[13px] text-end">booking.include_vat</p>
                                                 </div>
                                             </div>
+                                            <span class="block w-full text-[12px] font-bold uppercase mb-[10px]">booking.extras</span>
+                                            
+                                            <div *ngFor="let service of list_room_selected[i].services" class="flex justify-between">
+                                                <div class="font-avenir text-[13px]">{{service.name}}</div>
+                                                <div>
+                                                    <p class="font-avenir text-[12px] font-bold uppercase text-end">{{service.price | currency:'VND':'symbol':'1.0-0'}} <br> ~ {{service.price | currency:'USD':'symbol-narrow':'1.0-2'}}</p>
+                                                </div>
+                                            </div>
+                                            
                                         </div>
                                     </ng-container>
                                 </div>

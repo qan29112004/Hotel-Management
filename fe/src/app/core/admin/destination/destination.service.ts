@@ -41,7 +41,7 @@ export class DestinationService {
    * Get all destinations with pagination, filtering, and sorting
    * Updates the global state with the fetched data
    */
-  getDestinations(params?: any): Observable<DestinationResponse> {
+  getAllDestinations(params?: any): Observable<DestinationResponse> {
     return this.http.post<any>(uriConfig.API_DESTINATION_ALL, params || {}).pipe(
       map(res => ({
         data: res.data?.data || [],
@@ -52,6 +52,17 @@ export class DestinationService {
       tap((response: DestinationResponse) => {
         this._destinations.next(response); // Update the global state
       })
+    );
+  }
+
+  getDestinations(params?: any): Observable<DestinationResponse> {
+    return this.http.post<any>(uriConfig.API_DESTINATION_ALL, params || {}).pipe(
+      map(res => ({
+        data: res.data?.data || [],
+        total: res.data?.total,
+        page: res.data?.page,
+        page_size: res.data?.page_size
+      })),
     );
   }
 

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MapComponent } from 'app/shared/components/map/map.component';
 import { SharedModule } from 'app/shared/shared.module';
 import { environment } from 'environments/environment.fullstack';
@@ -18,6 +18,7 @@ export class DesPaticularComponent implements OnInit {
   isChoose:string;
   destinationData:any;
   private route = inject(ActivatedRoute);
+  private router = inject(Router)
   ngOnInit() {
     console.log("chạy vao component")
     this.route.data.subscribe(data =>{
@@ -41,5 +42,8 @@ export class DesPaticularComponent implements OnInit {
     } else if (this.isChoose === uuid){
       this.isChoose = undefined;
     }
+  }
+  viewHotel(slug:string){
+    this.router.navigate([`hotel/${slug}`])
   }
 }

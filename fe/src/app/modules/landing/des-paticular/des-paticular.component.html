@@ -20,7 +20,7 @@
                     <div class="absolute top-0 left-0 w-full h-full bg-primary/50"></div>
                     <div class="z-10 flex flex-col items-center w-full gap-8">
                         <span class="font-avenir text-[30px]">{{hotel.name | capitalize}}</span>
-                        <a class="text-base uppercase border-b border-b-white font-lexend_deca">destination page</a>
+                        <a [href]="'hotel/' + hotel.slug + '?hotel=' + hotel.uuid" class="text-base uppercase border-b cursor-pointer border-b-white font-lexend_deca">destination.hotel_page</a>
                         <button (click)="chooseHotel(hotel.uuid)">Quick view</button>
                     </div>
                 </div>

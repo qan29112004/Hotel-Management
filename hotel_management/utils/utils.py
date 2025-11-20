@@ -15,7 +15,7 @@ import datetime
 import holidays
 import requests
 from django.conf import settings
-from hotel_management_be.models.offer import PriceRule
+from hotel_management_be.models.offer import PriceRule, Service
 import hashlib, hmac, urllib.parse
 from datetime import datetime
 from django.conf import settings
@@ -230,7 +230,7 @@ class Utils:
         return result
     
     @staticmethod
-    def compute_price_per_night(rate_plan, room_types, check_in, check_out, amount_chilren=1, total_guest=1):
+    def compute_price_per_night(rate_plan, room_types, check_in, check_out, amount_chilren=0, total_guest=1):
         from decimal import Decimal
         from datetime import timedelta
         from hotel_management_be.serializers.rate_plan_serializer import RatePlanSerializer
@@ -251,6 +251,8 @@ class Utils:
             if Utils.is_holiday(day):
                 mul *= holiday_mul
             date_multipliers[day] = mul
+            
+        print("date_multipliers: ", date_multipliers)
 
         # Cache serializer
         rate_plan_data = {rp.uuid: RatePlanSerializer(rp).data for rp in rate_plan}
@@ -259,9 +261,9 @@ class Utils:
         # Cache offer multiplier
         offer_mul_cache = {}
         for rp in rate_plan:
-            if rp.hotel_id not in offer_mul_cache:
-                offer_mul_cache[rp.hotel_id] = Decimal(Utils.get_offer_multiplier(rp.hotel) or 1) * rp.price_modifier
-
+            if rp.uuid not in offer_mul_cache:
+                offer_mul_cache[rp.uuid] = Decimal(Utils.get_offer_multiplier(rp.hotel) or 1) * rp.price_modifier
+        print("offer_mul_cache: ",offer_mul_cache)
         result = []
         for rt in room_types:
             base_price = Decimal(rt.base_price or 0)
@@ -269,11 +271,17 @@ class Utils:
 
             for rp in rate_plan:
                 rp_data = rate_plan_data[rp.uuid]
-                offer_mul = offer_mul_cache[rp.hotel_id]
-                included_services = rp.services.filter(type="include")
-                included_service_total = sum([
-                    Decimal(s.price or 0) for s in included_services
-                ]) if included_services else 0
+                offer_mul = offer_mul_cache[rp.uuid]
+                included_services = Service.objects.filter(
+                    sv_service_rate_plan__rate_plan=rp,
+                    type="Include"
+                )
+
+                if len(included_services)>0:
+                    included_service_total = sum([
+                        Decimal(s.price or 0) for s in included_services
+                    ]) if included_services else 0
+                else:included_service_total = 0
                 price_list = []
                 for day, mul in date_multipliers.items():
                     final_price = base_price *total_guest * mul * offer_mul * Decimal(0.9 * amount_chilren) + included_service_total if amount_chilren > 0 else base_price * mul * offer_mul *total_guest + included_service_total
@@ -320,6 +328,8 @@ class Utils:
             room_requirements: List số người cho mỗi phòng cần book
             total_rooms_needed: Tổng số phòng cần
         """
+        
+        print("check data hotel asdas", hotel_availability, room_requirements, total_rooms_needed)
         if not hotel_availability:
             return False
         

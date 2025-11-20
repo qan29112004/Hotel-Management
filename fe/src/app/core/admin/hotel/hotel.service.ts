@@ -35,7 +35,7 @@ export class HotelService {
     return this.hotelSubject.getValue();
   }
 
-  getHotels(params?: any): Observable<{data: Hotel[], total: number, page: number, page_size: number}> {
+  getAllHotels(params?: any): Observable<{data: Hotel[], total: number, page: number, page_size: number}> {
     return this.http.post<any>(uriConfig.API_HOTEL_ALL, params || {}).pipe(
       map(res => ({
         data: res.data?.data || [],
@@ -46,6 +46,17 @@ export class HotelService {
       tap(response => {
         this.hotelSubject.next(response.data);
       })
+    );
+  }
+
+  getHotels(params?: any): Observable<{data: Hotel[], total: number, page: number, page_size: number}> {
+    return this.http.post<any>(uriConfig.API_HOTEL_ALL, params || {}).pipe(
+      map(res => ({
+        data: res.data?.data || [],
+        total: res.data?.total,
+        page: res.data?.page,
+        page_size: res.data?.page_size
+      })),
     );
   }
   

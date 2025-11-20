@@ -1,3 +1,121 @@
+<div *ngIf="isRatingOverlayOpen" class="fixed inset-0 z-50 flex flex-col items-center w-full h-screen bg-white">
+    <div class="flex justify-end w-full px-16 py-4 border-b border-black mb-[60px]">
+        <mat-icon class="text-black text-[50px] hover:scale-110 hover:cursor-pointer" (click)="closeRatingOverlay()">close</mat-icon>
+    </div>
+    <div class="font-clearface text-[30px] mb-[20px]">
+        {{hotel_data.name}}
+    </div>
+    <div class="flex items-center gap-1 mb-[20px]">
+        <ng-container *ngFor="let star of stars">
+            <app-rating [starId]="star" [rating]="4" (enter)="enter($event)" (leave)="leave($event)"
+                (bigClick)="updateRating(star)">
+            </app-rating>
+        </ng-container>
+        <span class="text-black font-clearface text-[30px]"></span>
+    </div>
+    <div class="relative flex flex-wrap justify-center h-[5rem] w-20 mb-[15px]">
+        <img src="assets/images/explore-hotel/rating.png" class="absolute top-0 w-16 h-16 -translate-x-1/2 left-1/2"/>
+        <span class="mt-[1rem] font-black w-full text-center">4.3</span>
+    </div>
+    <span class="mb-[30px]">hotel.base_on total_comment hotel.review</span>
+    
+    <div class="flex flex-col w-full overflow-y-auto px-36">
+        <div class="w-full py-8 border-t border-black mb-[30px]">
+            <div class="flex items-center gap-1 mb-[20px]">
+                <ng-container *ngFor="let star of stars">
+                    <app-rating [starId]="star" [rating]="4" (enter)="enter($event)" (leave)="leave($event)"
+                        (bigClick)="updateRating(star)">
+                    </app-rating>
+                </ng-container>
+                <span class="text-black font-clearface text-[30px]"></span>
+            </div>
+            <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">Title</h3>
+            <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">Review</p>
+            <div class="flex gap-8">
+                <span class="font-avenir text-[16px] font-normal">By</span>
+                <span class="font-avenir text-[16px] font-normal">At</span>
+            </div>
+        </div>
+        <div class="w-full py-8 border-t border-black mb-[30px]">
+            <div class="flex items-center gap-1 mb-[20px]">
+                <ng-container *ngFor="let star of stars">
+                    <app-rating [starId]="star" [rating]="4" (enter)="enter($event)" (leave)="leave($event)"
+                        (bigClick)="updateRating(star)">
+                    </app-rating>
+                </ng-container>
+                <span class="text-black font-clearface text-[30px]"></span>
+            </div>
+            <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">Title</h3>
+            <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">Review</p>
+            <div class="flex gap-8">
+                <span class="font-avenir text-[16px] font-normal">By</span>
+                <span class="font-avenir text-[16px] font-normal">At</span>
+            </div>
+        </div>
+        <div class="w-full py-8 border-t border-black mb-[30px]">
+            <div class="flex items-center gap-1 mb-[20px]">
+                <ng-container *ngFor="let star of stars">
+                    <app-rating [starId]="star" [rating]="4" (enter)="enter($event)" (leave)="leave($event)"
+                        (bigClick)="updateRating(star)">
+                    </app-rating>
+                </ng-container>
+                <span class="text-black font-clearface text-[30px]"></span>
+            </div>
+            <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">Title</h3>
+            <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">Review</p>
+            <div class="flex gap-8">
+                <span class="font-avenir text-[16px] font-normal">By</span>
+                <span class="font-avenir text-[16px] font-normal">At</span>
+            </div>
+        </div>
+        <div class="w-full py-8 border-t border-black mb-[30px]">
+            <div class="flex items-center gap-1 mb-[20px]">
+                <ng-container *ngFor="let star of stars">
+                    <app-rating [starId]="star" [rating]="4" (enter)="enter($event)" (leave)="leave($event)"
+                        (bigClick)="updateRating(star)">
+                    </app-rating>
+                </ng-container>
+                <span class="text-black font-clearface text-[30px]"></span>
+            </div>
+            <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">Title</h3>
+            <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">Review</p>
+            <div class="flex gap-8">
+                <span class="font-avenir text-[16px] font-normal">By</span>
+                <span class="font-avenir text-[16px] font-normal">At</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div *ngIf="isFeatureAndServiceOverlayOpen" class="fixed inset-0 z-50 flex flex-col items-center w-full h-screen bg-white">
+    <div class="flex justify-end w-full px-16 py-4 border-b border-black mb-[60px]" >
+        <mat-icon class="text-black text-[50px] hover:scale-110 hover:cursor-pointer" (click)="closeFeatureAndServiceOverlay()">close</mat-icon>
+    </div>
+    <div class="font-clearface text-[30px] mb-[20px]">
+        hotel.feature_and_service
+    </div>
+    <div class="flex justify-center w-full mb-[30px] px-36">
+        <div class="grid w-full grid-cols-3 max-w-[50%] gap-4">
+            <div class="flex flex-col gap-2">
+                <div class="block text-center text-[16px] font-avenir">
+                    - Restaurant
+                </div>
+            </div>
+            <div class="flex flex-col gap-2">
+                
+                <div class="block text-center text-[16px] font-avenir">
+                    - Restaurant
+                </div>
+            </div>
+            <div class="flex flex-col gap-2">
+                
+                <div class="block text-center text-[16px] font-avenir">
+                    - Restaurant
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
 <div class="relative items-center flex flex-col flex-auto w-full h-full max-w-[1920px]">
     <div
         class="md:min-h-[100svh] h-[100svh] pb-10 bg-center bg-no-repeat bg-cover text-white flex flex-col justify-end items-center relative w-full"
@@ -38,7 +156,7 @@
                     <button type="button" class="relative flex flex-col p-2 border-b border-black/30 min-w-[105px] " >
                         <span class="self-start font-mono text-black">CHECK OUT</span>
                         <input readonly [disabled]="!checkInDate" (click)="toggleCalendarCheckout()" type="text" name="DateCheckout" [(ngModel)]="checkOutDate"  [placeholder]="translocoService.translate('home-page.choose_day')" class="text-black placeholder:font-mono">
-                        <app-calendar *ngIf="checkInDate" class="z-10 w-[200%] absolute top-8 left-[-102%]" [roomList]="roomList" [date]="checkOutDateObj" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckout" (selectedDayEmit)="selectedCheckout($event)"
+                        <app-calendar *ngIf="checkInDate" class="z-10 w-[200%] absolute top-8 left-[-102%]" [roomList]="roomList" [isCheckout]="true" [date]="checkOutDateObj" [crrHotel]="crrHotel" [isDisplayCalendar]="showCalendarCheckout" (selectedDayEmit)="selectedCheckout($event)"
                             [ngClass]="{'hidden':!showCalendarCheckout}"
                         ></app-calendar>
                     </button>
@@ -102,7 +220,7 @@
                     </div>
                 </div>
                 
-                <button [disabled]="!checkInDate && !checkOutDate" type="submit" class="flex items-center justify-center gap-3 px-8 py-6 bg-yellow-500 disabled:opacity-75 disabled:cursor-not-allowed">
+                <button [disabled]="!checkInDate || !checkOutDate" type="submit" class="flex items-center justify-center gap-3 px-8 py-6 bg-yellow-500 disabled:opacity-75 disabled:cursor-not-allowed">
                     <mat-icon class="text-black" [svgIcon]="'heroicons_outline:magnifying-glass'"></mat-icon>
                     <span class="font-mono text-black">{{translocoService.translate('home-page.search')}}</span>
                 </button>
@@ -111,15 +229,15 @@
     </div>
     <div class="flex flex-col px-16 max-w-[1440px] w-full bg-white -mt-[95px] z-[3] sticky top-28">
         <div class="flex items-center h-24 gap-8">
-            <a href="#" class="font-avenir text-[12px] no-underline uppercase">Overview</a>
-            <a href="#" class="font-avenir text-[12px] no-underline uppercase">Images</a>
-            <a href="#" class="font-avenir text-[12px] no-underline uppercase">Rooms</a>
-            <a href="#" class="font-avenir text-[12px] no-underline uppercase">Reviews</a>
-            <a href="#" class="font-avenir text-[12px] no-underline uppercase">Location</a>
+            <a (click)="scrollTo('overview')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">Overview</a>
+            <a (click)="scrollTo('images')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">Images</a>
+            <a (click)="scrollTo('rooms')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">Rooms</a>
+            <a (click)="scrollTo('reviews')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">Reviews</a>
+            <a (click)="scrollTo('location')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">Location</a>
         </div>
     </div>
     <div class="flex flex-col px-16 max-w-[1440px] w-full bg-white z-[2]">
-        <div class="w-full h-full border border-[#f7f0ea] p-3 ms:mb-[100px]">
+        <div #overview class="w-full h-full border border-[#f7f0ea] p-3 ms:mb-[100px]">
             <div class="w-full h-full border border-[#f7f0ea]">
                 <div class="grid grid-cols-[65%_35%]">
                     <div class="flex flex-col text-black gap-5 pt-[88px] mx-[4.16%] px-[30px] border-r border-[#f7f0ea]">
@@ -168,7 +286,7 @@
                 </div>
             </div>
         </div>
-        <div class="w-full flex flex-col items-center relative mt-[100px]">
+        <div #images class="w-full flex flex-col items-center relative mt-[100px]">
 
             <div class="flex flex-col items-center justify-center relative max-w-[67%]">
                 <span class="font-clearface font-normal text-[30px] mb-[20px]">Our Hotel</span>
@@ -252,7 +370,7 @@
                 </div>
             </div>
         </div>
-        <div class="flex flex-col items-center w-full">
+        <div #rooms class="flex flex-col items-center w-full">
             <span class="font-clearface text-[30px] mb-5">Highlights</span>
             <div class="relative flex items-center w-full h-auto">
                 <swiper-container
@@ -286,21 +404,129 @@
                 </div>
             </div>
         </div>
-        <div class="flex flex-col items-center w-full">
+        <div #reviews class="flex flex-col items-center w-full mb-[100px]">
             <span class="font-clearface text-[30px] mb-16">Rating & Reviews</span>
-            <div class="w-full py-8 border-t border-black">
-                <div class="flex gap-1">
+            <div class="w-full py-8 border-t border-black mb-[30px]">
+                <div class="flex items-center gap-1 mb-[20px]">
                     <ng-container *ngFor="let star of stars">
                         <app-rating [starId]="star" [rating]="4" (enter)="enter($event)" (leave)="leave($event)"
                             (bigClick)="updateRating(star)">
                         </app-rating>
                     </ng-container>
+                    <span class="text-black font-clearface text-[30px]"></span>
                 </div>
-                <h3 class="font-clearface text-[24px] text-black font-normal">Title</h3>
-                <p class="w-full truncate font-avenir text-[16px] font-normal">Review</p>
+                <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">Title</h3>
+                <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">Review</p>
                 <div class="flex gap-8">
                     <span class="font-avenir text-[16px] font-normal">By</span>
                     <span class="font-avenir text-[16px] font-normal">At</span>
+                </div>
+            </div>
+            <button (click)="openRatingOverlay()" type="button" class="text-black underline font-avenir text-[14px] uppercase">show all</button>
+        </div>
+        
+        <div class="flex flex-col items-center w-full">
+            <div class="flex bg-white py-14 gap-7">
+                <div class="block w-full text-center font-clearface text-[30px] text-black">hotel.key_feature</div>
+            </div>
+            <div class="flex justify-center w-full">
+                <div class="grid w-full grid-cols-4 max-w-[50%] gap-4">
+                    <div class="flex flex-col gap-2">
+                        <div class="border-[15px] border-[#f4f4f4] flex justify-center items-center aspect-square">
+                            <img src="assets/icons/hotel-type/Honeymoon.svg" class="object-contain w-[70%] h-[70%]"/>
+                        </div>
+                        <div class="block text-center text-[14px] font-avenir">
+                            Restaurant
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="border-[15px] border-[#f4f4f4] flex justify-center items-center aspect-square">
+                            <img src="assets/icons/hotel-type/Honeymoon.svg" class="object-contain w-[70%] h-[70%]"/>
+                        </div>
+                        <div class="block text-center text-[14px] font-avenir">
+                            Restaurant
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="border-[15px] border-[#f4f4f4] flex justify-center items-center aspect-square">
+                            <img src="assets/icons/hotel-type/Honeymoon.svg" class="object-contain w-[70%] h-[70%]"/>
+                        </div>
+                        <div class="block text-center text-[14px] font-avenir">
+                            Restaurant
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="border-[15px] border-[#f4f4f4] flex justify-center items-center aspect-square">
+                            <img src="assets/icons/hotel-type/Honeymoon.svg" class="object-contain w-[70%] h-[70%]"/>
+                        </div>
+                        <div class="block text-center text-[14px] font-avenir">
+                            Restaurant
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        <div class="flex flex-col items-center w-full mb-[100px]">
+            <div class="flex bg-white py-14 gap-7">
+                <div class="block w-full text-center font-clearface text-[30px] text-black">hotel.key_feature_and_service</div>
+            </div>
+            <div class="flex justify-center w-full mb-[30px]">
+                <div class="grid w-full grid-cols-3 max-w-[50%] gap-4">
+                    <div class="flex flex-col gap-2">
+                        <div class="block text-center text-[16px] font-avenir">
+                            - Restaurant
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        
+                        <div class="block text-center text-[16px] font-avenir">
+                            - Restaurant
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        
+                        <div class="block text-center text-[16px] font-avenir">
+                            - Restaurant
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <button (click)="openFeatureAndServiceOverlay()" type="button" class="text-black underline font-avenir text-[14px] uppercase">show all</button>
+        </div>
+        <div #location *ngIf="hotel_data" class="relative flex flex-col items-center w-full h-[625px]">
+            <app-map class="max-w-[83%] w-full h-[625px] z-[1]" [zoom]="13" [listData]="[hotel_data]"></app-map>
+            <div class="absolute h-full w-[34%] ml-[67%] top-0 left-0 flex items-center z-[5]">
+                <div class="h-[83%] w-full bg-white py-[45px] px-[35px] flex flex-col shadow-lg relative">
+                    <span class="absolute w-[calc(100%-30px)] h-[calc(100%-30px)] top-[15px] left-[15px] border border-[#f7f0ea]">
+
+                    </span>
+                    <div class="flex flex-col">
+                        <div class="block font-clearface text-[30px] mb-[20px] text-black">
+                            hotel.name
+                            <br>
+                            <p class="text-[18px] font-lexend_deca text-black">{{hotel_data.name}}</p>
+                        </div>
+                        <div class="block font-clearface text-[30px] mb-[20px] text-black">
+                            hotel.phone
+                            <p class="text-[18px] font-lexend_deca text-black">{{hotel_data.phone}}</p>
+                        </div>
+                        <div class="block font-clearface text-[30px] mb-[20px] text-black">
+                            hotel.address
+                            <p class="text-[18px] font-lexend_deca text-black">{{hotel_data?.address ? hotel_data.address : ''}}</p>
+                        </div>
+                        <div class="flex flex-col mt-[30px]">
+                            <div class="flex items-center gap-2 mb-[10px]">
+                                <p>Check in:</p>
+                                <span class="text-[13px] font-semibold">{{hotel_data?.checkInTime ? (timeDate(hotel_data.checkInTime)| date:'h:mm a') : ''}}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <p>Check out:</p>
+                                <span class="text-[13px] font-semibold">{{hotel_data?.checkOutTime ? (timeDate(hotel_data.checkOutTime)| date:'h:mm a') : ''}}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -39,7 +39,10 @@ class HotelConstants:
     BOOKING_STATUS= (
         ('Pending', 'Pending'),
         ('Confirm', 'Confirm'),
-        ('Cancelled', 'Cancelled')
+        ('Cancelled', 'Cancelled'),
+        ('Check In','Check In'),
+        ('Check Out','Check Out'),
+        ('Paid', 'Paid')
     )
     
     PAYMENT_STATUS = (
@@ -66,6 +69,7 @@ class HotelConstants:
     BOOKING_ROOM_STATUS = (
         ("Hold","Hold"),
         ("Booked",'Booked'),
+        ("Release", "Release")
     )
     
     REFUND_STATUS = (
@@ -77,5 +81,5 @@ class HotelConstants:
     SERVICE_STATUS = (
         ("Include", "Include"),
         ("Paid","Paid"),
-        ("Bonus","Bonus")
+        ("Add on","Add on")
     )

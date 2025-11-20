@@ -127,13 +127,15 @@ export class BookingComponent {
         placeholderKey: 'booking.enterEndDate',
     },
     {
-        name: 'stautus',
-        labelKey: 'booking.stautus',
+        name: 'status',
+        labelKey: 'booking.status',
         type: 'select',
         options:[
           {id: "Pending", name:"Pending"},
           {id:"Confirm", name:"Confirm"},
-          {id:"Cancelled", name:"Cancelled"}
+          {id:"Cancelled", name:"Cancelled"},
+          {id:"Check In", name:"Check In"},
+          {id:"Check Out", name:"Check Out"}
         ],
         placeholderKey: 'booking.enterImages'
     },
@@ -215,13 +217,15 @@ export class BookingComponent {
         placeholderKey: 'booking.enterEndDate',
     },
     {
-        name: 'stautus',
-        labelKey: 'booking.stautus',
+        name: 'status',
+        labelKey: 'booking.status',
         type: 'select',
         options:[
           {id: "Pending", name:"Pending"},
           {id:"Confirm", name:"Confirm"},
-          {id:"Cancelled", name:"Cancelled"}
+          {id:"Cancelled", name:"Cancelled"},
+          {id:"Check In", name:"Check In"},
+          {id:"Check Out", name:"Check Out"}
         ],
         placeholderKey: 'booking.enterImages'
     },
@@ -351,7 +355,7 @@ export class BookingComponent {
         console.log("optionHotel", this.optionsHotel)
       })
     }else{
-      this.hotelService.getHotels({"page_size":0}).pipe(
+      this.hotelService.getAllHotels({"page_size":0}).pipe(
         map(hotels => {
           
             if (hotels) {
@@ -559,6 +563,7 @@ export class BookingComponent {
         componentRef.instance.entityData = this.selectedDes;
         componentRef.instance.saveHandler = this.saveHandler.bind(this);
         componentRef.instance.loadData = this.loadBooking.bind(this);
+        componentRef.instance.optionDestination = this.optionsHotel;
 
         // ✅ Lắng nghe sự kiện Output
         componentRef.instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());

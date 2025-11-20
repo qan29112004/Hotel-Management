@@ -92,3 +92,6 @@ export function convertVNDToUSD(amountVND: number, rate = 25000): number {
   return amountVND / rate;
 }
 
+export function timeDate(timeString:string): Date {
+  return new Date("1970-01-01T" + timeString);
+}

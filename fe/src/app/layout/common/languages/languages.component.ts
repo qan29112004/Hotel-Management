@@ -175,7 +175,9 @@ export class LanguagesComponent implements OnInit, OnDestroy {
             { id:'admin.room', key: 'menu.admin.room'},
             { id:'admin.offer', key: 'menu.admin.offer'},
             { id:'admin.booking', key: 'menu.admin.booking'},
-            { id:'admin.service', key: 'menu.admin.service'}
+            { id:'admin.service', key: 'menu.admin.service'},
+            { id:'admin.rateplan', key: 'menu.admin.rateplan'},
+            { id:'admin.rating', key: 'menu.admin.rating'}
         ];
 
         navItemsToTranslate.forEach(({ id, key }) =>

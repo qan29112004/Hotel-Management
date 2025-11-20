@@ -104,11 +104,12 @@ export class BookingComponent implements OnInit, OnChanges {
   @ViewChild('pickerCheckin') pickerCheckin!: MatDatepicker<Date>;
   @ViewChild('pickerCheckout') pickerCheckout!: MatDatepicker<Date>;
   @ViewChild('calendarCheckin') calendarCheckin!: MatCalendar<Date>;
+  
 
   constructor(private cdr: ChangeDetectorRef, public translocoService:TranslocoService,
     private bookingService : BookingService,
     private activeRoute: ActivatedRoute,
-    private router: Router,
+    private route: Router,
     
   ) {}
 
@@ -150,6 +151,7 @@ export class BookingComponent implements OnInit, OnChanges {
       }).subscribe(res=>{
         this.listRoomType = res.data;
         console.log("check list rt:", this.listRoomType)
+        console.log("check adasd", this.bookingState)
       })
       if(!localStorage.getItem('session_id')){
         this.bookingService.createSessionBooking(this.payload).subscribe(res=>{
@@ -159,6 +161,7 @@ export class BookingComponent implements OnInit, OnChanges {
       }else{
         this.bookingService.getListHoldRoom({"session_id":localStorage.getItem('session_id')}).subscribe(res=>{
           this.list_room_selected = res.data;
+          
         })
       }
     })
@@ -193,14 +196,16 @@ export class BookingComponent implements OnInit, OnChanges {
     }else{
       this.list_room_selected[this.bookingState.currentRoomIndex] = obj;
     }
+    console.log("check condition:", this.list_room_selected, this.bookingState)
     this.bookingState.currentStep = 'service';
     this.cdr.detectChanges();
   }
 
   // Handler khi chọn services xong
-  onServicesSelected(selected: number[]) {
+  onServicesSelected(selected: any[]) {
     this.bookingState.rooms[this.bookingState.currentRoomIndex].selectedServices = selected;
-
+    this.list_room_selected[this.bookingState.currentRoomIndex].services = selected;
+    console.log("check after choose service:", this.bookingState)
     if (this.bookingState.currentRoomIndex < this.bookingState.rooms.length - 1) {
       // còn phòng khác → quay lại bước rate của phòng tiếp theo
       this.bookingState.currentRoomIndex++;
@@ -308,8 +313,32 @@ export class BookingComponent implements OnInit, OnChanges {
   } 
 
   get totalBill(){
-    const total_bill_vn = this.list_room_selected.reduce((acc, room) => acc + room.totalPrice, 0);
+    const total_bill_vn = this.list_room_selected.reduce((acc, room) => {
+        const serviceTotal = room.services?.reduce((sAcc, sv) =>
+          sAcc + Number(sv.price)
+        , 0) || 0;
+
+        return acc + Number(room.totalPrice) + serviceTotal;
+      }, 0);
     const total_bill_usd = total_bill_vn/25000;
     return {total_bill_vn, total_bill_usd};
   }
+  booking(){
+    const queryParams: { [key: string]: any } = {};
+
+    queryParams.hotel = this.payload?.hotel_name; // 🔹 thay dest bằng hotel
+    queryParams.checkin = this.payload.checkin;
+    queryParams.checkout = this.payload.checkout;
+    queryParams.code = '';
+
+    this.roomList.forEach((room, i) => {
+      queryParams[`rooms[${i}][adults]`] = room.adults;
+      queryParams[`rooms[${i}][children]`] = room.children;
+    });
+    this.route.navigate(['booking'], {queryParams})
+  }
+  changeStep(step:'rate' | 'service' | 'info'){
+    this.bookingState.currentStep = step;
+  }
+  
 }

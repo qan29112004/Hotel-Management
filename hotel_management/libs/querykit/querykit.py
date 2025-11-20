@@ -20,6 +20,7 @@ from utils.base_querykit_utils import BaseQuerykitUtils
 from django.core.paginator import Paginator
 from django.db.models import QuerySet, Q
 from django.db import models
+from datetime import datetime, timedelta
 
 import logging
 
@@ -74,8 +75,7 @@ class FilterItem:
             if not isinstance(self.value, list) or len(self.value) != 2:
                 raise AppException(ErrorCodes.INVALID_FILTER_FIELD_CHOICE)
 
-            import re
-            from datetime import datetime, timedelta
+            
 
             def parse_value(v):
                 """Tự động parse kiểu dữ liệu cho RANGE."""

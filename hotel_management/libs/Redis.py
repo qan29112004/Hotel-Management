@@ -174,12 +174,22 @@ class RedisUtils:
 
     @staticmethod
     def get_hold_from_redis(hold_id: str):
+        from hotel_management_be.models.booking import HoldRecord
+        from hotel_management_be.serializers.booking_serializer import HoldRecordServiceReadSerializer
+        hold = HoldRecord.objects.get(uuid=hold_id)
+        services = hold.hold_service.all()
+        print("service", services)
+        serializer = HoldRecordServiceReadSerializer(services, many=True)
         key = RedisUtils.hold_key(hold_id)
         raw = RedisUtils.r.get(key)
         if not raw:
             return None
         try:
-            return json.loads(raw)
+            data = json.loads(raw)
+            print("check data:", data)
+            data['services']= serializer.data
+            print("check data 2:", data)
+            return data
         except Exception:
             return None
         
@@ -283,6 +293,27 @@ class RedisUtils:
     # @staticmethod
     # def get_session_holds(session_id: str):
     #     return RedisUtils.r.lrange(RedisUtils.session_holds_key(session_id), 0, -1)
+    @staticmethod
+    def check_inventory_for_range(hotel_id, room_type_id, checkin, checkout, quantity=1):
+        """
+        Decrement inventory for each date in range atomically. Returns True/False.
+        Dates format: YYYY-MM-DD
+        """
+        dates = []
+        start = datetime.fromisoformat(checkin).date()
+        end = datetime.fromisoformat(checkout).date()
+        cur = start
+        while cur < end:
+            dates.append(cur.isoformat())
+            cur = cur + timedelta(days=1)
+        keys = [RedisUtils.inventory_key(hotel_id, room_type_id, d) for d in dates]
+        # fetch values
+        values = RedisUtils.r.mget(keys)  # assuming mget returns list of strings or None
+
+        for v in values:
+            if v is None or int(v) < quantity:
+                return False
+        return True
     @staticmethod
     def atomic_decrement_inventory_for_range(hotel_id, room_type_id, checkin, checkout, quantity=1):
         """

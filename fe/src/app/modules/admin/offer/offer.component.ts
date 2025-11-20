@@ -353,7 +353,7 @@ export class OfferComponent {
         console.log("optionHotel", this.optionsHotel)
       })
     }else{
-      this.hotelService.getHotels({"page_size":0}).pipe(
+      this.hotelService.getAllHotels({"page_size":0}).pipe(
         map(hotels => {
           
             if (hotels) {
@@ -561,6 +561,7 @@ export class OfferComponent {
         componentRef.instance.entityData = this.selectedDes;
         componentRef.instance.saveHandler = this.saveHandler.bind(this);
         componentRef.instance.loadData = this.loadOffer.bind(this);
+        componentRef.instance.optionDestination = this.optionsHotel;
 
         // ✅ Lắng nghe sự kiện Output
         componentRef.instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());

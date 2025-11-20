@@ -94,7 +94,7 @@ export class ServiceComponent {
         options:[
           {id:"Include", name:"Include"},
           {id:"Paid", name:"Paid"},
-          {id:"Bonus", name:"Bonus"}
+          {id:"Add on", name:"Add on"}
         ],
         placeholderKey: 'service.enterType',
         
@@ -142,7 +142,7 @@ export class ServiceComponent {
         options:[
           {id:"Include", name:"Include"},
           {id:"Paid", name:"Paid"},
-          {id:"Bonus", name:"Bonus"}
+          {id:"Add on", name:"Add on"}
         ],
         placeholderKey: 'service.enterType',
         
@@ -176,7 +176,7 @@ export class ServiceComponent {
         options:[
           {id:"Include", name:"Include"},
           {id:"Paid", name:"Paid"},
-          {id:"Bonus", name:"Bonus"}
+          {id:"Add on", name:"Add on"}
         ],
         placeholderKey: 'service.enterService'
     },
@@ -262,7 +262,7 @@ export class ServiceComponent {
         console.log("optionHotel", this.optionsHotel)
       })
     }else{
-      this.hotelService.getHotels({"page_size":0}).pipe(
+      this.hotelService.getAllHotels({"page_size":0}).pipe(
         map(hotels => {
           
             if (hotels) {

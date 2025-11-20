@@ -92,10 +92,10 @@
                                         <div class="flex justify-end gap-5">
                                             <span class="font-avenir text-[12px] font-bold text-right text-black">{{calculateTotalAndAverage(r).average | currency:'VND':'symbol':'1.0-0'}} booking.per_night <br> ~{{convertVNDToUSD(calculateTotalAndAverage(r).average) | currency:'USD':'symbol-narrow':'1.0-2'}} </span>
                                             <ng-container *ngIf="r.name === list_room_selected?.ratePlanName && rt.name===list_room_selected?.roomTypeName; else notSelect">
-                                                <button type="button" class="bg-black py-[15px] px-[20px] font-avenir text-[14px] font-extrabold text-white" (click)="selectRateToBooking(rt.name, r.name,'10000')">booking.keep_room</button>
+                                                <button type="button" class="bg-black py-[15px] px-[20px] font-avenir text-[14px] font-extrabold text-white" (click)="selectRateToBooking(rt.name, r.name,calculateTotalAndAverage(r).totalWithVat, r.guaranteePolicy, r.cancellationPolicy)">booking.keep_room</button>
                                             </ng-container>
                                             <ng-template #notSelect>
-                                                <button type="button" class="bg-yellow-500 py-[15px] px-[20px] font-avenir text-[14px] font-extrabold" (click)="selectRateToBooking(rt.name, r.name,'10000')">booking.select</button>
+                                                <button type="button" class="bg-yellow-500 py-[15px] px-[20px] font-avenir text-[14px] font-extrabold" (click)="selectRateToBooking(rt.name, r.name,calculateTotalAndAverage(r).totalWithVat, r.guaranteePolicy, r.cancellationPolicy)">booking.select</button>
                                             </ng-template>
                                         </div>
                                     </div>

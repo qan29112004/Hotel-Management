@@ -265,7 +265,7 @@ export class RoomComponent {
         this.loadRooms();
       })
 
-      this.amenityService.getAmenities().pipe(
+      this.amenityService.getAllAmenities({page_size:0}).pipe(
         map(amenities => {
   
           if (amenities) {
@@ -284,7 +284,7 @@ export class RoomComponent {
         console.log("amenity options:", options)
       });
 
-      this.roomTypeService.getRoomTypes().pipe(
+      this.roomTypeService.getRoomTypes({page_size:0}).pipe(
         map(destinations => {
   
           if (destinations) {

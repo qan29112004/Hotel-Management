@@ -11,7 +11,8 @@ class ReviewRating(BaseModel):
     uuid = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
     review = models.TextField(max_length=200)
     rating = models.FloatField()
-    hotel = models.ForeignKey("hotel_management_be.Hotel", on_delete=models.CASCADE, related_name='productReview') 
+    hotel = models.ForeignKey("hotel_management_be.Hotel", on_delete=models.CASCADE, related_name='hotel_review') 
+    booking=models.OneToOneField("hotel_management_be.Booking", on_delete=models.CASCADE, related_name='booking_review',null=True, blank=True, default=None)
     subject = models.CharField(max_length=50, default='')
     is_active = models.BooleanField(default=True)
     

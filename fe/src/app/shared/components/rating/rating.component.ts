@@ -11,6 +11,7 @@ export class RatingComponent implements OnInit {
   starClassName = "star-rating-blank";
   @Input() starId;
   @Input() rating;
+  @Input() isDisableClick:boolean = true;
 
   @Output() leave: EventEmitter<number> = new EventEmitter();
   @Output() enter: EventEmitter<number> = new EventEmitter();

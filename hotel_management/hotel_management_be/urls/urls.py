@@ -14,6 +14,8 @@ from hotel_management_be.views.price_rule_view import *
 from hotel_management_be.views.payment_view import *
 from hotel_management_be.views.sse_view import *
 from hotel_management_be.views.service_view import *
+from hotel_management_be.views.rating_view import *
+
 
 
 urlpatterns = [
@@ -31,6 +33,7 @@ urlpatterns = [
     path("register/user/", register_user),
     path("update/user/<int:id>/", update_user_profile),
     path("delete/user/<int:id>/", delete_user),
+    path('upload-image/', upload_image),
 
     path('hotel/list/', list_hotel, name='list_hotel'),
     path('hotel/<str:uuid>/', hotel_detail, name='hotel_detail'),
@@ -57,12 +60,14 @@ urlpatterns = [
     
     path('booking/list/', list_booking),
     path('booking/create-booking-session/', create_booking_session),
+    path('booking/add-and-update-service-to-hold-record/', add_and_update_service_to_hold_record),
     path('booking/check-session/', check_session),
     path('booking/create-hold/', create_hold),
     path('booking/confirm_booking/', confirm_booking),
     path('booking/get-list-hold-room/',get_list_hold_room),
     path('booking/<str:uuid>/', booking_detail),
     path('booking/', add_booking),
+    path('my-booking/list/', list_my_booking),
     
     
     
@@ -97,5 +102,9 @@ urlpatterns = [
     # path("paypal/capture/", paypal_capture),
     
     
-    path('sse/session/<str:session_id>/',sse_view)
+    path('sse/session/<str:session_id>/',sse_view),
+    
+    path('rating/list/', list_rating, name="list_rating"),
+    path('rating/<str:uuid>/', rating_detail, name="add_rating_type"),
+    path('rating/', add_rating, name="add_rating"),
 ]

@@ -18,6 +18,7 @@ export class MapComponent implements AfterViewInit {
     { name: 'Khách sạn C', lat: 21.0350, lng: 105.8450, description: 'Khách sạn view hồ đẹp' }
   ];
   @Input() listData:any[] = [];
+  @Input() zoom:number =6;
 
   constructor() {
     // Khắc phục lỗi icon mặc định của Leaflet
@@ -32,8 +33,10 @@ export class MapComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     // Khởi tạo bản đồ bao quát Việt Nam
     this.map = L.map(this.mapContainer.nativeElement, {
-      center: [16.0, 108.0], // trung tâm Việt Nam
-      zoom: 6, 
+      center: this.listData && this.listData.length === 1
+        ? [this.listData[0].latitude, this.listData[0].longitude]
+        : [16.0, 108.0], // trung tâm Việt Nam
+      zoom: this.zoom, 
       minZoom: 2,
       maxZoom: 18,
       zoomControl: true,

@@ -4,6 +4,7 @@ import os
 from django.conf import settings
 from utils.utils import Utils
 from hotel_management_be.models.hotel import *
+from hotel_management_be.models.offer import *
 from django.core.files.storage import default_storage
 from .room_type_serializer import RoomTypeAmenitySerializer
 
@@ -18,30 +19,71 @@ class HotelImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = HotelImage
         fields = ['uuid','hotel_id','image_url']
+        
+class HotelServiceSerializer(serializers.ModelSerializer):
+    service_id = serializers.CharField(read_only=True, source="service.uuid")
+    service_name = serializers.CharField(read_only=True, source= "service.name")
+    service_image = serializers.CharField(read_only=True, source= "service.image")
+    class Meta:
+        model=HotelService
+        fields=['service_id','service_name','service_image']
+        
 
 class HotelSerializer(serializers.ModelSerializer):
     updated_by = serializers.SerializerMethodField()
     slug = serializers.SlugField(read_only = True)
     destination = serializers.PrimaryKeyRelatedField(queryset=Destination.objects.all(),required=False)
     images = HotelImageSerializer(many=True,  read_only=True)
-    images_upload = serializers.ListField(child=serializers.FileField(), write_only=True, required=False)
     latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
     longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
+    service = HotelServiceSerializer(many=True, source='hotel_services', read_only=True)
     class Meta:
         model = Hotel
         fields = [
             'uuid', 'name', 'description', 'slug', 'address', 'phone', 'status',
             'views', 'features', 'tags', 'thumbnail', 'destination', 'check_in_time',
-            'check_out_time', 'latitude', 'longitude', 'images', 'images_upload', 'created_by', 'updated_by','created_at','updated_at'
+            'check_out_time', 'latitude', 'longitude', 'images', 'created_by', 'updated_by','created_at','updated_at', 'service'
         ]
     def get_updated_by(self,obj):
         return {
             'username':obj.updated_by.username if obj.updated_by else None
         }    
     
+class HotelCreateSerializer(serializers.ModelSerializer):
+    slug = serializers.SlugField(read_only = True)
+    destination = serializers.PrimaryKeyRelatedField(queryset=Destination.objects.all(),required=False)
+    images_upload = serializers.ListField(child=serializers.FileField(), write_only=True, required=False)
+    latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
+    longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
+    service = serializers.ListField(child=serializers.CharField(allow_blank=True), write_only=True, required=False,allow_empty=True)
+    class Meta:
+        model = Hotel
+        fields = [
+            'uuid', 'name', 'description', 'slug', 'address', 'phone', 'status',
+            'views', 'features', 'tags', 'thumbnail', 'destination', 'check_in_time',
+            'check_out_time', 'latitude', 'longitude', 'service','images_upload'
+        ]
     def update(self, instance, validated_data):
         images_upload = validated_data.pop('images_upload', [])
+        if 'service' in validated_data:
+            new_services_uuids = validated_data.pop('service', [])
+            new_services = Service.objects.filter(uuid__in=new_services_uuids)
+
+            current_services = HotelService.objects.filter(hotel=instance)
+            current_uuids = set(current_services.values_list('service__uuid', flat=True))
+            new_uuids = set(new_services.values_list('uuid', flat=True))
+
+            # Xóa service bị bỏ
+            to_delete = current_uuids - new_uuids
+            HotelService.objects.filter(hotel=instance, service__uuid__in=to_delete).delete()
+
+            # Thêm service mới
+            to_add = new_uuids - current_uuids
+            for service in new_services:
+                if service.uuid in to_add:
+                    HotelService.objects.create(hotel=instance, service=service)
         print("thumnail", validated_data.get('thumbnail'))
+        
         for file in images_upload:
             HotelImage.objects.create(
                 hotel=instance,
@@ -52,7 +94,13 @@ class HotelSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
     def create(self, validated_data):
         images_upload = validated_data.pop('images_upload', [])
+        service_uuids = validated_data.pop('service', [])
         hotel = super().create(validated_data)
+        if service_uuids:
+            services = Service.objects.filter(uuid__in=service_uuids)
+            for service in services:
+                HotelService.objects.get_or_create(hotel=hotel, service=service)
+
         for file in images_upload:
             HotelImage.objects.create(
                 hotel=hotel,
@@ -61,6 +109,7 @@ class HotelSerializer(serializers.ModelSerializer):
             )
             default_storage.save(f'images/{hotel.name}/{file.name}', file)
         return hotel
+    
 class ThumbnailSerializer(serializers.Serializer):
     file = serializers.FileField()
     
@@ -80,20 +129,20 @@ class RoomTypeSerializer(serializers.ModelSerializer):
     hotel_id = serializers.PrimaryKeyRelatedField(queryset=Hotel.objects.all())
     updated_by = serializers.SerializerMethodField()
     images = RoomTypeImageSerializer(many=True,  read_only=True)
-    amenities = RoomTypeAmenitySerializer(many=True, source="roomtype_amenity", read_only=True)
+    amenity = RoomTypeAmenitySerializer(many=True, source="roomtype_amenity", read_only=True)
     def get_updated_by(self,obj):
         return {
             'username':obj.updated_by.username if obj.updated_by else None
         }    
     class Meta:
         model = RoomType
-        fields=['uuid','hotel_id','name','size','max_occupancy', 'base_price', 'description','total_rooms', 'thumbnail', 'amenities','images', 'created_by', 'updated_by','created_at','updated_at']
+        fields=['uuid','hotel_id','name','size','max_occupancy', 'base_price', 'description','total_rooms', 'thumbnail', 'amenity','images', 'created_by', 'updated_by','created_at','updated_at']
     
 class RoomTypeCreateSerializer(serializers.ModelSerializer):
     hotel_id = serializers.PrimaryKeyRelatedField(
         queryset=Hotel.objects.all()
     )
-    amenity = serializers.ListField(child=serializers.CharField(), write_only=True, required=False)
+    amenity = serializers.ListField(child=serializers.CharField(allow_blank=True), write_only=True, required=False,allow_empty=True)
     images_upload = serializers.ListField(child=serializers.FileField(), write_only=True, required=False)
 
     class Meta:

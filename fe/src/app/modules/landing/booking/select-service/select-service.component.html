@@ -1,6 +1,59 @@
-<h2 class="text-lg font-semibold mb-4">Select Services for Room {{ roomIndex + 1 }}</h2>
-<button
-    class="px-4 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800"
-    (click)="completeService()">
-    Confirm Services
-</button>
+<div class='flex items-start justify-start w-full'>  
+    <div class="flex flex-col w-full pr-5 shrink">
+        <button (click)="completeService()" type="button" class="px-[15px] py-[20px] bg-black text-white font-[14px] font-lexend_deca cursor-pointer">booking.continue</button>
+        <ng-container *ngFor="let service of services(); let i = index">
+            <div class="bg-[#f4f4f4] w-full p-5 mb-5">
+                <div class="flex flex-col w-full p-5 bg-white">
+                    <div class="flex flex-col w-full h-max">
+                        <div class="flex w-full gap-3 mb-14">
+                            <div class="relative w-[305px]">
+                                <!-- Swiper -->
+                                <swiper-container
+                                    #swiperEl
+                                    init="false"
+                                    class="overflow-hidden aspect-[3/2]"
+                                >
+                                    <swiper-slide>
+                                    <img [src]="baseUrl + service.image" class="object-cover w-full h-full" />
+                                    </swiper-slide>
+                                </swiper-container>
+
+    
+                            </div>
+                            <div class="flex flex-col flex-grow">
+                                <span class="w-full font-clearface text-[30px]">{{service.name}}</span>
+                                <div class="flex gap-5 mt-3 mb-5">
+                                    
+                                </div>
+                                <pre class="font-avenir text-[14px]">{{service.description}}</pre>
+                                <div class='w-full p-4 flex justify-between mt-[20px] border border-[#d4d4d4]'>
+                                    <span class='text-[16px] font-avenir text-black'>booking.per_person</span>
+                                    <div class='flex items-center gap-2'>
+                                        <mat-icon (click)="decrease(i)" class="text-black cursor-pointer">do_not_disturb_on</mat-icon>
+                                        <span>{{reAttachQuantity(service)?reAttachQuantity(service):service.quantity}}</span>
+                                        <mat-icon (click)="increase(i)" class="text-black cursor-pointer">add_circle</mat-icon>
+                                    </div>
+                                </div>
+                                <div class="mt-[30px] flex justify-end gap-[20px] items-center">
+                                    <div class="flex flex-col gap-1">
+                                        <span class="font-lexend_deca text-[18px] font-bold">{{+service.price | currency:'VND':'symbol':'1.0-0'}} <span class="font-avenir text-[13px] text-black">booking.per_person</span></span>
+                                        <span class="font-avenir text-[13px] text-[#787878]">~ {{convertVNDToUSD(service.price)| currency:'USD':'symbol-narrow':'1.0-2'}}</span>
+                                    </div>
+                                    <ng-container *ngIf="checkIsSelect(i, service); else removeSelect">
+                                        <button (click)="selectService(service)" type="button" class="bg-black py-[15px] px-[20px] font-lexend_deca text-white text-[14px] font-extrabold">booking.remove</button>
+                                    </ng-container>
+                                    <ng-template #removeSelect>
+
+                                        <button (click)="selectService(service)" type="button" class="bg-yellow-500 py-[15px] px-[20px] font-lexend_deca text-black text-[14px] font-extrabold">booking.select</button>
+                                    </ng-template>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+    
+</div>

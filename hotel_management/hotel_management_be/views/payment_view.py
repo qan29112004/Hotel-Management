@@ -116,7 +116,7 @@ def payment_ipn(request):
 
     if Utils.validate_response(vnp_hash_secret, vnp_secure_hash, input_data) == False:
         return AppResponse.error(ErrorCodes.INVALID_SIGNATURE,{"RspCode": "97", "Message": "Invalid signature"})
-
+    print("SUCCESS PAYMENT")
     # ===  Bước 2: Lấy thông tin booking ===
     txn_ref = input_data.get("vnp_TxnRef")  # uuid booking
     vnp_response_code = input_data.get("vnp_ResponseCode")
@@ -140,7 +140,7 @@ def payment_ipn(request):
             transaction_id=vnp_transaction_no,
             method="vnpay",
         )
-        booking.status = "Paid"
+        booking.status = "Confirm"
         booking.save()
         set_booking_room.delay(session_id, txn_ref)
         RedisUtils.finalize_booking_success(session_id)

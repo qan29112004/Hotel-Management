@@ -342,7 +342,8 @@ export class GenericAddComponent implements OnInit {
         if (checked) {
             if (!this.selectedRadioValues[fieldName].includes(value)) {
             this.selectedRadioValues[fieldName].push(value);
-            this.displayCheckbox[option.name] = option.icon;
+            console.log("checkbox:", this.selectedRadioValues)
+            this.displayCheckbox[option.name] = option.icon ? option.icon:null;
             }
         } else {
             this.selectedRadioValues[fieldName] = this.selectedRadioValues[fieldName].filter(v => v !== value);

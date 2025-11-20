@@ -8,21 +8,23 @@ import { DateAdapter } from '@angular/material/core';
 import { DateTime } from 'luxon';
 import { RenderDayCellEventArgs } from '@syncfusion/ej2-angular-calendars';
 import { CalendarComponent } from 'app/shared/components/calendar/calendar/calendar.component';
-import { getCurrentDateString, parseDate } from 'app/shared/utils/util';
+import { getCurrentDateString, parseDate, timeDate } from 'app/shared/utils/util';
 import { register } from 'swiper/element/bundle';
 import { RatingComponent } from 'app/shared/components/rating/rating.component';
 import { HotelService } from 'app/core/admin/hotel/hotel.service';
+import { MapComponent } from 'app/shared/components/map/map.component';
 
 @Component({
   selector: 'app-hotel-particular',
   standalone: true,
-  imports: [CommonModule, SharedModule, CalendarComponent, RatingComponent],
+  imports: [CommonModule, SharedModule, CalendarComponent, RatingComponent, MapComponent],
   templateUrl: './hotel-particular.component.html',
   styleUrls:['./hotel-particular.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HotelParticularComponent implements OnDestroy, OnInit {
-  parseDate = parseDate
+  parseDate = parseDate;
+  timeDate = timeDate;
   title = "star-angular";
   stars = [1, 2, 3, 4, 5];
   rating = 0;
@@ -39,8 +41,16 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
   updateRating(i) {
     this.rating = i;
   }
+  @ViewChild('overview') overview:ElementRef;
+  @ViewChild('images') images:ElementRef;
+  @ViewChild('rooms') rooms:ElementRef;
+  @ViewChild('reviews') reviews:ElementRef;
+  @ViewChild('location') location:ElementRef;
 
   hotel_data:any;
+
+  isRatingOverlayOpen:boolean = false;
+  isFeatureAndServiceOverlayOpen:boolean = false;
 
   showCloseButton:boolean = false;
 
@@ -124,7 +134,7 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
         });
         i++;
       }
-      this.roomList = rooms;
+      this.roomList = rooms.length > 0 ? rooms : this.roomList;
       this.hotelService.getHotelById(this.crrHotel).subscribe(res=>{
         this.hotel_data = res.data;
       })
@@ -146,6 +156,36 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
       });
     }
     ;
+  }
+
+  scrollTo(tag:string){
+    const tagNavigate = {
+      'overview':this.overview,
+      'rooms':this.rooms,
+      'location':this.location,
+      'reviews':this.reviews,
+      'images':this.images
+    }
+    tagNavigate[`${tag}`].nativeElement.scrollIntoView({behavior:'smooth', block:'center'})
+  }
+
+  openRatingOverlay() {
+    this.isRatingOverlayOpen = true;
+    this.renderer.addClass(document.body, 'overflow-hidden');  // Ngăn scroll toàn trang
+  }
+  // Đóng overlay và cho phép scroll body lại
+  closeRatingOverlay() {
+    this.isRatingOverlayOpen = false;
+    this.renderer.removeClass(document.body, 'overflow-hidden');
+  }
+  openFeatureAndServiceOverlay() {
+    this.isFeatureAndServiceOverlayOpen = true;
+    this.renderer.addClass(document.body, 'overflow-hidden');  // Ngăn scroll toàn trang
+  }
+  // Đóng overlay và cho phép scroll body lại
+  closeFeatureAndServiceOverlay() {
+    this.isFeatureAndServiceOverlayOpen = false;
+    this.renderer.removeClass(document.body, 'overflow-hidden');
   }
 
   @HostListener('window:scroll', ['$event'])
@@ -226,6 +266,7 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
 
 
   ngOnDestroy() {
+    this.renderer.removeClass(document.body, 'overflow-hidden');
     this.calendarSub?.unsubscribe();
   }
 
@@ -240,6 +281,7 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
         this.checkInDateObj =parseDate(this.checkInDate)
         this.checkOutDate = null;
         this.checkOutDateObj = this.checkInDateObj;
+        console.log('chekout date', this.checkInDateObj)
         this.showCalendarCheckin = !this.showCalendarCheckin; 
     }else{
       this.checkInDate = null;

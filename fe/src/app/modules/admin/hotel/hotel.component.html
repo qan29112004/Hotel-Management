@@ -45,6 +45,7 @@
                                 [titleKey]="'content.advanced_filters'"
                                 [fields]="filterFields"
                                 [optionDestination]="optionsDestination"
+                                [optionRadio]="checkboxService"
                                 (filter)="onApplyFilter($event)"
                                 (reset)="onResetFilter()"
                                 (close)="toggleFilterDrawer()"
@@ -346,6 +347,7 @@
     [fields]="addFields"
     [saveHandler]="addSaveHandler.bind(this)"
     [optionDestination]="optionsDestination"
+    [optionRadio]="checkboxService"
     (toggleDrawer)="toggleAddUserDrawer()"
     [loadData] = "loadHotels.bind(this)"
     (drawerOpenedChanged)="onAddDrawerOpenedChanged($event)">

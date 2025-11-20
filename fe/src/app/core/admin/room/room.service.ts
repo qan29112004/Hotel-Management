@@ -36,9 +36,9 @@ export class RoomService {
         page: res.data?.page,
         page_size: res.data?.page_size
       })),
-      tap(res =>{
-        this.room = res.data;
-      })
+      // tap(res =>{
+      //   this.room = res.data;
+      // })
     )
   }
   createRoom(room:any): Observable<any>{

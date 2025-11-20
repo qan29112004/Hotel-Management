@@ -179,9 +179,10 @@ def set_booking_room(session_id, booking_id):
 
         nights = (hold.checkout - hold.checkin).days
         price_per_night = Decimal(hold.total_price) / Decimal(max(nights, 1) * hold.quantity)
-
+        # 🔥 LẤY TẤT CẢ SERVICE CỦA HOLD NÀY
+        hold_services = HoldRecordService.objects.filter(hold=hold)
         for room in selected_rooms:
-            BookingRoom.objects.create(
+            booking_room = BookingRoom.objects.create(
                 booking_id=booking,
                 room_id=room,
                 rate_plan_id=hold.rate_plan,
@@ -192,6 +193,13 @@ def set_booking_room(session_id, booking_id):
             )
 
             # Cập nhật trạng thái phòng → Booked
-            room.status = "Booked"
-            room.save()
+            # room.status = "Booked"
+            # room.save()
+            for hs in hold_services:
+                BookingRoomService.objects.create(
+                    room=booking_room,
+                    service=hs.service,
+                    quantity=hs.quantity,
+                    price=hs.price,
+                )
             

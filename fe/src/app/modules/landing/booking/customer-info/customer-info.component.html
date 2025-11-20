@@ -11,7 +11,7 @@
             <span class="block text-[#787878] font-avenir text-[10px] tracking-[1px] uppercase font-bold"
               [ngClass]="{'text-red-500':isSubmitted && bookingForm.get('fullname')?.invalid}"
             >booking.fullname</span>
-            <input type="text" class="block w-full h-[50px] border border-[#d4d4d4] pl-[10px] text-[16px] font-avenir" name="fullname" formControlName="fullname"
+            <input type="text" class="block w-full h-[50px] border border-[#d4d4d4] pl-[10px] text-[16px] font-avenir" name="fullname" formControlName="fullname" 
               [ngClass]="{'bg-red-300 border-red-500':isSubmitted && bookingForm.get('fullname')?.invalid}"
             />
             <small *ngIf="isSubmitted && bookingForm.get('fullname')?.invalid" class="text-red-500">Vui lòng nhập họ tên</small>
@@ -40,23 +40,25 @@
           <div class="grid w-full grid-cols-2">
             <p class="w-full">
               <span class="block uppercase text-[10px] tracking-[1px] font-bold ">check in</span>
-              <span class="text-[10px]">booking.after 2:00 pm</span>
+              <span class="text-[10px]">booking.after {{timeDate(dataBooking['checkin'])}}</span>
             </p>
             <p class="w-full">
               <span class="block uppercase text-[10px] tracking-[1px] font-bold ">check out</span>
-              <span class="text-[10px]">booking.before 2:00 pm</span>
+              <span class="text-[10px]">booking.before {{timeDate(dataBooking['checkout'])}}</span>
             </p>
           </div>
           <div class="w-full">
-            <div class="bg-[#9e693d] px-[15px] py-[5px] text-[14px] uppercase font-extrabold text-white inline-flex">booking.room 1</div>
-            <div class="mt-[30px] w-full">
-              <span class="text-[10px] uppercase font-bold tracking-[1px] mt-[5px] block">booking.guarantee_policy</span>
-              <span class="text-[10px] tracking-[1px]">booking.guarantee_policy</span>
-            </div>
-            <div class="mt-[30px] w-full">
-              <span class="text-[10px] uppercase font-bold tracking-[1px] mt-[5px] block">booking.guarantee_policy</span>
-              <span class="text-[10px] tracking-[1px]">booking.guarantee_policy</span>
-            </div>
+            <ng-container *ngFor="let rate of dataRate; let i = index">
+              <div class="bg-[#9e693d] px-[15px] py-[5px] text-[14px] uppercase font-extrabold text-white inline-flex">booking.room {{i+1}}</div>
+              <div class="mt-[30px] w-full">
+                <span class="text-[10px] uppercase font-bold tracking-[1px] mt-[5px] block">booking.guarantee_policy</span>
+                <span class="text-[10px] tracking-[1px]">{{rate.guaranteePolicy}}</span>
+              </div>
+              <div class="mt-[30px] w-full">
+                <span class="text-[10px] uppercase font-bold tracking-[1px] mt-[5px] block">booking.cancellation_policy</span>
+                <span class="text-[10px] tracking-[1px]">{{rate.cancellationPolicy}}</span>
+              </div>
+            </ng-container>
           </div>
           
         </div>
@@ -67,7 +69,7 @@
         <div class="flex flex-col">
           <span class="font-clearface text-[30px] font-normal">booking.guarantee_my_booking</span>
           <div class="mt-[15px]">
-            <span class="block text-[14px] font-avenir mb-[5px]">name hotel booking.accept_method</span>
+            <span class="block text-[14px] font-avenir mb-[5px]">{{dataBooking['hotel_name']}} booking.accept_method</span>
             <div class="flex gap-2">
               <img src="assets/images/booking/logo_paypal.svg" class="object-cover w-[100px] h-[50px]"/>
               <img src="assets/images/booking/logo_vnpay.svg" class="object-contain w-[100px] h-[50px]"/>

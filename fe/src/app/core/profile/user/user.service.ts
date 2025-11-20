@@ -49,9 +49,9 @@ export class UserService {
         // console.log('[UserService] get() called');
         return this._httpClient.get(uriConfig.API_USER_INFOR).pipe(
             map((response: any) => {
-                if (response?.data?.user) {
+                if (response?.data) {
                     const user = {
-                        ...response.data.user,
+                        ...response.data,
                     };
                     console.log("next user")
                     this._user.next(user);

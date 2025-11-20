@@ -30,11 +30,19 @@ class Offer(BaseModel):
     
 class Service(BaseModel):
     uuid  = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
-    name = models.CharField( max_length=50, null=True, blank=True)
+    name = models.CharField( max_length=50, null=True, blank=True, unique=True)
     image = models.CharField(max_length=100,null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     type = models.CharField(max_length=20, default="Include", choices=HotelConstants.SERVICE_STATUS)  # include, paid, bonus...
     description = models.TextField(null=True, blank=True, default='')
+    
+class HotelService(models.Model):
+    uuid  = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
+    hotel = models.ForeignKey('hotel_management_be.Hotel', on_delete=models.CASCADE, related_name='hotel_services')
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='services_hotel')
+
+    class Meta:
+        unique_together = ('hotel', 'service')  # đảm bảo không trùng
     
     
     
@@ -51,9 +59,13 @@ class RatePlan(BaseModel):
     cancellation_policy = models.TextField(null=True, blank=True, default='')
     
     hotel = models.ForeignKey('hotel_management_be.Hotel', on_delete=models.CASCADE, related_name='rate_plans_hotel', null=True, blank=True)
-    services = models.ManyToManyField(Service, related_name="rate_plans", blank=True)
     def __str__(self):
         return self.name
+    
+class ServiceRatePlan(models.Model):
+    uuid = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name="sv_service_rate_plan")
+    rate_plan = models.ForeignKey(RatePlan, on_delete=models.CASCADE, related_name="rp_service_rate_plan")
     
 class PriceRule(BaseModel):
     uuid = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")

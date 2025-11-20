@@ -34,7 +34,31 @@ class BookingRoom(BaseModel):
     nights = models.IntegerField()
     subtotal = models.DecimalField(max_digits=30, decimal_places=10)
     status = models.CharField(max_length=20, null=True, blank=True, choices=HotelConstants.BOOKING_ROOM_STATUS, default=None)
-    
+
+class BookingRoomService(BaseModel):
+    uuid = ShortUUIDField(
+        primary_key=True, 
+        unique=True, 
+        max_length=20, 
+        length=10, 
+        alphabet="abcdefghjklmnopqrstuvwxyz"
+    )
+
+    room = models.ForeignKey(
+        'hotel_management_be.BookingRoom',
+        on_delete=models.CASCADE,
+        related_name="booking_room_service"
+    )
+
+    service = models.ForeignKey(
+        'hotel_management_be.Service',
+        on_delete=models.CASCADE,
+        related_name="service_booking_room"
+    )
+
+    quantity = models.PositiveIntegerField(default=1)
+
+    price = models.DecimalField(max_digits=30, decimal_places=10)
     
 
 class Payment(BaseModel):
@@ -75,6 +99,31 @@ class HoldRecord(BaseModel):
     total_price = models.DecimalField(max_digits=30, decimal_places=10, default=0)
     status = models.CharField(max_length=20, choices=HotelConstants.HOLD_RECORD, default='Hold')  # HOLD, CONFIRMED, EXPIRED, RELEASED
     expires_at = models.DateTimeField(null=True, blank=True)
+
+class HoldRecordService(BaseModel):
+    uuid = ShortUUIDField(
+        primary_key=True, 
+        unique=True, 
+        max_length=20, 
+        length=10, 
+        alphabet="abcdefghjklmnopqrstuvwxyz"
+    )
+
+    hold = models.ForeignKey(
+        'hotel_management_be.HoldRecord',
+        on_delete=models.CASCADE,
+        related_name="hold_service"
+    )
+
+    service = models.ForeignKey(
+        'hotel_management_be.Service',
+        on_delete=models.CASCADE,
+        related_name="service_hold"
+    )
+
+    quantity = models.PositiveIntegerField(default=1)
+
+    price = models.DecimalField(max_digits=30, decimal_places=10)
 
 class Refund(BaseModel):
     uuid = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")

@@ -150,7 +150,7 @@ export class GenericFilterComponent {
             }
             else if (formValues[field.name]) {
                 filterRules.push({
-                    field: field.name,
+                    field: field.relatedName || field.name,
                     option: 'contains',
                     value: formValues[field.name],
                 });

@@ -47,4 +47,14 @@ export class BookingService {
     deleteBooking(uuid: string): Observable<any> {
       return this.http.delete(uriConfig.API_BOOKING_DELETE(uuid));
     }
+  getMyBooking(param:any):Observable<any>{
+    return this.http.post<any>(uriConfig.API_MY_BOOKING, param).pipe(
+      map(res => ({
+          data: res.data?.data || [],
+          total: res.data?.total,
+          page: res.data?.page,
+          page_size: res.data?.page_size
+        })),
+    )
+  }
 }

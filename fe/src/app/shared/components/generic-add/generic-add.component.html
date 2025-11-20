@@ -202,7 +202,7 @@
                                 <div *ngFor="let value of displayCheckbox | keyvalue; let i = index" class="relative">
                                     <div class="flex items-center justify-center w-full h-12 bg-gray-200 rounded">
                                         <!-- {{ field.options.find(opt => opt.id === value)?.name || value }} -->
-                                          <img [src]="baseUrl + value.value" class="w-8 mr-1"/> {{value.key}}
+                                          <img *ngIf="value.value" [src]="baseUrl + value.value" class="w-8 mr-1"/> {{value.key}}
                                     </div>
                                     <button
                                         mat-icon-button

@@ -167,7 +167,8 @@ def get_user_info_by_id(request, id):
 def update_profile(request):
     """Update user profile information."""
     try:
-      
+        key = f"user:{request.data.get('id')}"
+        RedisWrapper.remove(key)
         serializer = UserSerializer(
             instance = request.user,
             data=request.data,
@@ -304,3 +305,35 @@ def delete_user(request, id):
         import traceback
         traceback.print_exc() 
         return AppResponse.error(ErrorCodes.INTERNAL_SERVER_ERROR, errors=str(e))
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_image(request):
+    import uuid
+    import os
+    from django.conf import settings
+    try:
+        file = request.FILES.get('image')
+        if not file:
+            return AppResponse.error(ErrorCodes.INVALID_REQUEST, errors="No image file provided")
+            
+        # allowed_types =  ["image/jpeg", "image/png", "image/gif", "image/bmp", "image/tiff", "image/webp"]
+        if file.content_type not in Constants.ALLOWED_AVATAR_TYPES:
+            return AppResponse.error(ErrorCodes.INVALID_REQUEST, errors="Invalid file type. Only JPEG, PNG, GIF, BMP and WEBP are allowed")
+            
+        upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploads', 'stores')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        filename = f"{uuid.uuid4()}_{file.name}"
+        filepath = os.path.join(upload_dir, filename)
+        
+        with open(filepath, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+                
+        image_url = f"{settings.MEDIA_URL}uploads/stores/{filename}"
+       
+        return AppResponse.success(SuccessCodes.UPLOAD_IMAGE, data={"url": image_url})
+        
+    except Exception as e:
+        return AppResponse.error(ErrorCodes.UNKNOWN_ERROR, errors=str(e))

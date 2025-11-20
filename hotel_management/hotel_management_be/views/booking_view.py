@@ -15,6 +15,8 @@ from rest_framework.decorators import api_view
 from constants.success_codes import SuccessCodes
 from configuration.jwt_config import JwtConfig
 from hotel_management_be.serializers.booking_serializer import *
+from hotel_management_be.serializers.service_serializer import *
+
 from django.contrib.auth import authenticate
 from constants.error_codes import ErrorCodes
 from django.contrib.auth.models import update_last_login
@@ -91,13 +93,13 @@ def list_booking(request):
     
     
 HOLD_TTL_SECONDS = getattr(settings, "HOLD_TTL_SECONDS", 10*60)
-SESSION_TTL_SECONDS = getattr(settings, "SESSION_TTL_SECONDS", 2*60)
+SESSION_TTL_SECONDS = getattr(settings, "SESSION_TTL_SECONDS", 15*60)
 
 # Utility: ensure inventory keys exist for requested range (init from DB)
 def ensure_inventory_for_range(hotel_id, room_type_id, checkin, checkout):
     rt = RoomType.objects.get(uuid=room_type_id)
     set_room_booked = Utils.get_booked_rooms(checkin, checkout)
-    available_room = Room.objects.filter(room_type_id=rt).exclude(uuid__in=set_room_booked).count()
+    available_room = Room.objects.filter(room_type_id=rt, status='Available').exclude(uuid__in=set_room_booked).count()
     cur = checkin
     today = timezone.now().date()
     while cur < checkout:
@@ -361,3 +363,46 @@ def check_session(request):
         return AppResponse.success(SuccessCodes.PAYMENT, {"check":session_id})
     except Exception as e:
         return AppResponse.error(ErrorCodes.PAYMENT, str(e))
+    
+@api_view(["POST"])
+def add_and_update_service_to_hold_record(request):
+    try:
+        room_index = request.data.get('room_index',0)
+        services = request.data.get('services',[])
+        print("service", services)
+        service_id = [{'service':s['service_id']} for s in services if 'service_id' in s]
+        print('service_id', service_id)
+        session_id = request.data.get('session_id','')
+        existing_hold_id = RedisUtils.get_hold_for_room(session_id, room_index)
+        payload_hold = RedisUtils.get_hold_from_redis(existing_hold_id)
+        hold_id = payload_hold.get('hold_id')
+        hold = HoldRecord.objects.get(uuid=hold_id)
+        result = []
+        errors = []
+        for service_item in service_id:
+            serializer = HoldServiceSerializer(
+                data=service_item,
+                context={'hold': hold}
+            )
+            if serializer.is_valid():
+                hold_service = serializer.save()
+                data = ServiceSerializer(hold_service.service).data
+                result.append(data)
+            else:
+                return AppResponse.error(ErrorCodes.COMMENT_PARENT_NOT_FOUND, serializer.errors)
+        return AppResponse.success(SuccessCodes.ADMIN_INFOR, result)
+    except Exception as e:
+        return AppResponse.error(ErrorCodes.ARRAY_ONLY, str(e))
+    
+@auto_schema_post(QuerykitSerializer)
+@permission_classes([IsAdminUser])
+@api_view(['POST'])
+def list_my_booking(request):
+    try:
+        list_booking = Booking.objects.all()
+        paginated_booking, total = Querykit.apply_filter_paginate_search_sort(request=request, queryset=list_booking).values()
+        serializers = MyBookingSerializer(paginated_booking, many=True)
+        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data, 'total':total})
+    except Exception as e:
+        return AppResponse.error(ErrorCodes.LIST_AMENITY_FAIL, str(e))
+    

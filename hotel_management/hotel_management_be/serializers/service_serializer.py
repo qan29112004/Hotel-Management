@@ -9,7 +9,7 @@ class ServiceSerializer(serializers.ModelSerializer):
     updated_by = serializers.SerializerMethodField()
     class Meta:
         model=Service
-        fields=['uuid','name','image','price','type','created_by','created_at','updated_by','updated_at']
+        fields=['uuid','name','image','price','type','description','created_by','created_at','updated_by','updated_at']
     
     def get_updated_by(self, obj):
         return {

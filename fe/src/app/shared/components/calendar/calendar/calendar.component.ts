@@ -41,6 +41,8 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
   @Input() crrHotel:string = '';
   @Input() isDisplayCalendar:boolean = false;
   @Input() roomList:any[];
+  @Input() isCheckin:boolean;
+  @Input() isCheckout:boolean;
   @Output() selectedDayEmit: EventEmitter<Date> = new EventEmitter<Date>();
   @Output() nextMonth:EventEmitter<string> = new EventEmitter<string>();
   @Output() prevMonth:EventEmitter<string> = new EventEmitter<string>();
@@ -121,11 +123,12 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
   // }
 
   ngOnChanges(changes: SimpleChanges) {
-    if ((changes['date'] && changes['date'].currentValue) && (changes['roomList'] && changes['roomList'].currentValue)) {
+    if ((changes['date'] && changes['date'].currentValue) || (changes['roomList'] && changes['roomList'].currentValue)) {
       this.currYear = changes['date'].currentValue.getFullYear();
       this.currMonth = changes['date'].currentValue.getMonth();
       console.log("change")
-      this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(changes['date'].currentValue), 'rooms':changes['roomList'].currentValue}).subscribe(res =>{
+      console.log("check paylaod", {"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(changes['date'].currentValue), 'rooms':(changes['roomList'] && changes['roomList'].currentValue)? changes['roomList'].currentValue : this.roomList})
+      this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(changes['date'].currentValue), 'rooms':(changes['roomList'] && changes['roomList'].currentValue)? changes['roomList'].currentValue : this.roomList}).subscribe(res =>{
         this.priceList = res.data;
         console.log("this.priceList:" , this.priceList)
         this.renderCalendar();
@@ -208,11 +211,15 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
            d1.getMonth() === d2.getMonth() &&
            d1.getDate() === d2.getDate();
   }
+  private isGreaterThan(d1: Date, d2: Date): boolean {
+    return d1.getTime() > d2.getTime();
+  }
 
   private updateSelectedHighlight(date?:Date) {
     this.calendarDays = this.calendarDays.map(day => ({
       ...day,
-      isToday: this.selectedDate ? this.isSameDay(day.date, this.selectedDate) : false
+      isToday: this.selectedDate ? this.isSameDay(day.date, this.selectedDate) : false,
+      
     }));
   }
   

@@ -41,4 +41,5 @@ export interface FieldConfig {
     asyncOptionsKey?:any,
     isForeignKey?:boolean;
     relatedName?:string;
+    helpText?:string
 }

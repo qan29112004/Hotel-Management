@@ -104,7 +104,7 @@ export const appRoutes: Route[] = [
                 data: { title: 'user_infor.title' },
                 loadChildren: () =>
                     import(
-                        'app/modules/user/customer/user-infor/user-infor.routes'
+                        'app/modules/user/customer/user-infor/user-infor-edit/user-infor-edit.route'
                     ),
             },
             
@@ -130,6 +130,11 @@ export const appRoutes: Route[] = [
                 path: routeConfig.USER_FEEDBACK,
                 data: {title: 'FeedBack'},
                 loadChildren: () => import('app/modules/auth/feedback/feedback.routers'),
+            },
+            {
+                path: routeConfig.MY_BOOKING,
+                data: {title: 'My Booking'},
+                loadChildren: () => import('app/modules/auth/my-booking/my-booking.route'),
             }
         ],
     },
@@ -293,6 +298,18 @@ export const appRoutes: Route[] = [
                         data: { title: 'service.title' },
                         loadChildren: () =>
                             import('app/modules/admin/service/service.route'),
+                    },
+                    {
+                        path: routeConfig.RATEPLAN,
+                        data: { title: 'rateplan.title' },
+                        loadChildren: () =>
+                            import('app/modules/admin/rateplan/rateplan.route'),
+                    },
+                    {
+                        path: routeConfig.RATING,
+                        data: { title: 'rating.title' },
+                        loadChildren: () =>
+                            import('app/modules/admin/rating/rating.route'),
                     },
                     {
                         path: routeConfig.ADMIN_FEEDBACK,

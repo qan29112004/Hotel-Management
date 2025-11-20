@@ -31,7 +31,7 @@ from utils.utils import Utils
 def add_rate_plan(request):
     try:
         
-        serializers = RatePlanSerializer(data=request.data, context={'request':request})
+        serializers = RatePlanCreateSerializer(data=request.data, context={'request':request})
         if serializers.is_valid():
             new_rate_plan = serializers.save(created_by = request.user)
             return AppResponse.success(SuccessCodes.CREATE_AMENITY, data={"data":RatePlanSerializer(new_rate_plan).data})
@@ -50,7 +50,7 @@ def rate_plan_detail(request, uuid):
 
         if request.method == 'PATCH':
             
-            serializer = RatePlanSerializer(rate_plan, data=request.data, partial=True)
+            serializer = RatePlanCreateSerializer(rate_plan, data=request.data, partial=True)
             if serializer.is_valid():
                 with transaction.atomic():
                     updated = serializer.save(updated_by=request.user)
@@ -75,7 +75,7 @@ def list_rate_plan(request):
         list_rate_plan = RatePlan.objects.all()
         paginated_rate_plan, total = Querykit.apply_filter_paginate_search_sort(request=request, queryset=list_rate_plan).values()
         serializers = RatePlanSerializer(paginated_rate_plan, many=True)
-        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data})
+        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data, 'total':total})
     except Exception as e:
         return AppResponse.error(ErrorCodes.LIST_AMENITY_FAIL, str(e))
     

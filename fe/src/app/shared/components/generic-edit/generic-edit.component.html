@@ -207,7 +207,7 @@
                                 <div *ngFor="let value of displayCheckbox | keyvalue; let i = index" class="relative">
                                     <div class="flex items-center justify-center w-full h-12 bg-gray-200 rounded">
                                         <!-- {{ field.options.find(opt => opt.id === value)?.name || value }} -->
-                                            <img [src]="baseUrl + value.value" class="w-8 mr-1"/> {{value.key}}
+                                            <img *ngIf="value.value" [src]="baseUrl + value.value" class="w-8 mr-1"/> {{value.key}}
                                     </div>
                                     <button
                                         mat-icon-button
@@ -245,7 +245,7 @@
                             <div *ngIf="filePreviews[field.name]?.length > 0" class="grid grid-cols-3 gap-2 mt-4">
                                 <div *ngFor="let preview of filePreviews[field.name]; let i = index" class="relative">
                                     <ng-container *ngIf="preview.url; else nonImage">
-                                        <img [src]="preview.url" alt="preview" class="object-cover w-full h-24 rounded" />
+                                        <img  [src]="preview.url" alt="preview" class="object-cover w-full h-24 rounded" />
                                     </ng-container>
                                     <ng-template #nonImage>
                                         <div class="flex items-center justify-center w-full h-24 bg-gray-200 rounded">

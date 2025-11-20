@@ -36,12 +36,12 @@ class RoomSerializer(serializers.ModelSerializer):
         
         images_upload = validated_data.pop('images_upload', [])
         for file in images_upload:
-            RoomTypeImage.objects.create(
+            RoomImage.objects.create(
                 room=instance,
-                image_url=f'/media/images/roomtype/{instance.room_number}/{file.name}',
+                image_url=f'/media/images/{instance.room_number}/{file.name}',
                 alt_text=file.name
             )
-            default_storage.save(f'images/roomtype/{instance.room_number}/{file.name}', file)
+            default_storage.save(f'images/{instance.room_number}/{file.name}', file)
         return super().update(instance, validated_data)
         
 class RoomListSerializer(serializers.ModelSerializer):

@@ -30,7 +30,7 @@ from utils.utils import Utils
 from django.db.models.functions import Cast, Coalesce
 
 
-@auto_schema_post(HotelSerializer)
+@auto_schema_post(HotelCreateSerializer)
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
 def add_hotel(request):
@@ -38,7 +38,7 @@ def add_hotel(request):
         thumbnail = Utils.upload_thumnail(request, 'thumbnail')
         request.data['thumbnail'] = thumbnail
     try:
-        serializers = HotelSerializer(data=request.data)
+        serializers = HotelCreateSerializer(data=request.data)
         if serializers.is_valid():
             new_hotel = serializers.save()
             return AppResponse.success(SuccessCodes.CREATE_HOTEL, data={'hotel':HotelSerializer(new_hotel).data})
@@ -97,7 +97,7 @@ def hotel_detail(request, uuid):
                     path = Utils.get_path_from_url(path)
                     HotelImage.objects.filter(hotel=hotel, image_url__icontains=path).delete()
                     default_storage.delete(path.replace('/media/', ''))
-            serializer = HotelSerializer(hotel, data=request.data, partial=True)
+            serializer = HotelCreateSerializer(hotel, data=request.data, partial=True)
             if serializer.is_valid():
                 with transaction.atomic():
                     updated = serializer.save(updated_by=request.user)
@@ -140,7 +140,9 @@ def explore_hotels(request):
     
     
     try:
-        hotels = Hotel.objects.all().prefetch_related('RoomType__room')
+        if code:
+            hotels = Hotel.objects.filter(offers_hotel__code = code).prefetch_related('RoomType__room')
+        else:hotels = Hotel.objects.all().prefetch_related('RoomType__room')
 
         if des:  # chỉ lọc khi des có giá trị (không None, không rỗng)
             hotels = hotels.filter(destination__uuid=des)
@@ -180,6 +182,7 @@ def explore_hotels(request):
                 }
                 for rt in available_room_types
             ]
+            print("check data hotel asdas",hotel_availability, room_requirements, total_rooms_needed )
             
             # Kiểm tra xem hotel có thể đáp ứng được yêu cầu không
             if Utils.can_accommodate(hotel_availability, room_requirements, total_rooms_needed):
