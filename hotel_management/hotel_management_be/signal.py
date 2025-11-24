@@ -130,3 +130,16 @@ def update_status_room_book(sender, instance, **kwargs):
             room.room_id.refresh_from_db()
 
             print(">>> AFTER:", room.room_id.status)
+            
+@receiver(post_delete, sender=Booking)
+def update_status_room_book_when_delete(sender, instance, **kwargs):
+    print(">>> SIGNAL RUNNING <<<")
+    booking_room = instance.booking_booking_room.select_related('room_id')
+    
+    for room in booking_room:
+        print("check status", room.room_id.status)
+        room.room_id.status='Available'
+        room.room_id.save()
+        room.room_id.refresh_from_db()
+
+        print(">>> AFTER:", room.room_id.status)

@@ -210,7 +210,7 @@ def admin_infor(request):
 def register_user(request):
     
     try:
-       
+        password = request.data.get('password')
         with transaction.atomic():
             serializer = UserSerializer(
                 data=request.data,
@@ -231,7 +231,8 @@ def register_user(request):
             user = serializer.save()
 
             print(f"[REGISTER] Created user: {user.username} ({user.email})")
- 
+            user.set_password(password)
+            user.save()
 
         return AppResponse.success(SuccessCodes.ADMIN_CREATE_USER)
 

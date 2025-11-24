@@ -240,7 +240,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
     {
 
         
-        id: routeConfig.ROUTER_MOD,
+        id: routeConfig.ROUTER_RECEPT,
         // title: 'Mod',
         // subtitle: 'Unique mod designs',
         type: 'group',
@@ -251,7 +251,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
             //     title: 'Tin tức',
             //     type: 'basic',
             //     icon: 'heroicons_outline:newspaper',
-            //     link: `/${routeConfig.ROUTER_MOD}/${routeConfig.NEWS}`,
+            //     link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.NEWS}`,
             // },
         ],
     },
@@ -303,7 +303,7 @@ export const compactNavigation: FuseNavigationItem[] = [
         title:'Messenger',
         type: 'basic',
         icon: 'assets/images/ui/menu/chat.svg',
-        link: routeConfig.CHAT
+        link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.CHAT}`
     },
     {
         id: 'feedback',

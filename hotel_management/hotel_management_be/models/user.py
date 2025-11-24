@@ -62,7 +62,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     birthday = models.DateField(null=True)
     is_deleted = models.BooleanField(default=False)
     delete_at = models.DateTimeField(null=True,blank=True)
-    role = models.IntegerField(choices=UserConstants.ROLE, default=3)
+    role =models.IntegerField(choices=UserConstants.ROLE, default=3)
     
     groups = models.ManyToManyField(
         Group,

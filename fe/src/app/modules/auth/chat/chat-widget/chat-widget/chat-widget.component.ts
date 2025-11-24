@@ -24,7 +24,7 @@ import { compareDates } from 'app/shared/utils/chat/compare_time.util';
 import { formatTimestamp } from 'app/shared/utils/chat/format_time.util';
 import { ChatService } from 'app/core/chat/chat.service';
 import { UserService } from 'app/core/profile/user/user.service';
-
+import { SharedModule } from 'app/shared/shared.module';
 @Component({
     selector: 'app-chat-widget',
     standalone: true,
@@ -33,6 +33,7 @@ import { UserService } from 'app/core/profile/user/user.service';
         ChatBubbleComponent,
         ReactiveFormsModule,
         MatIconModule,
+        SharedModule
     ],
     templateUrl: './chat-widget.component.html',
     styles: ``,
@@ -50,10 +51,14 @@ export class ChatWidgetComponent implements OnInit, OnDestroy
     form: FormGroup = new FormGroup({
         message: new FormControl('')
     });
+    payload:any ={}
+    groupId:string;
+    groupStatus:string;
     isResponding: boolean = false;
     chats: ChatBubbleConfig[] =[];
     isLoadingChat: boolean = false;
     crrUser:any;
+    memberCount:number;
     private userSubscription: Subscription;
     private messageSubscription: Subscription;
 
@@ -65,26 +70,67 @@ export class ChatWidgetComponent implements OnInit, OnDestroy
         this.userSubscription = this.userService.user$.subscribe(user=>{
             this.crrUser = user;
         })
+        this.chatService.getAllMessage(this.payload).subscribe(res=>{
+            this.groupId = res.group;
+            this.groupStatus = res.groupStatus;
+            this.chats = res.messages.map(message=>({
+                position:this.getMessagePosition(message),
+                text:message.text,
+                timestamp:message.timestamp,
+                time:this.formatTimestamp(message.timestamp)
+            }));
+            this.memberCount = res.memberCount;
+            setTimeout(() => {
+                this.scrollToBottom();
+            }, 20);
+        })
 
-        this.chatService.connect();
+        
 
         this.messageSubscription = this.chatService.messages$.subscribe(msg =>{
             console.log("CHECK MSG FROM BE: ",msg)
             console.log("CHECK USER: ",this.crrUser)
             if (this.crrUser){
-                const message:ChatBubbleConfig = {
-                    position:this.getMessagePosition(msg),
-                    text:msg.text,
-                    timestamp:msg.timestamp,
-                    time:this.formatTimestamp(msg.timestamp)
+                if(msg.action === 'send_message'){
+                    const message:ChatBubbleConfig = {
+                        position:this.getMessagePosition(msg),
+                        text:msg.text,
+                        timestamp:msg.timestamp,
+                        time:this.formatTimestamp(msg.timestamp)
+                    }
+                    this.chats.push(message);
+                    setTimeout(() => {
+                        this.scrollToBottom();
+                    }, 20);
                 }
-                this.chats.push(message);
+                else if(msg.action === 'send_requirement'){
+                    this.groupStatus = msg.group_status
+                }
+                else if(msg.action === 'noti_out_group'){
+                    console.log("check out group:", msg)
+                    this.groupStatus = msg.group_status
+                    this.memberCount = 1
+                }
+                else if(msg.action === 'noti_join_group'){
+                    console.log("check join group:", msg)
+                    this.groupStatus = msg.group_status
+                    this.memberCount = 2
+                }
             }
         })
     }
     ngOnDestroy(): void {
         this.userSubscription.unsubscribe();
         this.messageSubscription.unsubscribe();
+    }
+
+    sendRequirement(){
+        const message :MessageSocket = {
+            action: 'send_requirement',
+            group_name:this.groupId
+        }
+        
+        this.chatService.sendMessage(message);
     }
 
     getMessagePosition(msg: Message): 'left' | 'right' {
@@ -102,6 +148,15 @@ export class ChatWidgetComponent implements OnInit, OnDestroy
     emitCloseChat() {
         this.closeChat.emit();
     }
+
+    outGroupChat(){
+        const payload:MessageSocket = {
+            action: 'out_group',
+            group_name:this.groupId
+        }
+        this.chatService.sendMessage(payload);
+    }
+
     addMessage(){
         const messageControl = this.form.get('message');
 
@@ -116,14 +171,14 @@ export class ChatWidgetComponent implements OnInit, OnDestroy
         const messageValue = messageControl.value;
         console.log('Sending message:', messageValue);
         const message :MessageSocket = {
-            action: 'send_message',
-            text:messageValue
+            action: this.memberCount && this.memberCount <=1? 'send_message_ai' : 'send_message',
+            text:messageValue,
+            group_name:this.groupId
         }
-        
+        console.log("check payload: ", message)
         this.chatService.sendMessage(message);
 
         // TODO: xử lý gửi message
-
         // Reset form sau khi gửi
         messageControl.reset();
     }
@@ -152,5 +207,12 @@ export class ChatWidgetComponent implements OnInit, OnDestroy
         return this.form.get('message')?.value;
     }
 
-    
+    protected scrollToBottom() {
+        setTimeout(() => {
+            if (this.chatContainer && this.chatContainer.nativeElement) {
+                this.chatContainer.nativeElement.scrollTop =
+                    this.chatContainer.nativeElement.scrollHeight;
+            }
+        }, 0);
+    }
 }

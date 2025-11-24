@@ -3,7 +3,6 @@ FROM image-base
 WORKDIR /app
 COPY . .
 
-# Giúp tránh lỗi encoding
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 

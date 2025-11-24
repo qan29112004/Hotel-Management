@@ -35,10 +35,11 @@ export interface FileUpload {
     url?: string;
 }
 
-type action = 'join_group'| 'out_group'| 'send_message'| 'send_requirement'
+type action = 'join_group'| 'out_group'| 'send_message'| 'send_requirement' | 'send_message_ai'
 
 export interface MessageSocket{
     action:action
     text?:string
     sender?:string
+    group_name?:string
 }

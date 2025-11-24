@@ -172,6 +172,11 @@ export class RoomComponent {
         name: 'status',
         labelKey: 'room.status',
         type: 'select',
+        options: [
+          { id: 'Available', name: 'Available' },
+          { id: 'Booked', name: 'Booked' },
+          { id: "Maintenance", name:"Maintenance"}
+      ],
         placeholderKey: 'room.status',
         
     },

@@ -12,6 +12,7 @@ import logging
 from constants.error_codes import ErrorCodes
 import difflib
 import datetime
+from datetime import time
 import holidays
 import requests
 from django.conf import settings
@@ -154,7 +155,7 @@ class Utils:
             raise e
         
     @staticmethod
-    def get_offer_multiplier(hotel, number_of_day:int=None, min_price:float = None, start_day=None, end_day=None) -> float:
+    def get_offer_multiplier(hotel, date:None, number_of_day:int=None, min_price:float = None, start_day=None, end_day=None) -> float:
         from hotel_management_be.models.offer import Offer, PriceRule
         from hotel_management_be.models.booking import Booking, BookingRoom
         from hotel_management_be.models.hotel import Room
@@ -162,7 +163,8 @@ class Utils:
 
         from django.db.models import Q
         percentage:float = 0
-        overlap_booking = hotel.hotel_booking.filter(~Q(status__in=['Cancelled', 'Rejected']))
+        today = timezone.now().date()
+        overlap_booking = hotel.hotel_booking.filter(~Q(status__in=['Cancelled', 'Rejected']), Q(check_in__gte=date)& Q(check_out__lte=date),)
         booked_room_uuids = BookingRoom.objects.filter(
             booking_id__in=overlap_booking
         ).values_list('room_id', flat=True)
@@ -213,8 +215,8 @@ class Utils:
         for i in range((last_day - first_day).days + 1):
             d = first_day + timedelta(days=i)
             final_price = base_price * Decimal(total_guest) * Decimal((0.9 * amount_children)) if amount_children > 0 else base_price * Decimal(total_guest)
-            if Utils.get_offer_multiplier(hotel) != 0:
-                final_price *= Utils.get_offer_multiplier(hotel)
+            if Utils.get_offer_multiplier(hotel=hotel,date=d) != 0:
+                final_price *= Utils.get_offer_multiplier(hotel=hotel, date=d)
             
             
             if d.weekday() >=5:
@@ -236,6 +238,7 @@ class Utils:
         from hotel_management_be.serializers.rate_plan_serializer import RatePlanSerializer
         from hotel_management_be.serializers.hotel_serializer import RoomTypeSerializer
 
+        hotel = rate_plan[0].hotel
         rules = PriceRule.objects.all()
         weekend_mul = Decimal(next((r.multiplier for r in rules if r.rule_type == "Weekend"), 1))
         holiday_mul = Decimal(next((r.multiplier for r in rules if r.rule_type == "Holiday"), 1))
@@ -260,9 +263,19 @@ class Utils:
 
         # Cache offer multiplier
         offer_mul_cache = {}
-        for rp in rate_plan:
-            if rp.uuid not in offer_mul_cache:
-                offer_mul_cache[rp.uuid] = Decimal(Utils.get_offer_multiplier(rp.hotel) or 1) * rp.price_modifier
+        for offset in range(total_days):
+            day = check_in + timedelta(days=offset)
+            offer_mul = Utils.get_offer_multiplier(
+                hotel=hotel,
+                date=day,
+                number_of_day=total_days,
+                min_price=None,
+            )
+            offer_mul_cache[day] = Decimal(offer_mul or 1)
+        # offer_mul_cache = {}
+        # for rp in rate_plan:
+        #     if rp.uuid not in offer_mul_cache:
+        #         offer_mul_cache[rp.uuid] = Decimal(Utils.get_offer_multiplier(rp.hotel) or 1) * rp.price_modifier
         print("offer_mul_cache: ",offer_mul_cache)
         result = []
         for rt in room_types:
@@ -271,7 +284,8 @@ class Utils:
 
             for rp in rate_plan:
                 rp_data = rate_plan_data[rp.uuid]
-                offer_mul = offer_mul_cache[rp.uuid]
+                # offer_mul = offer_mul_cache[rp.uuid]
+                rp_modified = rp.price_modifier
                 included_services = Service.objects.filter(
                     sv_service_rate_plan__rate_plan=rp,
                     type="Include"
@@ -284,7 +298,7 @@ class Utils:
                 else:included_service_total = 0
                 price_list = []
                 for day, mul in date_multipliers.items():
-                    final_price = base_price *total_guest * mul * offer_mul * Decimal(0.9 * amount_chilren) + included_service_total if amount_chilren > 0 else base_price * mul * offer_mul *total_guest + included_service_total
+                    final_price = base_price *total_guest * offer_mul_cache[day] * rp_modified * mul  * Decimal(0.9 * amount_chilren) + included_service_total if amount_chilren > 0 else base_price * mul *  offer_mul_cache[day] * rp_modified *total_guest + included_service_total
                     price_list.append({"date": day.isoformat(), "price": str(final_price)})
 
                 room_info["rate"].append({**rp_data, "price": price_list})
@@ -564,5 +578,15 @@ class Utils:
             'Validate debug, HashData:' + hasData + "\n HashValue:" + hashValue + "\nInputHash:" + vnp_SecureHash_Value)
 
         return vnp_SecureHash_Value == hashValue
-    
+    @staticmethod
+    def format_time(t: time) -> str:
+        if not t:
+            return None
+        hour = t.hour
+        minute = t.minute
+        ampm = 'a.m' if hour < 12 else 'p.m'
+        hour_12 = hour % 12
+        if hour_12 == 0:
+            hour_12 = 12
+        return f"{hour_12}:{minute:02d} {ampm}"
     

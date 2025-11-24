@@ -20,6 +20,7 @@ import {
   transition,
   animate,
 } from '@angular/animations';
+import { fromEvent, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-booking',
@@ -81,6 +82,7 @@ export class BookingComponent implements OnInit, OnChanges {
   //truyen vao calendar
   checkInDateObj: Date | null = null;
   checkOutDateObj: Date | null = null;
+  private sessionExpiredSub!: Subscription;
   //hien thi tren component
   get checkInDate(){
     return this.searchData.checkin;
@@ -114,10 +116,19 @@ export class BookingComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
+    this.bookingService.ttl.subscribe(data=>{
+      console.log('check', data)
+    })
+    this.sessionExpiredSub = fromEvent<CustomEvent>(window, 'session:expired')
+      .subscribe(event => {
+        console.log('Session expired:', event.detail.message);
+
+      });
     
     this.activeRoute.queryParams.subscribe(params=>{
       console.log("check params: ",params);
       this.searchData = { ...params };
+      this.crrHotel = params['uuid']
       this.checkOutDateObj = parseDate(this.searchData.checkout)
       const rooms =[];
       let i = 0;

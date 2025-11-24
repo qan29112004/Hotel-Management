@@ -28,7 +28,7 @@ from django.conf import settings
 import hmac, hashlib, urllib.parse, json
 from decimal import Decimal
 from utils.paypal_utils import PayPalService
-from hotel_management_be.celery_hotel.task import set_booking_room
+from hotel_management_be.celery_hotel.task import set_booking_room, send_booking_email
 
 @api_view(["POST"])
 def create_payment(request):
@@ -95,10 +95,20 @@ def paypal_capture(request):
     booking.status = "Confirm"
     booking.save()
     
+    hotel = booking.hotel_id
     set_booking_room.delay(session_id,booking_id)
     
     RedisUtils.finalize_booking_success(session_id)
-
+    payload = {
+        "to_email":booking.user_email,
+        "user_name":booking.user_fullname,
+        "hotel_name":hotel.name,
+        "checkin": booking.check_in,
+        "checkout":booking.check_out,
+        "check_in_time":Utils.format_time(hotel.check_in_time),
+        "check_out_time":Utils.format_time(hotel.check_out_time)
+    }
+    send_booking_email.delay(payload)
     return AppResponse.success(SuccessCodes.PAYMENT,{"message": "Payment captured successfully", "transaction_id": transaction_id})
 
 
@@ -142,9 +152,19 @@ def payment_ipn(request):
         )
         booking.status = "Confirm"
         booking.save()
+        hotel = booking.hotel_id
         set_booking_room.delay(session_id, txn_ref)
         RedisUtils.finalize_booking_success(session_id)
-
+        payload = {
+            "to_email":booking.user_email,
+            "user_name":booking.user_fullname,
+            "hotel_name":hotel.name,
+            "checkin": booking.check_in,
+            "checkout":booking.check_out,
+            "check_in_time":Utils.format_time(hotel.check_in_time),
+            "check_out_time":Utils.format_time(hotel.check_out_time)
+        }
+        send_booking_email.delay(payload)
         return AppResponse.success(SuccessCodes.PAYMENT,{"RspCode": "00", "Message": "Confirm Success"})
     else:
         # Thanh toán thất bại

@@ -26,6 +26,7 @@ import { UserService } from 'app/core/profile/user/user.service';
 import { FuseSplashScreenService } from '@fuse/services/splash-screen';
 import { HttpClient } from '@angular/common/http';
 import { uriConfig } from 'app/core/uri/config';
+import { FuseAlertType, FuseAlertComponent } from '@fuse/components/alert';
 
 declare const google: any;
 
@@ -36,7 +37,7 @@ declare const google: any;
     animations: fuseAnimations,
     standalone: true,
     styleUrls: ['./sign-in.component.css'],
-    imports: [FormsModule, ReactiveFormsModule, CommonModule, SharedModule],
+    imports: [FormsModule, ReactiveFormsModule, CommonModule, SharedModule,FuseAlertComponent],
 })
 export class AuthSignInComponent implements OnInit {
     // @ViewChild('signInNgForm') signInNgForm: NgForm;
@@ -52,6 +53,11 @@ export class AuthSignInComponent implements OnInit {
     /**
      * Constructor
      */
+    alert: { type: FuseAlertType; code: string[] } = {
+        type: 'success',
+        code: [],
+    };
+    showAlert: boolean = false;
     private _chatService = inject(ChatService);
     private _userService = inject(UserService);
     progress: number = 0;
@@ -235,6 +241,17 @@ export class AuthSignInComponent implements OnInit {
             },
             error:(error) => {
                 // handle error
+                const errorList = error?.error?.errors;
+                this.alert = {
+                    type: 'error',
+                    code: Array.isArray(errorList)
+                        ? errorList.map(e => e.field ? `${e.field}: ${e.message}` : e.message)
+                        : [error?.error?.message || error?.error?.code || 'Đã xảy ra lỗi'],
+                };
+                console.log("alert code: ", this.alert.code )
+                this.showAlert = true;
+                console.log("showalert", this.showAlert)
+                this.form.enable();
                 this.hideLoading();
                 console.error('Đăng nhập thất bại:', error);
             }

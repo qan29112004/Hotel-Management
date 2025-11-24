@@ -126,7 +126,7 @@ export class UserService {
             },
             {
                 id: 2,
-                name: 'mod',
+                name: 'recept',
                 class: 'bg-red-100 text-red-700',
                 is_list: false,
             },

@@ -71,6 +71,8 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    
     volumes:
       - kafka-data:/var/lib/kafka/data
     networks:
@@ -87,6 +89,40 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+  
+  # run_consumer:
+  #   build: .
+  #   container_name: kafka_consumer_hotel
+  #   entrypoint: ["/bin/bash", "-c"]
+  #   command: >
+  #     python manage.py migrate --noinput &&
+  #     python manage.py create_kafka_topic &&
+  #     python manage.py kafka_consumer
+  #   volumes:
+  #     - .:/app
+  #     - ./.env:/app/.env
+  #   environment:
+  #     KAFKA_BOOTSTRAP_SERVERS: kafka_hotel:9092
+  #     PYTHONUNBUFFERED: 1
+  #     DJANGO_SETTINGS_MODULE: hotel_management.settings
+  #   depends_on:
+  #     kafka_hotel:
+  #       condition: service_healthy
+  #     redis_hotel:
+  #       condition: service_healthy
+  #     mysql-db:
+  #       condition: service_healthy
+  #     be:
+  #       condition: service_started
+  #   networks:
+  #     - hotel-network
+  #   restart: unless-stopped
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
+
   be:
     build:
       context: .

@@ -31,8 +31,9 @@ class CustomJWTAuthentication(BaseAuthentication):
                 raise AppException(ErrorCodes.AUTHENTICATION_FAILED)
             cache_key = Rediskeys.USER(id)
             user_data = RedisWrapper.get(cache_key)
+            print("User data:", user_data)
             if user_data:
-                user = User(**user_data)
+                user = User.objects.get(id=id)
             else:
                 user = User.objects.get(id=id)
                 exp = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"]).get("exp")

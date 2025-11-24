@@ -95,3 +95,21 @@ export function convertVNDToUSD(amountVND: number, rate = 25000): number {
 export function timeDate(timeString:string): Date {
   return new Date("1970-01-01T" + timeString);
 }
+
+export function formatISODate(isoString: string): string {
+    const date = new Date(isoString);
+
+    const day = date.getDate();
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'p.m' : 'a.m';
+    hours = hours % 12;
+    if (hours === 0) hours = 12;
+
+    return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
+}

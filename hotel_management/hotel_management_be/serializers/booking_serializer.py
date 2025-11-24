@@ -47,14 +47,17 @@ class MyBookingSerializer(serializers.ModelSerializer):
         hotel = obj.hotel_id
         return {'uuid':hotel.uuid,'name':hotel.name, 'address':hotel.address, 'thumbnail':hotel.thumbnail}
     def get_rating(self,obj):
-        rating = obj.booking_review
+        rating = getattr(obj, 'booking_review', None)  # an toàn hơn
+        if rating is None:
+            return None
+        
         return {
-            'uuid':rating.uuid,
-            "review":rating.review,
-            'rating':rating.rating,
-            'subject':rating.subject,
-            'created_by':rating.created_by.email,
-            'created_at':rating.created_datetime
+            'uuid': getattr(rating, 'uuid', None),
+            "review": getattr(rating, 'review', ''),
+            'rating': getattr(rating, 'rating', 0),
+            'subject': getattr(rating, 'subject', ''),
+            'created_by': getattr(rating.created_by, 'email', None) if rating.created_by else None,
+            'created_at': getattr(rating, 'created_datetime', None)
         }
     def get_booking_room(self,obj):
         booking_rooms = obj.booking_booking_room.select_related('room_id', 'room_id__room_type_id', 'rate_plan_id').prefetch_related(Prefetch(

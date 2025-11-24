@@ -316,6 +316,7 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
   booking(){
     const queryParams: { [key: string]: any } = {};
 
+    queryParams.uuid = this.hotel_data?.uuid
     queryParams.hotel = this.hotel_data?.name; // 🔹 thay dest bằng hotel
     queryParams.checkin = this.checkInDate;
     queryParams.checkout = this.checkOutDate;

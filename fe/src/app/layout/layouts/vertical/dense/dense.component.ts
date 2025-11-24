@@ -41,6 +41,8 @@ import {
     filter,
     tap,
     switchMap,
+    fromEvent,
+    Subscription
 } from 'rxjs';
 import { GlobalAlertComponent } from '../../../common/global-alert/global-alert.component';
 import { UserService } from 'app/core/profile/user/user.service';
@@ -55,6 +57,7 @@ import { ChatUserService } from 'app/core/chat/chat-user/chat-user.service';
 import { ChatChatroomService } from 'app/core/chat/chat-chatroom/chat-chatroom.service';
 import { SharedModule } from 'app/shared/shared.module';
 import { SseService } from 'app/core/sse/sse.service';
+import { BookingService } from 'app/core/booking/booking.service';
 @Component({
     selector: 'dense-layout',
     templateUrl: './dense.component.html',
@@ -105,10 +108,13 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
     private _chatService = inject(ChatService);
     private _isNavigate: boolean = false;
     private _destroy = new Subject();
+    isJoinChat:boolean = true;
     crrUser: any;
     isFeedbackOpen = false;
     innerWidth = window.innerWidth;
     isAdminPage:boolean = false;
+    private messageSubscription: Subscription;
+    
     /**
      * Constructor
      */
@@ -123,7 +129,9 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
         private _alertService: AlertService,
         private _chatUserService: ChatUserService,
         private _chatRoomService: ChatChatroomService,
-        private sseService: SseService
+        private sseService: SseService,
+        private bookingService: BookingService,
+        private chatService:ChatService
     ) {}
 
     // -----------------------------------------------------------------------------------------------------
@@ -146,8 +154,24 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
      */
     ngOnInit(): void {
         // Add storage event listener
+        this.chatService.connect();
+        this.messageSubscription = this.chatService.messages$.subscribe(msg =>{
+            console.log("CHECK MSG FROM BE: ",msg)
+            if(msg.action ==='check'){
+                this.isJoinChat = msg.is_join;
+            }
+            if(msg.action === 'join_group'){
+                this.isJoinChat=true;
+            }
+            if(msg.action === 'out_group'){
+                console.log("outgrou check: ", msg)
+                this.isJoinChat=false;
+            }
+            
+        })
         this.sseService.startWatching((data) => {
             console.log('[SSE] Received data:', data);
+            this.bookingService.ttl.next(data);
             if(!data.exist){
                 localStorage.removeItem('session_id');
                 window.dispatchEvent(new CustomEvent('session:expired', {
@@ -161,6 +185,9 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
         
         this._userService.user$.subscribe((user)=>{
             this.crrUser = user;
+            console.log("check user:", this.crrUser)
+            if(this.crrUser.role === 2){
+            }
             
         })
         this._router.events.pipe(
@@ -192,15 +219,11 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
                     if (this.crrUser.role === 3) {
                         includeIds = [
                             'home-page',
-                            'chat',
-                            'news-feed',
-                            'marketplace',
-                            'list-app',
                             'feedback',
                             'destination'
                         ];
                     } else {
-                        includeIds = ['home-page', 'chat', 'news-feed', 'list-app', 'destination'];
+                        includeIds = ['home-page', 'chat', 'destination'];
                     }
 
                     if (this.crrUser.role === 1) {
@@ -211,11 +234,11 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
                             ...pushItemNavigation(navigation, includeIds, 'admin', 'sticky'),
                         ];
                     } else if (this.crrUser.role === 2) {
-                        // mod
-                        includeIds.push('mod');
+                        // recept
+                        includeIds.push('recept');
                         includeIds = [
                             ...includeIds,
-                            ...pushItemNavigation(navigation, includeIds, 'mod', 'sticky'),
+                            ...pushItemNavigation(navigation, includeIds, 'recept', 'sticky'),
                         ];
                     } else if (this.crrUser.role === 3) {
                         // user

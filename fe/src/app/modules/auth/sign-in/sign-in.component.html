@@ -13,6 +13,20 @@
     </div>
     <div class="absolute w-full h-full bg-primary/50"></div>
     <form class="z-20 flex flex-col justify-center w-full max-w-3xl gap-4 p-4 overflow-y-auto bg-white rounded-lg" [formGroup]="form" (ngSubmit)="signIn()">
+        <fuse-alert
+            class="mb-2"
+            *ngIf="showAlert"
+            [appearance]="'outline'"
+            [showIcon]="false"
+            [type]="alert.type"
+            [@shake]="alert.type === 'error'"
+        >
+            <ul class="pl-4 list-disc">
+                <li *ngFor="let code of alert.code">
+                    {{ code }}
+                </li>
+            </ul>
+        </fuse-alert>
         <div id="googleButton"></div>
         <mat-form-field floatLabel="always" class="w-full fuse-mat-dense">
             <mat-label>Tài khoản</mat-label>

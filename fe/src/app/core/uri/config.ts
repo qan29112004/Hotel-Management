@@ -220,5 +220,9 @@ export const uriConfig = {
     API_RATING_CREATE: baseUrl + '/api/rating/',
 
     //my-booking
-    API_MY_BOOKING: baseUrl + '/api/my-booking/list/'
+    API_MY_BOOKING: baseUrl + '/api/my-booking/list/',
+
+    //chatbot
+    API_GET_MESSAGE: baseUrl + '/api/chatbot/get-all-message/',
+    API_GET_REQUIREMENT_SUPPORT_CHAT: baseUrl + '/api/chatbot/get-requirement-support/'
 };

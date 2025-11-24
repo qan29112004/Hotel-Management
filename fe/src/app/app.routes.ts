@@ -375,42 +375,14 @@ export const appRoutes: Route[] = [
         },
         children: [
             {
-                path: routeConfig.ROUTER_MOD,
+                path: routeConfig.ROUTER_RECEPT,
                 children: [
                     {
-                        path: routeConfig.APP_TYPE,
-                        data: { title: 'app_type.title' },
+                        path: routeConfig.CHAT,
+                        data: { title: 'chat.title' },
                         loadChildren: () =>
-                            import('app/modules/mod/app-type/app-type.routes'),
-                    },
-                    {
-                        path: routeConfig.NEWS,
-                        data: { title: 'news.title' },
-                        loadChildren: () =>
-                            import('app/modules/mod/news/news.routes'),
-                    },
-                    {
-                        path: routeConfig.ADD_NEWS,
-                        data: { title: 'news.add_news' },
-                        loadChildren: () =>
-                            import('app/modules/mod/add-news/add-news.routes'),
-                    },
-                    {
-                        path: routeConfig.EDIT_NEWS,
-                        data: { title: 'news.edit_news' },
-                        loadChildren: () =>
-                            import(
-                                'app/modules/mod/edit-news/edit-news.routes'
-                            ),
-                    },
-                    {
-                        path: routeConfig.NEWS_DETAIL,
-                        data: { title: 'news_detail.title' },
-                        loadChildren: () =>
-                            import(
-                                'app/modules/mod/news-detail/news-detail.routes'
-                            ),
-                    },
+                            import('app/modules/auth/chat/chat.routes'),
+                    }
                 ],
             },
 

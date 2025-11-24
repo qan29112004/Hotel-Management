@@ -80,7 +80,7 @@
                                             </div>
                                             <div class="flex flex-col">
                                                 <span class="text-[12px] text-gray-500 mb-1">booking.price</span>
-                                                <span class="text-[16px] font-bold text-green-600">{{room.price | currency:'VND':'symbol':'1.0-0'}} <span class="text-gray-500 text-[13px]">~ {{room.price | currency:'VND':'symbol':'1.0-0'}}</span></span>
+                                                <span class="text-[16px] font-bold text-green-600">{{room.price | currency:'VND':'symbol':'1.0-0'}} <span class="text-gray-500 text-[13px]">~ {{room.price | currency:'USD':'symbol-narrow':'1.0-2'}}</span></span>
                                             </div>
                                         </div>
                                         
@@ -93,7 +93,7 @@
                                                         <span class="text-[13px] text-gray-800">{{service.name}}</span>
                                                         <div class="flex gap-3 text-[12px] text-gray-600">
                                                             <span>SL: {{service.quantity}}</span>
-                                                            <span class="font-semibold text-gray-800">{{service.price}} ~ <span class="text-gray-500">{{service.price | currency:'VND':'symbol':'1.0-0'}}</span></span>
+                                                            <span class="font-semibold text-gray-800">{{service.price| currency:'VND':'symbol':'1.0-0'}} ~ <span class="text-gray-500">{{service.price | currency:'USD':'symbol-narrow':'1.0-2'}}</span></span>
                                                         </div>
                                                     </div>
                                                 </ng-container>
@@ -110,15 +110,35 @@
                                         (bigClick)="updateRating(star)">
                                     </app-rating>
                                 </ng-container>
-                                <span class="text-black font-clearface text-[30px]"></span>
+                                <span class="text-black font-clearface text-[30px]">{{booking?.rating.rating}}</span>
                             </div>
                             <h3 class="font-clearface text-[18px] text-black font-normal mb-[20px]">{{booking?.rating.subject}}</h3>
                             <p class="w-full truncate font-avenir text-[14px] font-normal mb-[20px]">{{booking?.rating.review}}</p>
                             <div class="flex gap-8">
-                                <span class="font-avenir text-[14px] font-normal">By {{booking?.rating.createdBy}}</span>
-                                <span class="font-avenir text-[14px] font-normal">At {{booking?.rating.createdAt}}</span>
+                                <span class="font-avenir text-[14px] font-normal">By <span class="font-bold font-lexend_deca">{{booking?.rating.createdBy}}</span></span>
+                                <span class="font-avenir text-[14px] font-normal">At <span class="font-bold font-lexend_deca">{{formatISODate(booking?.rating.createdAt)}}</span></span>
                             </div>
                         </div>
+                        <form *ngIf="!booking?.rating" [formGroup]="ratingForm" (ngSubmit)="createRating(booking.uuid, booking.hotel.uuid)" class="w-full py-8 border-t border-black mb-[30px]">
+                            <div class="flex items-center gap-1 mb-[20px]">
+                                <ng-container *ngFor="let star of stars">
+                                    <app-rating [starId]="star" [rating]="rating" (enter)="enter($event)" (leave)="leave($event)"
+                                        (bigClick)="updateRating(star)">
+                                    </app-rating>
+                                </ng-container>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="font-clearface text-[18px] text-black font-normal">booking.subject</span>
+                                <input type="text" formControlName="subject" class="font-clearface border border-gray-300 rounded-md text-[18px] text-black font-normal mb-[20px] w-full"/>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="font-clearface text-[18px] text-black font-normal">booking.review</span>
+                                <textarea formControlName="review" class="w-full border border-gray-300 rounded-md truncate font-avenir text-[14px] font-normal mb-[20px]"></textarea>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="font-avenir text-[14px] font-bold bg-yellow-500 px-5 py-4">booking.submit</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

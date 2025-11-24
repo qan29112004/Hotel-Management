@@ -378,9 +378,12 @@ formData.forEach((value, key) => {
                 this.loadData();
             },
             error: (err) => {
+                const errorList = err?.error?.errors;
                 this.alert = {
                     type: 'error',
-                    code: [`errors.${err?.error?.errors?.[0]?.field || err?.error?.code || 'default'}`],
+                    code: Array.isArray(errorList)
+                        ? errorList.map(e => e.field ? `${e.field}: ${e.message}` : e.message)
+                        : [err?.error?.message || err?.error?.code || 'Đã xảy ra lỗi'],
                 };
                 console.log("alert code: ", this.alert.code )
                 this.showAlert = true;

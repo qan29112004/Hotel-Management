@@ -167,11 +167,13 @@ export class GenericAddComponent implements OnInit {
                 return;
             }
             const field = this.fields.find((f) => f.name === key);
+            console.log("check type:", field.type)
             if (field?.type === 'date') {
                 const rawDate = this.addFormGroup.get(key)?.value;
                 formData.append(key, rawDate ? new Date(rawDate).toISOString().split('T')[0] : '');
             }else if (field?.type === 'checkbox') {
                 // Gửi danh sách giá trị radio
+                console.log("check checkbox: ", this.selectedRadioValues[field.name])
                 this.selectedRadioValues[field.name].forEach((val) => formData.append(`${field.name}`, val));
             } 
             else if (field?.type !== 'file' && field?.type !== 'files') {
@@ -215,11 +217,12 @@ export class GenericAddComponent implements OnInit {
                 this.loadData();
             },
             error: (err) => {
+                const errorList = err?.error?.errors;
                 this.alert = {
                     type: 'error',
-                    code: err?.error?.errors?.map((e: any) => `errors.fields.${e.field}`) || [
-                        'errors.default',
-                    ],
+                    code: Array.isArray(errorList)
+                        ? errorList.map(e => e.field ? `${e.field}: ${e.message}` : e.message)
+                        : [err?.error?.message || err?.error?.code || 'Đã xảy ra lỗi'],
                 };
                 this.showAlert = true;
                 this.addFormGroup.enable();
@@ -349,7 +352,8 @@ export class GenericAddComponent implements OnInit {
             this.selectedRadioValues[fieldName] = this.selectedRadioValues[fieldName].filter(v => v !== value);
             delete this.displayCheckbox[option.name];
         }
-
+        this.addFormGroup.get(fieldName)?.setValue(this.selectedRadioValues[fieldName]);
+        this.addFormGroup.get(fieldName)?.updateValueAndValidity();
         // Optional: cập nhật FormControl nếu cần
         // this.form.get(fieldName)?.setValue(this.selectedValues[fieldName]);
         }

@@ -49,12 +49,7 @@
         <!-- Nút loa / pause / replay chỉ cho chatbot -->
 
         <div class="flex justify-between items-center w-full">
-            <div *ngIf="config.position === 'left'">
-                <app-audio-player
-                    *ngIf="config.text"
-                    [text]="config.text"
-                ></app-audio-player>
-            </div>
+            
 
             <p class="m-0 text-gray-500">{{ config.time[1] }}</p>
         </div>

@@ -2,8 +2,15 @@
     <div
         class="flex items-center justify-between w-full bg-primary h-15 rounded-t-xl"
     >
-        <h3 class="pl-3 font-medium text-white">Chatbot</h3>
-
+        <div class="flex items-center">
+            <h3 class="pl-3 font-medium text-white">Chatbot</h3>
+            <button [disabled]="groupStatus!=='Normal'" (click)="sendRequirement()" [matTooltip]="'Yêu cầu hỗ trợ'" type="button" class="ml-[8px] flex justify-center items-center"
+                [ngClass]="{'opacity-50 disabled:cursor-not-allowed':groupStatus!=='Normal'}"
+            ><mat-icon class="text-white text-[20px]">contact_support</mat-icon></button>
+            <span *ngIf="groupStatus==='Waiting'" class="text-white text-[14px] ml-[8px]">Chờ phản hồi</span>
+            <span *ngIf="groupStatus==='In progress'" class="text-white text-[14px] ml-[8px]">Đang tiếp nhận</span>
+            <button (click)="outGroupChat()" type="button" *ngIf="crrUser.role === 2" class="flex bg-white text-black justify-center items-center px-2 py-1 ml-[8px] rounded-full">chat.end</button>
+        </div>
         <div class="flex gap-2 pr-3">
             
             <button
@@ -43,40 +50,42 @@
                 <div class="loader"></div>
             </div>
         </ng-container>
-        <ng-container *ngFor="let chat of chats; let i = index">
-            <div
-                *ngIf="
-                    (chats[i - 1] &&
-                        compareDates(
-                            formatTimestamp(chats[i - 1].timestamp)[0],
-                            formatTimestamp(chats[i].timestamp)[0]
-                        ) !== 0) ||
-                    i === 0
-                "
-                class="flex justify-center w-full text-[#A0A0A0] text-xl font-normal font-lexend_deca"
-            >
-                {{
-                    formatTimestamp(chats[i].timestamp)[0] +
-                        " " +
-                        translocoService.translate("chat.at") +
-                        " " +
-                        formatTimestamp(chats[i].timestamp)[1]
-                }}
-            </div>
-            <div
-                class="flex max-w-full"
-                [ngClass]="{
-                    'justify-end': chat.position === 'right',
-                    'justify-start': chat.position === 'left'
-                }"
-            >
-                <app-chat-bubble
-                    class="max-w-[70%]"
-                    [config]="chat"
-                    [user]="users"
-                    [inforAdmin]="adminData"
-                ></app-chat-bubble>
-            </div>
+        <ng-container *ngIf="chats">
+            <ng-container *ngFor="let chat of chats; let i = index">
+                <div
+                    *ngIf="
+                        (chats[i - 1] &&
+                            compareDates(
+                                formatTimestamp(chats[i - 1].timestamp)[0],
+                                formatTimestamp(chats[i].timestamp)[0]
+                            ) !== 0) ||
+                        i === 0
+                    "
+                    class="flex justify-center w-full text-[#A0A0A0] text-xl font-normal font-lexend_deca"
+                >
+                    {{
+                        formatTimestamp(chats[i].timestamp)[0] +
+                            " " +
+                            translocoService.translate("chat.at") +
+                            " " +
+                            formatTimestamp(chats[i].timestamp)[1]
+                    }}
+                </div>
+                <div
+                    class="flex max-w-full"
+                    [ngClass]="{
+                        'justify-end': chat.position === 'right',
+                        'justify-start': chat.position === 'left'
+                    }"
+                >
+                    <app-chat-bubble
+                        class="max-w-[70%]"
+                        [config]="chat"
+                        [user]="users"
+                        [inforAdmin]="adminData"
+                    ></app-chat-bubble>
+                </div>
+            </ng-container>
         </ng-container>
         
         <ng-container *ngIf="isResponding">

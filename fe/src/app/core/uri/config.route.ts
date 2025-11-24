@@ -41,8 +41,8 @@ export const routeConfig = {
     ADMIN_FEEDBACK: 'admin-feedback',
 
 
-    // router mod
-    ROUTER_MOD: 'mod',
+    // router recept
+    ROUTER_RECEPT: 'recept',
     MOD_NEWS: 'news',
     MOD_NEWS_DETAIL: 'news/:slug',
 

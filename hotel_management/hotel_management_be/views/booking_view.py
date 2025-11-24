@@ -92,8 +92,8 @@ def list_booking(request):
         return AppResponse.error(ErrorCodes.LIST_AMENITY_FAIL, str(e))
     
     
-HOLD_TTL_SECONDS = getattr(settings, "HOLD_TTL_SECONDS", 10*60)
-SESSION_TTL_SECONDS = getattr(settings, "SESSION_TTL_SECONDS", 15*60)
+HOLD_TTL_SECONDS = getattr(settings, "HOLD_TTL_SECONDS", 1*60)
+SESSION_TTL_SECONDS = getattr(settings, "SESSION_TTL_SECONDS", 2*60)
 
 # Utility: ensure inventory keys exist for requested range (init from DB)
 def ensure_inventory_for_range(hotel_id, room_type_id, checkin, checkout):

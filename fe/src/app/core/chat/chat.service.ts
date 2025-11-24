@@ -64,7 +64,7 @@ export class ChatService {
     private reconnectAttempts = 0;
     private maxReconnectAttempts = 10;
 
-    constructor() {}
+    constructor(private http:HttpClient) {}
 
     /**
      * Kết nối đến WebSocket server
@@ -144,5 +144,24 @@ export class ChatService {
      */
     isConnected(): boolean {
         return this.socket$ !== null && !this.socket$.closed;
+    }
+
+    getAllMessage(payload:any):Observable<any>{
+        return this.http.post<any>(uriConfig.API_GET_MESSAGE,payload).pipe(
+            map(res=>({
+                group:res.data.group,
+                messages:res.data.messages,
+                groupStatus:res.data.groupStatus,
+                memberCount:res.data.memberCount
+            }))
+        )
+    }
+    getAllRequirementChat():Observable<any>{
+        return this.http.get<any>(uriConfig.API_GET_REQUIREMENT_SUPPORT_CHAT).pipe(
+            map(res=>({
+                requirements: res.data.requirements,
+                isJoin:res.data.isJoin
+            }))
+        )
     }
 }

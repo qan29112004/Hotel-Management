@@ -7,7 +7,7 @@ from django.core.files.storage import default_storage
 from hotel_management_be.models.hotel import Hotel
 from hotel_management_be.models.offer import RatePlan, Service,ServiceRatePlan
 from hotel_management_be.serializers.hotel_serializer import HotelSerializer
-from hotel_management_be.serializers.service_serializer import ServiceSerializer
+from hotel_management_be.serializers.service_serializer import ServiceSerializer,ServiceRateSerializer
 
 class RatePlanServiceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,7 +24,7 @@ class RatePlanSerializer(serializers.ModelSerializer):
         fields = ['uuid','name','description','price_modifier','is_active','refundable','is_breakfast','hotel', 'cancellation_policy','guarantee_policy', 'service', 'created_by', 'updated_by','created_at','updated_at']
         
     def get_service(self, obj):
-        return ServiceSerializer(
+        return ServiceRateSerializer(
             [s.service for s in obj.rp_service_rate_plan.all() if s.service.type == "Include"],
             many=True
         ).data

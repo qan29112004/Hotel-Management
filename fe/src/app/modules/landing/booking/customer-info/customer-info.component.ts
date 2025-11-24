@@ -143,6 +143,7 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy)
     ).subscribe(url=>{
       window.location.href = url;
+      localStorage.removeItem('session_id')
       console.log(url)
     }
 
@@ -197,6 +198,7 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
         });
         const result = await captureRes.json();
         alert("✅ Thanh toán thành công! Mã giao dịch: " + result.transactionId);
+        localStorage.removeItem('session_id')
       },
 
       onCancel: (data: any) => {

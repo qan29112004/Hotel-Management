@@ -98,42 +98,81 @@
     <!-- <div class="relative flex items-center justify-start w-full px-4 border-t flex-0 h-14 md:px-6 z-49 bg-card dark:bg-transparent print:hidden">
         <span class="font-medium text-secondary">Fuse &copy; {{currentYear}}</span>
     </div> -->
-    <div *ngIf="!isAdminPage" class="flex flex-col items-center justify-center w-full bg-white border-t border-t-black max-w-[1920px] px-16">
-        <div class="flex relative flex-col items-center justify-center text-center max-w-[1440px] w-full py-16">
+    <div *ngIf="!isAdminPage" class="flex flex-col items-center justify-center w-full bg-white border-t border-t-[#d4d4d4] max-w-[1920px] px-16">
+        <div class="flex relative flex-col items-center justify-center text-center max-w-[1440px] w-full py-9">
             <div class="absolute top-0 left-0 flex flex-col items-center self-start justify-center gap-2">
                 <div class="flex">
-                    <span>0325320230</span>
-                    <span>contact&#64;luskibeck.com</span>
+                    <mat-icon class="text-[#282828] text-[16px]">phone_in_talk</mat-icon>
+                    <span class="font-avenir text-[14px] text-[#282828] ml-[4px]">0325320230</span>
+                    <span class="font-avenir text-[14px] text-[#282828] ml-[8px]">contact&#64;luskibeck.com</span>
                 </div>
-                <span class="text-sm text-black font-avenir">
+                <!-- <span class="text-sm text-black font-avenir">
                     © 2024 Luskibeck. All rights reserved.
                 </span>
                 <span class="mt-2 text-sm text-black font-avenir">
                     Designed and Developed by Luskibeck Team
-                </span>
+                </span> -->
             </div>
         </div>
         <div class="flex justify-between max-w-[1440px] w-full">
-            <div class="flex items-start">
-                <img
-                    src="assets/images/logo/logo_icon_hotel.svg"
-                    class="object-contain w-20 h-20"
-                    alt="logo"
-                />
-                <div class="flex flex-col">
-                    <span>alo</span>
-                    <span>alo</span>
-                    <span>alo</span>
-                    <span>alo</span>
-                    <span>alo</span>
-                    <span>alo</span>
+            <div class="grid items-start w-full grid-cols-4 max-md:grid-cols-1 max-md:gap-[15px]">
+                <div class="flex flex-col w-full max-md:hidden">
+                    <div class="flex h-[130px] w-full justify-center items-center">
+                        
+                        <img
+                            src="assets/images/logo/logo_icon_hotel.svg"
+                            class="object-cover w-[200px] h-[200px] mx-auto"
+                            alt="logo"
+                        />
+                    </div>
+                    <span class="text-black font-lexend_deca font-bold text-center mt-[-10px] text-[20px]">Luskibeck Hotel</span>
+                </div>
+                <div class="grid grid-cols-2 gap-[10px] w-full h-full px-[7px] md:border-r border-[#d4d4d4] max-md:border-t">
+                    <span class="font-avenir text-[14px] text-[#282828]">Contact us</span>
+                    <span class="font-avenir text-[14px] text-[#282828]">About Luskibeck</span>
+                    <span class="font-avenir text-[14px] text-[#282828]">Privacy Policy</span>
+                    <span class="font-avenir text-[14px] text-[#282828]">Exclusive Offer</span>
+                    <span class="font-avenir text-[14px] text-[#282828]">Terms & Conditions</span>
+                    <span class="font-avenir text-[14px] text-[#282828]">alo</span>
+                    <span class="font-avenir text-[14px] text-[#282828]">alo</span>
+                    <span class="font-avenir text-[14px] text-[#282828]">alo</span>
+                    <span class="font-avenir text-[14px] text-[#282828]">alo</span>
+                    <span class="font-avenir text-[14px] text-[#282828]">alo</span>
+                    <span class="font-avenir text-[14px] text-[#282828]">alo</span>
+                    <span class="font-avenir text-[14px] text-[#282828]">alo</span>
+                    <span class="font-avenir text-[14px] text-[#282828]">alo</span>
+                    <span class="font-avenir text-[14px] text-[#282828]">alo</span>
                     
                 </div>
+                <div class="flex flex-col gap-4 px-3 max-md:border-t max-md:border-[#d4d4d4]">
+                    <div class="flex justify-between items-start">
+                        <img class="object-contain w-[50%]" src="assets/images/home-page/google_play.svg" />
+                        <img class="object-contain w-[50%]" src="assets/images/home-page/app_store.svg" />
+                    </div>
+                    <div class="border-[3px] border-[#f4f4f4]">
+                        <img src="assets/images/home-page/footer.jpg"  class="object-contain"/>
+                    </div>
+                </div>
+                <div class="flex flex-col px-[7px] md:border-l border-[#d4d4d4] h-full max-md:border-t max-md:items-center">
+                    <span class="font-clearface text-black text-[24px]">Follow Us</span>
+                    <div class="flex gap-[6px]">
+                        <a><img class="object-contain" src="assets/images/ui/icons8-facebook-logo.svg" /></a>
+                        <a><img class="object-contain" src="assets/images/ui/icons8-twitter-bird.svg" /></a>
+                        <a><img class="object-contain" src="assets/images/ui/icons8-youtube-logo.svg" /></a>
+                    </div>
+                </div>
             </div>
-            <div>alo</div>
+        </div>
+        <div class="flex flex-col mb-4 w-full mt-[10px] max-w-[1440px]">
+            <span class="font-avenir text-[11px] text-[#282828]">
+                © 2025 Luskibeck. All rights reserved.
+            </span>
+            <span class="mt-2 font-avenir text-[11px] text-[#282828]">
+                Designed and Developed by Luskibeck Team
+            </span>
         </div>
     </div>
-    <ng-container *ngIf="isAccessChat">
+    <ng-container *ngIf="isAccessChat && isJoinChat">
         <div
             #bubbleChatBot
             class="fixed max-sm:hidden flex flex-col w-[28rem] h-[32rem] xl:w-[32rem] xl:h-[36rem] xl:top-[12rem] bg-white shadow-2xl rounded-xl z-[49] origin-bottom-right transition-[transform,opacity] duration-300"
@@ -164,34 +203,37 @@
         </div>
     </ng-container>
     <ng-container *ngIf="isBtnOpenChat; else notBtnOpenChat">
-        <div
-            #btnOpenChat
-            [class.hidden]="!crrUser || crrUser.role === 1"
-            [style.left.px]="position.x"
-            [style.top.px]="position.y"
-            class="fixed z-[20] max-sm:hidden w-48 flex items-center justify-center p-0 bg-transparent border-none shadow-none"
-        >
-            <button
-                type="button"
-                (click)="TurnOffBtnOpenChat()"
-                class="absolute top-2 right-5 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-black cursor-pointer group hover:scale-110 transition-all duration-300"
+        <ng-container *ngIf="isJoinChat">
+            <div
+                
+                #btnOpenChat
+                [class.hidden]="!crrUser || crrUser.role === 1"
+                [style.left.px]="position.x"
+                [style.top.px]="position.y"
+                class="fixed z-[20] max-sm:hidden w-48 flex items-center justify-center p-0 bg-transparent border-none shadow-none"
             >
-                <mat-icon class="text-white">close</mat-icon>
-            </button>
-            <button
-                (click)="handleChatClick($event)"
-                type="button"
-                class="flex items-center justify-center w-full h-full shake"
-            >
-                <img
-                    [src]="
-                        'assets/images/chatbot/AI-3.png'
-                    "
-                    class="h-full w-30"
-                    alt="Logo"
-                />
-            </button>
-        </div>
+                <button
+                    type="button"
+                    (click)="TurnOffBtnOpenChat()"
+                    class="absolute z-10 flex items-center justify-center w-6 h-6 transition-all duration-300 bg-black rounded-full cursor-pointer top-2 right-5 group hover:scale-110"
+                >
+                    <mat-icon class="text-white">close</mat-icon>
+                </button>
+                <button
+                    (click)="handleChatClick($event)"
+                    type="button"
+                    class="flex items-center justify-center w-full h-full shake"
+                >
+                    <img
+                        [src]="
+                            'assets/images/chatbot/AI-3.png'
+                        "
+                        class="h-full w-30"
+                        alt="Logo"
+                    />
+                </button>
+            </div>
+        </ng-container>
     </ng-container>
     <ng-template #notBtnOpenChat>
         <button
@@ -199,8 +241,8 @@
             (click)="TurnOnBtnOpenChat()"
             class="fixed bottom-20 right-0 z-[1001] w-8 h-8 hover:scale-110 flex items-center justify-center p-0 text-white border-none shadow-none rounded-tl-xl rounded-bl-xl"
         >
-            <span class="relative flex size-3 w-full h-full">
-                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-yellow-300 opacity-75"></span>
+            <span class="relative flex w-full h-full size-3">
+                <span class="absolute inline-flex w-full h-full bg-yellow-300 rounded-full opacity-75 animate-ping"></span>
                 <span class="relative inline-flex size-3 rounded-full bg-yellow-500 w-full h-full justify-center items-center text-black text-[11px]">+</span>
             </span>
         </button>

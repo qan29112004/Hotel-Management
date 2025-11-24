@@ -7,12 +7,27 @@ from utils.utils import Utils
 from hotel_management_be.models.hotel import *
 from hotel_management_be.models.offer import *
 from hotel_management_be.models.booking import *
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 import logging
 
 logger = logging.getLogger(__name__)
 from libs.Redis import RedisWrapper, RedisUtils
 from hotel_management_be.kafka.kafka_producer import publish_kafka_event
 
+def handle_room_hold_released(event):
+    payload = event["payload"]
+    hold_id = payload["hold_id"]
+    print(f"[Kafka] 🟠 Hold released: {hold_id}")
+
+    # DB update
+    hr = HoldRecord.objects.filter(uuid=hold_id).first()
+    if hr and hr.status != "Expired":
+        hr.status = "Expired"
+        hr.save(update_fields=["status"])
+
+    # Xoá Redis nếu còn
+    RedisUtils.delete_hold_in_redis(hold_id)
 
 @shared_task
 def compute_hotel_calendar_prices(hotel_id, selected_date):
@@ -91,7 +106,7 @@ def reconcile_expired_holds():
         hr.save()
 
         try:
-            publish_kafka_event("room_hold_released", {
+            handle_room_hold_released({
                 "hold_id": str(hr.hold_id),
                 "session_id": str(hr.session.session_id),
                 "hotel_id": hr.session.hotel_id,
@@ -159,15 +174,17 @@ def cleanup_old_inventory():
 def set_booking_room(session_id, booking_id):
     import random
     from decimal import Decimal
+    from django.db.models import Q
     booking = Booking.objects.get(uuid=booking_id)
     # Lấy tất cả HoldRecord thuộc session_id đó
     hold_records = HoldRecord.objects.filter(session__uuid=session_id, status__in=["Hold","Confirmed"])
-
+    booked_room = BookingRoom.objects.filter(Q(booking_id__check_in__lt=booking.check_out)& Q(booking_id__check_out__gt=booking.check_in))
+    conflict_room_ids = booked_room.values_list("room_id", flat=True)
     for hold in hold_records:
         # Lấy danh sách room thuộc roomtype này, đang available
         available_rooms = list(Room.objects.filter(
             room_type_id=hold.room_type, status="Available"
-        ))
+        ).exclude(uuid__in=conflict_room_ids))
 
         # Nếu không đủ phòng
         if len(available_rooms) < hold.quantity:
@@ -203,3 +220,30 @@ def set_booking_room(session_id, booking_id):
                     price=hs.price,
                 )
             
+@shared_task
+def send_booking_email(data: dict):
+    """
+    data = {
+        "to_email": "",
+        "user_name": "",
+        "hotel_name": "",
+        "checkin": "",
+        "checkout": "",
+        "room_type": "",
+        'check_in_time',
+        'check_out_time'
+    }
+    """
+    print("chay ham sane email")
+    html_content = render_to_string("booking/booking_confirm.html", data)
+
+    subject = "Booking Confirmation"
+    from_email = None  # sẽ dùng DEFAULT_FROM_EMAIL
+    to = [data["to_email"]]
+
+    msg = EmailMultiAlternatives(subject, "", from_email, to)
+    msg.attach_alternative(html_content, "text/html")
+
+    msg.send()
+
+    return "Email sent!"

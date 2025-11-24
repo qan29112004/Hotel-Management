@@ -1,150 +1,39 @@
-<div class="flex w-screen overflow-hidden bg-gray-50">
-    <app-delete-chat *ngIf="isDeleteChatModal" (close)="closeModalDeleteChat()" (submit)="submitDeleteChat()"></app-delete-chat>
-    <!--LIST USER-->
-    <ng-container *ngIf="user.role !== 3">
-        <div class="flex flex-col h-full bg-white border-r border-gray-200 shadow-xl overflow-hidden origin-left transition-[width] duration-500 ease-in-out sm:w-1/4"
-            [ngClass]="chatService.hiddenListUsers && chatService.isMobile ? 'w-0' : 'w-full'">
-            
-            <ng-container *ngIf="user.role === 3">
-                <div class="flex-shrink-0 p-6 border-b border-gray-200">
-                    <button type="button" (click)="onNewChatClick()"
-                            class="w-full p-4 bg-gradient-to-r from-blue-400 to-[#3941ab] text-white font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 ease-in-out">
-                        <div class="flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                            New Chat
-                    </div>
-                    </button>
-                </div>
-            </ng-container>
-            
-            <div class="flex-1 overflow-hidden">
-                <ng-container *ngIf="listUsers, else notUser">
-                    <div class="flex flex-col w-full h-full">
-                        <div class="bg-[#1255FB] px-4 py-3 flex-shrink-0">
-                            <h3 class="text-lg font-semibold text-white">{{
-                                'chat.list_user' | transloco
-                            }}</h3>
-                        </div>
-                        
-                        <div class="relative flex-grow min-h-0 overflow-x-hidden overflow-y-auto shrink scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 h-96">
-                            <ng-container *ngIf="isLoadingUser">
-                                <div class="absolute z-50 -translate-x-1/2 top-1/2 left-1/2">
-                                    <div class="loader"></div>
-                                </div>
-                            </ng-container>
-                            <ng-container *ngFor="let item of listUsers; let i = index">
-                                <button 
-                                    type="button" 
-                                    (click)="chooseUser(item)" 
-                                    class="w-full p-4 text-left break-words transition-colors duration-200 border-b border-gray-100 hover:bg-blue-50 last:border-b-0 group"
-                                    [ngClass]="{'bg-[#E0EAFF]':expandedUserId === item.id}"
-                                >
-                                    <div class="relative flex items-center w-full space-x-3">
-                                        <div class="relative flex w-full max-w-full gap-3">
-                                            <ng-container *ngIf="item.unread">
-                                                <div class="absolute top-0 left-0">
-                                                    <div class="relative flex items-center justify-center w-3 h-3">
-                                                        <span class="absolute inline-flex w-3 h-3 bg-red-400 rounded-full opacity-75 animate-ping"></span>
-                                                        <span class="relative inline-flex w-3 h-3 bg-red-500 rounded-full"></span>
-                                                    </div>
-                                                </div>
-                                            </ng-container>
-                                            <ng-container *ngIf="!item.avata, else userAvata">
-                                                <img src="assets/images/avatars/default-avatar.svg" class="flex items-center justify-center text-sm font-semibold text-white rounded-full w-14 h-14 aspect-square object-cover" />
-                                            </ng-container>
-                                            <ng-template #userAvata>
-                                                <img [src]="item.avata" class="flex items-center justify-center text-sm font-semibold text-white rounded-full w-14 h-14 aspect-square object-cover" />
-                                            </ng-template>
-                                            
-                                            <!-- User info -->
-                                            <div class="flex-grow overflow-hidden shrink">
-                                                <div class="text-xl font-medium text-gray-900 truncate transition-colors duration-200 group-hover:text-blue-600">
-                                                    {{ item.fullName || item.username}}
-                                                </div>
-                                                <div class="text-[14px] text-gray-500 truncate"
-                                                    [ngClass]="{'font-bold': item.unread}"
-                                                >
-                                                    <ng-container *ngIf="item.lastMessage; else noMessage">
-                                                        {{ item.lastMessage}}
-                                                    </ng-container>
-                                                    <ng-template #noMessage>
-                                                        <span class="italic text-gray-400 truncate">{{ 'chat.no_message' | transloco}}</span>
-                                                    </ng-template>
-                                                </div>
-                                                <div *ngIf="item.lastMessageTimestamp" class="truncate text-[12px] text-gray-400 mt-1"
-                                                    [ngClass]="{'font-bold': item.unread}">
-                                                    {{ item.formattedLastMessageTime}}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                    </div>
-                                </button>
-                                
-                                
-                            </ng-container>
-                            
-                            <!--<ng-container *ngIf="!isLoadingUser && (!listUsers || listUsers.length === 0)">
-                                <div class="px-4 py-8 text-center text-gray-500">
-                                    <svg
-                                    class="w-12 h-12 mx-auto mb-4 text-gray-300"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                    >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                                    ></path>
-                                    </svg>
-                                    <p class="text-sm">{{ 'chat.none_user_chat' | transloco }}</p>
-                                </div>
-                            </ng-container> -->
-                        </div>
-                    </div>
-                </ng-container>
-                
-                <ng-template #notUser>
-                        <div class="flex flex-col h-full">
-                            <h1 class="pt-3 pl-3 mb-4 text-xl font-semibold">Chats</h1>
-                            <div class="flex-grow min-h-0 p-3 overflow-y-auto shrink scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 h-96">
-                                <div *ngFor="let item of userChats" 
-                                    class="relative flex w-auto p-4 mb-2 overflow-hidden transition-all duration-200 ease-in-out bg-white cursor-pointer group rounded-xl hover:bg-gray-100 hover:shadow-md"
-                                    [ngClass]="{'bg-gradient-to-r from-blue-100 to-[#8187dd] border-l-4 border-[#3a86fe] shadow-md': item.isActive}"
-                                    (click)="item.onClick?.()">
-                                    <div class="absolute transition-all duration-200 -translate-x-3 -translate-y-1/2 opacity-0 pointer-events-none z-100 left-3 top-1/2 group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto">
-                                        <button type="button" (click)="openModalDeleteChat(item.chatRoomId); $event.stopPropagation()" class="transition-all duration-200 hover:-translate-y-2 hover:scale-125"><mat-icon class="text-red-500">delete</mat-icon></button>
-                                        
-                                    </div>
-                                    <div class="flex-grow transition-transform group-hover:translate-x-10">
-                                        <app-user-card-chat [config]="item" [user]="user"></app-user-card-chat>
-                                    </div>
-                                </div>
-                            </div>
-                        
-                    </div>
-                </ng-template>
+<div class="flex flex-col items-center w-full">
+    <div class="w-full bg-black h-28 mb-[60px]"></div>
+    <ng-container *ngIf="listRequirement?.length <=0 || !listRequirement">
+        <span class='font-clearface text-[30px]'>
+            chat.no_require
+        </span>
+        <div class="flex items-center justify-center mt-[20px]"
+        >
+            <div class="text-center">
+                <img src="assets/images/chatbot/none_user.svg" class="object-contain"/>
             </div>
         </div>
     </ng-container>
+    <ng-container *ngIf="listRequirement?.length >0">
+        <ng-container *ngIf="listRequirement | groupByStatus as grouped">
+            <span *ngIf="!isJoin" class="font-clearface text-[30px]">Chờ tiếp nhận</span>
+            <span *ngIf="isJoin" class="font-clearface text-[30px]">Bạn đang tiếp nhận 1 yêu cầu</span>
+            <div class="w-full py-6 border-b border-[#787878] flex gap-2 flex-wrap px-16">
 
-    <!-- Main Content Area -->
-    <div *ngIf="_activeSessionId, else notActiveSessionId" class="min-w-0 overflow-hidden "
-        [ngClass]="chatService.hiddenListUsers || !chatService.isMobile ? 'flex flex-col flex-1' : 'hidden'"
-    >   
-        <router-outlet></router-outlet>
-    </div>
-        <ng-template  #notActiveSessionId>
-            <div *ngIf="user.role !== 3" class="items-center justify-center bg-gray-50"
-                [ngClass]="chatService.hiddenListUsers || !chatService.isMobile ? 'flex flex-1' : 'hidden'"
-            >
-                <div class="text-center">
-                    <img src="assets/images/chatbot/none_user.svg" class="object-contain"/>
-                </div>
+                <button [disabled]="isJoin" (click)="requestJoin(item.uuid)" *ngFor="let item of grouped['Waiting']; let i=index" type="button" class="shadow-md rounded-3xl flex p-2 gap-2 items-center">
+                    <img [src]="item.user.avatar?item.user.avatar:'assets/images/avatars/default-avatar.svg'" class="rounded-full object-cover w-10 h-10" />
+                    <span class="font-lexend_deca text-[14px]">{{item.user.email}}</span>
+                </button>
             </div>
-        </ng-template>
+
+            <span class="font-clearface text-[30px]">Đang xử lý</span>
+            <div class="w-full py-6 flex gap-2 flex-wrap px-16">
+
+                <button disabled *ngFor="let item of grouped['In progress']; let i=index" type="button" class="shadow-md rounded-3xl flex items-center gap-2 p-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                    <img [src]="item.user.avatar?item.user.avatar:'assets/images/avatars/default-avatar.svg'" class="rounded-full object-cover w-10 h-10" />
+                    <span class="font-lexend_deca text-[14px]">{{item.user.email}}</span>
+                </button>
+            </div>
+        </ng-container>
+
+    </ng-container>
+        
+    <!-- Main Content Area -->
 </div>

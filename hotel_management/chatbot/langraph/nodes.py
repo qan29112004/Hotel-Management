@@ -63,7 +63,7 @@ def retrieve(state:dict):
     return state
 
 def response(state:dict):
-    SIMILARITY_THRESHOLD = 0.89
+    SIMILARITY_THRESHOLD = 0.77
     docs = state['retrieve_data']
     relevant_docs = []
     state['check_score']=[]

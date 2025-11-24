@@ -25,6 +25,9 @@ from django.db import transaction
 from libs.querykit.querykit import Querykit
 from utils.utils import Utils
 from chatbot.tasks import embed_pending_data
+from chatbot.models import *
+from chatbot.serializer import *
+from django.db.models import Count
 
 @auto_schema_post(KnowlegdeBaseSerializer)
 @permission_classes([IsAdminUser])
@@ -83,4 +86,26 @@ def list_knowlegde_base(request):
     except Exception as e:
         return AppResponse.error(ErrorCodes.LIST_DATASET_FAIL, str(e))
     
-    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def get_all_message(request):
+    try:
+        user = request.user
+        group_member = GroupMember.objects.select_related('group').filter(user=user).annotate(member_count=Count("group__group_member")).get()
+        all_message = group_member.group.message.all().order_by('created_at')
+        serializers = MessageSerializer(all_message, many=True)
+        return AppResponse.success(SuccessCodes.AI_CHATBOT_SUCCESS, {'group':group_member.group.uuid, 'group_status':group_member.group.status, "member_count":group_member.member_count, 'messages':serializers.data})
+    except GroupMember.DoesNotExist:
+        return AppResponse.success(SuccessCodes.AI_CHATBOT_SUCCESS, {'group':group_member.group.uuid, 'group_status':group_member.group.status, "member_count":group_member.member_count, 'messages':[]})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_requirement_of_user(request):
+    try:
+        groups = GroupChat.objects.filter(status__in=["Waiting", "In progress"])
+        is_join = GroupMember.objects.filter(user=request.user).exists() 
+        serializers = RequirementSerializer(groups, many=True)
+        return AppResponse.success(SuccessCodes.AI_CHATBOT_SUCCESS, {"requirements":serializers.data, 'isJoin':is_join})
+    except Exception as e:
+        return AppResponse.error(ErrorCodes.INTERNAL_SERVER_ERROR, str(e))
+

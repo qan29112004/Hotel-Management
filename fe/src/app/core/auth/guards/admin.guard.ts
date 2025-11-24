@@ -30,8 +30,8 @@ export const AdminGuard: CanActivateFn = (route, state) => {
             }
             // Nếu là mod (role === 2) chỉ cho phép truy cập router mod
             if (user.role === 2) {
-                if (!state.url.startsWith(`/${routeConfig.ROUTER_MOD}`)) {
-                    router.navigate([`${routeConfig.ROUTER_MOD}/${routeConfig.APP_TYPE}`]);
+                if (!state.url.startsWith(`/${routeConfig.ROUTER_RECEPT}`)) {
+                    router.navigate([`${routeConfig.ROUTER_RECEPT}/${routeConfig.APP_TYPE}`]);
                     return false;
                 }
                 return true;

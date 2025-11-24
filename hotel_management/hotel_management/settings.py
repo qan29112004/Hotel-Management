@@ -70,7 +70,8 @@ ROOT_URLCONF = 'hotel_management.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / "templates",],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -233,14 +234,14 @@ CHANNEL_LAYERS = {
         },
     },
 }
-# EMAIL_USE_UTF8 = True
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-# EMAIL_HOST = os.getenv("EMAIL_HOST_DEV")
-# EMAIL_PORT = os.getenv("EMAIL_PORT_DEV")
-# EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS_DEV")
-# EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER_DEV")
-# EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD_DEV")
-# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_USE_UTF8 = True
+EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST="smtp.gmail.com"
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER="qan29112004@gmail.com"
+EMAIL_HOST_PASSWORD="nqvh rqje ckiu hopt"
+DEFAULT_FROM_EMAIL=EMAIL_HOST_USER
 
 # Swagger Settings
 SWAGGER_SETTINGS = {
@@ -263,7 +264,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'cleanup-old-inventory-daily': {
         'task': 'hotel_management_be.celery_hotel.task.cleanup_old_inventory',
-        'schedule': 86400.0,  # chạy 1 lần/ngày
+        'schedule': 60.0,  # chạy 1 lần/ngày
     },
 }
 CELERY_RESULT_BACKEND = "redis://redis_hotel:6379/0"
