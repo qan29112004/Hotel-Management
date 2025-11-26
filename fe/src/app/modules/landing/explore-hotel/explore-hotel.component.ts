@@ -17,7 +17,7 @@ import { register } from 'swiper/element/bundle';
 import { ActivatedRoute } from '@angular/router';
 import { Hotel } from 'app/core/admin/hotel/hotel.types';
 import { environment } from 'environments/environment.fullstack';
-import { getCurrentDateString } from 'app/shared/utils/util';
+import { formatDateRange, getCurrentDateString } from 'app/shared/utils/util';
 
 @Component({
   selector: 'app-explore-hotel',
@@ -45,7 +45,8 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
    next:string;
    previous:string;
   buttonNext:boolean = true;
-
+  sort:string;
+  formatDateRange=formatDateRange;
   Math = Math;
   showCalendar = false; // Biến điều khiển hiển thị lịch
   selectedDateCheckin: Date | null = null; // Lưu ngày được chọn
@@ -368,7 +369,26 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     )
   }
+  onSortChange(event: any) {
+    const sortValue = event.target.value;
+    this.searchData['sort'] = sortValue
 
+    this.hotelService.getExploreHotels(this.searchData).subscribe(res=>{
+      this.listHotel = res.data.data;
+      console.log('this list hotel load more', this.listHotel)
+      this.next = res.data?.next;
+      this.total = res.data?.total;
+      this.previous = res.data?.previous;
+      this.listExcludeHotel = res.data?.excludeHotel;
+      this.buttonNext = !!(this.next && this.next.trim());
+      console.log("this.buttonNex", this.buttonNext)
+      setTimeout(() => {
+          this.initializeSwipers(this.swiperElements,this.swipers, this.currentIndexes);
+          this.initializeSwipers(this.swiperElements2,this.swipers2, this.currentIndexes2);
+        }, 0);
+    }
+    )  // 👈 gọi API với sort
+  }
   chooseHotel(slug:string, uuid:string){
     const queryParams: { [key: string]: any } = {};
     queryParams.hotel = uuid;

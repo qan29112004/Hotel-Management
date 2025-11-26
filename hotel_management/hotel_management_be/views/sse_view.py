@@ -1,37 +1,52 @@
-from hotel_management_be.celery_hotel.task import monitor_session_task
 import json
-import time
+import asyncio
 from django.http import StreamingHttpResponse
-from libs.Redis import RedisUtils
-from utils.swagger_decorators import auto_schema_post, auto_schema_get, auto_schema_delete, auto_schema_patch
 from django.views.decorators.http import require_GET
+from redis.asyncio import Redis
+
 from libs.Redis import RedisUtils
 
-def event_stream(session_id):
+async def async_event_stream(session_id: str):
+    # Kết nối Redis async
     exists, ttl = RedisUtils.check_session(session_id)
     if not exists and ttl == 0:
+        print("check data before: ", f'{exists} {ttl}')
         yield f"data: {json.dumps({'exist': exists, 'ttl': ttl})}\n\n"
-        return
+        return 
+    redis = await Redis.from_url("redis://redis_hotel:6379/1")
+    pubsub = redis.pubsub()
+    await pubsub.subscribe("session_status_channel")
 
-    pubsub = RedisUtils.r.pubsub()
-    pubsub.subscribe('session_status_channel')
+    last_heartbeat = asyncio.get_event_loop().time()
 
-    last_heartbeat = time.time()
+    while True:
+        # Lấy message từ Redis async
+        message = await pubsub.get_message(ignore_subscribe_messages=True, timeout=1.0)
 
-    for message in pubsub.listen():
-        # Có message thật từ Redis
-        if message['type'] == 'message':
-            data = json.loads(message['data'])
-            if data.get("session_id") == session_id:
+        if message is not None:
+            data = json.loads(message["data"])
+            if str(data.get("session_id")) == str(session_id):
                 yield f"data: {json.dumps(data)}\n\n"
-                last_heartbeat = time.time()
 
-        # Heartbeat mỗi 10 giây
-        if time.time() - last_heartbeat > 10:
-            yield 'data: {"ping": true}\n\n'
-            last_heartbeat = time.time()
+                last_heartbeat = asyncio.get_event_loop().time()
+
+        # Heartbeat 10s
+        if asyncio.get_event_loop().time() - last_heartbeat > 10:
+            
+            last_heartbeat = asyncio.get_event_loop().time()
+
+        await asyncio.sleep(0.1)  # tránh busy loop
+
 @require_GET
 def sse_view(request, session_id):
-    response = StreamingHttpResponse(event_stream(session_id), content_type='text/event-stream')
-    response['Cache-Control'] = 'no-cache'
+    """
+    Lưu ý: Django ASGI sẽ tự convert generator async thành StreamingHttpResponse
+    """
+    response = StreamingHttpResponse(
+        async_event_stream(session_id),
+        content_type="text/event-stream"
+    )
+    response["Cache-Control"] = "no-cache, no-transform"
+    response["X-Accel-Buffering"] = "no"
+    response["Connection"] = "keep-alive"
     return response

@@ -175,26 +175,14 @@ export class AddUserComponent {
             },
             error: (err) => {
                 console.log(err);
-                const errors = err?.error?.errors;
 
+                const errorList = err?.error?.errors;
                 this.alert = {
                     type: 'error',
-                    code: [],
+                    code: Array.isArray(errorList)
+                        ? errorList.map(e => e.field ? `${e.field}: ${e.message}` : e.message)
+                        : [err?.error?.message || err?.error?.code || 'Đã xảy ra lỗi'],
                 };
-                if (
-                    err?.error?.code === 'VALIDATION_ERROR' &&
-                    Array.isArray(err.error.errors)
-                ) {
-                    this.alert.code = err.error.errors.map((e: any) => {
-                        return `errors.fields.${e.field}`;
-                    });
-                } else if (err?.error?.code === 'REGISTER ERROR') {
-                    console.log(err);
-                } else {
-                    this.alert.code = [
-                        `user_management.username_required` ,
-                    ];
-                }
 
                 this.addUserForm.enable();
 

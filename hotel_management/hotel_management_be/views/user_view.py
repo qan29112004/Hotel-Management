@@ -26,6 +26,8 @@ from libs.querykit.querykit_serializer import (
 from django.db.models import Count
 from validators.validator import Validator
 from constants.constants import Constants
+from utils.voucher_utils import VoucherUtis
+from django.utils import timezone
 
 @auto_schema_get(UserSerializer)
 @permission_classes([IsAuthenticated])
@@ -233,6 +235,8 @@ def register_user(request):
             print(f"[REGISTER] Created user: {user.username} ({user.email})")
             user.set_password(password)
             user.save()
+            status, header_response, message, already_claimed, claim = VoucherUtis.claim_voucher(code='CLUB1', now=timezone.now(), user=user)
+            print('check status claim voucher: ', status)
 
         return AppResponse.success(SuccessCodes.ADMIN_CREATE_USER)
 

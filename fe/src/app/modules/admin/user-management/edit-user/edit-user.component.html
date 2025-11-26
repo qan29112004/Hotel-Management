@@ -103,6 +103,48 @@
                     </mat-error>
                 </mat-form-field>
 
+                <!-- Password field -->
+                <mat-form-field
+                    floatLabel="always"
+                    class="w-full fuse-mat-dense"
+                >
+                    <mat-label>{{
+                        t("change_password.title")
+                    }}</mat-label>
+                    <input
+                        id="password"
+                        matInput
+                        [type]="isPasswordVisible ? 'text' : 'password'"
+                        placeholder="{{
+                            t('create_account.password_placeholder')
+                        }}"
+                        [formControlName]="'password'"
+                        (focus)="passwordTouched = true"
+                    />
+                    <button
+                        mat-icon-button
+                        type="button"
+                        (click)="togglePasswordVisibility()"
+                        matSuffix
+                    >
+                        <mat-icon
+                            class="icon-size-5"
+                            [svgIcon]="
+                                isPasswordVisible
+                                    ? 'heroicons_solid:eye-slash'
+                                    : 'heroicons_solid:eye'
+                            "
+                        ></mat-icon>
+                    </button>
+                    <mat-error
+                        *ngIf="
+                            editUserForm.get('password')?.hasError('required')
+                        "
+                    >
+                        {{ t("change_password.password_required") }}
+                    </mat-error>
+                </mat-form-field>
+
                 <!-- Role field -->
                 <mat-form-field
                     floatLabel="always"

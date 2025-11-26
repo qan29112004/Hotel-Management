@@ -114,6 +114,7 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
     innerWidth = window.innerWidth;
     isAdminPage:boolean = false;
     private messageSubscription: Subscription;
+    isFisrtLogin:boolean;
     
     /**
      * Constructor
@@ -174,6 +175,7 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
             this.bookingService.ttl.next(data);
             if(!data.exist){
                 localStorage.removeItem('session_id');
+                localStorage.removeItem('booking_id');
                 window.dispatchEvent(new CustomEvent('session:expired', {
                     detail: { message: 'Session expired from SSE' }
                 }));
@@ -186,8 +188,7 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
         this._userService.user$.subscribe((user)=>{
             this.crrUser = user;
             console.log("check user:", this.crrUser)
-            if(this.crrUser.role === 2){
-            }
+            this.isFisrtLogin = user.isFisrtLogin;
             
         })
         this._router.events.pipe(
@@ -312,7 +313,7 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
      */
     ngOnDestroy(): void {
         
-
+        this.sseService.stopWatching();
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();

@@ -21,10 +21,7 @@ def handle_room_hold_released(event):
     print(f"[Kafka] 🟠 Hold released: {hold_id}")
 
     # DB update
-    hr = HoldRecord.objects.filter(uuid=hold_id).first()
-    if hr and hr.status != "Expired":
-        hr.status = "Expired"
-        hr.save(update_fields=["status"])
+    HoldRecord.objects.filter(uuid=hold_id).delete()
 
     # Xoá Redis nếu còn
     RedisUtils.delete_hold_in_redis(hold_id)
@@ -119,7 +116,7 @@ def reconcile_expired_holds():
             
             
 @shared_task(bind=True)
-def monitor_session_task(self, session_id):
+def monitor_session_task(self, session_id, booking_id):
     logger.info(f"=== TASK STARTED for session {session_id} ===") 
     exist, ttl = RedisUtils.check_session(session_id)
     logger.info(f"check_session returned: exist={exist}, ttl={ttl}") 
@@ -133,15 +130,26 @@ def monitor_session_task(self, session_id):
     # === QUAN TRỌNG: LÊN LỊCH LẠI DỰA TRÊN TTL THỰC TẾ ===
     if exist and ttl not in (None, 0):
         # Lên lịch chạy lại ngay trước hoặc SAU khi hết hạn
-        if ttl > 60:
-            countdown = 60
+        if ttl > 20:
+            countdown = 20
         else:
             countdown = ttl + 5  # chạy SAU khi hết hạn 5s → chắc chắn bắt được exist=False
     else:
         # Key không tồn tại hoặc hết hạn → không lên lịch nữa
+        booking = Booking.objects.get(uuid = booking_id)
+        if (
+            not booking.user_email or
+            not booking.user_fullname or
+            not booking.user_phone
+        ):
+            booking.delete()
+        elif(booking.status != "Confirm"):
+            booking.status = 'Expired'
+            booking.save()
+        BookingSession.objects.get(uuid = session_id).delete()
         return
 
-    self.apply_async((session_id,), countdown=countdown)
+    self.apply_async((session_id,booking_id), countdown=countdown)
     
     
 @shared_task

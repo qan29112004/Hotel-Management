@@ -21,6 +21,7 @@ from libs.Redis import RedisWrapper, RedisUtils
 from libs.querykit.querykit_serializer import (
     QuerykitSerializer,
 )
+from hotel_management_be.models.booking import BookingSession
 from django.db import transaction
 from libs.querykit.querykit import Querykit
 from utils.utils import Utils
@@ -29,6 +30,7 @@ import hmac, hashlib, urllib.parse, json
 from decimal import Decimal
 from utils.paypal_utils import PayPalService
 from hotel_management_be.celery_hotel.task import set_booking_room, send_booking_email
+from hotel_management_be.views.voucher_view import _redeem_voucher_for_booking_internal
 
 @api_view(["POST"])
 def create_payment(request):
@@ -36,22 +38,39 @@ def create_payment(request):
     method = data.get("method")
     currency = data.get("currency", "VND")
     session_id = data.get('session_id')
+    booking_id = data.get('booking_id')
     
     hotel = Hotel.objects.get(name=data["hotel_name"])
-
+    # session = BookingSession.objects.get(uuid = session_id)
     # Tạo booking pending
-    booking = Booking.objects.create(
-        user_email=data["user_email"],
-        user_fullname = data["user_fullname"],
-        user_phone = data["user_phone"],
-        user_country = data["user_country"],
-        hotel_id=hotel,
-        check_in=data["check_in"],
-        check_out=data["check_out"],
-        num_guest=int(data["num_guest"]),
-        total_rooms=int(data["total_rooms"]),
-        total_price=Decimal(data["total_price"]),
-        status="Pending"
+    # booking = Booking.objects.create(
+    #     user_email=data["user_email"],
+    #     user_fullname = data["user_fullname"],
+    #     user_phone = data["user_phone"],
+    #     user_country = data["user_country"],
+    #     hotel_id=hotel,
+    #     check_in=data["check_in"],
+    #     check_out=data["check_out"],
+    #     num_guest=int(data["num_guest"]),
+    #     total_rooms=int(data["total_rooms"]),
+    #     total_price=Decimal(data["total_price"]),
+    #     status="Pending"
+    # )
+    booking, created = Booking.objects.update_or_create(
+        uuid=booking_id,
+        defaults={
+            'hotel_id':hotel,
+            "user_email": data["user_email"],
+            "user_fullname": data["user_fullname"],
+            "user_phone": data["user_phone"],
+            "user_country": data["user_country"],
+            "num_guest": int(data["num_guest"]),
+            "total_rooms": int(data["total_rooms"]),
+            "total_price": Decimal(data["total_price"]),
+            "status": "Pending",
+            'check_in':data["check_in"],
+            'check_out':data["check_out"]
+        }
     )
 
     if method == "vnpay":
@@ -84,7 +103,7 @@ def paypal_capture(request):
 
     # ===  Cập nhật CSDL ===
     booking = Booking.objects.get(uuid=booking_id)
-    Payment.objects.create(
+    payment = Payment.objects.create(
         booking=booking,
         amount=amount,
         status="Paid",
@@ -95,12 +114,27 @@ def paypal_capture(request):
     booking.status = "Confirm"
     booking.save()
     
+    # Redeem voucher nếu có (chỉ redeem khi payment success)
+    if booking.voucher_code:
+        user = booking.created_by if booking.created_by else None
+        if user:
+            success, error_code, error_message = _redeem_voucher_for_booking_internal(
+                booking, user
+            )
+            if not success:
+                # Log error nhưng không fail payment
+                print(f"Voucher redeem failed for booking: {error_message}")
+    
+    
     hotel = booking.hotel_id
     set_booking_room.delay(session_id,booking_id)
     
     RedisUtils.finalize_booking_success(session_id)
     payload = {
         "to_email":booking.user_email,
+        "transactionId":payment.transaction_id,
+        "money":payment.amount,
+        'currency':payment.currency,
         "user_name":booking.user_fullname,
         "hotel_name":hotel.name,
         "checkin": booking.check_in,
@@ -143,7 +177,7 @@ def payment_ipn(request):
     # ===  Bước 3: Xử lý kết quả thanh toán ===
     if vnp_response_code == "00" and vnp_transaction_status == "00":
         # Thanh toán thành công
-        Payment.objects.create(
+        payment = Payment.objects.create(
             booking=booking,
             amount=vnp_amount,
             status="Paid",
@@ -152,11 +186,28 @@ def payment_ipn(request):
         )
         booking.status = "Confirm"
         booking.save()
+        print('check booking voucher: ', booking.voucher_code)
+        # Redeem voucher nếu có (chỉ redeem khi payment success)
+        if booking.voucher_code:
+            user = booking.created_by if booking.created_by else None
+            print("check user: ", user)
+            if user:
+                success, error_code, error_message = _redeem_voucher_for_booking_internal(
+                    booking, user
+                )
+                if not success:
+                    # Log error nhưng không fail payment
+                    print(f"Voucher redeem failed for booking {txn_ref}: {error_message}")
+        
         hotel = booking.hotel_id
         set_booking_room.delay(session_id, txn_ref)
         RedisUtils.finalize_booking_success(session_id)
+        print('check booking: ', booking, )
         payload = {
             "to_email":booking.user_email,
+            "transactionId":payment.transaction_id,
+            "money":payment.amount,
+            'currency':payment.currency,
             "user_name":booking.user_fullname,
             "hotel_name":hotel.name,
             "checkin": booking.check_in,

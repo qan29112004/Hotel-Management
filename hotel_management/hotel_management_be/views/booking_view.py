@@ -92,8 +92,8 @@ def list_booking(request):
         return AppResponse.error(ErrorCodes.LIST_AMENITY_FAIL, str(e))
     
     
-HOLD_TTL_SECONDS = getattr(settings, "HOLD_TTL_SECONDS", 1*60)
-SESSION_TTL_SECONDS = getattr(settings, "SESSION_TTL_SECONDS", 2*60)
+HOLD_TTL_SECONDS = getattr(settings, "HOLD_TTL_SECONDS", 3*60)
+SESSION_TTL_SECONDS = getattr(settings, "SESSION_TTL_SECONDS", 3*60)
 
 # Utility: ensure inventory keys exist for requested range (init from DB)
 def ensure_inventory_for_range(hotel_id, room_type_id, checkin, checkout):
@@ -149,9 +149,17 @@ def create_booking_session(request):
             checkin=checkin,
             checkout=checkout,
             requested_rooms=requested_rooms,
-            expires_at=expires_at
+            expires_at=expires_at,
+            created_by= request.user if request.user else None
         )
         created = True
+    booking = Booking.objects.create(
+        hotel_id=hotel,
+        check_in=checkin,
+        check_out=checkout, 
+        status="Pending",  
+        created_by= request.user if request.user else None
+    )
 
     # store minimal session pointer in redis (not mandatory)
     RedisUtils.r.hset(RedisUtils.session_key(str(session.uuid)), mapping={
@@ -162,9 +170,10 @@ def create_booking_session(request):
         "created_at": timezone.now().isoformat()
     })
     RedisUtils.r.expire(RedisUtils.session_key(str(session.uuid)), SESSION_TTL_SECONDS)
-    monitor_session_task.delay(str(session.uuid))
+    monitor_session_task.delay(str(session.uuid), str(booking.uuid))
     return Response({
         "session_id": str(session.uuid),
+        "booking_id":str(booking.uuid),
         "expires_in": SESSION_TTL_SECONDS
     })
 
@@ -225,7 +234,7 @@ def create_hold(request):
                 pass
         # delete old hold key and DB record status
         RedisUtils.delete_hold_in_redis(existing_hold_id)
-        HoldRecord.objects.filter(uuid=existing_hold_id).update(status='Released')
+        HoldRecord.objects.filter(uuid=existing_hold_id).delete()
 
 
     # Attempt atomic decrement across range
@@ -399,7 +408,7 @@ def add_and_update_service_to_hold_record(request):
 @api_view(['POST'])
 def list_my_booking(request):
     try:
-        list_booking = Booking.objects.all()
+        list_booking = Booking.objects.exclude(status__in =['Expired','Pending'])
         paginated_booking, total = Querykit.apply_filter_paginate_search_sort(request=request, queryset=list_booking).values()
         serializers = MyBookingSerializer(paginated_booking, many=True)
         return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data, 'total':total})

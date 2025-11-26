@@ -320,6 +320,7 @@ export class GenericEditComponent implements OnInit {
             } else if (field?.type !== 'file' && field?.type !== 'files') {
                 formData.append(camelToSnake(key), this.editFormGroup.value[key]);
             }
+            console.log("check form value before: ",this.editFormGroup.value[key])
         });
         console.log("check formdata 1:")
 formData.forEach((value, key) => {
@@ -408,6 +409,7 @@ formData.forEach((value, key) => {
             this.selectedRadioValues[fieldName].push(value);
             this.displayCheckbox[option.name] = option.icon;
             console.log("checkbox:", this.selectedRadioValues)
+            console.log("check option", option)
             }
         } else {
             this.selectedRadioValues[fieldName] = this.selectedRadioValues[fieldName].filter(v => v !== value);

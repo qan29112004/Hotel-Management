@@ -99,4 +99,12 @@ export class HotelService {
       }))
     )
   }
+
+  checkAvailableRoom(payload:any):Observable<any>{
+    return this.http.post<any>(uriConfig.API_CHECK_AVAILABLE_ROOM, payload).pipe(
+      map(res =>({
+        status: res.data.status
+      }))
+    )
+  }
 }

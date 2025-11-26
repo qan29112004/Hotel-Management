@@ -21,6 +21,10 @@ from django.contrib.auth.models import update_last_login
 from libs.Redis import RedisWrapper
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from django.utils import timezone
+from utils.voucher_utils import VoucherUtis
 
 
 @auto_schema_post(UserSerializer)
@@ -34,12 +38,13 @@ def login(request, username=None, password=None):
         user = authenticate(username=taiKhoan, password=password)
         print("DATA USER: ",user)
         if not user:
-            return AppResponse.error("Fail login", "Not exist")
+            return AppResponse.error("Fail login", "Sai thông tin tài khoản hoặc mật khẩu")
         jwt_token = JwtConfig.generate(user)
         token = {"access_token": jwt_token["token"], "refresh_token": jwt_token["refresh_token"]}
+        first_login = user.last_login is None
         update_last_login(None, user)
         
-        return AppResponse.success("login successfully", data={'token':token, 'user':UserSerializer(user, context = {"request": request}).data})
+        return AppResponse.success("login successfully", data={'token':token, 'user':UserSerializer(user, context = {"request": request}).data, 'isFisrtLogin' : first_login})
     except:
         print("LOI DANG NHAP")
         return AppResponse.error("Fail login", "Invalid password or username")
@@ -90,6 +95,8 @@ def register(request):
             )
         user.set_password(password)
         user.save()
+        status, header_response, message, already_claimed, claim = VoucherUtis.claim_voucher(code='CLUB1', now=timezone.now(), user=user)
+        print('check status claim voucher: ', status)
         return AppResponse.success(SuccessCodes.REGISTER, data=UserSerializer(user).data)
     except Exception as e:
         return AppResponse.error("Fail register", str(e))
@@ -142,6 +149,9 @@ def google_auth(request):
             'full_name': name,
             'avatar': picture
         })
+        if(created):
+            status, header_response, message, already_claimed, claim = VoucherUtis.claim_voucher(code='CLUB1', now=timezone.now(), user=user)
+            print('check status claim voucher: ', status)
         # (tuỳ chọn) lưu google_sub vào profile/model nếu muốn
 
         # Tạo JWT (SimpleJWT)

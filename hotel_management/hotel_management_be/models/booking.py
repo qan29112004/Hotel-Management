@@ -17,10 +17,21 @@ class Booking(BaseModel):
     hotel_id = models.ForeignKey('hotel_management_be.Hotel', on_delete=models.CASCADE, related_name="hotel_booking", default=None)
     check_in = models.DateField()
     check_out = models.DateField()
-    num_guest = models.IntegerField()
-    total_price = models.DecimalField(max_digits=30, decimal_places=10)
+    num_guest = models.IntegerField(default = 0)
+    total_price = models.DecimalField(max_digits=30, decimal_places=10, default = 0)
     status = models.CharField(max_length=20, choices=HotelConstants.BOOKING_STATUS, null=True, blank=True)
     total_rooms = models.IntegerField(default=0)
+    voucher = models.ForeignKey('hotel_management_be.Voucher', on_delete=models.SET_NULL, null=True, blank=True, related_name='bookings')
+    voucher_code = models.CharField(max_length=50, null=True, blank=True)
+    voucher_discount_amount = models.DecimalField(max_digits=30, decimal_places=10, default=0)
+    voucher_metadata = models.JSONField(default=dict, blank=True)
+    # session = models.OneToOneField(
+    #     'hotel_management_be.BookingSession',
+    #     on_delete=models.CASCADE,
+    #     related_name='booking',
+    #     null=True,
+    #     blank=True
+    # )
     
     
 

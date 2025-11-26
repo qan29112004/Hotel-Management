@@ -58,6 +58,6 @@ def get_calendar_prices(request):
 
     # 3️⃣ Nếu DB chưa có → tạm tính runtime và trigger Celery
     # compute_hotel_calendar_prices.delay(hotel_id, selected_date)
-    data = Utils.compute_calendar_runtime(hotel_id, selected_date, sum(room_requirements), count_children)
-    RedisWrapper.save(redis_key, data, 600)
+    data = Utils.compute_calendar_runtime(hotel_id, selected_date, sum(room_requirements), room_requirements, count_children)
+    # RedisWrapper.save(redis_key, data,180 )
     return AppResponse.success(SuccessCodes.CALENDAR_PRICE,data)

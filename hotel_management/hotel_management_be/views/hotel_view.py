@@ -7,7 +7,7 @@ from rest_framework.decorators import (
     authentication_classes,
     permission_classes,
 )
-from django.db.models import Q, F, FloatField, Subquery, Count, ExpressionWrapper, Sum, IntegerField
+from django.db.models import Q, F, FloatField, Subquery, Count, ExpressionWrapper, Sum, IntegerField, Avg
 from rest_framework.permissions import AllowAny,IsAuthenticated, IsAdminUser
 from libs.response_handle import AppResponse
 from hotel_management_be.models.user import User
@@ -70,7 +70,7 @@ def hotel_detail(request, uuid):
     try:
         hotel = Hotel.objects.get(uuid__icontains=uuid)
         if request.method == 'GET':
-            serializer = HotelSerializer(hotel)
+            serializer = HotelDetailSerializer(hotel)
             return AppResponse.success(SuccessCodes.GET_HOTEL_ID,serializer.data)
             
         
@@ -133,6 +133,7 @@ def explore_hotels(request):
     check_out = request.data.get('check_out','')
     code = request.data.get('code','')
     rooms = request.data.get('rooms',[])
+    sort = request.data.get("sort", "")
     my_pagination = MyPagination()
     my_pagination_1 = MyPagination()
     total_rooms_needed = len(rooms)
@@ -146,28 +147,45 @@ def explore_hotels(request):
 
         if des:  # chỉ lọc khi des có giá trị (không None, không rỗng)
             hotels = hotels.filter(destination__uuid=des)
+        hotels = hotels.annotate(
+            average_rating=Avg("hotel_review__rating"),
+            rating_count=Count("hotel_review")
+        )
+
+        if sort == "name_asc":
+            hotels = hotels.order_by("name")
+        elif sort == "name_desc":
+            hotels = hotels.order_by("-name")
+        elif sort == "rating_desc":
+            hotels = hotels.order_by("-average_rating")
+        elif sort == "rating_asc":
+            hotels = hotels.order_by("average_rating")
         # List để chứa các hotel object thỏa mãn
         available_hotels = []
         booked_rooms = set()
+        print("check hotel: ",hotels)
         # Lấy các phòng đã được book trong khoảng thời gian (query 1 lần thôi)
         if check_in and check_out:
             booked_rooms = Utils.get_booked_rooms(check_in, check_out)
+            print("check room da dat: ",booked_rooms )
         for hotel in hotels:
             # Lấy tất cả room types của hotel
             room_types = hotel.RoomType.all()
-            
+            print("check hotel loop: ",hotel)
+            print("check roontype: ",room_types)
             # Kiểm tra từng room type xem có đủ phòng trống không
             available_room_types = []
             
             for room_type in room_types:
                 # Lấy tất cả phòng của room type này
                 all_rooms = room_type.room.filter(status='Available')
-                
+                print("check roomtype: ", room_type)
                 # Đếm số phòng chưa bị book
                 available_count = sum(
                     1 for room in all_rooms 
                     if not booked_rooms or room.uuid not in booked_rooms
                 )
+                print("count: ", available_count)
                 
                 if available_count and available_count > 0:
                     # Thêm field available_rooms vào room_type object
@@ -201,4 +219,32 @@ def explore_hotels(request):
     except Exception as e:
         return AppResponse.error(ErrorCodes.NOT_FOUND, str(e))
     
+
+@api_view(['POST'])
+def check_available_room(request):
+    from datetime import datetime, timedelta
+    check_in = request.data.get('checkin','')
+    check_out = request.data.get('checkout','')
+    hotel_id = request.data.get('hotel_id','')
+    rooms = request.data.get('rooms',[])  
+    room_requirements = [room['adults'] + room['children'] for room in rooms]
     
+    hotel = Hotel.objects.get(uuid=hotel_id)
+    
+    # 1) Convert string yyyy-mm-dd → date
+    check_in = datetime.strptime(check_in, "%Y-%m-%d").date()
+    check_out = datetime.strptime(check_out , "%Y-%m-%d").date()
+
+    # 2) Lặp qua từng ngày từ check_in đến check_out - 1
+    days = []
+    cur = check_in
+
+    while cur < check_out:
+        days.append(cur)
+        cur += timedelta(days=1)
+
+    # Kiểm tra kết quả
+    for d in days:
+        print(d, d.isoformat())
+        if(Utils.check_availavle_room_in_a_date(d, hotel,room_requirements) == False):return AppResponse.success(SuccessCodes.EXPLORE_HOTELS, {'status':False})
+    return AppResponse.success(SuccessCodes.EXPLORE_HOTELS, {'status':True})

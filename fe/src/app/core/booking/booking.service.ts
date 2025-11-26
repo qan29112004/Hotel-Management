@@ -39,7 +39,8 @@ export class BookingService {
   createSessionBooking(payload:any):Observable<any>{
     return this.http.post<any>(uriConfig.API_CREATE_SESSTION, payload).pipe(
       map(res=>({
-        data:res.sessionId
+        sessionId:res.sessionId,
+        bookingId:res.bookingId
       }))
     )
   }

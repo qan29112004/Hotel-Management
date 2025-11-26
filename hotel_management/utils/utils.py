@@ -187,7 +187,7 @@ class Utils:
         return percentage
     
     @staticmethod
-    def compute_calendar_runtime(hotel_id, selected_date, total_guest, amount_children):
+    def compute_calendar_runtime(hotel_id, selected_date, total_guest,list_total_room, amount_children):
         from hotel_management_be.models.hotel import Hotel
         from hotel_management_be.models.offer import PriceRule
         from datetime import date, timedelta, datetime
@@ -214,11 +214,11 @@ class Utils:
         result = []
         for i in range((last_day - first_day).days + 1):
             d = first_day + timedelta(days=i)
-            final_price = base_price * Decimal(total_guest) * Decimal((0.9 * amount_children)) if amount_children > 0 else base_price * Decimal(total_guest)
+            final_price = base_price * Decimal(total_guest) * Decimal(len(list_total_room)) * Decimal((0.9 * amount_children)) if amount_children > 0 else base_price * Decimal(total_guest) * Decimal(len(list_total_room))
             if Utils.get_offer_multiplier(hotel=hotel,date=d) != 0:
                 final_price *= Utils.get_offer_multiplier(hotel=hotel, date=d)
             
-            
+            is_has_available_room = Utils.check_availavle_room_in_a_date(d, hotel, list_total_room)
             if d.weekday() >=5:
                 print(f"{d} | weekday={d.weekday()} | weekend={d.weekday() >= 5}")
                 final_price *= weekend_mul
@@ -227,6 +227,7 @@ class Utils:
             result.append({
                 "date": d.isoformat(),
                 "price": str(final_price),
+                "is_available_room":is_has_available_room
             })
             # break
         return result
@@ -242,7 +243,6 @@ class Utils:
         rules = PriceRule.objects.all()
         weekend_mul = Decimal(next((r.multiplier for r in rules if r.rule_type == "Weekend"), 1))
         holiday_mul = Decimal(next((r.multiplier for r in rules if r.rule_type == "Holiday"), 1))
-
         # Tính multiplier sẵn cho từng ngày
         date_multipliers = {}
         total_days = (check_out - check_in).days +1
@@ -261,6 +261,7 @@ class Utils:
         rate_plan_data = {rp.uuid: RatePlanSerializer(rp).data for rp in rate_plan}
         room_type_data = {rt.uuid: RoomTypeSerializer(rt).data for rt in room_types}
 
+        print("check room type:",room_type_data )
         # Cache offer multiplier
         offer_mul_cache = {}
         for offset in range(total_days):
@@ -306,6 +307,83 @@ class Utils:
             result.append(room_info)
 
         return result
+    
+    @staticmethod
+    def check_availavle_room_in_a_date(date, hotel,room_requirements ):
+        """
+        Kieemr tra xem ngày cụ thể của khách sạn cụ thể này còn phòng trống hay không
+        """
+        from django.db.models import Q
+        from hotel_management_be.models.booking import Booking, BookingRoom
+        from libs.Redis import RedisUtils
+        date_str = date.isoformat()
+
+        # 2) Redis KEYS pattern
+        # inventory:<hotel_id>:<room_type_id>:<date_str>
+        pattern = f"inventory:{hotel.uuid}:*:{date_str}"
+        
+        # 3) Find all matching keys
+        keys = RedisUtils.r.keys(pattern)
+        print('check pattern: ', pattern)
+        if keys:
+            total_available = 0
+            # 4) Get all values using mget
+            values = RedisUtils.r.mget(keys)
+
+            for v in values:
+                if v is not None:
+                    total_available += int(v)
+
+            # 5) Compare with required room quantity
+            required_quantity = len(room_requirements)
+            if (total_available<required_quantity):return False
+        all_room = 0
+        room_type_of_hotel = hotel.RoomType.all().prefetch_related('room')
+        overlapping_bookings = Booking.objects.filter(
+            Q(check_in__lte=date) & Q(check_out__gte=date),
+            ~Q(status__in=['Cancelled', 'Rejected']),
+            hotel_id = hotel
+        )
+        print('check booking overlap: ', overlapping_bookings)
+        
+        booked_room_uuids = BookingRoom.objects.filter(
+            booking_id__in=overlapping_bookings
+        ).values_list('room_id', flat=True)
+        print('check room booking overlap: ', booked_room_uuids)
+        
+        available_rooms = []
+
+        for rt in room_type_of_hotel:
+            rooms = rt.room.filter(status='Available')
+
+            for room in rooms:
+                if room.uuid not in booked_room_uuids:
+                    # Thêm tuple (room, capacity)
+                    available_rooms.append({
+                        "room": room,
+                        "capacity": rt.max_occupancy
+                    })
+        print('check available room overlap: ', available_rooms, len(room_requirements))
+        if len(available_rooms) < len(room_requirements):
+            return False
+    
+        available_rooms.sort(key=lambda r: r["capacity"], reverse=True)
+        room_requirements_sorted = sorted(room_requirements, reverse=True)
+        for required_capacity in room_requirements_sorted:
+            found = False
+
+            for i, room_info in enumerate(available_rooms):
+                if room_info["capacity"] >= required_capacity:
+                    print("check capacity: ",room_info["capacity"], required_capacity, room_info["capacity"] >= required_capacity )
+                    # Chọn phòng này, xoá khỏi list
+                    available_rooms.pop(i)
+                    found = True
+                    break
+
+            if not found:
+                return False
+        return True
+    
     @staticmethod
     def get_booked_rooms(check_in, check_out):
         """

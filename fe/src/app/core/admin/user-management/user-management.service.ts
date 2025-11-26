@@ -85,7 +85,7 @@ export class UserManagementService {
             },
             {
                 id: 2,
-                name: 'mod',
+                name: 'receptionist',
                 class: 'text-amber-500',
                 is_list: false,
             },

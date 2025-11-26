@@ -106,10 +106,28 @@ export class SelectServiceComponent implements OnInit {
   }
 
   checkIsSelect(index:number, service:any){
-    if (!this.selectedService[this.roomIndex].selectedServices) return false; 
+    if (this.listSelectService.length > 0){
+      const exist = this.listSelectService.some(item => item.uuid == service.uuid)
+      return exist
+    }
+    if (!this.selectedService[this.roomIndex].selectedServices){
+      return false;
+    } 
     let nameServiceSet = new Set(this.selectedService[this.roomIndex].selectedServices.map(sv=>sv.name))
     return nameServiceSet.has(service.name)
     // return false;
+  }
+
+  removeService(service: any) {
+    this.listSelectService = this.listSelectService.filter(
+      (item: any) => item.uuid !== service.uuid
+    );
+    if(this.selectedService[this.roomIndex].selectedServices.length > 0){
+      this.selectedService[this.roomIndex].selectedServices = this.selectedService[this.roomIndex].selectedServices.filter(
+        (item: any) => item.uuid !== service.uuid
+      )
+    }
+    console.log("remove sẻvice: ", this.listSelectService)
   }
 
   selectService(service:any){

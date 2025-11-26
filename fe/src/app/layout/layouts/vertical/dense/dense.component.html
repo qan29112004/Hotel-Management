@@ -25,9 +25,10 @@
 
 <!-- Wrapper -->
 <div class="relative flex flex-col items-center flex-auto w-full min-w-0">
+    
     <!-- Header -->
     <div
-        class="top-0 flex items-end justify-between w-full overflow-hidden transition-colors duration-100 ease-in-out px-4shadow flex-0 md:px-6 z-49 dark:shadow-none dark:border-b bg-card print:hidden h-28 max-w-[1920px]"
+        class="top-0 flex items-end justify-between w-full overflow-hidden transition-colors duration-100 ease-in-out px-4shadow flex-0 md:px-6 z-20 dark:shadow-none dark:border-b bg-card print:hidden h-28 max-w-[1920px]"
         [ngClass]="{'fixed':!isAdminPage, 'sticky bg-black':isAdminPage,'bg-transparent':!isScrollDown && !isAdminPage, 'bg-black':isScrollDown}"
     >
         <div class="flex items-center h-full pr-2 space-x-2">
@@ -84,7 +85,35 @@
     </div>
 
     <!-- Content -->
-    <div class="flex flex-col items-center flex-auto w-full h-full bg-white max-w-[1920px]">
+    <div class="relative flex flex-col items-center flex-auto w-full h-full bg-white max-w-[1920px]">
+        <div *ngIf="isFisrtLogin" class="fixed z-50 flex items-center justify-center w-full h-full bg-black/60">
+            <div class="p-6 mb-6 bg-gray-100 rounded-lg shadow-md w-[50%]">
+                <div class="flex flex-col overflow-hidden bg-white rounded-lg shadow-lg md:flex-row">
+                    <img src="assets/images/home-page/notification_club.jpg" class="object-cover w-full h-48 md:w-60 md:h-auto" />
+                    <div class="flex flex-col justify-between p-6 ml-0 md:ml-6">
+                        <div class="flex items-center gap-4">
+                            <img src="assets/images/home-page/icons-voucher.png" class="object-contain w-14 h-14" />
+                            <span class="text-lg font-semibold text-gray-800">
+                                Chúc mừng bạn đã đăng ký thành công và nhận được voucher dành cho người dùng mới!
+                            </span>
+                        </div>
+                        <p class="mt-6 text-base leading-relaxed text-gray-700">
+                            Chào mừng bạn đến với cộng đồng của chúng tôi! Chúng tôi rất vui khi bạn đã trở thành thành viên mới. 
+                            Với tư cách là người dùng mới, bạn sẽ nhận được những ưu đãi đặc biệt, voucher độc quyền và cơ hội trải nghiệm 
+                            các tính năng hấp dẫn mà chúng tôi cung cấp. Hãy khám phá ngay các dịch vụ, tham gia các hoạt động thú vị 
+                            và tận hưởng những trải nghiệm tuyệt vời mà chúng tôi đã chuẩn bị riêng cho bạn. 
+                            Đừng quên kiểm tra thường xuyên mục <span class="font-semibold">Voucher</span> để không bỏ lỡ bất kỳ ưu đãi nào dành riêng cho thành viên mới!
+                        </p>
+                        <span class="mt-4 text-gray-600">
+                            Hiện tại bạn đang ở <span class="font-semibold text-[#dd781e] font-clearface">CLUB 1</span>. 
+                            Hãy kiểm tra voucher trong mục <span class="font-semibold">Voucher</span> để biết thêm chi tiết.
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
         <!-- Main -->
         <!-- CONTENT GOES HERE -->
         <!-- <div class="relative w-full bg-white"> -->
@@ -145,7 +174,7 @@
                     
                 </div>
                 <div class="flex flex-col gap-4 px-3 max-md:border-t max-md:border-[#d4d4d4]">
-                    <div class="flex justify-between items-start">
+                    <div class="flex items-start justify-between">
                         <img class="object-contain w-[50%]" src="assets/images/home-page/google_play.svg" />
                         <img class="object-contain w-[50%]" src="assets/images/home-page/app_store.svg" />
                     </div>

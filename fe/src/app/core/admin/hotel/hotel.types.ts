@@ -27,5 +27,6 @@ export interface Hotel {
 
 export interface CalendarPrice {
     date:string,
-    price:string
+    price:string,
+    isAvailableRoom?:boolean
 }

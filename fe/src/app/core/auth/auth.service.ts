@@ -155,7 +155,7 @@ export class AuthService {
                     console.log(this.refreshToken, this.accessToken)
 
                     // Store the user on the user service
-                    this._userService.user = response.data.user;
+                    this._userService.user = {...response.data.user, isFisrtLogin: response.data.isFisrtLogin};
 
                     // Return a new observable with the response
                     return of(response);

@@ -1,4 +1,8 @@
 <div class='relative w-full h-full max-w-[1920px] flex flex-col items-center'>
+    <div *ngIf="ttl" class="fixed top-0 z-30 flex flex-col items-center -translate-x-1/2 bg-white left-1/2 p-7" @slideToggle>
+        <img src="assets/images/booking/warning.svg" class="object-contain mb-3 w-[15%]"/>
+        <span class="text-lexend_deca text-[20px]">Phiên đặt phòng của bạn chỉ còn {{ttl}} giây. Vui lòng hoàn thành việc lựa chọn và thanh toán.</span>
+    </div>
     <div class='w-full h-full max-h-[630px] relative bg-center bg-no-repeat bg-cover flex flex-col items-center'
     [style.background-image]="'url('+ ('assets/images/home-page/header.jpg')+ ')'">
         <div class="flex flex-col h-full w-full justify-center items-center pt-[10%] max-w-[1140px]">

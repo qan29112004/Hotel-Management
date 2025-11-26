@@ -40,7 +40,7 @@
                                         <span class="font-avenir text-[13px] text-[#787878]">~ {{convertVNDToUSD(service.price)| currency:'USD':'symbol-narrow':'1.0-2'}}</span>
                                     </div>
                                     <ng-container *ngIf="checkIsSelect(i, service); else removeSelect">
-                                        <button (click)="selectService(service)" type="button" class="bg-black py-[15px] px-[20px] font-lexend_deca text-white text-[14px] font-extrabold">booking.remove</button>
+                                        <button (click)="removeService(service)" type="button" class="bg-black py-[15px] px-[20px] font-lexend_deca text-white text-[14px] font-extrabold">booking.remove</button>
                                     </ng-container>
                                     <ng-template #removeSelect>
 

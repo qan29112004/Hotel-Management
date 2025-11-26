@@ -81,7 +81,7 @@ class Room(BaseModel):
             last_obj = Room.objects.order_by('-auto_increment_id').first()
             self.auto_increment_id = (last_obj.auto_increment_id + 1) if last_obj else 1
 
-        # Sinh room_number theo tầng
+        # Sinh room_numbper theo tầng
         if not self.room_number:
             # Lấy các phòng hiện có ở tầng này
             existing_rooms = Room.objects.filter(floor=self.floor).order_by('room_number')
@@ -103,7 +103,12 @@ class Amenity(BaseModel):
     name = models.CharField(null=True, blank=True , max_length=50)
     icon = models.CharField(max_length=255, null=True,blank=True)
     description = models.TextField(null=True, blank=True)
-    
+
+class Facilities(BaseModel):
+    uuid = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
+    name = models.CharField(null=True, blank=True , max_length=50)
+    icon = models.CharField(max_length=255, null=True,blank=True)
+    description = models.TextField(null=True, blank=True)
     
 class RoomTypeAmenity(models.Model):
     room_type = models.ForeignKey(RoomType, on_delete=models.CASCADE, related_name="roomtype_amenity")

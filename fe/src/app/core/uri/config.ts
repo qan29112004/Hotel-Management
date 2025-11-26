@@ -155,6 +155,7 @@ export const uriConfig = {
     API_HOTEL_CREATE: baseUrl + '/api/hotel/',
     API_HOTEL_CALENDAR_PRICE: baseUrl + '/api/calendar-price/',
     API_EXPLORE_HOTELS: baseUrl + '/api/explore-hotels/',
+    API_CHECK_AVAILABLE_ROOM: baseUrl + '/api/hotel/check-available-room/',
 
     //room_type
     API_ROOM_TYPE_ALL: baseUrl + '/api/room_type/list/',
@@ -224,5 +225,17 @@ export const uriConfig = {
 
     //chatbot
     API_GET_MESSAGE: baseUrl + '/api/chatbot/get-all-message/',
-    API_GET_REQUIREMENT_SUPPORT_CHAT: baseUrl + '/api/chatbot/get-requirement-support/'
+    API_GET_REQUIREMENT_SUPPORT_CHAT: baseUrl + '/api/chatbot/get-requirement-support/',
+
+    //voucher
+    API_VOUCHER_ALL: baseUrl + '/api/voucher/list/',
+    API_VOUCHER_UPDATE: (uuid:string) => baseUrl + `/api/voucher/${uuid}/`,
+    API_VOUCHER_DELETE: (uuid:string) => baseUrl + `/api/voucher/${uuid}/`,
+    API_VOUCHER_CREATE: baseUrl + '/api/voucher/',
+    API_VOUCHER_CLAIM: baseUrl + '/api/voucher/claim/',
+    API_VOUCHER_MY: baseUrl + '/api/voucher/my/',
+    API_VOUCHER_PREVIEW : baseUrl + '/api/voucher/preview/',
+    API_VOUCHER_REDEEM : baseUrl + '/api/voucher/redeem/',
+    API_VOUCHER_REVERT : baseUrl + '/api/voucher/revert/',
+    API_VOUCHER_APPLY: baseUrl + '/api/voucher/apply/'
 };

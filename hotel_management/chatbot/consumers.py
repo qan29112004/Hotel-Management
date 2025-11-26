@@ -36,9 +36,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             group_chat,_ = await sync_to_async(GroupChat.objects.get_or_create)(name=self.user.username)
             user_group,_ = await sync_to_async(GroupMember.objects.get_or_create)(user=self.user, group=group_chat)
             group_uuid = await sync_to_async(lambda ug: ug.group.uuid)(user_group)
+            
             self.groups_to_join.append(group_uuid)
             
-
+        await self.channel_layer.group_add("notification", self.channel_name)
         # Join tất cả group
         for group_name in self.groups_to_join:
             await self.channel_layer.group_add(group_name, self.channel_name)
@@ -47,6 +48,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard('receptionist', self.channel_name)
+        await self.channel_layer.group_discard('notification', self.channel_name)
         for group_name in self.groups_to_join:
             await self.channel_layer.group_discard(group_name, self.channel_name)
 

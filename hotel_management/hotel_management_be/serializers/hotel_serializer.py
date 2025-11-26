@@ -2,9 +2,12 @@ from django.db.models import Q
 from rest_framework import serializers
 import os
 from django.conf import settings
+from hotel_management_be.serializers.rating_serializer import RatingSerializer
 from utils.utils import Utils
 from hotel_management_be.models.hotel import *
 from hotel_management_be.models.offer import *
+from hotel_management_be.models.booking import *
+from datetime import date
 from django.core.files.storage import default_storage
 from .room_type_serializer import RoomTypeAmenitySerializer
 
@@ -37,18 +40,98 @@ class HotelSerializer(serializers.ModelSerializer):
     latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
     longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
     service = HotelServiceSerializer(many=True, source='hotel_services', read_only=True)
+    rating = serializers.SerializerMethodField()
     class Meta:
         model = Hotel
         fields = [
             'uuid', 'name', 'description', 'slug', 'address', 'phone', 'status',
             'views', 'features', 'tags', 'thumbnail', 'destination', 'check_in_time',
-            'check_out_time', 'latitude', 'longitude', 'images', 'created_by', 'updated_by','created_at','updated_at', 'service'
+            'check_out_time', 'latitude', 'longitude', 'images', 'rating' , 'created_by', 'updated_by','created_at','updated_at', 'service'
         ]
     def get_updated_by(self,obj):
         return {
             'username':obj.updated_by.username if obj.updated_by else None
         }    
-    
+    def get_rating(self, obj):
+        reviews = obj.hotel_review.filter(is_active=True)
+
+        count = reviews.count()
+        if count == 0:
+            return {
+                "average": 0,
+                "count": 0
+            }
+        
+        avg = reviews.aggregate(avg=models.Avg("rating"))["avg"]
+        return {
+            "average": round(avg, 2),
+            "count": count
+        }
+
+class HotelDetailSerializer(serializers.ModelSerializer):
+    updated_by = serializers.SerializerMethodField()
+    slug = serializers.SlugField(read_only = True)
+    destination = serializers.PrimaryKeyRelatedField(queryset=Destination.objects.all(),required=False)
+    images = HotelImageSerializer(many=True,  read_only=True)
+    latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
+    longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
+    service = HotelServiceSerializer(many=True, source='hotel_services', read_only=True)
+    rating = serializers.SerializerMethodField()
+    room_types = serializers.SerializerMethodField()
+    is_available_room = serializers.SerializerMethodField()
+    class Meta:
+        model = Hotel
+        fields = [
+            'uuid', 'name', 'description', 'slug', 'address', 'phone', 'status',
+            'views', 'features', 'tags', 'thumbnail', 'destination', 'check_in_time',
+            'check_out_time', 'latitude', 'longitude', 'images', 'rating', 'room_types','is_available_room' , 'created_by', 'updated_by','created_at','updated_at', 'service'
+        ]
+    def get_updated_by(self,obj):
+        return {
+            'username':obj.updated_by.username if obj.updated_by else None
+        }    
+    def get_rating(self, obj):
+        reviews = obj.hotel_review.filter(is_active=True)
+        reviews = obj.hotel_review.filter(is_active=True).order_by('-created_at')[:3]
+        count = reviews.count()
+        if count == 0:
+            return {
+                "average": 0,
+                "count": 0,
+                'list': RatingSerializer(reviews, many=True).data
+            }
+        
+        avg = reviews.aggregate(avg=models.Avg("rating"))["avg"]
+        return {
+            "average": round(avg, 2),
+            "count": count,
+            'list': RatingSerializer(reviews, many=True).data
+        }
+        
+    def get_room_types(self,obj):
+        room_type = obj.RoomType.all()
+        return RoomTypeSerializer(room_type, many=True).data
+    def get_is_available_room(self,obj):
+        today = date.today()
+
+        #  Lấy tất cả room Available của khách sạn
+        available_rooms = Room.objects.filter(
+            room_type_id__hotel_id=obj,
+            status="Available"
+        )
+
+        # #  Lấy tất cả room đã được booking từ hôm nay trở đi
+        # booked_rooms = Room.objects.filter(
+        #     room_booking_room__booking_id__hotel_id=obj,
+        #     room_booking_room__booking_id__check_in__gte=today
+        # ).distinct()
+
+        # #  Nếu số lượng phòng available == số lượng phòng available đã bị book => hết phòng
+        # if available_rooms.count() == booked_rooms.filter(uuid__in=available_rooms).count():
+        #     return False  # hết phòng
+        if available_rooms.count() == 0: return False
+        return True
+
 class HotelCreateSerializer(serializers.ModelSerializer):
     slug = serializers.SlugField(read_only = True)
     destination = serializers.PrimaryKeyRelatedField(queryset=Destination.objects.all(),required=False)

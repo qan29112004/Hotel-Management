@@ -63,6 +63,7 @@ export class EditUserComponent implements OnInit {
     showAlert: boolean = false;
     isStatus: boolean = true;
     isRole: boolean = true;
+    isPasswordVisible = false;
 
     status: Status[] = [];
     role: Role[] = [];
@@ -99,6 +100,7 @@ export class EditUserComponent implements OnInit {
             fullName: [''],
             gender: ['other'],
             address: [''],
+            password:['', [Validators.required]],
             status: [''],
             role: [''],
             birthday: ['', [AuthUtils.birthDateValidator()]],
@@ -116,6 +118,7 @@ export class EditUserComponent implements OnInit {
                     address: user.address || '',
                     gender: user.gender || 'other',
                     status: user.status || '',
+                    password:'',
                     role: user.role || '',
                     birthday: user.birthday ?? null,
                     phone: user.phone || '',
@@ -126,6 +129,9 @@ export class EditUserComponent implements OnInit {
                 this.isRole = user.role === 3;
             }
         });
+    }
+    togglePasswordVisibility(): void {
+        this.isPasswordVisible = !this.isPasswordVisible;
     }
     onToggleClick(): void {
         // Gửi sự kiện lên cha
@@ -147,6 +153,7 @@ export class EditUserComponent implements OnInit {
                     fullName: user.fullName || '',
                     address: user.address || '',
                     gender: user.gender || 'other',
+                    password:'',
                     status: user.status || '',
                     role: user.role || '',
                     birthday: user.birthday ?? null,
@@ -244,23 +251,13 @@ export class EditUserComponent implements OnInit {
                 this.onToggleClick();
             },
             error: (err) => {
+                const errorList = err?.error?.errors;
                 this.alert = {
                     type: 'error',
-                    code: [],
+                    code: Array.isArray(errorList)
+                        ? errorList.map(e => e.field ? `${e.field}: ${e.message}` : e.message)
+                        : [err?.error?.message || err?.error?.code || 'Đã xảy ra lỗi'],
                 };
-
-                if (
-                    err?.error?.code === 'VALIDATION_ERROR' &&
-                    Array.isArray(err.error.errors)
-                ) {
-                    this.alert.code = err.error.errors.map((e: any) => {
-                        return `errors.fields.${e.field}`;
-                    });
-                } else {
-                    this.alert.code = [
-                        `errors.${err?.error?.code}` || 'errors.default',
-                    ];
-                }
 
                 this.showAlert = true;
                 this.editUserForm.enable();

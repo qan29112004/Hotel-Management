@@ -7,11 +7,11 @@
             [class.hidden]="isSmallScreen && !showSecondDiv"
         >
             <div class="flex justify-end">
-                <button (click)="toggleToDiv1()" class="px-2 py-1 text-center text-black bg-yellow-500 text-[14px] font-avenir font-black uppercase">Edit</button>
+                <button (click)="toggleToDiv1()" class="px-2 py-1 text-center text-black bg-yellow-500 text-[14px] font-avenir font-black uppercase">hotel.edit</button>
             </div>
             <div class="flex justify-between">
-                <span class="font-avenir text-[16px] font-normal">25 October - 3 November</span>
-                <span class="font-avenir text-[16px] font-normal">1 Room, Guests</span>
+                <span class="font-avenir text-[16px] font-normal">{{formatDateRange(checkInDate, checkOutDate)}}</span>
+                    <span class="font-avenir text-[16px] font-normal">{{ guestSummary }}</span>
             </div>
         </div>
         <div *ngIf="!showSecondDiv" class="sticky z-10 flex w-full h-auto max-w-full mt-5 bg-white/90 max-lg:bg-transparent mb-7"
@@ -39,7 +39,7 @@
                     </button>
                     <button type="button" [disabled]="!checkInDate" class="flex flex-col pl-2 border-l border-black/50 min-w-[16%] max-lg:bg-white" (click)="toggleCalendarCheckout()">
                         <span class="self-start font-mono text-black">CHECK OUT</span>
-                        <input readonly [min]="minCheckoutDate" [matDatepicker]="pickerCheckout" name="pickerCheckout" [(ngModel)]="checkOutDate"  [placeholder]="translocoService.translate('home-page.choose_day')" class="text-black placeholder:font-mono">
+                        <input readonly [min]="checkInDate" [matDatepicker]="pickerCheckout" name="pickerCheckout" [(ngModel)]="checkOutDate"  [placeholder]="translocoService.translate('home-page.choose_day')" class="text-black placeholder:font-mono">
                         <mat-datepicker #pickerCheckout></mat-datepicker>
                     </button>
                     <div class="relative min-w-[20%] max-lg:min-w-0 max-lg:bg-white">
@@ -119,8 +119,10 @@
     <div class="sticky z-[9] w-full h-auto px-16 mt-4 bg-white" [style.top.px]="headerHeight-1">
         <div class="w-full flex justify-end border-b border-[#d4d4d4]">
             <div class="flex border border-[#d4d4d4] rounded-lg overflow-hidden items-center mb-3">
-                <select class="custom-select uppercase py-2 pl-2 pr-9 focus:ring-0 outline-none border-r border-[#d4d4d4]">
-                    <option class="uppercase" value="#">relevance</option>
+                <select (change)="onSortChange($event)" class="custom-select uppercase py-2 pl-2 pr-9 focus:ring-0 outline-none border-r border-[#d4d4d4]">
+                    <option class="uppercase" value="">booking.relevance</option>
+                    <option class="uppercase" value="name_asc">booking.from_a_to_z</option>
+                    <option class="uppercase" value="rating_asc">booking.rating</option>
                 </select>
                 <mat-icon class="text-black">keyboard_arrow_down</mat-icon>
             </div>
@@ -132,7 +134,7 @@
     </div>
     
     <div class="z-0 flex flex-wrap w-full px-16 mt-8 h-max">
-        <span class="w-full font-avenir text-black text-[16px] font-normal">hotels</span>
+        <span class="w-full font-avenir text-black text-[16px] font-normal">{{listHotel.length + listExcludeHotel.length}} hotels</span>
         <div class="grid grid-cols-[59%_41%] w-full mt-5 max-md:grid-cols-1">
             <div class="flex flex-col mt-3 mr-6 z-[4]">
                 <span class="w-full mb-4 font-clearface text-[26px]">{{total}} hotels available for your selected dates</span>
@@ -171,15 +173,13 @@
                         </div>
                         <div class="flex flex-col flex-grow">
                             <span class="w-full font-clearface text-[30px] hover:cursor-pointer" (click)="chooseHotel(hotel.slug, hotel.uuid)">{{hotel.name}}</span>
-                            <span class="inline-flex mb-[30px] items-center w-full italic font-parisienne text-[12px]"><img src="assets/images/map/hotel-icon.png" class="w-[14px] h-4 align-middle mr-2"/>test</span>
-                            <span class="w-full font-avenir text-[16px]">Total min price</span>
+                            <span class="inline-flex mb-[30px] items-center w-full italic font-parisienne text-[12px]"><img src="assets/images/map/hotel-icon.png" class="w-[14px] h-4 align-middle mr-2"/>{{hotel.address}}</span>
                             <div class="flex items-end gap-6 mt-auto">
-                                <div class="px-6 py-2 bg-yellow-500 font-avenir text-[14px] font-black hover:cursor-pointer" (click)="chooseHotel(hotel.slug, hotel.uuid)">BOOK NOW</div>
-                                <span class="font-avenir py-2 text-[14px] font-black">QUICK VIEW</span>
+                                <div class="px-6 py-2 bg-yellow-500 font-avenir text-[14px] font-black hover:cursor-pointer" (click)="chooseHotel(hotel.slug, hotel.uuid)">hotel.book_now</div>
                                 <div class="relative flex flex-wrap justify-center ml-auto h-[5rem] w-20">
                                     <img src="assets/images/explore-hotel/rating.png" class="absolute top-0 w-16 h-16 -translate-x-1/2 left-1/2"/>
-                                    <span class="mt-[1rem] font-black w-full text-center">4.3</span>
-                                    <span class="w-full mt-auto text-center text-[12px]">100 reviews</span>
+                                    <span class="mt-[1rem] font-black w-full text-center">{{hotel.rating.average}}</span>
+                                    <span class="w-full mt-auto text-center text-[12px]">{{hotel.rating.count}} reviews</span>
                                 </div>
                             </div>
                         </div>
@@ -223,21 +223,19 @@
                         <div class="flex flex-col flex-grow">
                             <div class="w-full py-[10px] px-[30px] bg-[#f4f4f4]">Hotel not available for selected dates.</div>
                             <span class="w-full font-clearface text-[30px] hover:cursor-pointer" (click)="chooseHotel(hotel.slug, hotel.uuid)">{{hotel.name}}</span>
-                            <span class="inline-flex mb-[30px] items-center w-full italic font-parisienne text-[12px]"><img src="assets/images/map/hotel-icon.png" class="w-[14px] h-4 align-middle mr-2"/>test</span>
-                            <span class="w-full font-avenir text-[16px]">Total min price</span>
+                            <span class="inline-flex mb-[30px] items-center w-full italic font-parisienne text-[12px]"><img src="assets/images/map/hotel-icon.png" class="w-[14px] h-4 align-middle mr-2"/>{{hotel.address}}</span>
                             <div class="flex items-end gap-6 mt-auto">
-                                <div class="px-6 py-2 bg-yellow-500 font-avenir text-[14px] font-black hover:cursor-pointer" (click)="chooseHotel(hotel.slug, hotel.uuid)">BOOK NOW</div>
-                                <span class="font-avenir py-2 text-[14px] font-black">QUICK VIEW</span>
+                                <div class="px-6 py-2 bg-yellow-500 font-avenir text-[14px] font-black hover:cursor-pointer" (click)="chooseHotel(hotel.slug, hotel.uuid)">hotel.book_now</div>
                                 <div class="relative flex flex-wrap justify-center ml-auto h-[5rem] w-20">
                                     <img src="assets/images/explore-hotel/rating.png" class="absolute top-0 w-16 h-16 -translate-x-1/2 left-1/2"/>
-                                    <span class="mt-[1rem] font-black w-full text-center">4.3</span>
-                                    <span class="w-full mt-auto text-center text-[12px]">100 reviews</span>
+                                    <span class="mt-[1rem] font-black w-full text-center">{{hotel.rating.average}}</span>
+                                    <span class="w-full mt-auto text-center text-[12px]">{{hotel.rating.count}} hotel.review</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </ng-container>
-                <button [disabled]="!buttonNext" type="button" class="z-10 hover:bg-yellow-400" (click)="loadMoreHotes()">Load more</button>
+                <button [disabled]="!buttonNext" type="button" class="z-10 py-2 hover:bg-yellow-400" (click)="loadMoreHotes()">hotel.load_more</button>
             </div>
             <div #mapContainer class="h-[756px] hidden">
                 <app-map class="w-full h-full"></app-map>

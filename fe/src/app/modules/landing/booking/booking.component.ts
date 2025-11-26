@@ -74,7 +74,7 @@ export class BookingComponent implements OnInit, OnChanges {
       {adults:1, children:0}
   ];
   list_room_selected=[];
-
+  ttl:any;
   listRoomType:any[] = null;
   payload:any;
   searchData:any;
@@ -118,10 +118,17 @@ export class BookingComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.bookingService.ttl.subscribe(data=>{
       console.log('check', data)
+      if(Number(data.ttl) < 20){
+        this.ttl = data.ttl
+        setTimeout(()=>{
+          this.ttl = undefined;
+        }, 3000)
+      }
     })
     this.sessionExpiredSub = fromEvent<CustomEvent>(window, 'session:expired')
       .subscribe(event => {
         console.log('Session expired:', event.detail.message);
+        this.route.navigate(['/'])
 
       });
     
@@ -158,7 +165,8 @@ export class BookingComponent implements OnInit, OnChanges {
           "hotel":this.payload['hotel_name'],
           "rooms":this.bookingState.rooms,
           "code":'',
-          "index_room":this.bookingState.currentRoomIndex
+          "index_room":this.bookingState.currentRoomIndex,
+          'session_id':localStorage.getItem('session_id')?localStorage.getItem('session_id') : '',
       }).subscribe(res=>{
         this.listRoomType = res.data;
         console.log("check list rt:", this.listRoomType)
@@ -166,8 +174,8 @@ export class BookingComponent implements OnInit, OnChanges {
       })
       if(!localStorage.getItem('session_id')){
         this.bookingService.createSessionBooking(this.payload).subscribe(res=>{
-          localStorage.setItem('session_id', res.data);
-          
+          localStorage.setItem('session_id', res.sessionId);
+          localStorage.setItem('booking_id', res.bookingId);
         })
       }else{
         this.bookingService.getListHoldRoom({"session_id":localStorage.getItem('session_id')}).subscribe(res=>{

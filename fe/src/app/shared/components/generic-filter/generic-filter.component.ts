@@ -29,7 +29,7 @@ export interface FieldFilterConfig {
     type: 'text' | 'select' | 'date' | 'date-range' | 'checkbox' | 'range';
     required?: boolean;
     validators?: any[];
-    options?: { id: string | number; name: string }[];
+    options?: { id: string | number | boolean; name: string }[];
     placeholderKey?: string;
     errorMessages?: { [key: string]: string };
     autocompleteOptions?: string[];

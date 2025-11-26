@@ -19,6 +19,7 @@ export interface User {
     updated_by: string;
     created_at: string;
     updated_at: string;
+    isFisrtLogin?:boolean
 }
 
 export interface Status {

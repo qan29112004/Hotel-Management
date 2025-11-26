@@ -1,10 +1,7 @@
 class HotelConstants:
     HOTEL_STATUS = (
-        ("Live","Live"),
-        ("Draft","Draft"),
-        ("Reject","Reject"),
-        ("Disable","Disable"),
-        ("In Preview","In Preview")
+        ("Active", "Active"),
+        ('Inactive', 'Inactive')
     )
     
     ROOM_STATUS = (
@@ -42,7 +39,8 @@ class HotelConstants:
         ('Cancelled', 'Cancelled'),
         ('Check In','Check In'),
         ('Check Out','Check Out'),
-        ('Paid', 'Paid')
+        ('Paid', 'Paid'),
+        ('Expired', 'Expired')
     )
     
     PAYMENT_STATUS = (

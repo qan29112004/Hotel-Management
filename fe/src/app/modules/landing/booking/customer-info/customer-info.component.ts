@@ -136,14 +136,15 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
       total_rooms: this.getTotalRooms(),
       total_price: this.billVND,
       currency: 'VND',
-      session_id :localStorage.getItem('session_id')
+      session_id :localStorage.getItem('session_id'),
+      booking_id : localStorage.getItem('booking_id')
     };
     this.bookingService.createBooking(payload).pipe(
       map(res=>res.data.redirectUrl),
       takeUntil(this.destroy)
     ).subscribe(url=>{
       window.location.href = url;
-      localStorage.removeItem('session_id')
+      // localStorage.removeItem('session_id')
       console.log(url)
     }
 
@@ -167,6 +168,7 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
           num_guest: this.getTotalGuests(),
           total_rooms: this.getTotalRooms(),
           total_price: this.billUSD,
+          booking_id : localStorage.getItem('booking_id'),
           currency: 'USD'
         };
 
@@ -197,12 +199,15 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
           }),
         });
         const result = await captureRes.json();
-        alert("✅ Thanh toán thành công! Mã giao dịch: " + result.transactionId);
-        localStorage.removeItem('session_id')
+        // alert(" Thanh toán thành công! Mã giao dịch: " + result.transactionId);
+        // localStorage.removeItem('session_id')
+        const queryParams: { [key: string]: any } = {};
+        queryParams.transaction_id = result.transactionId;
+        this.router.navigate(['booking/success'], {queryParams})
       },
 
       onCancel: (data: any) => {
-        alert("❌ Bạn đã hủy thanh toán.");
+        alert(" Bạn đã hủy thanh toán.");
       },
 
       onError: (err: any) => {

@@ -2,6 +2,8 @@
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from hotel_management_be.models.hotel import *
+from hotel_management_be.models.voucher import *
+
 from hotel_management_be.models.offer import Offer
 from hotel_management_be.models.booking import Payment, HoldRecord, Booking
 from .celery_hotel.task import compute_hotel_calendar_prices
@@ -143,3 +145,11 @@ def update_status_room_book_when_delete(sender, instance, **kwargs):
         room.room_id.refresh_from_db()
 
         print(">>> AFTER:", room.room_id.status)
+        
+@receiver(post_save, sender=VoucherClaim)
+def update_status(sender, instance, **kwargs):
+    voucher = instance.voucher
+    if instance.usage_count >= voucher.max_usage_per_user:
+        instance.status = "EXHAUSTED"
+        instance.save()
+    

@@ -407,6 +407,12 @@ export const compactNavigation: FuseNavigationItem[] = [
                 title: 'Rating',
                 type: 'basic',
                 link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.RATING}`,
+            },
+            {
+                id: 'admin.voucher',
+                title: 'Voucher',
+                type: 'basic',
+                link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.VOUCHER}`,
             }
         ]
     },

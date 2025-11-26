@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, ViewChild, Renderer2, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, AfterViewInit, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, ViewChild, Renderer2, ElementRef, HostListener, OnChanges, SimpleChanges, DoCheck } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, ActivatedRoute, Route } from '@angular/router';
 import { SharedModule } from 'app/shared/shared.module';
@@ -8,11 +8,12 @@ import { DateAdapter } from '@angular/material/core';
 import { DateTime } from 'luxon';
 import { RenderDayCellEventArgs } from '@syncfusion/ej2-angular-calendars';
 import { CalendarComponent } from 'app/shared/components/calendar/calendar/calendar.component';
-import { getCurrentDateString, parseDate, timeDate } from 'app/shared/utils/util';
+import { formatISODate, getCurrentDateString, parseDate, timeDate } from 'app/shared/utils/util';
 import { register } from 'swiper/element/bundle';
 import { RatingComponent } from 'app/shared/components/rating/rating.component';
 import { HotelService } from 'app/core/admin/hotel/hotel.service';
 import { MapComponent } from 'app/shared/components/map/map.component';
+import { environment } from 'environments/environment.fullstack';
 
 @Component({
   selector: 'app-hotel-particular',
@@ -22,7 +23,9 @@ import { MapComponent } from 'app/shared/components/map/map.component';
   styleUrls:['./hotel-particular.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class HotelParticularComponent implements OnDestroy, OnInit {
+export class HotelParticularComponent implements OnDestroy, OnInit, OnChanges, DoCheck {
+  baseUrl:string = environment.baseUrl;
+  formatISODate=formatISODate;
   parseDate = parseDate;
   timeDate = timeDate;
   title = "star-angular";
@@ -61,6 +64,8 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
     'assets/images/explore-hotel/images_1.jpg', 'assets/images/explore-hotel/images_2.jpg', 'assets/images/explore-hotel/images_3.jpg'
   ];
 
+  isChangeRoomList:boolean;
+
   isHiddenForm:boolean = false;
   showCalendarCheckin = false; // Biến điều khiển hiển thị lịch
   showCalendarCheckout = false;
@@ -76,6 +81,8 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
   ];
   searchData:any;
   private calendarSub: any;
+  private _prevRoomListState: string = '';
+  isAvailableRoom:boolean = true;
   hotel:any;
   private buttonListeners: (() => void)[] = [];
   @ViewChild('pickerCheckin') pickerCheckin!: MatDatepicker<Date>;
@@ -137,9 +144,41 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
       this.roomList = rooms.length > 0 ? rooms : this.roomList;
       this.hotelService.getHotelById(this.crrHotel).subscribe(res=>{
         this.hotel_data = res.data;
+        const payload = {
+          checkin : this.searchData.checkin,
+          checkout : this.searchData.checkout,
+          hotel_id : this.hotel_data.uuid,
+          rooms : this.roomList
+        }
+        if(this.searchData.checkin && this.searchData.checkout){
+          this.hotelService.checkAvailableRoom(payload).subscribe(
+            (res) => {
+                console.log("Availability:", res);
+                this.isAvailableRoom = res.status
+            },
+            (err) => {
+                console.error("Error:", err);
+            }
+        );
+      }
       })
+      
     })
     register();
+  }
+  ngDoCheck(): void {
+    const currentState = JSON.stringify(this.roomList);
+
+    if (currentState !== this._prevRoomListState) {
+      this._prevRoomListState = currentState;
+      this.isChangeRoomList = true;
+    }
+  }
+  ngOnChanges(changes: SimpleChanges): void {
+    // if(changes['roomList'] || changes['checkOutDate']){
+    //   this.isChangeRoomList = true;
+    //   console.log("check: ", this.isChangeRoomList)
+    // }
   }
 
   ngAfterViewInit() {
@@ -238,6 +277,10 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
   }
   closeGuestSelector() {
       this.showGuestSelector = false;
+      if(this.isChangeRoomList === true){
+        this.callAvailabilityAPI();
+        this.isChangeRoomList = false;
+      }
   }
   get guestSummary() {
       const totalAdults = this.roomList.reduce((sum, r) => sum + r.adults, 0);
@@ -297,11 +340,13 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
     if (event instanceof Date) {
         this.checkOutDate = getCurrentDateString(event);
         this.showCalendarCheckout = !this.showCalendarCheckout; 
+        this.callAvailabilityAPI();
     }else{
       this.checkOutDate = null;
         this.showCalendarCheckout = !this.showCalendarCheckout; 
     }
   }
+  
 
   displayForm() {
     this.isHiddenForm = false;
@@ -335,4 +380,29 @@ export class HotelParticularComponent implements OnDestroy, OnInit {
   prevMonth(event:string){
     
   }
+  callAvailabilityAPI() {
+    if (!this.checkInDate || !this.checkOutDate || !this.hotel_data) return;
+
+    const payload = {
+        checkin: this.checkInDate,
+        checkout: this.checkOutDate,
+        hotel_id: this.hotel_data?.uuid,
+        rooms: this.roomList.map(r => ({
+            adults: r.adults,
+            children: r.children
+        }))
+    };
+
+    console.log("CALL AVAIL API:", payload);
+
+    this.hotelService.checkAvailableRoom(payload).subscribe(
+        (res) => {
+            console.log("Availability:", res);
+            this.isAvailableRoom = res.status
+        },
+        (err) => {
+            console.error("Error:", err);
+        }
+    );
+}
 }

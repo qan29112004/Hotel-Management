@@ -54,6 +54,7 @@ export class SelectRateComponent implements OnInit {
   ngOnInit(): void {
     setTimeout(()=>{
       console.log("check list_room_selected", this.list_room_selected)
+      if(this.list_room_selected.length)
       this.cdr.detectChanges()
     },2000)
     setTimeout(() => {

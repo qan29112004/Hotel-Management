@@ -130,15 +130,20 @@ export class HotelComponent {
         
     },
     {
+        name: 'address',
+        labelKey: 'hotel.enterAddress',
+        type: 'text',
+        placeholderKey: 'destination.enterAddress',
+        required: true,
+        
+    },
+    {
         name: 'status',
         labelKey: 'hotel.status',
         type: 'select',
         options: [
-            { id: 'Live', name: 'Live' },
-            { id: 'Draft', name: 'Draft' },
-            { id: 'Rejected', name: 'Rejected' },
-            { id: 'Disabled', name: 'Disabled' },
-            { id: 'In Preview', name: 'In Preview' },
+            { id: 'Active', name: 'Active' },
+            { id: 'Inactive', name: 'Inactive' }
         ],
         placeholderKey: 'destination.enterdDescription',
         
@@ -224,6 +229,14 @@ export class HotelComponent {
         errorMessages: {
             required: 'hotel.requiredPhone',
         }
+    },
+    {
+        name: 'address',
+        labelKey: 'hotel.enterAddress',
+        type: 'text',
+        placeholderKey: 'destination.enterAddress',
+        required: true,
+        
     },
     {
         name: 'status',

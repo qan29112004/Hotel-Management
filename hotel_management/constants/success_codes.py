@@ -21,6 +21,17 @@ class SuccessCodes:
     GET_LIST_ROOM_HOLD = ("GET_LIST_ROOM_HOLD","GET_LIST_ROOM_HOLD")
     GET_HOTEL_ID = ("GET_HOTEL_ID","GET_HOTEL_ID")
     
+    # Voucher
+    CREATE_VOUCHER = ("CREATE_VOUCHER", "Voucher created successfully!")
+    UPDATE_VOUCHER = ("UPDATE_VOUCHER", "Voucher updated successfully!")
+    DELETE_VOUCHER = ("DELETE_VOUCHER", "Voucher deleted successfully!")
+    LIST_VOUCHER = ("LIST_VOUCHER", "Voucher list fetched successfully!")
+    CLAIM_VOUCHER = ("CLAIM_VOUCHER", "Voucher claimed successfully!")
+    LIST_MY_VOUCHER = ("LIST_MY_VOUCHER", "Loaded user vouchers successfully!")
+    PREVIEW_VOUCHER = ("PREVIEW_VOUCHER", "Voucher preview calculated!")
+    REDEEM_VOUCHER = ("REDEEM_VOUCHER", "Voucher applied to booking!")
+    REVERT_VOUCHER = ("REVERT_VOUCHER", "Voucher usage reverted successfully!")
+    
     # chat bot
     CREATE_DATASET = ("CREATE_DATASET","CREATE_DATASET")
     LIST_DATASET = ("LIST_DATASET","LIST_DATASET")

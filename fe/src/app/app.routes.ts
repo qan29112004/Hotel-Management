@@ -326,6 +326,14 @@ export const appRoutes: Route[] = [
                                 'app/modules/admin/news-category/news-category.routes'
                             ),
                     },
+                    {
+                        path: routeConfig.VOUCHER,
+                        data: { title: 'voucher.title' },
+                        loadChildren: () =>
+                            import(
+                                'app/modules/admin/voucher/voucher.route'
+                            ),
+                    },
                     
                     {
                         path: routeConfig.MARKET_MANAGEMENT,

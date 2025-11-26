@@ -664,6 +664,25 @@ class ErrorCodes:
     LIST_DATASET_FAIL = ("LIST_DATASET_FAIL","LIST_DATASET_FAIL", StatusCodes.NOT_FOUND_STATUS)
     DELETE_DATASET_FAIL = ("DELETE_DATASET_FAIL","DELETE_DATASET_FAIL", StatusCodes.BAD_REQUEST)
     UPDATE_DATASET_FAIL = ("UPDATE_DATASET_FAIL","UPDATE_DATASET_FAIL", StatusCodes.BAD_REQUEST)
+    
+    # Voucher
+    CREATE_VOUCHER_FAIL = ("CREATE_VOUCHER_FAIL", "Unable to create voucher", StatusCodes.BAD_REQUEST)
+    UPDATE_VOUCHER_FAIL = ("UPDATE_VOUCHER_FAIL", "Unable to update voucher", StatusCodes.BAD_REQUEST)
+    DELETE_VOUCHER_FAIL = ("DELETE_VOUCHER_FAIL", "Unable to delete voucher", StatusCodes.BAD_REQUEST)
+    LIST_VOUCHER_FAIL = ("LIST_VOUCHER_FAIL", "Unable to load vouchers", StatusCodes.BAD_REQUEST)
+    VOUCHER_NOT_FOUND = ("VOUCHER_NOT_FOUND", "Voucher not found", StatusCodes.NOT_FOUND_STATUS)
+    VOUCHER_NOT_ACTIVE = ("VOUCHER_NOT_ACTIVE", "Voucher is not active", StatusCodes.BAD_REQUEST)
+    VOUCHER_EXPIRED = ("VOUCHER_EXPIRED", "Voucher has expired", StatusCodes.BAD_REQUEST)
+    VOUCHER_LIMIT_REACHED = ("VOUCHER_LIMIT_REACHED", "Voucher redemption limit reached", StatusCodes.BAD_REQUEST)
+    VOUCHER_ALREADY_CLAIMED = ("VOUCHER_ALREADY_CLAIMED", "Voucher already claimed", StatusCodes.BAD_REQUEST)
+    VOUCHER_CLAIM_FAIL = ("VOUCHER_CLAIM_FAIL", "Unable to claim voucher", StatusCodes.BAD_REQUEST)
+    VOUCHER_NOT_ELIGIBLE = ("VOUCHER_NOT_ELIGIBLE", "Order does not meet voucher conditions", StatusCodes.BAD_REQUEST)
+    VOUCHER_PREVIEW_FAIL = ("VOUCHER_PREVIEW_FAIL", "Unable to preview voucher", StatusCodes.BAD_REQUEST)
+    VOUCHER_REDEEM_FAIL = ("VOUCHER_REDEEM_FAIL", "Unable to redeem voucher", StatusCodes.BAD_REQUEST)
+    VOUCHER_REVERT_FAIL = ("VOUCHER_REVERT_FAIL", "Unable to revert voucher usage", StatusCodes.BAD_REQUEST)
+    VOUCHER_ALREADY_APPLIED = ("VOUCHER_ALREADY_APPLIED", "Voucher already applied to this booking", StatusCodes.BAD_REQUEST)
+    VOUCHER_CLAIM_REQUIRED = ("VOUCHER_CLAIM_REQUIRED", "Please claim the voucher before using it", StatusCodes.BAD_REQUEST)
+    VOUCHER_APPLY_FAIL = ("VOUCHER_APPLY_FAIL", "Unable to apply voucher to booking", StatusCodes.BAD_REQUEST)
 
     @classmethod
     def get_error(cls, error_name):

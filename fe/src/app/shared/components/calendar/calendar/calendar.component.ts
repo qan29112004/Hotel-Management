@@ -27,7 +27,9 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
   @ViewChild('icon_span', { static: true }) prevNextIcon!:ElementRef;
   private hotelService = inject(HotelService);
   // getting new date, current year and month
+  @Input() type:string;
   @Input() date:Date = null;
+  @Input() checkin:Date = null
   @Input() chooseDay:Date = null;
   calendarDays: CalendarDay[] = [];
   today: Date | null = new Date();
@@ -95,12 +97,16 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
           itemDate.getDate() === dateObj.getDate()
         );
       });
+      // console.log("check 1: ",new Date(this.currYear, this.currMonth, i) >= this.date || isToday)
+      // console.log("check 2: ",(priceData && priceData.is_available_room) )
+      const compareDate = this.type === 'checkin' ? this.today :this.date;
+      // console.log("check compare: ", compareDate, this.type)
       days.push({
         date: new Date(this.currYear, this.currMonth, i),
-        isCurrentMonth: new Date(this.currYear, this.currMonth, i) >= this.date || isToday ? true : false,
+        isCurrentMonth: (new Date(this.currYear, this.currMonth, i) >= compareDate || isToday) && (priceData && priceData.isAvailableRoom) ? true : false,
         formatted: i.toString(),
         isToday,
-        price: priceData && (new Date(this.currYear, this.currMonth, i) >= this.date || isToday)? formatPrice(priceData.price) : null
+        price: priceData && (new Date(this.currYear, this.currMonth, i) >= compareDate || isToday)? formatPrice(priceData.price) : null
       });
     }
 
@@ -126,6 +132,7 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
     if ((changes['date'] && changes['date'].currentValue) || (changes['roomList'] && changes['roomList'].currentValue)) {
       this.currYear = changes['date'].currentValue.getFullYear();
       this.currMonth = changes['date'].currentValue.getMonth();
+      this.selectedDate = changes['date'].currentValue;
       console.log("change")
       console.log("check paylaod", {"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(changes['date'].currentValue), 'rooms':(changes['roomList'] && changes['roomList'].currentValue)? changes['roomList'].currentValue : this.roomList})
       this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(changes['date'].currentValue), 'rooms':(changes['roomList'] && changes['roomList'].currentValue)? changes['roomList'].currentValue : this.roomList}).subscribe(res =>{

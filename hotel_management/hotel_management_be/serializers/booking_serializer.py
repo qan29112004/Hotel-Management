@@ -7,13 +7,36 @@ from hotel_management_be.models.booking import *
 from django.core.files.storage import default_storage
 from hotel_management_be.models.hotel import Hotel, Room
 from hotel_management_be.models.offer import RatePlan, Service
+from hotel_management_be.models.voucher import Voucher
 
 class BookingSerializer(serializers.ModelSerializer):
     hotel_id = serializers.PrimaryKeyRelatedField(queryset = Hotel.objects.all())
+    voucher = serializers.PrimaryKeyRelatedField(queryset=Voucher.objects.all(), allow_null=True, required=False)
     updated_by = serializers.SerializerMethodField()
     class Meta:
         model = Booking
-        fields = ['uuid', 'user_email','user_fullname','user_phone','user_country', 'hotel_id', 'check_in', 'check_out', 'num_guest', 'total_price', 'status', 'total_rooms', 'created_by', 'updated_by','created_at','updated_at']
+        fields = [
+            'uuid',
+            'user_email',
+            'user_fullname',
+            'user_phone',
+            'user_country',
+            'hotel_id',
+            'check_in',
+            'check_out',
+            'num_guest',
+            'total_price',
+            'status',
+            'total_rooms',
+            'voucher',
+            'voucher_code',
+            'voucher_discount_amount',
+            'voucher_metadata',
+            'created_by',
+            'updated_by',
+            'created_at',
+            'updated_at'
+        ]
     
     def get_updated_by(self,obj):
         return {
@@ -37,7 +60,28 @@ class MyBookingSerializer(serializers.ModelSerializer):
     booking_room = serializers.SerializerMethodField()
     class Meta:
         model = Booking
-        fields = ['uuid', 'user_email','user_fullname','user_phone','user_country', 'hotel', 'rating','booking_room', 'check_in', 'check_out', 'num_guest', 'total_price', 'status', 'total_rooms', 'created_by', 'updated_by','created_at','updated_at']
+        fields = [
+            'uuid',
+            'user_email',
+            'user_fullname',
+            'user_phone',
+            'user_country',
+            'hotel',
+            'rating',
+            'booking_room',
+            'check_in',
+            'check_out',
+            'num_guest',
+            'total_price',
+            'status',
+            'total_rooms',
+            'voucher_code',
+            'voucher_discount_amount',
+            'created_by',
+            'updated_by',
+            'created_at',
+            'updated_at'
+        ]
     
     def get_updated_by(self,obj):
         return {

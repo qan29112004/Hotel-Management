@@ -1,4 +1,4 @@
-FROM image-base
+FROM base-image
 
 WORKDIR /app
 COPY . .

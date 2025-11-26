@@ -385,7 +385,7 @@ class RedisUtils:
         RedisUtils.r.delete(RedisUtils.session_holds_key(session_id))
         RedisUtils.r.delete(RedisUtils.session_key(session_id))
 
-
+        session.delete()
         # ===  Cập nhật HoldRecord hết hạn (optional) ===
         HoldRecord.objects.filter(session__uuid=session_id, status="Hold").update(status="Confirmed", expires_at=timezone.now())
         

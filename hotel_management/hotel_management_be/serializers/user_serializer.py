@@ -70,15 +70,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         request = self.context.get("request")
-        
+        password = request.data.get('password', '')
         if request and request.user.is_authenticated and request.user.id != instance.id:
             instance.updated_by = request.user
         instance.updated_at = Utils.get_current_datetime()
         if self.context.get(Constants.REGISTER, False):
             instance.status = 1
 
-        if "password" in validated_data:
-            instance.set_password(validated_data.pop("password"))
+        if password:
+            instance.set_password(password)
 
 
         if "groups" in validated_data:
