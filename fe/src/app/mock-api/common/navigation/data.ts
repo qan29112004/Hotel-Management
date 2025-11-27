@@ -306,6 +306,13 @@ export const compactNavigation: FuseNavigationItem[] = [
         link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.CHAT}`
     },
     {
+        id: 'voucher',
+        title:'Voucher',
+        type: 'basic',
+        icon: 'assets/images/ui/menu/voucher.svg',
+        link: `my-voucher`
+    },
+    {
         id: 'feedback',
         title: 'FeedBack',
         type: 'sticky',

@@ -11,7 +11,7 @@ from datetime import date
 from libs.Redis import RedisWrapper
 import logging
 from hotel_management_be.celery_hotel.task import compute_hotel_calendar_prices
-
+from libs.Redis import RedisWrapper, RedisUtils
 
 logger = logging.getLogger(__name__)
 
@@ -114,24 +114,39 @@ def payment_update_paid(sender, instance, **kwargs):
 def update_status_room_book(sender, instance, **kwargs):
     print(">>> SIGNAL RUNNING <<<")
     booking_room = instance.booking_booking_room.select_related('room_id')
+    hotel_id = instance.hotel_id.uuid
     if(instance.status=="Check In"):
         print(">>> SIGNAL RUNNING CHECK IN<<<")
-        for room in booking_room:
+        for br in booking_room:
+            room = br.room_id
             print("check status", room.room_id.status)
-            room.room_id.status='Booked'
-            room.room_id.save()
-            room.room_id.refresh_from_db()
+            room.status='Booked'
+            room.save()
+            room.refresh_from_db()
 
-            print(">>> AFTER:", room.room_id.status)
+            print(">>> AFTER:", room.status)
     elif(instance.status == "Check Out"):
         print(">>> SIGNAL RUNNING CHECK OUT<<<")
-        for room in booking_room:
-            print("check status", room.room_id.status)
-            room.room_id.housekeeping_status = 'Dirty'
-            room.room_id.save()
-            room.room_id.refresh_from_db()
+        for br in booking_room:
+            room = br.room_id
+            print("check status", room.status)
+            room.housekeeping_status = 'Dirty'
+            room.save()
+            room.refresh_from_db()
+            room.status = "Release"
+            room.save()
+            room.refresh_from_db()
 
-            print(">>> AFTER:", room.room_id.status)
+            print(">>> AFTER:", room.status)
+            roomtype_id = room.room_type_id.uuid
+            RedisUtils.atomic_increment_inventory_for_range(
+                hotel_id=hotel_id,
+                room_type_id=roomtype_id,
+                checkin=str(instance.check_in),
+                checkout=str(instance.check_out),
+                quantity=1
+            )
+            
             
 @receiver(post_delete, sender=Booking)
 def update_status_room_book_when_delete(sender, instance, **kwargs):

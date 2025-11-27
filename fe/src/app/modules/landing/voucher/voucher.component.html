@@ -1,1 +1,203 @@
-<p>voucher works!</p>
+<div class="w-full flex flex-col relative pb-[60px]">    
+    <div class="bg-black h-28 mb-[60px] w-full">
+
+    </div>
+    <app-detail-voucher *ngIf="claimChoose" [claim]="claimChoose" (close)="closeDetail($event)"></app-detail-voucher>
+    <fuse-loading-bar></fuse-loading-bar>
+    <div class="voucher-container">
+    <!-- Header Section -->
+    <div class="voucher-header">
+        <h1 class="voucher-title">Kho Voucher</h1>
+        <div class="header-links" *ngIf="!isHistoryView">
+        <a (click)="navigateToHistory()" class="link-item">Xem lịch sử voucher</a>
+        </div>
+        <div class="header-links" *ngIf="isHistoryView">
+        <a (click)="navigateToMain()" class="link-item">Quay lại</a>
+        </div>
+    </div>
+
+    <!-- Main View -->
+    <div *ngIf="!isHistoryView" class="main-view">
+        <!-- Voucher Input Section -->
+        <div class="voucher-input-section">
+        <label for="voucher-code" class="input-label">Mã Voucher</label>
+        <div class="input-group">
+            <input
+            id="voucher-code"
+            type="text"
+            class="voucher-input"
+            placeholder="Nhập mã voucher tại đây"
+            [(ngModel)]="voucherCode"
+            (keyup.enter)="saveVoucherCode()"
+            />
+            <button class="save-btn" (click)="saveVoucherCode()">Lưu</button>
+        </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs-container">
+        <div
+            class="tab-item"
+            [class.active]="currentTab === 'all'"
+            (click)="currentTab = 'all'"
+        >
+            Tất cả ({{ activeClaims.length + expiredClaimsButVoucherValid.length }})
+        </div>
+        <div
+            class="tab-item"
+            [class.active]="currentTab === 'active'"
+            (click)="currentTab = 'active'"
+        >
+            Đang hiệu lực ({{ activeClaims.length }})
+        </div>
+        <div
+            class="tab-item"
+            [class.active]="currentTab === 'expired-claim'"
+            (click)="currentTab = 'expired-claim'"
+        >
+            Hết hạn claim ({{ expiredClaimsButVoucherValid.length }})
+        </div>
+        </div>
+
+        <!-- Active Vouchers Section -->
+        <div class="vouchers-section" *ngIf="currentTab === 'all' || currentTab === 'active'">
+        <div class="section-title" *ngIf="activeClaims.length > 0">Voucher đang hiệu lực</div>
+        <div class="vouchers-grid" *ngIf="activeClaims.length > 0; else noActiveVouchers">
+            <div
+            class="voucher-card"
+            *ngFor="let claim of activeClaims"
+            [class]="'voucher-card ' + getVoucherTypeClass(claim.voucher)"
+            >
+            <div class="voucher-card-left">
+                <img src='assets/images/ui/menu/bill-ticket.svg'/>
+            </div>
+            <div class="voucher-card-right">
+                <div class="voucher-info">
+                <div class="discount-text">{{ getDiscountText(claim.voucher) }}</div>
+                <div class="min-order">Số tiền tối thiểu Tối Thiểu {{ formatCurrency(claim.voucher.minOrderValue) }}</div>
+                
+                <div class="usage-progress" *ngIf="getUsagePercentage(claim) > 0">
+                    <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="getUsagePercentage(claim)"></div>
+                    </div>
+                    <span class="progress-text">Đã dùng {{ getUsagePercentage(claim) }}%</span>
+                </div>
+                <div class="expiry-date">HSD: {{ formatDate(claim.expiresAt || claim.voucher.expireAt) }}</div>
+                <a (click)="detailClaim(claim)" class="conditions-link">Xem chi tiết</a>
+                </div>
+                <button class="use-btn" [class]="'use-btn-' + getVoucherTypeClass(claim.voucher)">
+                Dùng Ngay
+                </button>
+            </div>
+            </div>
+        </div>
+        <ng-template #noActiveVouchers>
+            <div class="empty-state">Không có voucher đang hiệu lực</div>
+        </ng-template>
+        </div>
+
+        <!-- Expired Claims but Valid Vouchers Section -->
+        <div class="vouchers-section" *ngIf="currentTab === 'all' || currentTab === 'expired-claim'">
+        <div class="section-title" *ngIf="expiredClaimsButVoucherValid.length > 0">
+            Voucher claim hết hạn (có thể claim lại)
+        </div>
+        <div class="vouchers-grid" *ngIf="expiredClaimsButVoucherValid.length > 0; else noExpiredClaims">
+            <div
+            class="voucher-card"
+            *ngFor="let claim of expiredClaimsButVoucherValid"
+            [class]="'voucher-card ' + getVoucherTypeClass(claim.voucher)"
+            >
+            <div class="voucher-card-left">
+                <img src='assets/images/ui/menu/price-tag-price.svg'/>
+            </div>
+            <div class="voucher-card-right">
+                <div class="voucher-info">
+                <div class="discount-text">{{ getDiscountText(claim.voucher) }}</div>
+                <div class="min-order">Đơn Tối Thiểu {{ formatCurrency(claim.voucher.minOrderValue) }}</div>
+                <div class="expiry-date">HSD Voucher: {{ formatDate(claim.voucher.expireAt) }}</div>
+                <a class="conditions-link">Xem chi tiết</a>
+                </div>
+                <button
+                class="reclaim-btn"
+                (click)="reclaimVoucher(claim)"
+                [disabled]="reclaiming[claim.uuid]"
+                >
+                {{ reclaiming[claim.uuid] ? 'Đang xử lý...' : 'Re-claim' }}
+                </button>
+            </div>
+            </div>
+        </div>
+        <ng-template #noExpiredClaims>
+            <div class="empty-state" *ngIf="currentTab === 'expired-claim'">
+            Không có voucher claim hết hạn
+            </div>
+        </ng-template>
+        </div>
+    </div>
+
+    <!-- History View -->
+    <div *ngIf="isHistoryView" class="history-view">
+        <h2 class="history-title">Lịch sử voucher</h2>
+
+        <!-- Expired Vouchers Section -->
+        <div class="vouchers-section">
+        <div class="section-title">Voucher hết hiệu lực</div>
+        <div class="vouchers-grid" *ngIf="expiredVouchers.length > 0; else noExpiredVouchers">
+            <div
+            class="voucher-card expired-voucher"
+            *ngFor="let claim of expiredVouchers"
+            [class]="'voucher-card ' + getVoucherTypeClass(claim.voucher)"
+            >
+            <div class="voucher-card-left">
+                <img src='assets/images/ui/menu/price-tag-price-2.svg'/>
+            </div>
+            <div class="voucher-card-right">
+                <div class="voucher-info">
+                <div class="discount-text">{{ getDiscountText(claim.voucher) }}</div>
+                <div class="min-order">Đơn Tối Thiểu {{ formatCurrency(claim.voucher.minOrderValue) }}</div>
+                <div class="expiry-date">HSD: {{ formatDate(claim.voucher.expireAt) }}</div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <ng-template #noExpiredVouchers>
+            <div class="empty-state">Không có voucher hết hiệu lực</div>
+        </ng-template>
+        </div>
+
+        <!-- Used Vouchers Section -->
+        <div class="vouchers-section">
+        <div class="section-title">Voucher đã sử dụng</div>
+        <div class="vouchers-grid" *ngIf="usedVouchers.length > 0; else noUsedVouchers">
+            <div
+            class="voucher-card used-voucher"
+            *ngFor="let claim of usedVouchers"
+            [class]="'voucher-card ' + getVoucherTypeClass(claim.voucher)"
+            >
+            <div class="voucher-card-left">
+                <img src='assets/images/ui/menu/price-tag-price-2.svg'/>
+            </div>
+            <div class="voucher-card-right">
+                <div class="voucher-info">
+                <div class="discount-text">{{ getDiscountText(claim.voucher) }}</div>
+                <div class="min-order">Đơn Tối Thiểu {{ formatCurrency(claim.voucher.minOrderValue) }}</div>
+                <div class="usage-info">Đã dùng {{ claim.usageCount }}/{{ claim.voucher.maxUsagePerUser }} lần</div>
+                <div class="expiry-date" *ngIf="claim.last_used_at">
+                    Sử dụng lần cuối: {{ formatDate(claim.last_used_at) }}
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <ng-template #noUsedVouchers>
+            <div class="empty-state">Không có voucher đã sử dụng</div>
+        </ng-template>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <!-- <div class="loading-overlay" *ngIf="loading">
+        <div class="loading-spinner"></div>
+    </div> -->
+    </div>
+</div>

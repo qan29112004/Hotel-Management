@@ -98,5 +98,6 @@ export const routeConfig = {
     RATEPLAN:'rate-plan',
     RATING:'rating',
     MY_BOOKING:'my-booking',
-    VOUCHER: 'voucher'
+    VOUCHER: 'voucher',
+    MY_VOUCHER: 'my-voucher'
 };

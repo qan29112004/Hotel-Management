@@ -201,6 +201,10 @@ export class AuthService {
                     // Remove the access token and refresh token from the local storage
                     localStorage.removeItem('accessToken');
                     localStorage.removeItem('refreshToken');
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('session_id');
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('booking_id');
                     // Return a new observable with the response
                     return of(true);
                 })

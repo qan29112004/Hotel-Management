@@ -318,25 +318,25 @@ class Utils:
         from libs.Redis import RedisUtils
         date_str = date.isoformat()
 
-        # 2) Redis KEYS pattern
-        # inventory:<hotel_id>:<room_type_id>:<date_str>
-        pattern = f"inventory:{hotel.uuid}:*:{date_str}"
+        # # 2) Redis KEYS pattern
+        # # inventory:<hotel_id>:<room_type_id>:<date_str>
+        # pattern = f"inventory:{hotel.uuid}:*:{date_str}"
         
-        # 3) Find all matching keys
-        keys = RedisUtils.r.keys(pattern)
-        print('check pattern: ', pattern)
-        if keys:
-            total_available = 0
-            # 4) Get all values using mget
-            values = RedisUtils.r.mget(keys)
+        # # 3) Find all matching keys
+        # keys = RedisUtils.r.keys(pattern)
+        # print('check pattern: ', pattern)
+        # if keys:
+        #     total_available = 0
+        #     # 4) Get all values using mget
+        #     values = RedisUtils.r.mget(keys)
 
-            for v in values:
-                if v is not None:
-                    total_available += int(v)
+        #     for v in values:
+        #         if v is not None:
+        #             total_available += int(v)
 
-            # 5) Compare with required room quantity
-            required_quantity = len(room_requirements)
-            if (total_available<required_quantity):return False
+        #     # 5) Compare with required room quantity
+        #     required_quantity = len(room_requirements)
+        #     if (total_available<required_quantity):return False
         all_room = 0
         room_type_of_hotel = hotel.RoomType.all().prefetch_related('room')
         overlapping_bookings = Booking.objects.filter(
@@ -348,6 +348,8 @@ class Utils:
         
         booked_room_uuids = BookingRoom.objects.filter(
             booking_id__in=overlapping_bookings
+        ).exclude(
+            status='Release'
         ).values_list('room_id', flat=True)
         print('check room booking overlap: ', booked_room_uuids)
         

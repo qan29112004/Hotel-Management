@@ -6,6 +6,7 @@ from urllib.parse import parse_qs
 from rest_framework_simplejwt.tokens import UntypedToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from channels.db import database_sync_to_async
+from django.contrib.auth.models import AnonymousUser
 
 User = get_user_model()
 
@@ -31,6 +32,7 @@ class JWTAuthMidderwareSocket(BaseMiddleware):
         # Lấy token từ query string
         query_string = parse_qs(scope["query_string"].decode())
         token = None
+        scope["user"] = AnonymousUser()
 
         if "token" in query_string:
             token = query_string["token"][0]
@@ -45,8 +47,9 @@ class JWTAuthMidderwareSocket(BaseMiddleware):
                 except IndexError:
                     pass
 
-        scope["user"] = None
         if token:
-            scope["user"] = await get_user_from_token(token)
+            user = await get_user_from_token(token)
+            if user:
+                scope["user"] = user
 
         return await super().__call__(scope, receive, send)

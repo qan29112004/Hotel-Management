@@ -71,34 +71,33 @@ export class ChatService {
      */
     connect(url?: string): void {
         const accessToken = localStorage.getItem('accessToken')
-        if (accessToken){
-            if (!this.socket$ || this.socket$.closed) {
-            this.socket$ = webSocket({
-                url: uriConfig.WEBSOCKET_URL + `?token=${accessToken}`,
-                openObserver: {
-                next: () => {
-                    console.log('WebSocket connected!');
-                    this.reconnectAttempts = 0;
-                }
-                },
-                closeObserver: {
-                next: () => {
-                    console.log('WebSocket disconnected!');
-                    this.socket$ = null;
-                    this.reconnect(url);
-                }
-                }
-            });
-
-            this.socket$.subscribe({
-                next: (message) => this.messagesSubject$.next(message),
-                error: (error) => {
-                console.error('WebSocket error:', error);
-                this.reconnect(url);
-                }
-            });
+        if (!this.socket$ || this.socket$.closed) {
+        this.socket$ = webSocket({
+            url: uriConfig.WEBSOCKET_URL + `?token=${accessToken}`,
+            openObserver: {
+            next: () => {
+                console.log('WebSocket connected!');
+                this.reconnectAttempts = 0;
             }
+            },
+            closeObserver: {
+            next: () => {
+                console.log('WebSocket disconnected!');
+                this.socket$ = null;
+                this.reconnect(url);
+            }
+            }
+        });
+
+        this.socket$.subscribe({
+            next: (message) => this.messagesSubject$.next(message),
+            error: (error) => {
+            console.error('WebSocket error:', error);
+            this.reconnect(url);
+            }
+        });
         }
+        
     }
 
     /**

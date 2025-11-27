@@ -143,7 +143,7 @@ def monitor_session_task(self, session_id, booking_id):
             not booking.user_phone
         ):
             booking.delete()
-        elif(booking.status != "Confirm"):
+        elif(booking.status not in ["Confirm","Cancelled","Check In", "Check Out", "Paid"]):
             booking.status = 'Expired'
             booking.save()
         BookingSession.objects.get(uuid = session_id).delete()
@@ -186,7 +186,9 @@ def set_booking_room(session_id, booking_id):
     booking = Booking.objects.get(uuid=booking_id)
     # Lấy tất cả HoldRecord thuộc session_id đó
     hold_records = HoldRecord.objects.filter(session__uuid=session_id, status__in=["Hold","Confirmed"])
-    booked_room = BookingRoom.objects.filter(Q(booking_id__check_in__lt=booking.check_out)& Q(booking_id__check_out__gt=booking.check_in))
+    booked_room = BookingRoom.objects.filter(Q(booking_id__check_in__lt=booking.check_out)& Q(booking_id__check_out__gt=booking.check_in)).exclude(
+            status='Release'
+        )
     conflict_room_ids = booked_room.values_list("room_id", flat=True)
     for hold in hold_records:
         # Lấy danh sách room thuộc roomtype này, đang available
@@ -255,3 +257,17 @@ def send_booking_email(data: dict):
     msg.send()
 
     return "Email sent!"
+
+@shared_task
+def expire_status_voucher_and_claim():
+    from hotel_management_be.models.voucher import Voucher, VoucherClaim
+    from django.utils import timezone
+    now = timezone.now()
+    vouchers = Voucher.objects.filter(status="Active", expire_at__lt=now)
+    for voucher in vouchers:
+        voucher.status = "Expired"
+        voucher.save()
+    claims = VoucherClaim.objects.filter(status="Active", expires_at__lt=now)
+    for claim in claims:
+        claim.status = "Expired"
+        claim.save()

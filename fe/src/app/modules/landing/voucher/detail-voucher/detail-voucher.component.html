@@ -1,0 +1,32 @@
+<div class="fixed top-0 left-0 w-full h-full bg-black/50 z-50 flex flex-col justify-center items-center">
+    <div class="w-auto flex flex-col">    
+        <button (click)="closeDetail()" type="button" class="self-end"><mat-icon class="text-black text-[15px] p-3 rounded-full bg-white">close</mat-icon></button>
+        <div
+            class="voucher-card"
+            >
+                <div class="voucher-card-left">
+                    <img src='assets/images/ui/menu/bill-ticket.svg'/>
+                </div>
+                <div class="voucher-card-right">
+                    <div class="voucher-info">
+                    <div class="discount-text">{{ getDiscountText(claim.voucher) }}</div>
+                    <div class="min-order">Số tiền tối thiểu Tối Thiểu {{ formatCurrency(claim.voucher.minOrderValue) }}</div>
+                    
+                    <div class="usage-progress" *ngIf="getUsagePercentage(claim) > 0">
+                        <div class="progress-bar">
+                        <div class="progress-fill" [style.width.%]="getUsagePercentage(claim)"></div>
+                        </div>
+                        <span class="progress-text">Đã dùng {{ getUsagePercentage(claim) }}%</span>
+                    </div>
+                    
+                </div>
+        </div>
+        <div class="bg-white rounded-lg p-4 w-full">
+            <h2 class="text-2xl font-bold">Chi tiết voucher</h2>
+            <p class="text-[16px] font-avenir text-gray-500">Mã voucher: {{ claim.voucher.code }}</p>
+            <p class="text-[16px] font-avenir text-gray-500">Mô tả: {{ claim.voucher.description }}</p>
+            <p class="text-[16px] font-avenir text-gray-500">Giảm: {{ claim.voucher.discountValue ? (claim.voucher.discountValue | currency:'VND':'symbol':'1.0-0') : (claim.voucher.discountPercent + ' %') }}</p>
+            <p class="text-[16px] font-avenir text-gray-500">Ngày hết hạn: {{ claim.voucher.expireAt }}</p>
+        </div>
+    </div>
+</div>

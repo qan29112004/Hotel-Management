@@ -221,7 +221,8 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
                         includeIds = [
                             'home-page',
                             'feedback',
-                            'destination'
+                            'destination',
+                            'voucher'
                         ];
                     } else {
                         includeIds = ['home-page', 'chat', 'destination'];
@@ -312,7 +313,7 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
      * On destroy
      */
     ngOnDestroy(): void {
-        
+        this.chatService.disconnect();
         this.sseService.stopWatching();
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);

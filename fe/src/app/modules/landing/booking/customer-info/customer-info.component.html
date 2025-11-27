@@ -65,6 +65,54 @@
       </div>
     </div>
     <div class="bg-[#f4f4f4] w-full p-5 mb-5">
+      <div class="flex flex-col w-full p-5 bg-white gap-4">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+          <span class="font-clearface text-[30px] font-normal text-black">Voucher ưu đãi</span>
+          <button type="button" class="px-4 py-2 text-sm font-semibold text-white bg-black hover:bg-[#9e693d] transition-colors" (click)="loadActiveVouchers()">
+            Làm mới
+          </button>
+        </div>
+        <div *ngIf="voucherLoading" class="text-sm text-[#787878]">Đang tải voucher khả dụng...</div>
+        <ng-container *ngIf="!voucherLoading">
+          <ng-container *ngIf="activeVouchers.length; else noVoucher">
+            <div class="flex flex-col gap-4">
+              <div class="flex flex-col gap-3 p-4 border rounded-md shadow-sm" *ngFor="let claim of activeVouchers">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p class="text-lg font-semibold text-black">{{claim.voucher.name}}</p>
+                    <p class="text-xs font-bold tracking-[1px] uppercase text-[#9e693d]">Mã: {{claim.voucher.code}}</p>
+                    <p class="text-xs text-[#787878]">HSD: {{formatVoucherDate(claim.expiresAt || claim.voucher.expireAt)}}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-base font-bold text-black">{{getVoucherDiscountText(claim)}}</p>
+                    <p class="text-xs text-[#787878]">Đơn tối thiểu {{formatCurrency(claim.voucher.minOrderValue)}}</p>
+                  </div>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                  <button type="button" class="px-4 py-2 text-sm font-semibold text-white bg-[#9e693d] hover:bg-black transition-colors disabled:opacity-60 disabled:pointer-events-none" (click)="previewVoucher(claim)" [disabled]="previewLoadingCode === claim.voucher.code">
+                    {{previewLoadingCode === claim.voucher.code ? 'Đang tính...' : 'Xem giá sau ưu đãi'}}
+                  </button>
+                  <button type="button" class="px-4 py-2 text-sm font-semibold border border-black text-black hover:bg-black hover:text-white transition-colors disabled:opacity-60 disabled:pointer-events-none" (click)="applyVoucher(claim)" [disabled]="applyLoadingCode === claim.voucher.code">
+                    {{applyLoadingCode === claim.voucher.code ? 'Đang áp dụng...' : 'Apply'}}
+                  </button>
+                </div>
+                <div class="p-3 bg-[#fff8e1] rounded-md text-sm text-black" *ngIf="voucherPreviewResult?.code === claim.voucher.code">
+                  <p>Giảm: <strong>{{formatCurrency(voucherPreviewResult.discountAmount)}}</strong></p>
+                  <p>Tổng sau giảm: <strong>{{formatCurrency(voucherPreviewResult.finalTotal)}}</strong></p>
+                  <p *ngIf="voucherPreviewResult.message" class="text-xs text-[#787878] mt-1">{{voucherPreviewResult.message}}</p>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #noVoucher>
+            <div class="text-sm text-[#787878]">Bạn chưa có voucher nào còn hiệu lực.</div>
+          </ng-template>
+        </ng-container>
+        <div *ngIf="voucherPreviewError" class="text-sm text-red-500">{{voucherPreviewError}}</div>
+        <div *ngIf="applyVoucherMessage" class="text-sm text-green-600">{{applyVoucherMessage.message}}</div>
+      </div>
+    </div>
+    <div class="bg-[#f4f4f4] w-full p-5 mb-5">
       <div class="flex flex-col w-full p-5 bg-white">
         <div class="flex flex-col">
           <span class="font-clearface text-[30px] font-normal">booking.guarantee_my_booking</span>

@@ -198,6 +198,7 @@ def get_room_type_by_hotel_id(request):
 def cal_price_per_night(request):
     from datetime import date, timedelta, datetime
     from hotel_management_be.models.offer import RatePlan
+    from hotel_management_be.models.booking import HoldRecord
     from hotel_management_be.views.booking_view import ensure_inventory_for_range
     try:
         hotel = request.data.get('hotel','')
@@ -224,8 +225,9 @@ def cal_price_per_night(request):
             # Lấy tất cả phòng của room type này
             ensure_inventory_for_range(hotel.uuid, room_type.uuid, datetime.strptime(check_in, "%Y-%m-%d").date(), datetime.strptime(check_out, "%Y-%m-%d").date())
             ok = RedisUtils.check_inventory_for_range(hotel.uuid, room_type.uuid, check_in, check_out, quantity=1)
-            exist_session, _ = RedisUtils.check_session(session_id)
-            if not ok and not exist_session:continue
+            # exist_session, _ = RedisUtils.check_session(session_id)
+            exist_hold = HoldRecord.objects.filter(session__uuid = session_id, room_type=room_type).first()
+            if not ok and not exist_hold:continue
 
             all_rooms = room_type.room.filter(status='Available')
             print("all rooom", all_rooms)

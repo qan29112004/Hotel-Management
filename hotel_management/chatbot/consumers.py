@@ -10,6 +10,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.user = self.scope.get("user")
         self.groups_to_join = []
         print(f"[CONNECT] User: {self.user} - Channel: {self.channel_name}")
+        if not self.user or self.user.is_anonymous:
+            
+            # Cho anonymous vào group public nếu bạn muốn
+            await self.channel_layer.group_add("notification", self.channel_name)
+            
+            return await self.accept()
         if self.user.role == 2:  # receptionist
             await self.channel_layer.group_add("receptionist", self.channel_name)
 

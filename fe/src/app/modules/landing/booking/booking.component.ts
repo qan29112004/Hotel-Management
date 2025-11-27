@@ -154,6 +154,7 @@ export class BookingComponent implements OnInit, OnChanges {
       this.bookingState.rooms = rooms;
       console.log("check room list:" , rooms)
       this.payload = {
+        'hotel_id':params['uuid'],
           "hotel_name":params['hotel'],
           "checkin":params['checkin'],
           "checkout":params['checkout'],

@@ -10,8 +10,35 @@ import { Subject, takeUntil,map } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { timeDate } from 'app/shared/utils/util';
 import { UserService } from 'app/core/profile/user/user.service';
+import { VoucherService } from 'app/core/admin/voucher/voucher.service';
 
 declare var paypal: any;
+
+interface VoucherClaim {
+  uuid: string;
+  voucher: {
+    code: string;
+    name: string;
+    description?: string | null;
+    discountType: string;
+    discountValue: number;
+    discountPercent?: number | null;
+    maxDiscountAmount?: number | null;
+    minOrderValue: number;
+    expireAt?: string | null;
+    status: string;
+  };
+  expiresAt?: string | null;
+  status: string;
+  usageCount: number;
+}
+
+interface VoucherPreviewResult {
+  code: string;
+  discountAmount: number;
+  finalTotal: number;
+  message?: string;
+}
 @Component({
   selector: 'app-customer-info',
   standalone: true,
@@ -39,12 +66,19 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
   bookingId:string;
   @ViewChild('paypalContainer', { static: false }) paypalContainer!: ElementRef<HTMLDivElement>;
   private destroy = new Subject();
+  voucherLoading = false;
+  previewLoadingCode: string | null = null;
+  applyLoadingCode: string | null = null;
+  activeVouchers: VoucherClaim[] = [];
+  voucherPreviewResult: VoucherPreviewResult | null = null;
+  voucherPreviewError: any | null = null;
+  applyVoucherMessage: any | null = null;
 
-  constructor(private fb: FormBuilder, private bookingService: BookingService, private activeRoute:ActivatedRoute, private router:Router, private userService:UserService) {
+  constructor(private fb: FormBuilder, private bookingService: BookingService, private activeRoute:ActivatedRoute, private router:Router, private userService:UserService, private voucherService:VoucherService) {
   }
 
   ngOnInit(): void {
-    this.userService.user$.subscribe(user=>{
+    this.userService.user$.pipe(takeUntil(this.destroy)).subscribe(user=>{
       this.crrUser = user;
       console.log("this crrUser: ", this.crrUser)
     })
@@ -54,6 +88,7 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
       phone: [null,Validators.required],
       country : [null,Validators.required]
     })
+    this.loadActiveVouchers();
   }
 
   ngOnDestroy(): void {
@@ -150,6 +185,101 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
 
     )
 
+  }
+
+  loadActiveVouchers(){
+    this.voucherLoading = true;
+    this.voucherService.listMyVoucher().pipe(
+      takeUntil(this.destroy)
+    ).subscribe({
+      next: (res)=>{
+        const claims: VoucherClaim[] = res.data || [];
+        const now = new Date();
+        this.activeVouchers = claims.filter(claim=>{
+          if (claim.status !== 'ACTIVE') return false;
+          const claimExpired = claim.expiresAt ? new Date(claim.expiresAt) < now : false;
+          const voucherExpired = claim.voucher.expireAt ? new Date(claim.voucher.expireAt) < now : false;
+          return !claimExpired && !voucherExpired;
+        }).sort((a,b)=>{
+          const aDate = a.expiresAt ? new Date(a.expiresAt).getTime() : 0;
+          const bDate = b.expiresAt ? new Date(b.expiresAt).getTime() : 0;
+          return aDate - bDate;
+        });
+        console.log("check res: ", res),
+        console.log("check list: ", this.activeVouchers)
+        this.voucherLoading = false;
+      },
+      error: ()=>{
+        this.voucherLoading = false;
+      }
+    })
+  }
+
+  previewVoucher(claim:VoucherClaim){
+    this.voucherPreviewError = null;
+    this.voucherPreviewResult = null;
+    this.previewLoadingCode = claim.voucher.code;
+    const payload = {
+      code: claim.voucher.code,
+      order_total: Number(this.billVND) || 0,
+      hotel_id: this.dataBooking?.hotel_id || null
+    };
+    this.voucherService.previewVoucher(payload).pipe(
+      takeUntil(this.destroy)
+    ).subscribe({
+      next:(res)=>{
+        this.voucherPreviewResult = {
+          code: claim.voucher.code,
+          discountAmount: Number(res.data?.discountAmount) || 0,
+          finalTotal: Number(res.data?.finalTotal) || Number(this.billVND) || 0,
+          message: res.data?.message
+        };
+        this.previewLoadingCode = null;
+      },
+      error:(err)=>{
+        this.previewLoadingCode = null;
+        this.voucherPreviewError = err?.error?.message || 'Không thể xem trước voucher, vui lòng thử lại.';
+      }
+    });
+  }
+
+  applyVoucher(claim:VoucherClaim){
+    this.applyVoucherMessage = null;
+    this.applyLoadingCode = claim.voucher.code;
+    const payload = {
+      code: claim.voucher.code,
+      booking_uuid: localStorage.getItem('booking_id') || 'mock-booking-id',
+      order_total: Number(this.billVND) || 0
+    };
+    this.voucherService.applyVoucher(payload).pipe(
+      takeUntil(this.destroy)
+    ).subscribe({
+      next:(res)=>{
+        this.applyVoucherMessage = res.data;
+        this.applyLoadingCode = null;
+      },
+      error:(err)=>{
+        this.applyLoadingCode = null;
+        this.applyVoucherMessage = err?.errors;
+      }
+    })
+  }
+
+  getVoucherDiscountText(claim:VoucherClaim){
+    if(claim.voucher.discountType === 'FIXED'){
+      return `Giảm ${this.formatCurrency(claim.voucher.discountValue)}`;
+    }
+    const maxText = claim.voucher.maxDiscountAmount ? ` - tối đa ${this.formatCurrency(claim.voucher.maxDiscountAmount)}` : '';
+    return `Giảm ${claim.voucher.discountPercent}%${maxText}`;
+  }
+
+  formatCurrency(value:number){
+    return new Intl.NumberFormat('vi-VN', {style:'currency', currency:'VND', minimumFractionDigits:0}).format(Number(value) || 0);
+  }
+
+  formatVoucherDate(dateStr?:string | null){
+    if(!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit', year:'numeric'});
   }
 
   ngAfterViewInit() {

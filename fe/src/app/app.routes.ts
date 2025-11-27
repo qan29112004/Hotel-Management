@@ -135,7 +135,15 @@ export const appRoutes: Route[] = [
                 path: routeConfig.MY_BOOKING,
                 data: {title: 'My Booking'},
                 loadChildren: () => import('app/modules/auth/my-booking/my-booking.route'),
-            }
+            },
+            {
+                path: routeConfig.MY_VOUCHER,
+                data: { title: 'voucher.title' },
+                loadChildren: () =>
+                    import(
+                        'app/modules/landing/voucher/voucher.route'
+                    ),
+            },
         ],
     },
 
@@ -533,6 +541,7 @@ export const appRoutes: Route[] = [
                                 'app/modules/user/customer/news-detail/news-detail.routes'
                             ),
                     },
+                    
                 ],
             },
             {

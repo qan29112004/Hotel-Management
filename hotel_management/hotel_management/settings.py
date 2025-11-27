@@ -266,6 +266,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'hotel_management_be.celery_hotel.task.cleanup_old_inventory',
         'schedule': 60.0,  # chạy 1 lần/ngày
     },
+    'expire-status-voucher-and-claim-daily': {
+        'task': 'hotel_management_be.celery_hotel.task.expire_status_voucher_and_claim',
+        'schedule': 60.0, 
+    },
 }
 CELERY_RESULT_BACKEND = "redis://redis_hotel:6379/0"
 CELERY_ACCEPT_CONTENT = ['json']
