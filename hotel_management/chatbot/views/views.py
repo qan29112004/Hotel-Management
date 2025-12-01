@@ -24,7 +24,7 @@ from libs.querykit.querykit_serializer import (
 from django.db import transaction
 from libs.querykit.querykit import Querykit
 from utils.utils import Utils
-from chatbot.tasks import embed_pending_data
+from chatbot.tasks import embed_pending_data, delete_embedded_data
 from chatbot.models import *
 from chatbot.serializer import *
 from django.db.models import Count
@@ -64,8 +64,8 @@ def knowlegde_base_detail(request, uuid):
             return AppResponse.error(ErrorCodes.UPDATE_DATASET_FAIL, serializer.errors)
 
         elif request.method == 'DELETE':
+            delete_embedded_data.delay(knowlegde_base.uuid)
             knowlegde_base.delete()
-            embed_pending_data.delay()
             return AppResponse.success(SuccessCodes.DELETE_DATASET)
 
     except KnowlegdeBaseModel.DoesNotExist:

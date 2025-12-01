@@ -95,3 +95,12 @@ class VectorStore:
             name="knowledge_base",
             metadata={"hnsw:space": "cosine"}
         )
+        
+    def delete_documents(self, ids: List[str]):
+        """
+        Xóa documents theo ID từ ChromaDB
+        """
+        if not ids:
+            return
+        
+        self.collection.delete(ids=ids)

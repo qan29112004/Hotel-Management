@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnInit, ViewChildren, QueryList, ElementRef, ChangeDetectorRef, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, ViewChildren, QueryList, ElementRef, ChangeDetectorRef, signal, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from 'app/shared/shared.module';
 import { ServiceService } from 'app/core/admin/service/service.service';
@@ -20,7 +20,7 @@ import { environment } from 'environments/environment.fullstack';
     </button>
   `
 })
-export class SelectServiceComponent implements OnInit {
+export class SelectServiceComponent implements OnInit, OnChanges {
   @Input() roomIndex!: number;
   @Input() hotelName:string;
   @Input() selectedService:any[];
@@ -28,7 +28,6 @@ export class SelectServiceComponent implements OnInit {
   @Output() servicesRemove = new EventEmitter<any>();
 
   baseUrl:string = environment.baseUrl;
-  list_service:any;
   @ViewChildren('swiperEl') swiperElements!: QueryList<ElementRef>;
   listImageExploreHotel = [
     ['assets/images/explore-hotel/images_1.jpg', 'assets/images/explore-hotel/images_2.jpg', 'assets/images/explore-hotel/images_3.jpg'],
@@ -39,6 +38,7 @@ export class SelectServiceComponent implements OnInit {
 
   services = signal<any[]>([]);
   listSelectService:any[] = [];
+  private hasServiceCatalogLoaded = false;
 
   constructor(private serviceService:ServiceService,private cdr: ChangeDetectorRef) {
     
@@ -59,16 +59,9 @@ export class SelectServiceComponent implements OnInit {
     this.serviceService.getAllService({filterRules:payload, page_size:0}).subscribe(
       services=>{
         this.services.set(services.data.map(sv=>({...sv, quantity:1})));
-        const list = this.services();
-        const selected = this.selectedService[this.roomIndex]?.selectedServices ?? [];
-        const merged = list.map(service => {
-          const found = selected.find(sv => sv.name === service.name);
-          return {
-            ...service,
-            quantity: found ? found.quantity : service.quantity
-          };
-        });
-        this.services.set(merged)
+        this.hasServiceCatalogLoaded = true;
+        console.log("check has service catalog loaded init", this.hasServiceCatalogLoaded)
+        this.hydrateSelectedServices();
       }
     )
     setTimeout(() => {
@@ -77,57 +70,36 @@ export class SelectServiceComponent implements OnInit {
     register();
   }
 
-  reAttachQuantity(service:any){
-    if (!this.selectedService[this.roomIndex].selectedServices || !service) return false;
-    const selectedServices = this.selectedService[this.roomIndex].selectedServices;
-  
-    // Kiểm tra xem service.name có nằm trong selectedServices hay không
-    const isSelected = selectedServices.some(sv => sv.name === service.name);
-
-    // Nếu dịch vụ được chọn, tìm và gán lại quantity cho service
-    if (isSelected) {
-      // Tìm dịch vụ trong selectedServices có tên trùng với service.name
-      const selectedService = selectedServices.find(sv => sv.name === service.name);
-
-      // Nếu tìm thấy, cập nhật quantity của service
-      // if (selectedService) {
-      //   // service.quantity = selectedService.quantity || 1; // Mặc định là 1 nếu không có quantity
-      //   this.services.update(list =>
-      //     list.map(item =>
-      //       item.name === service.name
-      //         ? { ...item, quantity: selectedService.quantity || 1 } // update số lượng
-      //         : item // giữ nguyên item khác
-      //     )
-      //   )
-      // }
-      return selectedService.quantity || 1
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['selectedService'] || changes['roomIndex']) {
+      this.hasServiceCatalogLoaded = true;
+      this.hydrateSelectedServices();
     }
-    return null
   }
 
-  checkIsSelect(index:number, service:any){
-    if (this.listSelectService.length > 0){
-      const exist = this.listSelectService.some(item => item.uuid == service.uuid)
-      return exist
-    }
-    if (!this.selectedService[this.roomIndex].selectedServices){
+  reAttachQuantity(service:any){
+    if (!service) return null;
+    const matched = this.listSelectService.find(sv => this.isSameService(sv, service));
+    return matched ? matched.quantity || 1 : null
+  }
+
+  checkIsSelect(service:any){
+    if (!service) {
       return false;
-    } 
-    let nameServiceSet = new Set(this.selectedService[this.roomIndex].selectedServices.map(sv=>sv.name))
-    return nameServiceSet.has(service.name)
-    // return false;
+    }
+    if (this.listSelectService.length > 0){
+      return this.listSelectService.some(item => this.isSameService(item, service));
+    }
+    const persisted = this.selectedService?.[this.roomIndex]?.services ?? [];
+    return persisted.some((sv:any) => this.isSameService(sv, service));
   }
 
   removeService(service: any) {
     this.listSelectService = this.listSelectService.filter(
-      (item: any) => item.uuid !== service.uuid
+      (item: any) => !this.isSameService(item, service)
     );
-    if(this.selectedService[this.roomIndex].selectedServices.length > 0){
-      this.selectedService[this.roomIndex].selectedServices = this.selectedService[this.roomIndex].selectedServices.filter(
-        (item: any) => item.uuid !== service.uuid
-      )
-    }
-    console.log("remove sẻvice: ", this.listSelectService)
+    this.persistSelectionToParent();
+    console.log("remove service: ", this.listSelectService)
   }
 
   selectService(service:any){
@@ -138,7 +110,11 @@ export class SelectServiceComponent implements OnInit {
       price:String(Number(service.price) * service.quantity)
     }
     console.log("check service:", selectService)
-    this.listSelectService.push(selectService)
+    this.listSelectService = [
+      ...this.listSelectService.filter(item => !this.isSameService(item, selectService)),
+      selectService
+    ];
+    this.persistSelectionToParent();
   }
   increase(index: number) {
     console.log("chay increase", index)
@@ -146,14 +122,7 @@ export class SelectServiceComponent implements OnInit {
     this.services.update(list => {
       const newList = [...list];
       newList[index] = { ...newList[index], quantity: newList[index].quantity + 1 };
-      // Nếu service đang được chọn thì update luôn selectedService
-      if(this.selectedService[this.roomIndex].selectedServices){
-        const selectedServices = this.selectedService[this.roomIndex].selectedServices;
-        const found = selectedServices.find(s => s.name === newList[index].name);
-        if (found) {
-          found.quantity = newList[index].quantity; // mutation fine ở đây vì selectedService không phải signal
-        }
-      }
+      this.updateSelectedQuantityFromCatalog(newList[index]);
       return newList;
     });
     console.log("check services after", this.services())
@@ -165,14 +134,7 @@ export class SelectServiceComponent implements OnInit {
       if (newList[index].quantity > 1) {
         newList[index] = { ...newList[index], quantity: newList[index].quantity - 1 };
       }
-      // Nếu service đang được chọn thì update luôn selectedService
-      if(this.selectedService[this.roomIndex].selectedServices){
-        const selectedServices = this.selectedService[this.roomIndex].selectedServices;
-        const found = selectedServices.find(s => s.name === newList[index].name);
-        if (found) {
-          found.quantity = newList[index].quantity; // mutation fine ở đây vì selectedService không phải signal
-        }
-      }
+      this.updateSelectedQuantityFromCatalog(newList[index]);
       return newList;
     });
   }
@@ -243,5 +205,78 @@ export class SelectServiceComponent implements OnInit {
       res_service = res.data
     })
     this.servicesSelected.emit(this.listSelectService); // demo id services
+  }
+
+  private hydrateSelectedServices(): void {
+    if (!this.hasServiceCatalogLoaded) {
+      console.log("check has service catalog loaded", this.hasServiceCatalogLoaded)
+      return;
+    }
+    const room = this.selectedService?.[this.roomIndex];
+    console.log("check room", room)
+    const persisted = room?.services ?? [];
+    console.log("check persisted", persisted)
+    this.listSelectService = persisted.map(service => ({ ...service }));
+    console.log("check list select service", this.listSelectService)
+    if (!persisted.length) {
+      this.services.update(list =>
+        list.map(service => ({ ...service, quantity: 1 }))
+      );
+      return;
+    }
+    this.services.update(list =>
+      list.map(service => {
+        const matched = persisted.find(sv => this.isSameService(sv, service));
+        return matched
+          ? { ...service, quantity: matched.quantity ?? service.quantity ?? 1 }
+          : service;
+      })
+    );
+    console.log("check services after hydrate", this.services())
+  }
+
+  private isSameService(source: any, target: any): boolean {
+    // console.log("check source", source)
+    if (!source || !target) {
+      return false;
+    }
+    if (source.uuid && target.uuid) {
+      return source.uuid === target.uuid;
+    }
+    if (source.service_id && target.uuid) {
+      return source.service_id === target.uuid;
+    }
+    if (source.uuid && target.service_id) {
+      return source.uuid === target.service_id;
+    }
+    return source.name === target.name;
+  }
+
+  private persistSelectionToParent(): void {
+    if (!this.selectedService || !this.selectedService[this.roomIndex]) {
+      return;
+    }
+    this.selectedService[this.roomIndex].services = this.listSelectService.map(item => ({ ...item }));
+  }
+
+  private updateSelectedQuantityFromCatalog(service: any): void {
+    if (!service) {
+      return;
+    }
+    let hasUpdate = false;
+    this.listSelectService = this.listSelectService.map(item => {
+      if (this.isSameService(item, service)) {
+        hasUpdate = true;
+        return {
+          ...item,
+          quantity: service.quantity,
+          price: String(Number(service.price) * service.quantity)
+        };
+      }
+      return item;
+    });
+    if (hasUpdate) {
+      this.persistSelectionToParent();
+    }
   }
 }

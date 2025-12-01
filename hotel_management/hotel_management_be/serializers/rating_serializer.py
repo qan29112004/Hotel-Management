@@ -12,6 +12,7 @@ from django.core.files.storage import default_storage
 class RatingSerializer(serializers.ModelSerializer):
     hotel=serializers.PrimaryKeyRelatedField(queryset=Hotel.objects.all())
     booking = serializers.PrimaryKeyRelatedField(queryset=Booking.objects.all())
+    created_by = serializers.SerializerMethodField()
     updated_by = serializers.SerializerMethodField()
     roomtype = serializers.SerializerMethodField()
     class Meta:
@@ -21,6 +22,11 @@ class RatingSerializer(serializers.ModelSerializer):
     def get_updated_by(self, obj):
         return {
             'username':obj.updated_by.username if obj.updated_by else None
+        }
+    def get_created_by(self, obj):
+        return {
+            'username':obj.created_by.username if obj.updated_by else None,
+            'email':obj.created_by.email if obj.created_by else None
         }
         
     def get_roomtype(self, obj):

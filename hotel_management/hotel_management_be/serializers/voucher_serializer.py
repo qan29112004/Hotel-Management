@@ -213,6 +213,126 @@ class VoucherListSerializer(serializers.ModelSerializer):
             )
         return attrs
     
+class VoucherUpdateSerializer(serializers.ModelSerializer):
+    hotels = serializers.ListField(child=serializers.CharField(allow_blank=True), write_only=True, required=False,allow_empty=True)
+
+    class Meta:
+        model = Voucher
+        fields = [
+            "uuid",
+            "name",
+            "code",
+            "description",
+            "discount_type",
+            "discount_value",
+            "discount_percent",
+            "max_discount_amount",
+            "min_order_value",
+            "start_at",
+            "expire_at",
+            "relative_expiry_hours",
+            "max_usage_global",
+            "max_usage_per_user",
+            "status",
+            "requires_claim",
+            "stackable",
+            "total_claimed",
+            "total_used",
+            "conditions",
+            "hotels",
+            "created_by",
+            "updated_by",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ("total_claimed", "total_used", "created_by", "updated_by")
+
+    def validate(self, attrs):
+        discount_type = attrs.get(
+            "discount_type", getattr(self.instance, "discount_type", None)
+        )
+        discount_value = attrs.get(
+            "discount_value", getattr(self.instance, "discount_value", None)
+        )
+        discount_percent = attrs.get(
+            "discount_percent", getattr(self.instance, "discount_percent", None)
+        )
+        start_at = attrs.get("start_at", getattr(self.instance, "start_at", None))
+        expire_at = attrs.get("expire_at", getattr(self.instance, "expire_at", None))
+
+        if discount_type == VoucherConstants.DISCOUNT_FIXED:
+            if discount_value is None or Decimal(discount_value) <= 0:
+                raise serializers.ValidationError(
+                    "Giá trị giảm phải lớn hơn 0 đối với voucher cố định."
+                )
+            attrs["discount_percent"] = None
+        elif discount_type == VoucherConstants.DISCOUNT_PERCENT:
+            if discount_percent is None:
+                raise serializers.ValidationError(
+                    "Vui lòng nhập % giảm giá cho voucher phần trăm."
+                )
+            percent_value = Decimal(discount_percent)
+            if percent_value <= 0 or percent_value > 100:
+                raise serializers.ValidationError(
+                    "Phần trăm giảm giá phải trong khoảng 0 - 100."
+                )
+            attrs["discount_value"] = Decimal(attrs.get("discount_value", 0) or 0)
+        else:
+            raise serializers.ValidationError(
+                "Loại voucher không hợp lệ."
+            )
+
+        if start_at and expire_at and start_at >= expire_at:
+            raise serializers.ValidationError(
+                "Thời gian kết thúc phải sau thời gian bắt đầu."
+            )
+        relative_expiry = attrs.get(
+            "relative_expiry_hours",
+            getattr(self.instance, "relative_expiry_hours", None),
+        )
+        if relative_expiry is not None and relative_expiry <= 0:
+            raise serializers.ValidationError(
+                "Thời gian hiệu lực phải lớn hơn 0 giờ."
+            )
+
+        per_user_limit = attrs.get(
+            "max_usage_per_user", getattr(self.instance, "max_usage_per_user", None)
+        )
+        if per_user_limit is not None and per_user_limit <= 0:
+            raise serializers.ValidationError(
+                "Số lần sử dụng tối đa phải lớn hơn 0."
+            )
+        return attrs
+    def update(self, instance, validated_data):
+        print("validated_data ",validated_data)
+        if 'hotels' in validated_data:
+            new_hotels_uuids = validated_data.pop('hotels', [])
+            if new_hotels_uuids:
+                print("check new hotel: ", new_hotels_uuids)
+                new_hotels = Hotel.objects.filter(uuid__in=new_hotels_uuids)
+
+                current_hotels = instance.hotels.all()
+                current_uuids = set(current_hotels.values_list('uuid', flat=True))
+                new_uuids = set(new_hotels.values_list('uuid', flat=True))
+
+                # Xóa hotel bị bỏ
+                to_delete = current_uuids - new_uuids
+                print("check delete: ", to_delete)
+                # Thêm hotel mới
+                to_add = new_uuids - current_uuids
+                print("check add: ", to_add)
+                # Xóa các khách sạn không có trong danh sách mới
+                if to_delete:
+                    instance.hotels.remove(*to_delete)
+
+                # Thêm các khách sạn mới vào
+                if to_add:
+                    instance.hotels.add(*to_add)
+            else:
+                # Nếu không có khách sạn mới (danh sách rỗng), xóa tất cả các mối quan hệ
+                instance.hotels.clear()
+        
+        return super().update(instance, validated_data)
         
 
 class VoucherBasicSerializer(serializers.ModelSerializer):

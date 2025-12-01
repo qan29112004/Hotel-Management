@@ -57,6 +57,10 @@ class RatePlan(BaseModel):
     is_breakfast = models.BooleanField(default=False)
     guarantee_policy = models.TextField(null=True, blank=True, default='')
     cancellation_policy = models.TextField(null=True, blank=True, default='')
+    # Refund policy fields
+    refund_full_days = models.IntegerField(default=3, help_text="Số ngày kể từ khi booking để được hoàn tiền đầy đủ")
+    refund_partial_days = models.IntegerField(default=6, help_text="Số ngày kể từ khi booking để được hoàn tiền một phần")
+    refund_partial_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=50.00, help_text="Phần trăm hoàn tiền khi hủy trong khoảng refund_full_days đến refund_partial_days")
     
     hotel = models.ForeignKey('hotel_management_be.Hotel', on_delete=models.CASCADE, related_name='rate_plans_hotel', null=True, blank=True)
     def __str__(self):

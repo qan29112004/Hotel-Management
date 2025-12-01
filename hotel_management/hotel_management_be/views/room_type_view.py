@@ -226,7 +226,7 @@ def cal_price_per_night(request):
             ensure_inventory_for_range(hotel.uuid, room_type.uuid, datetime.strptime(check_in, "%Y-%m-%d").date(), datetime.strptime(check_out, "%Y-%m-%d").date())
             ok = RedisUtils.check_inventory_for_range(hotel.uuid, room_type.uuid, check_in, check_out, quantity=1)
             # exist_session, _ = RedisUtils.check_session(session_id)
-            exist_hold = HoldRecord.objects.filter(session__uuid = session_id, room_type=room_type).first()
+            exist_hold = HoldRecord.objects.filter(session__uuid = session_id, room_type=room_type, status='Hold').first()
             if not ok and not exist_hold:continue
 
             all_rooms = room_type.room.filter(status='Available')

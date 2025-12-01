@@ -20,7 +20,7 @@ import {
   transition,
   animate,
 } from '@angular/animations';
-import { fromEvent, Subscription } from 'rxjs';
+import { fromEvent, Subscription, switchMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-booking',
@@ -83,6 +83,7 @@ export class BookingComponent implements OnInit, OnChanges {
   checkInDateObj: Date | null = null;
   checkOutDateObj: Date | null = null;
   private sessionExpiredSub!: Subscription;
+  totalBillObj: { total_bill_vn: number, total_bill_usd: number }
   //hien thi tren component
   get checkInDate(){
     return this.searchData.checkin;
@@ -114,6 +115,10 @@ export class BookingComponent implements OnInit, OnChanges {
     private route: Router,
     
   ) {}
+
+  setCrrRoomIndex(index:number){
+    this.bookingState.currentRoomIndex = index
+  }
 
   ngOnInit(): void {
     this.bookingService.ttl.subscribe(data=>{
@@ -158,7 +163,9 @@ export class BookingComponent implements OnInit, OnChanges {
           "hotel_name":params['hotel'],
           "checkin":params['checkin'],
           "checkout":params['checkout'],
-          "requested_rooms":this.bookingState.rooms.length
+          "requested_rooms":this.bookingState.rooms.length,
+          "session_id":localStorage.getItem("session_id") ? localStorage.getItem("session_id"): '', 
+          "booking_id":localStorage.getItem("booking_id") ? localStorage.getItem("booking_id"): ''
       }
       this.bookingService.getAllRoomTypeSelectRoom({
           "check_in":this.payload['checkin'],
@@ -173,17 +180,20 @@ export class BookingComponent implements OnInit, OnChanges {
         console.log("check list rt:", this.listRoomType)
         console.log("check adasd", this.bookingState)
       })
-      if(!localStorage.getItem('session_id')){
-        this.bookingService.createSessionBooking(this.payload).subscribe(res=>{
+      this.bookingService.createSessionBooking(this.payload).pipe(
+        tap(res => {
           localStorage.setItem('session_id', res.sessionId);
           localStorage.setItem('booking_id', res.bookingId);
+        }),
+        switchMap(res => {
+          return this.bookingService.getListHoldRoom({
+            session_id: res.sessionId
+          });
         })
-      }else{
-        this.bookingService.getListHoldRoom({"session_id":localStorage.getItem('session_id')}).subscribe(res=>{
-          this.list_room_selected = res.data;
-          
-        })
-      }
+      ).subscribe(res => {
+        this.list_room_selected = res.data;
+        console.log("check list room selected:", this.list_room_selected)
+      });
     })
     
   }
@@ -214,7 +224,7 @@ export class BookingComponent implements OnInit, OnChanges {
     if(this.bookingState.currentRoomIndex +1 > this.list_room_selected.length ){
       this.list_room_selected.push(obj);
     }else{
-      this.list_room_selected[this.bookingState.currentRoomIndex] = obj;
+      this.list_room_selected[this.bookingState.currentRoomIndex] = {...this.list_room_selected[this.bookingState.currentRoomIndex], ...obj};
     }
     console.log("check condition:", this.list_room_selected, this.bookingState)
     this.bookingState.currentStep = 'service';
@@ -331,6 +341,13 @@ export class BookingComponent implements OnInit, OnChanges {
   toggleDetail(id:number){
     this.selectedId = this.selectedId === id ? null : id;
   } 
+
+  calculatorPriceAfterApplyVoucher(price:any){
+    console.log("check price discount: ", price)
+    const total_bill_vn = price;
+    const total_bill_usd = price / 25000;
+    this.totalBillObj = {total_bill_vn, total_bill_usd};
+  }
 
   get totalBill(){
     const total_bill_vn = this.list_room_selected.reduce((acc, room) => {

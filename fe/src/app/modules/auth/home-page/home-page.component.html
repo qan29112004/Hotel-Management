@@ -98,7 +98,84 @@
                 </form>
             </div>
         </div>
+        <div class="w-full flex flex-col items-center mt-16 mb-10 px-4">
+            <!-- Title -->
+            <h1 class="font-clearface text-[35px] md:text-[42px] text-center mb-6">
+                Chào mừng bạn đến với Luskibeck
+            </h1>
+        
+            <!-- Content container -->
+            <div class="max-w-3xl text-center text-[16px] md:text-[18px] font-lexend_deca leading-[1.8] text-gray-700 space-y-5">
+        
+                <p>
+                    Thương hiệu khách sạn mang sứ mệnh tạo nên những hành trình lưu trú tinh tế và đầy cảm hứng.
+                    Được xây dựng từ triết lý <span class="italic">“nghỉ dưỡng là nghệ thuật tận hưởng”</span>,
+                    Luskibeck không chỉ là nơi dừng chân mà còn là không gian để mỗi vị khách thư giãn,
+                    cảm nhận và tận hưởng trọn vẹn từng khoảnh khắc.
+                </p>
+        
+                <p>
+                    Mỗi khách sạn trong hệ thống Luskibeck đều được thiết kế theo phong cách trang nhã,
+                    hài hòa với không gian và văn hóa địa phương. Chúng tôi chú trọng từng chi tiết – từ chất lượng phòng nghỉ,
+                    tiện ích đa dạng, dịch vụ chuyên nghiệp cho đến sự tận tâm của đội ngũ nhân viên –
+                    nhằm mang lại trải nghiệm đồng nhất và đáng nhớ.
+                </p>
+        
+                <p>
+                    Nền tảng đặt phòng trực tuyến của Luskibeck giúp bạn dễ dàng tìm kiếm điểm đến, xem thông tin minh bạch,
+                    lựa chọn hạng phòng phù hợp và thanh toán an toàn. Tất cả được tối ưu để mang đến sự tiện lợi và yên tâm tuyệt đối.
+                </p>
+        
+                <p class="font-semibold text-gray-800">
+                    Luskibeck – Nâng tầm trải nghiệm, chạm đến cảm xúc.
+                </p>
+        
+                <p>
+                    Hãy để chúng tôi đồng hành cùng bạn trong mỗi chuyến đi.
+                </p>
+        
+            </div>
+        </div>
+        
+
+        <div class="w-full text-center font-clearface text-[35px] mt-[60px] mb-[10px]">Khám phá các ưu đãi thông qua Luskibeck Hotel</div>
+        <div class="grid grid-cols-2 w-full !h-[750px] px-16 gap-[20px] max-w-[1440px] mb-[45px]">
+            <div class="w-full h-full grid grid-cols-2 gap-[20px]">
+                <div class="relative bg-center bg-no-repeat bg-cover flex flex-col justify-center items-center col-span-2" [style.background-image]="'url('+ ('assets/images/home-page/offer_4.jpg')+ ')'">
+                    <div class="absolute w-full h-full bg-black/20 z-[0]"></div>
+                    <span class="z-[1] font-clearface text-white text-[30px]">Save 20% off</span>
+                    <span class="z-[1] font-avenir text-white text-[20px] underline">View offer</span>
+                </div>
+                <div class="relative bg-center bg-no-repeat bg-cover flex flex-col justify-center items-center" [style.background-image]="'url('+ ('assets/images/home-page/offer_2.jpg')+ ')'">
+                    <div class="absolute w-full h-full bg-black/20 z-[0]"></div>
+                    <span class="z-[1] font-clearface text-white text-[30px]">Stay longer</span>
+                    <span class="z-[1] font-avenir text-white text-[20px] underline">View offer</span>
+                </div>
+                <div class="relative bg-center bg-no-repeat bg-cover flex flex-col justify-center items-center" [style.background-image]="'url('+ ('assets/images/home-page/offer_3.jpg')+ ')'">
+                    <div class="absolute w-full h-full bg-black/20 z-[0]"></div>
+                    <span class="z-[1] font-clearface text-white text-[30px]">Honeymoon</span>
+                    <span class="z-[1] font-avenir text-white text-[20px] underline">View offer</span>
+                </div>
+            </div>
+            <div class="relative bg-center bg-no-repeat bg-cover flex flex-col justify-center items-center w-full h-full" [style.background-image]="'url('+ ('assets/images/home-page/offer_1.jpg')+ ')'">
+                <div class="absolute w-full h-full bg-black/20 z-[0]"></div>
+                <span class="z-[1] font-clearface text-white text-[30px]">Save 30% off</span>
+                    <span class="z-[1] font-avenir text-white text-[20px] underline">View offer</span>
+            </div>
+        </div>
         <div class="flex flex-col items-center justify-center w-full">
+            <div class="slider">
+                <div class="slide-track">
+                    <div *ngFor="let item of listImageExploreHotel" class="slide">
+                        <img [src]="item" />
+                    </div>
+                </div>
+                <div class="slide-track slide-track-reverse">
+                    <div *ngFor="let item of listImageExploreHotel" class="slide">
+                        <img [src]="item" />
+                    </div>
+                </div>
+            </div>
             <div class="flex flex-col items-center justify-center text-center bg-white max-w-[1440px] w-full py-12">
                 <span class="text-[60px] font-classy text-[#9e693d]">{{translocoService.translate('home-page.pioneers.title')}}</span>
                 <div class="relative flex items-center justify-center w-full h-auto max-md:justify-start ">
@@ -117,9 +194,9 @@
                         </div>
                         <div class="p-2 bg-gray-50">
                             <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
-                                <img class="object-cover w-full h-48" src="assets/images/home-page/curated_hotels.jpg" alt="curated_hotels" />
-                                <span class="text-black ext-2xl font-lexend_deca">{{translocoService.translate('home-page.pioneers.pẻ')}}</span>
-                                <p class="text-xl text-black font-avenir">Over 650 hotels in more than 90 countries – vetted each year for the highest of individual quality.</p>
+                                <img class="object-cover w-full h-48" src="assets/images/home-page/perfectly_matched.jpg" alt="curated_hotels" />
+                                <span class="text-black ext-2xl font-lexend_deca">{{translocoService.translate('home-page.pioneers.perfectly_matched')}}</span>
+                                <p class="text-xl text-black font-avenir">{{translocoService.translate('home-page.pioneers.perfectly_matched_content')}}</p>
                                 <div class="flex flex-grow items-end">
 
                                     <a href="#" class="bottom-0 text-base font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Discover Destinations </a>
@@ -128,9 +205,9 @@
                         </div>
                         <div class="p-2 bg-gray-50">
                             <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
-                                <img class="object-cover w-full h-48" src="assets/images/home-page/curated_hotels.jpg" alt="curated_hotels" />
-                                <span class="text-black ext-2xl font-lexend_deca">Emotional Connections</span>
-                                <p class="text-xl text-black font-avenir">Over 650 hotels in more than 90 countries – vetted each year for the highest of individual quality.</p>
+                                <img class="object-cover w-full h-48" src="assets/images/home-page/balloon.jpg" alt="curated_hotels" />
+                                <span class="text-black ext-2xl font-lexend_deca">{{translocoService.translate('home-page.pioneers.emotional_connections')}}</span>
+                                <p class="text-xl text-black font-avenir">{{translocoService.translate('home-page.pioneers.emotional_connections_content')}}</p>
                                 <div class="flex flex-grow items-end">
 
                                     <a href="#" class="bottom-0 text-base font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Explore Hotels </a>

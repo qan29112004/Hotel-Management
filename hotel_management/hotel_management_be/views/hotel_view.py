@@ -142,8 +142,8 @@ def explore_hotels(request):
     
     try:
         if code:
-            hotels = Hotel.objects.filter(offers_hotel__code = code).prefetch_related('RoomType__room')
-        else:hotels = Hotel.objects.all().prefetch_related('RoomType__room')
+            hotels = Hotel.objects.filter(offers_hotel__code = code, status="Active").prefetch_related('RoomType__room')
+        else:hotels = Hotel.objects.filter(status="Active").prefetch_related('RoomType__room')
 
         if des:  # chỉ lọc khi des có giá trị (không None, không rỗng)
             hotels = hotels.filter(destination__uuid=des)
@@ -212,7 +212,7 @@ def explore_hotels(request):
         paginated = my_pagination.paginate_queryset(available_hotels, request)
         serializers = HotelSerializer(paginated, many=True)
         exclude_hotel_id = [hotel.uuid for hotel in available_hotels]
-        paginated_exclude_hotel = my_pagination_1.paginate_queryset(Hotel.objects.exclude(uuid__in =exclude_hotel_id), request, 2)
+        paginated_exclude_hotel = my_pagination_1.paginate_queryset(Hotel.objects.filter(status="Active").exclude(uuid__in =exclude_hotel_id), request, 2)
         serializers_exclude_hotel = HotelSerializer(paginated_exclude_hotel,many=True)
         return AppResponse.success(SuccessCodes.EXPLORE_HOTELS, data={**my_pagination.get_paginated_response(serializers.data),**my_pagination_1.get_paginated_exclude_response(serializers_exclude_hotel.data)})
         
@@ -229,7 +229,7 @@ def check_available_room(request):
     rooms = request.data.get('rooms',[])  
     room_requirements = [room['adults'] + room['children'] for room in rooms]
     
-    hotel = Hotel.objects.get(uuid=hotel_id)
+    hotel = Hotel.objects.get(uuid=hotel_id, status="Active")
     
     # 1) Convert string yyyy-mm-dd → date
     check_in = datetime.strptime(check_in, "%Y-%m-%d").date()

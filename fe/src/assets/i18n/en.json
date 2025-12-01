@@ -1,7 +1,8 @@
 {
     "common": {
         "delete": "Delete",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "delete_confirm_message": "Are you sure you want to delete these records?"
     },
     "success": {
         "AU_S_001": "Login successfully",

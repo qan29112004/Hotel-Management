@@ -187,7 +187,7 @@ export const uriConfig = {
     API_SSE : (session_id:string)=> baseUrl + `/api/sse/session/${session_id}/`,
 
     //websocket
-    WEBSOCKET_URL : 'ws://localhost:8000/ws/chat/',
+    WEBSOCKET_URL : 'ws://192.168.100.135:8000/ws/chat/',
 
     //offer
     API_OFFER_ALL: baseUrl + '/api/offer/list/',
@@ -222,6 +222,11 @@ export const uriConfig = {
 
     //my-booking
     API_MY_BOOKING: baseUrl + '/api/my-booking/list/',
+    
+    //payment
+    API_PAYMENT_REFUND: baseUrl + '/api/payment/refund/',
+    API_PAYMENT_REFUND_INFO: (bookingId: string) => baseUrl + `/api/payment/refund-info/${bookingId}/`,
+    API_PAYMENT_RETRY: baseUrl + '/api/payment/create-payment/',
 
     //chatbot
     API_GET_MESSAGE: baseUrl + '/api/chatbot/get-all-message/',
@@ -237,5 +242,8 @@ export const uriConfig = {
     API_VOUCHER_PREVIEW : baseUrl + '/api/voucher/preview/',
     API_VOUCHER_REDEEM : baseUrl + '/api/voucher/redeem/',
     API_VOUCHER_REVERT : baseUrl + '/api/voucher/revert/',
-    API_VOUCHER_APPLY: baseUrl + '/api/voucher/apply/'
+    API_VOUCHER_APPLY: baseUrl + '/api/voucher/apply/',
+
+    //dashboard
+    API_DASHBOARD_OVERVIEW: baseUrl + '/api/dashboard/overview/',
 };

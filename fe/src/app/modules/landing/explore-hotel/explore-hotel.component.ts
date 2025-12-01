@@ -86,10 +86,9 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
   hotelService = inject(HotelService);
   isOpenFilter:boolean = false;
   isHidden:boolean = false;
-  listImageExploreHotel = [
-    ['assets/images/explore-hotel/images_1.jpg', 'assets/images/explore-hotel/images_2.jpg', 'assets/images/explore-hotel/images_3.jpg'],
-    ['assets/images/explore-hotel/images_1.jpg', 'assets/images/explore-hotel/images_2.jpg', 'assets/images/explore-hotel/images_3.jpg']
-  ];
+  listImageExploreHotel = 
+    ['assets/images/explore-hotel/images_1.jpg', 'assets/images/explore-hotel/images_2.jpg', 'assets/images/explore-hotel/images_3.jpg', 'assets/images/explore-hotel/images_4.jpg', 'assets/images/explore-hotel/images_5.jpg', 'assets/images/explore-hotel/images_6.jpg', 'assets/images/explore-hotel/images_7.jpg', 'assets/images/explore-hotel/images_8.jpg', 'assets/images/explore-hotel/images_9.jpg', 'assets/images/explore-hotel/images_10.jpg', 'assets/images/explore-hotel/images_11.jpg', 'assets/images/explore-hotel/images_12.jpg']
+  ;
   constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone, private activeRoute: ActivatedRoute, private router: Router) {}
 
   get checkInDate(){

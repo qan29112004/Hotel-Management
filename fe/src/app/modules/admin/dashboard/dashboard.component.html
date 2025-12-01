@@ -1,0 +1,126 @@
+<div class="flex flex-col w-full h-full gap-6 p-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold">Dashboard KPI tổng quan</h1>
+            <p class="text-sm text-gray-500">
+                Tổng hợp các chỉ số chính: doanh thu, booking, tỷ lệ lấp phòng, người dùng, đánh giá.
+            </p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div class="col-span-1 p-4 bg-white shadow rounded-2xl">
+            <div class="mb-1 text-xs text-gray-500">Doanh thu năm nay này</div>
+            <div class="mb-1 text-2xl font-semibold">{{totalRevenue | currency:'VND':'symbol':'1.0-0'}}</div>
+        </div>
+
+        <div class="col-span-1 p-4 bg-white shadow rounded-2xl">
+            <div class="mb-1 text-xs text-gray-500">Tổng booking</div>
+            <div class="mb-1 text-2xl font-semibold">1</div>
+        </div>
+
+        <div class="col-span-1 p-4 bg-white shadow rounded-2xl">
+            <div class="mb-1 text-xs text-gray-500">Tỷ lệ lấp phòng trung bình</div>
+            <div class="mb-1 text-2xl font-semibold">{{avrOccupancy | number:'1.0-0'}}%</div>
+        </div>
+
+        <div class="flex items-center justify-between col-span-1 p-4 bg-white shadow rounded-2xl">
+            <div>
+                <div class="mb-1 text-xs text-gray-500">Đánh giá trung bình</div>
+                <div class="flex items-baseline gap-2">
+                    <div class="text-2xl font-semibold">{{ data.rating.averageRating }}</div>
+                    <div class="text-xs text-gray-400">/ 5.0</div>
+                </div>
+                <div class="mt-1 text-xs text-gray-500">{{ data.rating.totalReviews }} đánh giá</div>
+            </div>
+            <div class="flex gap-1">
+                <ng-container *ngFor="let star of stars">
+                    <app-rating [starId]="star" [rating]="data.rating.averageRating" >
+                    </app-rating>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <div class="p-4 bg-white shadow xl:col-span-2 rounded-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <div class="text-sm font-semibold">Doanh thu theo tháng & tuần</div>
+                    <div class="text-xs text-gray-500">Biểu đồ line</div>
+                    <button type="button" (click)="setViewRevenue('month',data)">Tháng</button>
+                    <button type="button" (click)="setViewRevenue('week',data)">Tuần</button>
+                </div>
+            </div>
+            <apx-chart
+                #revenueChart
+                [series]="revenueChartOptions.series"
+                [chart]="revenueChartOptions.chart"
+                [xaxis]="revenueChartOptions.xaxis"
+                [dataLabels]="revenueChartOptions.dataLabels"
+                [stroke]="revenueChartOptions.stroke"
+                [colors]="revenueChartOptions.colors"
+                [legend]="revenueChartOptions.legend"
+            ></apx-chart>
+        </div>
+
+        <div class="p-4 bg-white shadow rounded-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <div class="text-sm font-semibold">Booking theo trạng thái</div>
+                    <div class="text-xs text-gray-500">Pending, Confirm, Cancelled, Check In, Check Out, Expired</div>
+                </div>
+            </div>
+            <apx-chart
+                #bookingStatusChart
+                [series]="bookingStatusChartOptions.series"
+                [chart]="bookingStatusChartOptions.chart"
+                [labels]="bookingStatusChartOptions.labels"
+                [legend]="bookingStatusChartOptions.legend"
+                [dataLabels]="bookingStatusChartOptions.dataLabels"
+                [colors]="bookingStatusChartOptions.colors"
+            ></apx-chart>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <div class="p-4 bg-white shadow xl:col-span-2 rounded-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <div class="text-sm font-semibold">Tỷ lệ lấp phòng theo khách sạn</div>
+                    <div class="text-xs text-gray-500">Số phòng được đặt / tổng phòng (từ booking room)</div>
+                </div>
+            </div>
+            <apx-chart
+                #occupancyChart
+                [series]="occupancyChartOptions.series"
+                [chart]="occupancyChartOptions.chart"
+                [xaxis]="occupancyChartOptions.xaxis"
+                [yaxis]="occupancyChartOptions.yaxis"
+                [plotOptions]="occupancyChartOptions.plotOptions"
+                [dataLabels]="occupancyChartOptions.dataLabels"
+                [colors]="occupancyChartOptions.colors"
+            ></apx-chart>
+        </div>
+
+        <div class="p-4 bg-white shadow rounded-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <div class="text-sm font-semibold">Tổng số người dùng theo tháng</div>
+                    <div class="text-xs text-gray-500">Biểu đồ line</div>
+                </div>
+            </div>
+            <apx-chart
+                #userChart
+                [series]="userChartOptions.series"
+                [chart]="userChartOptions.chart"
+                [xaxis]="userChartOptions.xaxis"
+                [dataLabels]="userChartOptions.dataLabels"
+                [stroke]="userChartOptions.stroke"
+                [colors]="userChartOptions.colors"
+            ></apx-chart>
+        </div>
+    </div>
+</div>
+
+

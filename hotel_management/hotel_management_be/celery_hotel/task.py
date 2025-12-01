@@ -22,7 +22,7 @@ def handle_room_hold_released(event):
 
     # DB update
     HoldRecord.objects.filter(uuid=hold_id).delete()
-
+    HoldRecordService.objects.filter(hold__uuid=hold_id).delete()
     # Xoá Redis nếu còn
     RedisUtils.delete_hold_in_redis(hold_id)
 
@@ -127,6 +127,8 @@ def monitor_session_task(self, session_id, booking_id):
     }
     logger.info(f"Publishing session {session_id}: exist={exist}, ttl={ttl}")
     RedisUtils.r.publish("session_status_channel", json.dumps(message))
+    session = BookingSession.objects.get(uuid = session_id)
+    booking = Booking.objects.get(uuid = booking_id)
     # === QUAN TRỌNG: LÊN LỊCH LẠI DỰA TRÊN TTL THỰC TẾ ===
     if exist and ttl not in (None, 0):
         # Lên lịch chạy lại ngay trước hoặc SAU khi hết hạn
@@ -136,7 +138,6 @@ def monitor_session_task(self, session_id, booking_id):
             countdown = ttl + 5  # chạy SAU khi hết hạn 5s → chắc chắn bắt được exist=False
     else:
         # Key không tồn tại hoặc hết hạn → không lên lịch nữa
-        booking = Booking.objects.get(uuid = booking_id)
         if (
             not booking.user_email or
             not booking.user_fullname or
@@ -146,7 +147,7 @@ def monitor_session_task(self, session_id, booking_id):
         elif(booking.status not in ["Confirm","Cancelled","Check In", "Check Out", "Paid"]):
             booking.status = 'Expired'
             booking.save()
-        BookingSession.objects.get(uuid = session_id).delete()
+        session.delete()
         return
 
     self.apply_async((session_id,booking_id), countdown=countdown)
@@ -189,8 +190,18 @@ def set_booking_room(session_id, booking_id):
     booked_room = BookingRoom.objects.filter(Q(booking_id__check_in__lt=booking.check_out)& Q(booking_id__check_out__gt=booking.check_in)).exclude(
             status='Release'
         )
+    print("check booked room: ", booked_room)
     conflict_room_ids = booked_room.values_list("room_id", flat=True)
     for hold in hold_records:
+        if(hold.room_index+1 > booking.total_rooms):
+            RedisUtils.atomic_increment_inventory_for_range(
+                hold.session.hotel_id,
+                hold.room_type_id,
+                hold.checkin.isoformat(),
+                hold.checkout.isoformat(),
+                hold.quantity
+            )
+            hold.delete()
         # Lấy danh sách room thuộc roomtype này, đang available
         available_rooms = list(Room.objects.filter(
             room_type_id=hold.room_type, status="Available"
@@ -203,6 +214,8 @@ def set_booking_room(session_id, booking_id):
 
         # Random các phòng
         selected_rooms = random.sample(available_rooms, hold.quantity)
+        print("check available room: ",available_rooms)
+        print("check random room: ",selected_rooms)
 
         nights = (hold.checkout - hold.checkin).days
         price_per_night = Decimal(hold.total_price) / Decimal(max(nights, 1) * hold.quantity)
@@ -229,6 +242,7 @@ def set_booking_room(session_id, booking_id):
                     quantity=hs.quantity,
                     price=hs.price,
                 )
+        
             
 @shared_task
 def send_booking_email(data: dict):
@@ -271,3 +285,33 @@ def expire_status_voucher_and_claim():
     for claim in claims:
         claim.status = "Expired"
         claim.save()
+
+@shared_task
+def expire_pending_bookings():
+    """
+    Kiểm tra và cập nhật booking Pending thành Expired nếu quá 3 giờ sau khi thanh toán thất bại
+    """
+    from django.utils import timezone
+    from datetime import timedelta
+    from hotel_management_be.models.booking import Booking, Payment
+    
+    three_hours_ago = timezone.now() - timedelta(hours=3)
+    expired_bookings = Booking.objects.filter(
+        status="Pending",
+        updated_at__lt=three_hours_ago
+    )
+    
+    count = 0
+    for booking in expired_bookings:
+        # Kiểm tra xem có payment Fail nào không
+        failed_payments = Payment.objects.filter(booking=booking, status="Fail")
+        if failed_payments.exists():
+            booking.status = "Expired"
+            booking.save()
+            count += 1
+            logger.info(f"Expired booking {booking.uuid} after 3 hours of failed payment")
+    
+    if count > 0:
+        logger.info(f"Expired {count} pending bookings")
+    
+    return count

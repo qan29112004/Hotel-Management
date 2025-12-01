@@ -16,6 +16,7 @@ from hotel_management_be.views.sse_view import *
 from hotel_management_be.views.service_view import *
 from hotel_management_be.views.rating_view import *
 from hotel_management_be.views.voucher_view import *
+from hotel_management_be.views.dashboard_view import dashboard_overview
 
 
 
@@ -99,8 +100,12 @@ urlpatterns = [
     
     
     path('payment_ipn/', payment_ipn),
+    # path('payment/return/', payment_return, name="payment_return"),
     path("payment/create-payment/", create_payment, name="create_payment"),
     path("payment/paypal-capture/", paypal_capture, name="paypal_capture"),
+    path("payment/check-expiration/", check_booking_expiration, name="check_booking_expiration"),
+    path("payment/refund/", process_refund, name="process_refund"),
+    path("payment/refund-info/<str:booking_id>/", get_refund_info, name="get_refund_info"),
     # path("paypal/capture/", paypal_capture),
     
     
@@ -121,4 +126,7 @@ urlpatterns = [
     path('voucher/redeem/', redeem_voucher),
     path('voucher/revert/', revert_voucher_usage),
     path('voucher/<str:uuid>/', voucher_detail),
+
+    # Dashboard KPI
+    path('dashboard/overview/', dashboard_overview),
 ]

@@ -194,7 +194,11 @@ class SuccessCodes:
 
     #LOGIN HISTORY
     LOGIN_HISTORY_SUCCESS = ("LOGIN_HISTORY_SUCCESS","Loading login history successfully!")
+    
+    SUCCESS_REFUND_INFO = ("SUCCESS_REFUND_INFO", "load info refun")
 
+    SUCCESS_CHECK_EXPIRE_REFUND = ('SUCCESS_CHECK_EXPIRE_REFUND','SUCCESS_CHECK_EXPIRE_REFUND')
+    SUCCESS_REFUND = ("SUCCESS_REFUND","SUCCESS_REFUND")
     @classmethod
     def get_success(cls, message):
         return getattr(cls, message, cls.DEFAULT)

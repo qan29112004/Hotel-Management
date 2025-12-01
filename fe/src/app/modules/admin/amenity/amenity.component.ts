@@ -56,6 +56,13 @@ import { AmenityService } from 'app/core/admin/amenity/amenity.service';
   ],
   templateUrl: './amenity.component.html',
   styles: [`
+    /* Custom override to ensure sharp edges on material components if global styles don't cover it */
+    :host ::ng-deep .mat-mdc-form-field-flex {
+        border-radius: 0 !important;
+    }
+    :host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+        border-radius: 0 !important;
+    }
   `]
 })
 export class AmenityComponent implements OnInit {
@@ -124,7 +131,7 @@ export class AmenityComponent implements OnInit {
           labelKey: 'amenity.name',
           type: 'text',
           placeholderKey: 'amenity.enterFullName',
-          autocompleteOptions: [], // Sẽ được cập nhật động
+          autocompleteOptions: [], 
       },
       {
           name: 'created_at',
@@ -158,26 +165,16 @@ export class AmenityComponent implements OnInit {
   openFilterDropdowns = new Set<string>();
   externalFilters: any = {};
   filterToggleBtnRef!: ElementRef;
-  selectedCreateAt : string = '';
+  
   // Sắp xếp
   sortField: string | null = null;
   sortOption: 'asc' | 'desc' | null = null;
 
-
   // Show popup
   showEditUser: boolean = false;
   showAddUser: boolean = false;
-  showImport: boolean = false;
   showFilter: boolean = false;
-  showFilterModal: boolean = false;
   showDeleteDialog:boolean = false; 
-  // Form data for create/edit
-  amenityForm = {
-    name: '',
-    description: ''
-  };
-  editingAmenity: Amenity | null = null;
-  showForm = false;
 
   constructor(
     public translocoService: TranslocoService,
@@ -194,7 +191,6 @@ export class AmenityComponent implements OnInit {
     this.userService.user$.subscribe((user)=>{
       this.user = user;
     })
-    console.log(this.showFilter)
   }
 
   loadAmenitys(): void {
@@ -238,6 +234,10 @@ export class AmenityComponent implements OnInit {
   toggleFilterDrawer(): void {
         this.showFilter = !this.showFilter;
     }
+  
+  toggleEditFilterDrawer():void{
+      this.showFilter = !this.showFilter;
+  }
 
   onFilterDrawerOpenedChanged(opened: boolean): void {
       this.showFilter = opened;
@@ -269,15 +269,6 @@ export class AmenityComponent implements OnInit {
     this.searchTerm = '';
     this.currentPage = 1;
     this.loadAmenitys();
-  }
-
-  showCreateForm(): void {
-    this.editingAmenity = null;
-    this.amenityForm = {
-      name: '',
-      description: ''
-    };
-    this.showForm = true;
   }
 
   sortBy(field: string) {
@@ -342,8 +333,8 @@ export class AmenityComponent implements OnInit {
 
         // filter từ bộ lọc
         if (this.externalFilters && Array.isArray(this.externalFilters)) {
-    filters.push(...this.externalFilters);
-  }
+            filters.push(...this.externalFilters);
+        }
 
         return filters;
     }
@@ -357,102 +348,9 @@ export class AmenityComponent implements OnInit {
     };
   }
 
-  hideForm(): void {
-    this.showForm = false;
-    this.editingAmenity = null;
-    this.amenityForm = {
-      name: '',
-      description: ''
-    };
-  }
-
-  saveAmenity(): void {
-    if (!this.amenityForm.name.trim()) {
-      this._alertService.showAlert({
-        title: 'Validation Error',
-        message: 'Name is required',
-        type: 'error'
-      });
-      return;
-    }
-
-    const amenityData: any = {
-      name: this.amenityForm.name.trim(),
-      description: this.amenityForm.description.trim()
-    };
-
-    if (this.editingAmenity) {
-      // Update existing amenity
-      this.amenityService.updateAmenity(this.editingAmenity.uuid, amenityData).subscribe({
-        next: () => {
-          this._alertService.showAlert({
-            title: 'Success',
-            message: 'Amenity updated successfully',
-            type: 'success'
-          });
-          this.hideForm();
-          this.loadAmenitys();
-        },
-        error: (error) => {
-          this._alertService.showAlert({
-            title: 'Error',
-            message: 'Failed to update amenity',
-            type: 'error'
-          });
-          console.error('Error updating amenity:', error);
-        }
-      });
-    } else {
-      // Create new amenity
-      this.amenityService.createAmenity(amenityData as any).subscribe({
-        next: () => {
-          this._alertService.showAlert({
-            title: 'Success',
-            message: 'Amenity created successfully',
-            type: 'success'
-          });
-          this.hideForm();
-          this.loadAmenitys();
-        },
-        error: (error) => {
-          this._alertService.showAlert({
-            title: 'Error',
-            message: 'Failed to create amenity',
-            type: 'error'
-          });
-          console.error('Error creating amenity:', error);
-        }
-      });
-    }
-  }
-
-  deleteAmenity(amenity: Amenity): void {
-    if (confirm(`Are you sure you want to delete "${amenity.name}"?`)) {
-      this.amenityService.deleteAmenity(amenity.uuid).subscribe({
-        next: () => {
-          this._alertService.showAlert({
-            title: 'Success',
-            message: 'Amenity deleted successfully',
-            type: 'success'
-          });
-          this.loadAmenitys();
-        },
-        error: (error) => {
-          this._alertService.showAlert({
-            title: 'Error',
-            message: 'Failed to delete amenity',
-            type: 'error'
-          });
-          console.error('Error deleting amenity:', error);
-        }
-      });
-    }
-  }
-
   async toggleEditUserDrawer(amenity?: Amenity) {
       if (amenity) {
         this.selectedDes=amenity;
-        console.log("selected: ", this.selectedDes)
       }
       this.showEditUser = !this.showEditUser;
       if (this.showEditUser) {
@@ -497,9 +395,7 @@ export class AmenityComponent implements OnInit {
       const date = new Date(timestamp * 1000); // chuyển từ giây sang mili-giây
       return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm', '+0700');
   }
-  toggleEditFilterDrawer():void{
-      this.showFilter = !this.showFilter;
-  }
+  
   onDrawerOpenedChanged(opened: boolean): void {
       this.showEditUser = opened;
   }
@@ -515,6 +411,7 @@ export class AmenityComponent implements OnInit {
   }
   deleteHandler(id: string): Observable<any> {
     this.selectedIds=[]
+    this.hasSelectedAmenity = false;
     return this.amenityService.deleteAmenity(id);
   }
 
@@ -523,10 +420,7 @@ export class AmenityComponent implements OnInit {
         this.selectedIds = [...this.selectedIds, uuid];
       }
       this.showDeleteDialog = !this.showDeleteDialog;
-      console.log("OPEN DELETE DIALOG", this.showDeleteDialog)
   }
-
-  
 
   toggleAllRows(event: Event): void {
       const checked = (event.target as HTMLInputElement).checked;
@@ -539,6 +433,5 @@ export class AmenityComponent implements OnInit {
             .filter((user) => user.selected)
             .map((user) => user.uuid);
     this.hasSelectedAmenity = this.selectedIds.length >= 1;
-    console.log(this.hasSelectedAmenity)
   }
 }

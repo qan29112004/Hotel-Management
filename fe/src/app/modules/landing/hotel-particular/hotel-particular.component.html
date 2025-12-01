@@ -407,12 +407,12 @@
                             (bigClick)="updateRating(star)">
                         </app-rating>
                     </ng-container>
-                    <span class="text-black font-clearface text-[30px]"></span>
+                    <span class="text-black font-clearface text-[30px]">{{rating.rating}}</span>
                 </div>
                 <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">{{rating.subject}}</h3>
                 <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">{{rating.review}}</p>
                 <div class="flex gap-8">
-                    <span class="font-avenir text-[16px] font-normal">By <span class="font-bold font-lexend_deca">{{rating.createdBy}}</span></span>
+                    <span class="font-avenir text-[16px] font-normal">By <span class="font-bold font-lexend_deca">{{rating.createdBy.email}}</span></span>
                     <span class="font-avenir text-[16px] font-normal">At <span class="font-bold font-lexend_deca">{{formatISODate(rating.createdAt)}}</span></span>
                 </div>
             </div>

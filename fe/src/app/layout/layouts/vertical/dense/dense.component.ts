@@ -425,6 +425,9 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     @HostListener('window:scroll', [])
     onWindowScroll() {
+        if (this.isAdminPage) {
+            return;
+        }
         const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
         this.isScrollDown = scrollY > 1; // thay đổi ngưỡng tùy bạn
     }

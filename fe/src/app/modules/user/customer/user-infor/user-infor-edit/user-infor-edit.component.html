@@ -8,7 +8,7 @@
         <div class="relative w-full">
             <!-- Header -->
             <div class="flex items-center justify-between mb-4 text-lg max-sm:flex-col max-sm:gap-3 max-sm:items-start">
-                <span class="text-3xl font-semibold lg:text-2xl">
+                <span class="text-[30px] font-clearface font-semibold ">
                     {{ t("user_infor.title") }}
                 </span>
                 <div class="flex items-center gap-2 max-sm:self-end max-sm:justify-end">
@@ -16,10 +16,10 @@
                     <button
                         *ngIf="isEditMode"
                         (click)="toggleEditMode()"
-                        class="flex items-center justify-between gap-2 px-3 text-gray-700 bg-gray-300 rounded-md h-9"
+                        class="flex items-center justify-between gap-2 px-3 font-lexend_deca font-bold text-white bg-red-600  h-9"
                     >
                         <mat-icon
-                            class="text-gray-700 icon-size-6"
+                            class="text-white icon-size-6"
                             svgIcon="heroicons_outline:x-circle"
                         ></mat-icon>
                         <span class="text-sm lg:text-base">{{
@@ -29,7 +29,7 @@
                     <button
                         *ngIf="isEditMode"
                         (click)="saveChanges()"
-                        class="flex items-center justify-between gap-2 px-3 text-white rounded-md sm:mr-8 bg-primary h-9"
+                        class="flex items-center justify-between gap-2 px-3 font-lexend_deca font-bold text-white sm:mr-8 bg-primary h-9"
                         [disabled]="phoneInput?.invalid"
                     >
                         <mat-icon
@@ -276,7 +276,7 @@
                             
                         </tbody>
                     </table>
-                    <button type='button' *ngIf="!isEditMode" (click)="toggleEditMode()" class="flex items-center self-start justify-center w-auto h-auto gap-2 px-8 py-3 rounded-md bg-primary">
+                    <button type='button' *ngIf="!isEditMode" (click)="toggleEditMode()" class="flex items-center self-start justify-center w-auto h-auto gap-2 px-8 py-3 bg-primary">
                         <div class="text-xl text-white material-icons">border_color</div>
                         <span class="text-xl font-semibold text-white font-lexend_deca">{{ t("user_infor.btn_edit") }}</span>
                     </button>

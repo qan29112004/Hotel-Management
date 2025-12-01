@@ -1,4 +1,10 @@
 class HotelConstants:
+    CLASSIFICATION = (
+        ("CLUB1", "CLUB1"),
+        ("CLUB2", "CLUB2"),
+        ("CLUB3", "CLUB3")
+    )
+    
     HOTEL_STATUS = (
         ("Active", "Active"),
         ('Inactive', 'Inactive')
@@ -39,7 +45,6 @@ class HotelConstants:
         ('Cancelled', 'Cancelled'),
         ('Check In','Check In'),
         ('Check Out','Check Out'),
-        ('Paid', 'Paid'),
         ('Expired', 'Expired')
     )
     

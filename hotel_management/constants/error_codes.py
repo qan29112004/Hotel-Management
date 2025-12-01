@@ -13,6 +13,11 @@ class ErrorCodes:
         "INVALID_SIGNATURE",
         StatusCodes.BAD_REQUEST
     )
+    INVALID_PARAMS = (
+        'INVALID_PARAMS',
+        'INVALID_PARAMS',
+        StatusCodes.BAD_REQUEST
+    )
     UNKNOWN_ERROR = (
         "UNKNOWN_ERROR",
         "Unknown error occurred",

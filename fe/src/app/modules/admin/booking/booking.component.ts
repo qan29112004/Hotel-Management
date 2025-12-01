@@ -55,9 +55,17 @@ import { HotelService } from 'app/core/admin/hotel/hotel.service';
     MatProgressSpinnerModule,
     MatTooltipModule],
   templateUrl: './booking.component.html',
-  styles: ``
+  styles: [`
+    /* Custom override to ensure sharp edges on material components if global styles don't cover it */
+    :host ::ng-deep .mat-mdc-form-field-flex {
+        border-radius: 0 !important;
+    }
+    :host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+        border-radius: 0 !important;
+    }
+  `]
 })
-export class BookingComponent {
+export class BookingComponent implements OnInit {
   fields: FieldConfig[] =[
     {
         name: 'uuid',
@@ -336,6 +344,27 @@ export class BookingComponent {
     console.log(this.showFilter)
   }
 
+  /**
+   * Returns Tailwind CSS classes for status badges based on status value.
+   * Vivid colors for high contrast management UI.
+   */
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'Pending':
+        return 'bg-amber-100 text-amber-900 border-amber-500';
+      case 'Confirm':
+        return 'bg-blue-100 text-blue-900 border-blue-600';
+      case 'Check In':
+        return 'bg-emerald-100 text-emerald-900 border-emerald-600';
+      case 'Check Out':
+        return 'bg-slate-200 text-slate-900 border-slate-600';
+      case 'Cancelled':
+        return 'bg-rose-100 text-rose-900 border-rose-600';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-400';
+    }
+  }
+
   loadSelectedHotel(){
     if(this.hotelService.getHotelData.length > 0){
       this.hotelService.hotel$.pipe(
@@ -396,21 +425,6 @@ export class BookingComponent {
       }
     });
   }
-
-  // loadAutocompleteOptions(): void {
-  //     // Cập nhật autocomplete options cho trường name
-  //     this.bookingService.getBooking({ page_index: 1, page_size: 1000 }).subscribe({
-  //         next: (response) => {
-  //             const nameField = this.filterFields.find(f => f.name === 'title');
-  //             if (nameField) {
-  //                 nameField.autocompleteOptions = response.data.map((dest: Booking) => dest.title);
-  //             }
-  //         },
-  //         error: (error) => {
-  //             console.error('Error loading autocomplete options:', error);
-  //         }
-  //     });
-  // }
 
   toggleFilterDrawer(): void {
         this.showFilter = !this.showFilter;
@@ -612,6 +626,7 @@ export class BookingComponent {
   }
   deleteHandler(id: string): Observable<any> {
     this.selectedIds=[]
+    this.hasSelectedBooking = false;
     return this.bookingService.deleteBooking(id);
   }
 

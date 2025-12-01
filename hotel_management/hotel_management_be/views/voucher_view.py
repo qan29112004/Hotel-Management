@@ -20,6 +20,7 @@ from hotel_management_be.serializers.voucher_serializer import (
     VoucherRedeemSerializer,
     VoucherRevertSerializer,
     VoucherApplySerializer,
+    VoucherUpdateSerializer
 )
 from libs.querykit.querykit import Querykit
 from libs.querykit.querykit_serializer import QuerykitSerializer
@@ -160,7 +161,7 @@ def _apply_voucher_to_booking_internal(booking, voucher_code, user, order_total,
             return False, error_code, error_message, None
         
         discount = context["discount"]
-        
+        finalTotal= context["order_total"] - context["discount"],
         # Chỉ lưu code và discount amount, CHƯA trừ usage
         booking.voucher_code = voucher.code
         booking.voucher_discount_amount = discount
@@ -285,7 +286,7 @@ def voucher_detail(request, uuid):
         voucher = Voucher.objects.prefetch_related("hotels").get(uuid=uuid)
 
         if request.method == "PATCH":
-            serializer = VoucherListSerializer(
+            serializer = VoucherUpdateSerializer(
                 voucher, data=request.data, partial=True, context={"request": request}
             )
             if serializer.is_valid():
@@ -641,11 +642,11 @@ def apply_voucher(request):
             #     )
             
             # Nếu đã có voucher này rồi
-            if booking.voucher_code == _normalize_code(code):
-                return AppResponse.error(
-                    ErrorCodes.VOUCHER_ALREADY_APPLIED,
-                    "Voucher đã được áp dụng cho booking này.",
-                )
+            # if booking.voucher_code == _normalize_code(code):
+            #     return AppResponse.error(
+            #         ErrorCodes.VOUCHER_ALREADY_APPLIED,
+            #         "Voucher đã được áp dụng cho booking này.",
+            #     )
             
             # Apply voucher (chỉ lưu code, chưa redeem)
             success, error_code, error_message, discount = _apply_voucher_to_booking_internal(

@@ -54,7 +54,7 @@ export const MY_DATE_FORMATS = {
             transition('hidden => visible', animate('600ms ease-out')),
         ])
     ],
-    styles: ``,
+    styleUrls:['./home-page.component.scss'],
     providers: [{ provide: 'translocoScope', useValue: 'home-page' },
                 { provide: MAT_DATE_LOCALE, useValue: 'en-US' },
                 { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
@@ -81,6 +81,11 @@ export class HomePageComponent implements OnInit {
     roomList = [
         {adults:1, children:0}
     ];
+    listImageExploreHotel = 
+        ['assets/images/explore-hotel/images_1.jpg', 'assets/images/explore-hotel/images_2.jpg', 'assets/images/explore-hotel/images_3.jpg', 'assets/images/explore-hotel/images_4.jpg', 'assets/images/explore-hotel/images_5.jpg', 'assets/images/explore-hotel/images_6.jpg', 'assets/images/explore-hotel/images_7.jpg', 'assets/images/explore-hotel/images_8.jpg', 'assets/images/explore-hotel/images_9.jpg', 'assets/images/explore-hotel/images_10.jpg', 'assets/images/explore-hotel/images_11.jpg', 'assets/images/explore-hotel/images_12.jpg']
+    ;
+
+    
     @ViewChild('pickerCheckin') pickerCheckin!: MatDatepicker<Date>;
     @ViewChild('pickerCheckout') pickerCheckout!: MatDatepicker<Date>;
 

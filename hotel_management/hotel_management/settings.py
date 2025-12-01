@@ -128,7 +128,8 @@ VNPAY_CONFIG = {
     "vnp_TmnCode": os.getenv("VNPAY_TMN_CODE"),
     "vnp_HashSecret": os.getenv("VNPAY_HASH_SECRET"),
     "vnp_Url": os.getenv("VNPAY_PAYMENT_URL"),
-    "vnp_ReturnUrl": os.getenv("VNPAY_RETURN_URL")
+    "vnp_ReturnUrl": os.getenv("VNPAY_RETURN_URL"),
+    "vnp_RefundUrl": os.getenv("VNP_REFUND_URL")
 }
 
 # Password validation

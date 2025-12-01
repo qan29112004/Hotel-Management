@@ -1,7 +1,8 @@
 {
     "common": {
         "delete": "Xóa",
-        "cancel": "Hủy"
+        "cancel": "Hủy",
+        "delete_confirm_message": "Bạn có chắc chắn muốn xóa các bản ghi này không?"
     },
     "success": {
         "AU_S_001": "Đăng nhập thành công",
@@ -195,7 +196,7 @@
         "pioneers":{
             "title":"Người tiên phong trong lĩnh vực sang trọng cao cấp",
             "curated_hotels":"Khách sạn được tuyển chọn kỹ lưỡng",
-            "curated_hotels_content":"Hơn 650 khách sạn tại hơn 90 quốc gia - được kiểm tra hàng năm để đảm bảo chất lượng cá nhân cao nhất.",
+            "curated_hotels_content":"Các khách sạn được kiểm tra hàng năm để đảm bảo chất lượng cá nhân cao nhất.",
             "perfectly_matched":"Phù hợp hoàn hảo",
             "perfectly_matched_content":"Chúng tôi hiểu sở thích cá nhân của bạn và mang đến cho bạn những trải nghiệm được cá nhân hóa phù hợp với phong cách và mong muốn của bạn.",
             "emotional_connections":"Kết nối cảm xúc",

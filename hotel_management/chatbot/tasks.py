@@ -33,3 +33,10 @@ def embed_pending_data():
         doc.save()
     
     return f"Embedded {len(pending)} docs"
+
+@shared_task
+def delete_embedded_data(id):
+    vector_store = VectorStore()
+    list_ids = []
+    list_ids.append(id)
+    vector_store.delete_documents(list_ids)

@@ -76,9 +76,9 @@ export class AuthChangePasswordComponent implements OnInit {
      */
     ngOnInit(): void {
         // Create the form
-        this._authLayoutService.setImage('assets/images/auth/new-password.png');
-        this._authLayoutService.setTitle('Change the password. Secure.');
-        this._authLayoutService.setTitleDes('Make things better for you');
+        // this._authLayoutService.setImage('assets/images/auth/new-password.png');
+        // this._authLayoutService.setTitle('Change the password. Secure.');
+        // this._authLayoutService.setTitleDes('Make things better for you');
         this.resetPasswordForm = this._formBuilder.group(
             {
                 password: ['', Validators.required],

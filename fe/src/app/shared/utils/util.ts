@@ -97,7 +97,7 @@ export function timeDate(timeString:string): Date {
 }
 
 export function formatISODate(isoString: string): string {
-    const date = new Date(isoString);
+    const date = new Date(Number(isoString)*1000);
 
     const day = date.getDate();
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
@@ -112,4 +112,9 @@ export function formatISODate(isoString: string): string {
     if (hours === 0) hours = 12;
 
     return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
+}
+
+export function formatDate(date: any): string {
+  const d = new Date(date);  // ép về Date object
+  return d.toISOString().split('T')[0];
 }

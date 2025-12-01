@@ -63,3 +63,59 @@ class PayPalService:
         except requests.exceptions.HTTPError as e:
             print(e.response.json())
         return response.json()
+    
+    @staticmethod
+    def get_capture_info(capture_id):
+        access_token = PayPalService.get_access_token()
+        config = settings.PAYPAL_CONFIG
+        url = f"{config['base_url']}/v2/payments/captures/{capture_id}"
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}",
+        }
+
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        return response.json()
+    
+    @staticmethod
+    def refund_payment(capture_id, amount=None, currency="USD", note=""):
+        """
+        Hoàn tiền cho PayPal payment
+        
+        Args:
+            capture_id: ID của capture transaction (transaction_id từ Payment)
+            amount: Số tiền hoàn (None = full refund)
+            currency: Loại tiền tệ
+            note: Ghi chú
+        
+        Returns:
+            dict: Kết quả refund từ PayPal
+        """
+        print("check refund paypal: ", capture_id, amount, currency)
+        cap = PayPalService.get_capture_info(capture_id)
+        access_token = PayPalService.get_access_token()
+        config = settings.PAYPAL_CONFIG
+        url = f"{config['base_url']}/v2/payments/captures/{capture_id}/refund"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}"
+        }
+        
+        payload = {}
+        if amount:
+            payload["amount"] = {
+                "value": f"{float(amount):.2f}",
+                "currency_code": currency
+            }
+        if note:
+            payload["note_to_payer"] = note
+        
+        try:
+            response = requests.post(url, headers=headers, json=payload if payload else None)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError as e:
+            error_data = e.response.json() if e.response.content else {}
+            raise Exception(f"PayPal refund failed: {error_data}")

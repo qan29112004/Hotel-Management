@@ -8,6 +8,8 @@ from django.core.files.storage import default_storage
 from hotel_management_be.models.hotel import Hotel, Room
 from hotel_management_be.models.offer import RatePlan, Service
 from hotel_management_be.models.voucher import Voucher
+from hotel_management_be.serializers.rating_serializer import RatingSerializer
+
 
 class BookingSerializer(serializers.ModelSerializer):
     hotel_id = serializers.PrimaryKeyRelatedField(queryset = Hotel.objects.all())
@@ -58,6 +60,7 @@ class MyBookingSerializer(serializers.ModelSerializer):
     updated_by = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
     booking_room = serializers.SerializerMethodField()
+    currency = serializers.SerializerMethodField()
     class Meta:
         model = Booking
         fields = [
@@ -80,7 +83,8 @@ class MyBookingSerializer(serializers.ModelSerializer):
             'created_by',
             'updated_by',
             'created_at',
-            'updated_at'
+            'updated_at',
+            'currency'
         ]
     
     def get_updated_by(self,obj):
@@ -95,14 +99,10 @@ class MyBookingSerializer(serializers.ModelSerializer):
         if rating is None:
             return None
         
-        return {
-            'uuid': getattr(rating, 'uuid', None),
-            "review": getattr(rating, 'review', ''),
-            'rating': getattr(rating, 'rating', 0),
-            'subject': getattr(rating, 'subject', ''),
-            'created_by': getattr(rating.created_by, 'email', None) if rating.created_by else None,
-            'created_at': getattr(rating, 'created_datetime', None)
-        }
+        return RatingSerializer(rating).data
+    def get_currency(self, obj):
+        payment = obj.payments.first()
+        return payment.currency
     def get_booking_room(self,obj):
         booking_rooms = obj.booking_booking_room.select_related('room_id', 'room_id__room_type_id', 'rate_plan_id').prefetch_related(Prefetch(
             'booking_room_service',
@@ -129,6 +129,8 @@ class MyBookingSerializer(serializers.ModelSerializer):
         
         
 class CreateSessionSerializer(serializers.Serializer):
+    session_id =serializers.CharField(required=False, allow_blank=True)
+    booking_id= serializers.CharField(required=False, allow_blank=True)
     hotel_name = serializers.CharField()
     checkin = serializers.DateField()
     checkout = serializers.DateField()
@@ -208,7 +210,7 @@ class HoldServiceSerializer(serializers.ModelSerializer):
 class HoldRecordServiceReadSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='service.name', read_only=True)
     type = serializers.CharField(source='service.type', read_only=True)
-
+    uuid = serializers.CharField(source='service.uuid', read_only=True)
     class Meta:
         model = HoldRecordService
         fields = ['uuid', 'name', 'type', 'quantity', 'price']

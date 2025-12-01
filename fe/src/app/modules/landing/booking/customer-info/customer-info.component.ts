@@ -51,7 +51,7 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
   @Input() rooms!: any[];
   @Input() billVND:any;
   @Input()billUSD:any;
-  @Output() submitBooking = new EventEmitter<any>();
+  @Output() priceAfterApplyVoucher = new EventEmitter<any>();
   @Input() bookingState:any;
   @Input() dataBooking:any;
   @Input() dataRate:any[];
@@ -115,9 +115,6 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
     return this.getTotalAdults() + this.getTotalChildren();
   } 
 
-  submitForm() {
-    this.submitBooking.emit(this.info);
-  }
   selectCountry(country:any){
     if(country){
       console.log("emit country: ", country)
@@ -221,7 +218,7 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
     this.previewLoadingCode = claim.voucher.code;
     const payload = {
       code: claim.voucher.code,
-      order_total: Number(this.billVND) || 0,
+      order_total: Math.round(Number(this.billVND) || 0),
       hotel_id: this.dataBooking?.hotel_id || null
     };
     this.voucherService.previewVoucher(payload).pipe(
@@ -249,13 +246,14 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
     const payload = {
       code: claim.voucher.code,
       booking_uuid: localStorage.getItem('booking_id') || 'mock-booking-id',
-      order_total: Number(this.billVND) || 0
+      order_total:Math.round(Number(this.billVND) || 0)
     };
     this.voucherService.applyVoucher(payload).pipe(
       takeUntil(this.destroy)
     ).subscribe({
       next:(res)=>{
         this.applyVoucherMessage = res.data;
+        this.priceAfterApplyVoucher.emit(this.applyVoucherMessage.finalTotal)
         this.applyLoadingCode = null;
       },
       error:(err)=>{
@@ -298,6 +296,7 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
           num_guest: this.getTotalGuests(),
           total_rooms: this.getTotalRooms(),
           total_price: this.billUSD,
+          session_id:localStorage.getItem("session_id"),
           booking_id : localStorage.getItem('booking_id'),
           currency: 'USD'
         };

@@ -12,15 +12,22 @@ import logging
 from constants.error_codes import ErrorCodes
 import difflib
 import datetime
-from datetime import time
+from datetime import time, datetime
 import holidays
 import requests
-from django.conf import settings
 from hotel_management_be.models.offer import PriceRule, Service
-import hashlib, hmac, urllib.parse
 from datetime import datetime
 from django.conf import settings
-
+import random
+import string
+import hashlib
+import hmac
+import json
+import urllib
+import urllib.parse
+import urllib.request
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import render, redirect
 
 
 
@@ -166,7 +173,7 @@ class Utils:
         today = timezone.now().date()
         overlap_booking = hotel.hotel_booking.filter(~Q(status__in=['Cancelled', 'Rejected']), Q(check_in__gte=date)& Q(check_out__lte=date),)
         booked_room_uuids = BookingRoom.objects.filter(
-            booking_id__in=overlap_booking
+            booking_id__in=overlap_booking, status="Booked"
         ).values_list('room_id', flat=True)
         all_room_hotel = Room.objects.filter(room_type_id__hotel_id = hotel)
         if booked_room_uuids and all_room_hotel:
@@ -176,7 +183,7 @@ class Utils:
                 price_rule = PriceRule.objects.get(rule_type = 'Occupancy')
                 percentage += price_rule.multiplier
                 print("check per value: ",percentage)
-        offers = hotel.offers_hotel.all()
+        offers = hotel.offers_hotel.filter(is_active=True)
         for offer in offers:
             if(offer.amount_days and offer.amount_days < number_of_day):
                 percentage += offer.discount_percentage
@@ -220,7 +227,6 @@ class Utils:
             
             is_has_available_room = Utils.check_availavle_room_in_a_date(d, hotel, list_total_room)
             if d.weekday() >=5:
-                print(f"{d} | weekday={d.weekday()} | weekend={d.weekday() >= 5}")
                 final_price *= weekend_mul
             if Utils.is_holiday(d):
                 final_price *= holiday_mul
@@ -340,18 +346,18 @@ class Utils:
         all_room = 0
         room_type_of_hotel = hotel.RoomType.all().prefetch_related('room')
         overlapping_bookings = Booking.objects.filter(
-            Q(check_in__lte=date) & Q(check_out__gte=date),
+            Q(check_in__lte=date) & Q(check_out__gt=date),
             ~Q(status__in=['Cancelled', 'Rejected']),
             hotel_id = hotel
         )
-        print('check booking overlap: ', overlapping_bookings)
+        print('check booking overlap check avail: ', overlapping_bookings)
         
         booked_room_uuids = BookingRoom.objects.filter(
             booking_id__in=overlapping_bookings
         ).exclude(
             status='Release'
         ).values_list('room_id', flat=True)
-        print('check room booking overlap: ', booked_room_uuids)
+        print('check room booking overlap check avail: ', booked_room_uuids)
         
         available_rooms = []
 
@@ -400,7 +406,7 @@ class Utils:
         )
         
         booked_room_uuids = BookingRoom.objects.filter(
-            booking_id__in=overlapping_bookings
+            booking_id__in=overlapping_bookings, status="Booked"
         ).values_list('room_id', flat=True)
         
         return set(booked_room_uuids)
@@ -669,4 +675,68 @@ class Utils:
         if hour_12 == 0:
             hour_12 = 12
         return f"{hour_12}:{minute:02d} {ampm}"
+    
+    @staticmethod
+    def refund_vnpay(booking,transaction_id, amount, transaction_date, transaction_type="03", request=None):
+        """
+        Gửi yêu cầu hoàn trả cho VNPay
+        
+        Args:
+            transaction_id: Mã giao dịch cần hoàn trả (vnp_TransactionNo)
+            amount: Số tiền hoàn trả (Decimal)
+            transaction_date: Ngày giao dịch (YYYYMMDDHHmmss)
+            transaction_type: Loại hoàn trả (03 = full, 04 = partial)
+            request: Django request object
+        
+        Returns:
+            dict: Kết quả từ VNPay
+        """
+        import requests
+        vnp = settings.VNPAY_CONFIG
+        vnp_url = vnp.get("vnp_RefundUrl", vnp["vnp_Url"].replace("/payment.html", "/refund.html"))
+        n = random.randint(10**11, 10**12 - 1)
+        n_str = str(n)
+        while len(n_str) < 12:
+            n_str = '0' + n_str
+        amount_vnd = int(amount * 100)  # VNPay yêu cầu số tiền tính bằng xu
+        
+        client_ip = "127.0.0.1"
+        if request:
+            client_ip = Utils.get_client_ip(request)
+        secret_key = vnp['vnp_HashSecret']
+        params = {
+            "vnp_Version": "2.1.0",
+            "vnp_RequestId": n_str,
+            "vnp_Command": "refund",
+            "vnp_TmnCode": vnp["vnp_TmnCode"],
+            "vnp_TransactionType": transaction_type,
+            "vnp_Amount": str(amount_vnd),
+            "vnp_CreateDate": datetime.now().strftime("%Y%m%d%H%M%S"),
+            "vnp_TransactionDate": transaction_date,
+            "vnp_TransactionNo": transaction_id,
+            "vnp_TxnRef": booking.uuid,
+            "vnp_CreateBy":booking.user_fullname,
+            "vnp_OrderInfo": f"Refund for transaction {transaction_id}",
+            "vnp_IpAddr": client_ip
+        }
+        
+        hash_data = "|".join([
+            n_str, '2.1.0', "refund", vnp["vnp_TmnCode"],
+            booking.uuid, transaction_date, datetime.now().strftime("%Y%m%d%H%M%S"),
+            client_ip, f"Refund for transaction {transaction_id}"
+        ])
+
+        secure_hash = hmac.new(secret_key.encode(), hash_data.encode(), hashlib.sha512).hexdigest()
+
+        params["vnp_SecureHash"] = secure_hash
+        headers = {"Content-Type": "application/json"}
+        # Gửi request đến VNPay
+        try:
+            response = requests.post(vnp_url, headers=headers, data=json.dumps(params))
+            response.raise_for_status()
+            print("check response vnpay: ", response.text)
+            # VNPay trả về HTML hoặc JSON tùy config, cần parse
+            return {"success": True, "refund_id": booking.uuid, "response": response.text}
+        except Exception as e:
+            return {"success": False, "error": str(e), "refund_id": booking.uuid}
     

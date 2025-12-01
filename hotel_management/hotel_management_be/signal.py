@@ -133,11 +133,32 @@ def update_status_room_book(sender, instance, **kwargs):
             room.housekeeping_status = 'Dirty'
             room.save()
             room.refresh_from_db()
-            room.status = "Release"
+            room.status = "Maintenance"
+            room.save()
+            room.refresh_from_db()
+            br.status = "Release"
+            br.save()
+            print(">>> AFTER:", room.status)
+            roomtype_id = room.room_type_id.uuid
+            RedisUtils.atomic_increment_inventory_for_range(
+                hotel_id=hotel_id,
+                room_type_id=roomtype_id,
+                checkin=str(instance.check_in),
+                checkout=str(instance.check_out),
+                quantity=1
+            )
+    elif(instance.status in ["Expired","Cancelled"]):
+        print(">>> SIGNAL RUNNING CHECK OUT<<<")
+        for br in booking_room:
+            room = br.room_id
+            print("check status", room.status)
+            room.status = "Available"
             room.save()
             room.refresh_from_db()
 
             print(">>> AFTER:", room.status)
+            br.status = "Release"
+            br.save()
             roomtype_id = room.room_type_id.uuid
             RedisUtils.atomic_increment_inventory_for_range(
                 hotel_id=hotel_id,
@@ -152,7 +173,7 @@ def update_status_room_book(sender, instance, **kwargs):
 def update_status_room_book_when_delete(sender, instance, **kwargs):
     print(">>> SIGNAL RUNNING <<<")
     booking_room = instance.booking_booking_room.select_related('room_id')
-    
+    hotel_id = instance.hotel_id.uuid
     for room in booking_room:
         print("check status", room.room_id.status)
         room.room_id.status='Available'
@@ -160,6 +181,14 @@ def update_status_room_book_when_delete(sender, instance, **kwargs):
         room.room_id.refresh_from_db()
 
         print(">>> AFTER:", room.room_id.status)
+        roomtype_id = room.room_type_id.uuid
+        RedisUtils.atomic_increment_inventory_for_range(
+            hotel_id=hotel_id,
+            room_type_id=roomtype_id,
+            checkin=str(instance.check_in),
+            checkout=str(instance.check_out),
+            quantity=1
+        )
         
 @receiver(post_save, sender=VoucherClaim)
 def update_status(sender, instance, **kwargs):

@@ -57,4 +57,24 @@ export class BookingService {
         })),
     )
   }
+
+  // Refund methods
+  getRefundInfo(bookingId: string): Observable<any> {
+    return this.http.get<any>(uriConfig.API_PAYMENT_REFUND_INFO(bookingId)).pipe(
+      map(res => res.data)
+    );
+  }
+
+  processRefund(bookingId: string): Observable<any> {
+    return this.http.post<any>(uriConfig.API_PAYMENT_REFUND, { booking_id: bookingId }).pipe(
+      map(res => res.data)
+    );
+  }
+
+  // Retry payment
+  retryPayment(payload: any): Observable<any> {
+    return this.http.post<any>(uriConfig.API_PAYMENT_RETRY, payload).pipe(
+      map(res => res.data)
+    );
+  }
 }

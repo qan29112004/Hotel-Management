@@ -27,10 +27,11 @@
             type="text"
             class="voucher-input"
             placeholder="Nhập mã voucher tại đây"
+            class="placeholder:font-lexend_deca font-lexend_deca !bg-white !w-full"
             [(ngModel)]="voucherCode"
             (keyup.enter)="saveVoucherCode()"
             />
-            <button class="save-btn" (click)="saveVoucherCode()">Lưu</button>
+            <button class="save-btn bg-yellow-500 text-black font-avenir" (click)="saveVoucherCode()">Lưu</button>
         </div>
         </div>
 

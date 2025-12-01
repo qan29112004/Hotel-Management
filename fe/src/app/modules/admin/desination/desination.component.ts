@@ -60,6 +60,13 @@ import { environment } from 'environments/environment.fullstack';
   ],
   templateUrl: './desination.component.html',
   styles: [`
+    /* Custom override to ensure sharp edges on material components if global styles don't cover it */
+    :host ::ng-deep .mat-mdc-form-field-flex {
+        border-radius: 0 !important;
+    }
+    :host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+        border-radius: 0 !important;
+    }
   `]
 })
 export class DesinationComponent implements OnInit {
@@ -175,13 +182,6 @@ export class DesinationComponent implements OnInit {
   showFilter: boolean = false;
   showFilterModal: boolean = false;
   showDeleteDialog:boolean = false; 
-  // Form data for create/edit
-  destinationForm = {
-    name: '',
-    description: ''
-  };
-  editingDestination: Destination | null = null;
-  showForm = false;
 
   constructor(
     public translocoService: TranslocoService,
@@ -198,7 +198,6 @@ export class DesinationComponent implements OnInit {
     this.userService.user$.subscribe((user)=>{
       this.user = user;
     })
-    console.log(this.showFilter)
   }
 
   loadDestinations(): void {
@@ -243,6 +242,10 @@ export class DesinationComponent implements OnInit {
         this.showFilter = !this.showFilter;
     }
 
+  toggleEditFilterDrawer():void{
+      this.showFilter = !this.showFilter;
+  }
+
   onFilterDrawerOpenedChanged(opened: boolean): void {
       this.showFilter = opened;
   }
@@ -275,23 +278,6 @@ export class DesinationComponent implements OnInit {
     this.loadDestinations();
   }
 
-  showCreateForm(): void {
-    this.editingDestination = null;
-    this.destinationForm = {
-      name: '',
-      description: ''
-    };
-    this.showForm = true;
-  }
-
-  showEditForm(destination: Destination): void {
-    this.editingDestination = destination;
-    this.destinationForm = {
-      name: destination.name || '',
-      description: destination.description || ''
-    };
-    this.showForm = true;
-  }
   sortBy(field: string) {
       if (this.sortField === field) {
           if (this.sortOption === 'asc') {
@@ -369,98 +355,6 @@ export class DesinationComponent implements OnInit {
     };
   }
 
-  hideForm(): void {
-    this.showForm = false;
-    this.editingDestination = null;
-    this.destinationForm = {
-      name: '',
-      description: ''
-    };
-  }
-
-  saveDestination(): void {
-    if (!this.destinationForm.name.trim()) {
-      this._alertService.showAlert({
-        title: 'Validation Error',
-        message: 'Name is required',
-        type: 'error'
-      });
-      return;
-    }
-
-    const destinationData: DestinationCreateRequest | DestinationUpdateRequest = {
-      name: this.destinationForm.name.trim(),
-      description: this.destinationForm.description.trim()
-    };
-
-    if (this.editingDestination) {
-      // Update existing destination
-      this.destinationService.updateDestination(this.editingDestination.uuid, destinationData).subscribe({
-        next: () => {
-          this._alertService.showAlert({
-            title: 'Success',
-            message: 'Destination updated successfully',
-            type: 'success'
-          });
-          this.hideForm();
-          this.loadDestinations();
-        },
-        error: (error) => {
-          this._alertService.showAlert({
-            title: 'Error',
-            message: 'Failed to update destination',
-            type: 'error'
-          });
-          console.error('Error updating destination:', error);
-        }
-      });
-    } else {
-      // Create new destination
-      this.destinationService.createDestination(destinationData as DestinationCreateRequest).subscribe({
-        next: () => {
-          this._alertService.showAlert({
-            title: 'Success',
-            message: 'Destination created successfully',
-            type: 'success'
-          });
-          this.hideForm();
-          this.loadDestinations();
-        },
-        error: (error) => {
-          this._alertService.showAlert({
-            title: 'Error',
-            message: 'Failed to create destination',
-            type: 'error'
-          });
-          console.error('Error creating destination:', error);
-        }
-      });
-    }
-  }
-
-  deleteDestination(destination: Destination): void {
-    if (confirm(`Are you sure you want to delete "${destination.name}"?`)) {
-      this.destinationService.deleteDestination(destination.uuid).subscribe({
-        next: () => {
-          this._alertService.showAlert({
-            title: 'Success',
-            message: 'Destination deleted successfully',
-            type: 'success'
-          });
-          this.loadDestinations();
-        },
-        error: (error) => {
-          this._alertService.showAlert({
-            title: 'Error',
-            message: 'Failed to delete destination',
-            type: 'error'
-          });
-          console.error('Error deleting destination:', error);
-        }
-      });
-    }
-  }
-
   async toggleEditUserDrawer(destination?: Destination) {
       if (destination) {
         this.selectedDes=destination;
@@ -469,20 +363,20 @@ export class DesinationComponent implements OnInit {
       this.showEditUser = !this.showEditUser;
       if (this.showEditUser) {
         // ✅ Lazy import component chỉ khi cần
-        const { GenericEditComponent } = await import('app/shared/components/generic-components');
         const componentRef = this.editContainer.createComponent(GenericEditComponent);
+        const instance = componentRef.instance as any;
 
         // ✅ Truyền Input cho component
-        componentRef.instance.showDrawer = true;
-        componentRef.instance.titleKey = 'destination.detail';
-        componentRef.instance.fields = this.fields;
-        componentRef.instance.entityData = this.selectedDes;
-        componentRef.instance.saveHandler = this.saveHandler.bind(this);
-        componentRef.instance.loadData = this.loadDestinations.bind(this);
+        instance.showDrawer = true;
+        instance.titleKey = 'destination.detail';
+        instance.fields = this.fields;
+        instance.entityData = this.selectedDes;
+        instance.saveHandler = this.saveHandler.bind(this);
+        instance.loadData = this.loadDestinations.bind(this);
 
         // ✅ Lắng nghe sự kiện Output
-        componentRef.instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
-        componentRef.instance.drawerOpenedChanged.subscribe((opened: boolean) => {
+        instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
+        instance.drawerOpenedChanged.subscribe((opened: boolean) => {
           this.showEditUser = opened;
           if (!opened) {
             this.editContainer.clear(); // clear component khi đóng
@@ -509,9 +403,7 @@ export class DesinationComponent implements OnInit {
       const date = new Date(timestamp * 1000); // chuyển từ giây sang mili-giây
       return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm', '+0700');
   }
-  toggleEditFilterDrawer():void{
-      this.showFilter = !this.showFilter;
-  }
+  
   onDrawerOpenedChanged(opened: boolean): void {
       this.showEditUser = opened;
   }
@@ -527,6 +419,7 @@ export class DesinationComponent implements OnInit {
   }
   deleteHandler(id: string): Observable<any> {
     this.selectedIds=[]
+    this.hasSelectedDestination = false;
     return this.destinationService.deleteDestination(id);
   }
 
@@ -537,8 +430,6 @@ export class DesinationComponent implements OnInit {
       this.showDeleteDialog = !this.showDeleteDialog;
       console.log("OPEN DELETE DIALOG", this.showDeleteDialog)
   }
-
-  
 
   toggleAllRows(event: Event): void {
       const checked = (event.target as HTMLInputElement).checked;

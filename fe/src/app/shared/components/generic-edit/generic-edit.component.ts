@@ -146,7 +146,7 @@ export class GenericEditComponent implements OnInit {
         // Xử lý preview từ entityData cho file/files
         console.log("entity: ", this.entityData)
         console.log("select: ", this.optionDestination)
-        
+        console.log("checkboc: ", this.optionRadio)
         this.fields.forEach((field) => {
             if (field.type === 'file' || field.type === 'files') {
                 this.selectedFiles[field.name] = field.type === 'file' ? null : [];
@@ -189,6 +189,7 @@ export class GenericEditComponent implements OnInit {
                     this.displayCheckbox[f[`${field.name}Name`]] = f[`${field.name}Icon`] || null; 
                     console.log(this.displayCheckbox, this.selectedRadioValues)
                 });
+                console.log("check display checkbox: ", this.displayCheckbox)
             }
             
         });

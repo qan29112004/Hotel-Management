@@ -9,7 +9,7 @@ import shortuuid
 
 
 class Booking(BaseModel):
-    uuid = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
+    uuid = ShortUUIDField(primary_key=True, unique=True, max_length=100, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
     user_email = models.CharField(max_length=200, null=True, blank=True)
     user_fullname = models.CharField(max_length=200, null=True, blank=True, default='')
     user_phone=models.CharField(max_length=200, null=True, blank=True, default='')
@@ -19,8 +19,10 @@ class Booking(BaseModel):
     check_out = models.DateField()
     num_guest = models.IntegerField(default = 0)
     total_price = models.DecimalField(max_digits=30, decimal_places=10, default = 0)
+    price_in_vnd = models.DecimalField(max_digits=30, decimal_places=10, default = 0)
     status = models.CharField(max_length=20, choices=HotelConstants.BOOKING_STATUS, null=True, blank=True)
     total_rooms = models.IntegerField(default=0)
+    session_id = models.CharField(max_length=100, null=True, blank=True)
     voucher = models.ForeignKey('hotel_management_be.Voucher', on_delete=models.SET_NULL, null=True, blank=True, related_name='bookings')
     voucher_code = models.CharField(max_length=50, null=True, blank=True)
     voucher_discount_amount = models.DecimalField(max_digits=30, decimal_places=10, default=0)
@@ -85,7 +87,7 @@ class BookingSession(BaseModel):
     """
     Logical session that groups multiple holds (ephemeral). We persist minimal info for audit.
     """
-    uuid = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
+    uuid = ShortUUIDField(primary_key=True, unique=True, max_length=100, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
     hotel = models.ForeignKey('hotel_management_be.Hotel', on_delete=models.CASCADE)
     checkin = models.DateField()
     checkout = models.DateField()
@@ -107,6 +109,7 @@ class HoldRecord(BaseModel):
     user_email = models.CharField(max_length=255, blank=True, default='')
     checkin = models.DateField()
     checkout = models.DateField()
+    room_index = models.IntegerField(default=0)
     total_price = models.DecimalField(max_digits=30, decimal_places=10, default=0)
     status = models.CharField(max_length=20, choices=HotelConstants.HOLD_RECORD, default='Hold')  # HOLD, CONFIRMED, EXPIRED, RELEASED
     expires_at = models.DateTimeField(null=True, blank=True)

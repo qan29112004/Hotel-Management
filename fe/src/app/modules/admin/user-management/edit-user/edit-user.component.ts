@@ -100,7 +100,7 @@ export class EditUserComponent implements OnInit {
             fullName: [''],
             gender: ['other'],
             address: [''],
-            password:['', [Validators.required]],
+            password:[''],
             status: [''],
             role: [''],
             birthday: ['', [AuthUtils.birthDateValidator()]],

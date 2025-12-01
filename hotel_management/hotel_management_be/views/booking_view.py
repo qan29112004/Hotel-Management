@@ -122,6 +122,8 @@ def create_booking_session(request):
     serializer = CreateSessionSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     data = serializer.validated_data
+    session_id = data['session_id']
+    booking_id = data['booking_id']
     hotel_name = data['hotel_name']
     checkin = data['checkin']
     checkout = data['checkout']
@@ -130,47 +132,45 @@ def create_booking_session(request):
     hotel = Hotel.objects.get(name=hotel_name)
     # create session record with expires_at
     expires_at = timezone.now() + timedelta(seconds=SESSION_TTL_SECONDS)
-    session = (
-        BookingSession.objects
-        .filter(
-            hotel=hotel,
-            checkin=checkin,
-            checkout=checkout,
-            expires_at__gt=timezone.now(),  # chỉ lấy session còn hiệu lực
-        )
-        .first()
+    exist, _ = RedisUtils.check_session(session_id)
+    print("check exist session", exist)
+    if not session_id or not exist:
+        session_id = str(uuid4())
+    session, session_created = BookingSession.objects.update_or_create(
+        uuid=session_id,               # ★ Check đúng uuid
+        defaults={
+            "hotel": hotel,
+            "checkin": checkin,
+            "checkout": checkout,
+            "requested_rooms": requested_rooms,
+            "expires_at": expires_at,
+            "created_by": request.user if request.user else None
+        }
     )
-
-    if session:
-        created = False
-    else:
-        session = BookingSession.objects.create(
-            hotel=hotel,
-            checkin=checkin,
-            checkout=checkout,
-            requested_rooms=requested_rooms,
-            expires_at=expires_at,
-            created_by= request.user if request.user else None
-        )
-        created = True
-    booking = Booking.objects.create(
-        hotel_id=hotel,
-        check_in=checkin,
-        check_out=checkout, 
-        status="Pending",  
-        created_by= request.user if request.user else None
+    print("check session request rôm: ", session.requested_rooms)
+    if not booking_id:
+        booking_id = str(uuid4())
+    booking, booking_created = Booking.objects.update_or_create(
+        uuid=booking_id,               # ★ Check đúng uuid
+        defaults={
+            "hotel_id": hotel,
+            "check_in": checkin,
+            "check_out": checkout,
+            "status": "Pending",
+            "created_by": request.user if request.user else None
+        }
     )
-
     # store minimal session pointer in redis (not mandatory)
-    RedisUtils.r.hset(RedisUtils.session_key(str(session.uuid)), mapping={
-        "hotel_id": str(hotel.uuid),
-        "checkin": checkin.isoformat(),
-        "checkout": checkout.isoformat(),
-        "requested_rooms": str(requested_rooms),
-        "created_at": timezone.now().isoformat()
-    })
-    RedisUtils.r.expire(RedisUtils.session_key(str(session.uuid)), SESSION_TTL_SECONDS)
-    monitor_session_task.delay(str(session.uuid), str(booking.uuid))
+    if session_created:
+        RedisUtils.r.hset(RedisUtils.session_key(str(session.uuid)), mapping={
+            "hotel_id": str(hotel.uuid),
+            "checkin": checkin.isoformat(),
+            "checkout": checkout.isoformat(),
+            "requested_rooms": str(requested_rooms),
+            "created_at": timezone.now().isoformat()
+        })
+        RedisUtils.r.expire(RedisUtils.session_key(str(session.uuid)), SESSION_TTL_SECONDS)
+        monitor_session_task.delay(str(session.uuid), str(booking.uuid))
     return Response({
         "session_id": str(session.uuid),
         "booking_id":str(booking.uuid),
@@ -253,6 +253,7 @@ def create_hold(request):
         "quantity": quantity,
         "checkin": checkin,
         "checkout": checkout,
+        "room_index":room_index,
         "user_id": user_id,
         "user_email": user_email,
         "total_price":float(total_price),
@@ -270,6 +271,7 @@ def create_hold(request):
         rate_plan=rate_plan,
         user_email=user_email or '',
         checkin=session.checkin,
+        room_index=room_index,
         checkout=session.checkout,
         total_price =total_price,
         status='Hold',
@@ -358,8 +360,11 @@ def get_list_hold_room(request):
         for hid in hold_ids:
             hid_s = hid.decode() if isinstance(hid, bytes) else str(hid)
             h = RedisUtils.get_hold_from_redis(hid_s)
-            if h:
+            print("check list hold room: ",h['room_index'] +1, session.requested_rooms )
+            if h and h['room_index'] +1 <= session.requested_rooms:
                 holds.append(h)
+            else:
+                RedisUtils.delete_hold_in_redis(hid)
         return AppResponse.success(SuccessCodes.GET_LIST_ROOM_HOLD, holds)
     except Exception as e:
         return AppResponse.error(ErrorCodes.GET_LIST_ROOM_HOLD_FAIL, str(e))
@@ -379,7 +384,7 @@ def add_and_update_service_to_hold_record(request):
         room_index = request.data.get('room_index',0)
         services = request.data.get('services',[])
         print("service", services)
-        service_id = [{'service':s['service_id']} for s in services if 'service_id' in s]
+        service_id = [{'service':s['service_id'], 'quantity':s['quantity']} for s in services if 'service_id' in s]
         print('service_id', service_id)
         session_id = request.data.get('session_id','')
         existing_hold_id = RedisUtils.get_hold_for_room(session_id, room_index)
@@ -408,7 +413,7 @@ def add_and_update_service_to_hold_record(request):
 @api_view(['POST'])
 def list_my_booking(request):
     try:
-        list_booking = Booking.objects.exclude(status__in =['Expired','Pending'])
+        list_booking = Booking.objects.exclude(status__in =['Expired'])
         paginated_booking, total = Querykit.apply_filter_paginate_search_sort(request=request, queryset=list_booking).values()
         serializers = MyBookingSerializer(paginated_booking, many=True)
         return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data, 'total':total})

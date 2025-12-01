@@ -144,6 +144,14 @@ export const appRoutes: Route[] = [
                         'app/modules/landing/voucher/voucher.route'
                     ),
             },
+            {
+                path: routeConfig.AUTH_CHANGE_PASS,
+                data: { title: 'change_password.title' },
+                loadChildren: () =>
+                    import(
+                        'app/modules/auth/change-password/change-password.routes'
+                    ),
+            },
         ],
     },
 
@@ -192,6 +200,12 @@ export const appRoutes: Route[] = [
             {
                 path: routeConfig.ROUTER_ADMIN,
                 children: [
+                    {
+                        path: routeConfig.DASH_BOARD,
+                        data: { title: 'dashboard.title' },
+                        loadChildren: () =>
+                            import('app/modules/admin/dashboard/dashboard.routes'),
+                    },
                     {
                         path: routeConfig.APP_TYPE,
                         data: { title: 'app_type.title' },
@@ -463,6 +477,12 @@ export const appRoutes: Route[] = [
                 data: { title: 'home-page.title' },
                 loadChildren: () =>
                     import('app/modules/landing/success-booking/success-booking.routes'),
+            },
+            {
+                path: routeConfig.OFFER + '/:slug',
+                data: { title: 'home-page.title' },
+                loadChildren: () =>
+                    import('app/modules/landing/offer-detail/offer-detail.route'),
             },
             {
                 path: ':slug',
