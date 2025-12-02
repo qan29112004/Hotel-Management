@@ -1,6 +1,6 @@
 <div class='flex items-start justify-start w-full'>  
     <div class="flex flex-col w-full pr-5 shrink">
-        <button (click)="completeService()" type="button" class="px-[15px] py-[20px] bg-black text-white font-[14px] font-lexend_deca cursor-pointer">booking.continue</button>
+        <button (click)="completeService()" type="button" class="px-[15px] py-[20px] bg-black text-white font-[14px] font-lexend_deca cursor-pointer">{{'booking.continue'| transloco}}</button>
         <ng-container *ngFor="let service of services(); let i = index">
             <div class="bg-[#f4f4f4] w-full p-5 mb-5">
                 <div class="flex flex-col w-full p-5 bg-white">
@@ -10,7 +10,6 @@
                                 <!-- Swiper -->
                                 <swiper-container
                                     #swiperEl
-                                    init="false"
                                     class="overflow-hidden aspect-[3/2]"
                                 >
                                     <swiper-slide>
@@ -27,7 +26,7 @@
                                 </div>
                                 <pre class="font-avenir text-[14px]">{{service.description}}</pre>
                                 <div class='w-full p-4 flex justify-between mt-[20px] border border-[#d4d4d4]'>
-                                    <span class='text-[16px] font-avenir text-black'>booking.per_person</span>
+                                    <span class='text-[16px] font-avenir text-black'>{{'booking.per_person'| transloco}}</span>
                                     <div class='flex items-center gap-2'>
                                         <mat-icon (click)="decrease(i)" class="text-black cursor-pointer">do_not_disturb_on</mat-icon>
                                         <span>{{reAttachQuantity(service)?reAttachQuantity(service):service.quantity}}</span>
@@ -36,15 +35,15 @@
                                 </div>
                                 <div class="mt-[30px] flex justify-end gap-[20px] items-center">
                                     <div class="flex flex-col gap-1">
-                                        <span class="font-lexend_deca text-[18px] font-bold">{{+service.price | currency:'VND':'symbol':'1.0-0'}} <span class="font-avenir text-[13px] text-black">booking.per_person</span></span>
+                                        <span class="font-lexend_deca text-[18px] font-bold">{{+service.price | currency:'VND':'symbol':'1.0-0'}} <span class="font-avenir text-[13px] text-black">{{'booking.per_person'| transloco}}</span></span>
                                         <span class="font-avenir text-[13px] text-[#787878]">~ {{convertVNDToUSD(service.price)| currency:'USD':'symbol-narrow':'1.0-2'}}</span>
                                     </div>
                                     <ng-container *ngIf="checkIsSelect(service); else removeSelect">
-                                        <button (click)="removeService(service)" type="button" class="bg-black py-[15px] px-[20px] font-lexend_deca text-white text-[14px] font-extrabold">booking.remove</button>
+                                        <button (click)="removeService(service)" type="button" class="bg-black py-[15px] px-[20px] font-lexend_deca text-white text-[14px] font-extrabold">{{'booking.remove'| transloco}}</button>
                                     </ng-container>
                                     <ng-template #removeSelect>
 
-                                        <button (click)="selectService(service)" type="button" class="bg-yellow-500 py-[15px] px-[20px] font-lexend_deca text-black text-[14px] font-extrabold">booking.select</button>
+                                        <button (click)="selectService(service)" type="button" class="bg-yellow-500 py-[15px] px-[20px] font-lexend_deca text-black text-[14px] font-extrabold">{{'booking.select'| transloco}}</button>
                                     </ng-template>
                                 </div>
                             </div>

@@ -4,11 +4,12 @@ import { SharedModule } from 'app/shared/shared.module';
 import { ServiceService } from 'app/core/admin/service/service.service';
 import { register } from 'swiper/element/bundle';
 import { environment } from 'environments/environment.fullstack';
+import { TranslocoModule } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-select-service',
   standalone: true,
-  imports: [CommonModule, SharedModule],
+  imports: [CommonModule, SharedModule, TranslocoModule],
   templateUrl: './select-service.component.html',
   styles: ``,
   template: `
@@ -56,6 +57,7 @@ export class SelectServiceComponent implements OnInit, OnChanges {
       value:'Add on'
     }
   ]
+  register();
     this.serviceService.getAllService({filterRules:payload, page_size:0}).subscribe(
       services=>{
         this.services.set(services.data.map(sv=>({...sv, quantity:1})));
@@ -67,7 +69,6 @@ export class SelectServiceComponent implements OnInit, OnChanges {
     setTimeout(() => {
       this.initializeSwipers(this.swiperElements,this.swipers, this.currentIndexes);
     }, 0);
-    register();
   }
 
   ngOnChanges(changes: SimpleChanges): void {

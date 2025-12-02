@@ -17,7 +17,7 @@
             <span *ngIf="isJoin" class="font-clearface text-[30px]">Bạn đang tiếp nhận 1 yêu cầu</span>
             <div class="w-full py-6 border-b border-[#787878] flex gap-2 flex-wrap px-16">
 
-                <button [disabled]="isJoin" (click)="requestJoin(item.uuid)" *ngFor="let item of grouped['Waiting']; let i=index" type="button" class="shadow-md rounded-3xl flex p-2 gap-2 items-center">
+                <button [disabled]="isJoin" (click)="requestJoin(item.uuid)" *ngFor="let item of grouped['Waiting']; let i=index" type="button" class="border border-black flex p-2 gap-2 items-center">
                     <img [src]="item.user.avatar?item.user.avatar:'assets/images/avatars/default-avatar.svg'" class="rounded-full object-cover w-10 h-10" />
                     <span class="font-lexend_deca text-[14px]">{{item.user.email}}</span>
                 </button>

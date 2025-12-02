@@ -60,6 +60,8 @@ export class GenericAddComponent implements OnInit {
     @Input() loadData!: ()=>void;
     @Input() optionDestination: { id: number; name: string }[] = [];
     @Input() optionRadio: { id: number; name: string }[] = [];
+    @Input() checkboxOptions: { [fieldName: string]: any[] } = {};
+
     @Output() toggleDrawer = new EventEmitter<void>();
     @Output() drawerOpenedChanged = new EventEmitter<boolean>();
 
@@ -77,8 +79,8 @@ export class GenericAddComponent implements OnInit {
 
     selectedFiles: { [key: string]: File | File[] } = {}; // Lưu file(s) theo field.name
     filePreviews: { [key: string]: { url: string; name: string }[] } = {}; // Lưu preview URLs cho gri
-    selectedRadioValues: { [key: string]: string[] } = {};
-    displayCheckbox: { [key: string]: string } = {};
+    displayCheckbox: { [key: string]: any[] } = {};
+    selectedRadioValues: { [key: string]: any[] } = {};
     constructor(
         private _formBuilder: UntypedFormBuilder,
         private _translocoService: TranslocoService
@@ -346,11 +348,18 @@ export class GenericAddComponent implements OnInit {
             if (!this.selectedRadioValues[fieldName].includes(value)) {
             this.selectedRadioValues[fieldName].push(value);
             console.log("checkbox:", this.selectedRadioValues)
-            this.displayCheckbox[option.name] = option.icon ? option.icon:null;
+            this.displayCheckbox[fieldName].push({
+                id: value,
+                name: option.name,
+                icon: option.icon
+            })
             }
         } else {
-            this.selectedRadioValues[fieldName] = this.selectedRadioValues[fieldName].filter(v => v !== value);
-            delete this.displayCheckbox[option.name];
+            const index = this.selectedRadioValues[fieldName].indexOf(value);
+            if (index > -1) {
+                this.selectedRadioValues[fieldName].splice(index, 1);
+                this.displayCheckbox[fieldName].splice(index, 1);
+            }
         }
         this.addFormGroup.get(fieldName)?.setValue(this.selectedRadioValues[fieldName]);
         this.addFormGroup.get(fieldName)?.updateValueAndValidity();

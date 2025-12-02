@@ -239,6 +239,36 @@ class Utils:
         return result
     
     @staticmethod
+    def compute_price_explore_hotel(hotel_id, selected_date, total_guest,list_total_room, amount_children):
+        from hotel_management_be.models.hotel import Hotel
+        from hotel_management_be.models.offer import PriceRule
+        from datetime import date, timedelta, datetime
+        from decimal import Decimal
+        import holidays
+        hotel = Hotel.objects.get(uuid=hotel_id)
+        cheapest_room = hotel.RoomType.order_by('base_price').first()
+        if cheapest_room:
+            base_price = Decimal(cheapest_room.base_price or 0)
+        else:
+            base_price = 0
+        
+        
+        rules = PriceRule.objects.all()
+        # lấy multiplier của từng rule ra sẵn
+        weekend_mul = Decimal(next((r.multiplier for r in rules if r.rule_type == "Weekend"), 1))
+        holiday_mul = Decimal(next((r.multiplier for r in rules if r.rule_type == "Holiday"), 1))
+        result = []
+        final_price = base_price * Decimal(total_guest) * Decimal(len(list_total_room)) * Decimal((0.9 * amount_children)) if amount_children > 0 else base_price * Decimal(total_guest) * Decimal(len(list_total_room))
+        if Utils.get_offer_multiplier(hotel=hotel,date=selected_date) != 0:
+            final_price *= Utils.get_offer_multiplier(hotel=hotel, date=selected_date)
+        
+        if selected_date.weekday() >=5:
+            final_price *= weekend_mul
+        if Utils.is_holiday(selected_date):
+            final_price *= holiday_mul
+            # break
+        return final_price
+    @staticmethod
     def compute_price_per_night(rate_plan, room_types, check_in, check_out, amount_chilren=0, total_guest=1):
         from decimal import Decimal
         from datetime import timedelta

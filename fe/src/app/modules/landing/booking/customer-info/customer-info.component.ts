@@ -11,6 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { timeDate } from 'app/shared/utils/util';
 import { UserService } from 'app/core/profile/user/user.service';
 import { VoucherService } from 'app/core/admin/voucher/voucher.service';
+import { TranslocoModule } from '@ngneat/transloco';
 
 declare var paypal: any;
 
@@ -42,7 +43,7 @@ interface VoucherPreviewResult {
 @Component({
   selector: 'app-customer-info',
   standalone: true,
-  imports: [CommonModule, SharedModule,PhoneInputComponent, SelectCountryComponent],
+  imports: [CommonModule, SharedModule,PhoneInputComponent, SelectCountryComponent, TranslocoModule],
   templateUrl: './customer-info.component.html',
   styles: ``
 })

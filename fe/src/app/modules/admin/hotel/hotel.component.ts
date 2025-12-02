@@ -30,7 +30,7 @@ import { User } from 'app/core/profile/user/user.types';
 import { environment } from 'environments/environment.fullstack';
 import { DestinationService } from 'app/core/admin/destination/destination.service';
 import { ServiceService } from 'app/core/admin/service/service.service';
-
+import { FacilitiesService } from 'app/core/admin/facilities/facilities.service';
 @Component({
   selector: 'app-hotel',
   standalone: true,
@@ -57,16 +57,24 @@ import { ServiceService } from 'app/core/admin/service/service.service';
     MatTooltipModule
   ],
   templateUrl: './hotel.component.html',
-  styles: ``
+  styles: [`
+    /* Custom override to ensure sharp edges on material components if global styles don't cover it */
+    :host ::ng-deep .mat-mdc-form-field-flex {
+        border-radius: 0 !important;
+    }
+    :host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+        border-radius: 0 !important;
+    }
+  `]
 })
-export class HotelComponent {
+export class HotelComponent implements OnInit {
   @ViewChild('editContainer', { read: ViewContainerRef }) editContainer: ViewContainerRef;
   baseUrl = environment.baseUrl;
   hotels: Hotel[] = [];
-  user:User;
-  selectedHotel:Hotel = null;
+  user: User;
+  selectedHotel: Hotel = null;
   selectedIds: string[] = [];
-  hasSelectedHotel:boolean= false;
+  hasSelectedHotel: boolean = false;
   displayedColumns: string[] = ['name', 'description', 'actions'];
   loading = false;
   currentPage = 1;
@@ -79,11 +87,10 @@ export class HotelComponent {
   openFilterDropdowns = new Set<string>();
   externalFilters: any = {};
   filterToggleBtnRef!: ElementRef;
-  selectedCreateAt : string = '';
+  selectedCreateAt: string = '';
   // Sắp xếp
   sortField: string | null = null;
   sortOption: 'asc' | 'desc' | null = null;
-
 
   // Show popup
   showEditUser: boolean = false;
@@ -91,12 +98,12 @@ export class HotelComponent {
   showImport: boolean = false;
   showFilter: boolean = false;
   showFilterModal: boolean = false;
-  showDeleteDialog:boolean = false; 
+  showDeleteDialog: boolean = false;
 
-  optionsDestination:any = [];
-  checkboxService:any = [];
+  optionsDestination: any = [];
+  checkboxOption: any = {};
 
-  fields: FieldConfig[] =[
+  fields: FieldConfig[] = [
     {
         name: 'uuid',
         labelKey: 'uuid',
@@ -110,24 +117,20 @@ export class HotelComponent {
         type: 'text',
         placeholderKey: 'destination.enterFullName',
         required: true,
-        
     },
     {
         name: 'description',
         labelKey: 'hotel.description',
-        type: 'text',
+        type: 'textarea',
         placeholderKey: 'destination.enterdDescription',
         required: true,
-        
     },
-    
     {
         name: 'phone',
         labelKey: 'hotel.enterPhone',
         type: 'text',
         placeholderKey: 'destination.enterdDescription',
         required: true,
-        
     },
     {
         name: 'address',
@@ -135,7 +138,6 @@ export class HotelComponent {
         type: 'text',
         placeholderKey: 'destination.enterAddress',
         required: true,
-        
     },
     {
         name: 'status',
@@ -146,8 +148,6 @@ export class HotelComponent {
             { id: 'Inactive', name: 'Inactive' }
         ],
         placeholderKey: 'destination.enterdDescription',
-        
-        
     },
     {
         name: 'thumbnail',
@@ -169,35 +169,39 @@ export class HotelComponent {
         type: 'select',
         placeholderKey: 'destination.enterFullName',
         asyncOptionsKey: true,
-        isForeignKey:true
+        isForeignKey: true
     },
     {
         name: 'latitude',
         labelKey: 'destination.description',
         type: 'number',
         placeholderKey: 'destination.enterdDescription',
-        
-        
     },
     {
         name: 'longitude',
         labelKey: 'destination.description',
         type: 'number',
         placeholderKey: 'destination.enterdDescription',
-        
-        
     },
     {
         name: 'service',
         labelKey: 'hotel.service',
         type: 'checkbox',
         placeholderKey: 'hotel.enterService',
-        relatedName:"hotel_services__service__uuid",
+        relatedName: "hotel_services__service__uuid",
         asyncOptionsKey: true,
     },
-  ]
+    {
+      name: 'facilities',
+      labelKey: 'hotel.facilities',
+      type: 'checkbox',
+      placeholderKey: 'hotel.enterService',
+      relatedName: "hotel_facilities__facilities__uuid",
+      asyncOptionsKey: true,
+  },
+  ];
 
-  addFields: FieldConfig[] =[
+  addFields: FieldConfig[] = [
     {
         name: 'name',
         labelKey: 'hotel.name',
@@ -207,19 +211,17 @@ export class HotelComponent {
         errorMessages: {
             required: 'hotel.requiredName',
         }
-        
     },
     {
         name: 'description',
         labelKey: 'hotel.description',
-        type: 'text',
+        type: 'textarea',
         placeholderKey: 'destination.enterdDescription',
         required: true,
         errorMessages: {
             required: 'hotel.requiredDescription',
         }
     },
-    
     {
         name: 'phone',
         labelKey: 'hotel.enterPhone',
@@ -236,7 +238,6 @@ export class HotelComponent {
         type: 'text',
         placeholderKey: 'destination.enterAddress',
         required: true,
-        
     },
     {
         name: 'status',
@@ -247,8 +248,6 @@ export class HotelComponent {
           { id: 'Inactive', name: 'Inactive' }
         ],
         placeholderKey: 'destination.enterdDescription',
-        
-        
     },
     {
         name: 'thumbnail',
@@ -270,35 +269,39 @@ export class HotelComponent {
         type: 'select',
         placeholderKey: 'destination.enterFullName',
         asyncOptionsKey: true,
-        isForeignKey:true
+        isForeignKey: true
     },
     {
         name: 'latitude',
         labelKey: 'destination.description',
         type: 'number',
         placeholderKey: 'destination.enterdDescription',
-        
-        
     },
     {
         name: 'longitude',
         labelKey: 'destination.description',
         type: 'number',
         placeholderKey: 'destination.enterdDescription',
-        
-        
     },
     {
         name: 'service',
         labelKey: 'hotel.service',
         type: 'checkbox',
         placeholderKey: 'hotel.enterService',
-        relatedName:"hotel_services__service__uuid",
+        relatedName: "hotel_services__service__uuid",
         asyncOptionsKey: true,
     },
-  ]
+    {
+      name: 'facilities',
+      labelKey: 'hotel.facilities',
+      type: 'checkbox',
+      placeholderKey: 'hotel.enterService',
+      relatedName: "hotel_facilities__facilities__uuid",
+      asyncOptionsKey: true,
+  },
+  ];
 
-  filterFields: FieldFilterConfig[] =[
+  filterFields: FieldFilterConfig[] = [
     {
         name: 'name',
         labelKey: 'hotel.name',
@@ -322,18 +325,25 @@ export class HotelComponent {
         type: 'select',
         placeholderKey: 'destination.enterdDescription',
         asyncOptionsKey: true,
-        isForeingKey:true
-        
+        isForeingKey: true
     },
     {
         name: 'service',
         labelKey: 'hotel.service',
         type: 'checkbox',
         placeholderKey: 'hotel.enterService',
-        relatedName:"hotel_services__service__uuid",
+        relatedName: "hotel_services__service__uuid",
         asyncOptionsKey: true,
     },
-  ]
+    {
+      name: 'facilities',
+      labelKey: 'hotel.facilities',
+      type: 'checkbox',
+      placeholderKey: 'hotel.enterService',
+      relatedName: "hotel_facilities__facilities__uuid",
+      asyncOptionsKey: true,
+  },
+  ];
 
   constructor(
       public translocoService: TranslocoService,
@@ -344,15 +354,16 @@ export class HotelComponent {
       private datePipe: DatePipe,
       private userService: UserService,
       private destinationService: DestinationService,
-      private serviceService:ServiceService
+      private serviceService: ServiceService,
+      private facilitiesService: FacilitiesService
     ) {}
 
   ngOnInit(): void {
     this.loadHotels();
+    this.loadAllFacilities();
     this.loadAllService();
     this.destinationService.getDestinations().pipe(
       map(destinations => {
-
         if (destinations) {
           return destinations.data.map(dest => ({
             id: dest.uuid,
@@ -360,36 +371,51 @@ export class HotelComponent {
           }));
         }
         return []; 
-      }
-      )
-    ).subscribe((options)=>{
+      })
+    ).subscribe((options) => {
       this.optionsDestination = options;
-      console.log("destination options:", this.optionsDestination)
+      console.log("destination options:", this.optionsDestination);
     });
-    this.userService.user$.subscribe((user)=>{
+    this.userService.user$.subscribe((user) => {
       this.user = user;
-    })
-    console.log(this.showFilter)
+    });
   }
 
-  loadAllService(){
-      this.serviceService.getAllService({page_size:0}).pipe(
-        map(services=>{
-          if(services){
+  loadAllFacilities(){
+    this.facilitiesService.getAllFacilities({page_size: 0}).pipe(
+      map(facilities => {
+        if (facilities) {
+          return facilities.data
+          .map(facility => ({
+            id: facility.uuid,
+            name: facility.name,
+            icon: facility.icon
+          }));
+        }
+        return [];
+      }),
+    ).subscribe(option => {
+      this.checkboxOption['facilities'] = option;
+    });
+  }
+
+  loadAllService() {
+      this.serviceService.getAllService({page_size: 0}).pipe(
+        map(services => {
+          if (services) {
             return services.data
-            .filter(service => service.type === 'Paid' ||service.type === 'Add on' )
-            .map(service=>({
+            .filter(service => service.type === 'Paid' || service.type === 'Add on')
+            .map(service => ({
               id: service.uuid,
-              name:service.name,
-              icon:service.image
-            }))
+              name: service.name,
+              icon: service.image
+            }));
           }
           return [];
         }),
-      ).subscribe(option=>{
-        this.checkboxService=option
-      })
-    
+      ).subscribe(option => {
+        this.checkboxOption['service'] = option;
+      });
   }
 
   loadHotels(): void {
@@ -398,7 +424,7 @@ export class HotelComponent {
 
     this.hotelService.getHotels(payload).subscribe({
       next: (response) => {
-        console.log("destination res:",response)
+        console.log("hotel res:", response);
         this.hotels = response.data || [];
         this.totalItems = response.total || 0;
         this.loading = false;
@@ -406,33 +432,22 @@ export class HotelComponent {
       error: (error) => {
         this.loading = false;
         this._alertService.showAlert({
-          title: 'Error',
-          message: 'Failed to load destinations',
+          title: this.translocoService.translate('other.error_title'),
+          message: this.translocoService.translate('hotel.alert.fail'),
           type: 'error'
         });
-        console.error('Error loading destinations:', error);
+        console.error('Error loading hotels:', error);
       }
     });
   }
 
-  // loadAutocompleteOptions(): void {
-  //     // Cập nhật autocomplete options cho trường name
-  //     this.hotelService.getHotels({ page_index: 1, page_size: 1000 }).subscribe({
-  //         next: (response) => {
-  //             const nameField = this.filterFields.find(f => f.name === 'name');
-  //             if (nameField) {
-  //                 nameField.autocompleteOptions = response.data.map((hotel: Hotel) => hotel.name);
-  //             }
-  //         },
-  //         error: (error) => {
-  //             console.error('Error loading autocomplete options:', error);
-  //         }
-  //     });
-  // }
-
   toggleFilterDrawer(): void {
         this.showFilter = !this.showFilter;
-    }
+  }
+  
+  toggleEditFilterDrawer(): void {
+      this.showFilter = !this.showFilter;
+  }
 
   onFilterDrawerOpenedChanged(opened: boolean): void {
       this.showFilter = opened;
@@ -482,7 +497,7 @@ export class HotelComponent {
     }
     this.loadHotels();
   }
-  // Updated payload method to include filters
+
   getPayload() {
     const filterRules = this.getFilterRule();
     const payload: any = {
@@ -492,13 +507,13 @@ export class HotelComponent {
         sort_rule: this.getSortRule(),
     };
 
-    // Add filter rules
     if (Object.keys(filterRules).length > 0) {
         payload.filterRules = filterRules;
     }
 
     return payload;
   }
+
   getSearchRule(): any {
     const defaultSearchFields = {
         fields: ['name', 'uuid'],
@@ -507,6 +522,7 @@ export class HotelComponent {
     };
     return this.searchTerm?.trim() ? defaultSearchFields : {};
   }
+
   getFilterRule(): any[] {
         const filters: any[] = [];
 
@@ -526,13 +542,13 @@ export class HotelComponent {
             });
         }
 
-        // filter từ bộ lọc
         if (this.externalFilters && Array.isArray(this.externalFilters)) {
-    filters.push(...this.externalFilters);
-  }
+            filters.push(...this.externalFilters);
+        }
 
         return filters;
     }
+
   getSortRule(): any {
     if (!this.sortField || !this.sortOption) {
         return {};
@@ -542,65 +558,64 @@ export class HotelComponent {
         option: this.sortOption,
     };
   }
+
   async toggleEditUserDrawer(hotel?: Hotel) {
       if (hotel) {
-        this.selectedHotel=hotel;
-        console.log("selected hotel", this.selectedHotel);
+        this.selectedHotel = hotel;
       }
       this.showEditUser = !this.showEditUser;
       if (this.showEditUser) {
-        // ✅ Lazy import component chỉ khi cần
-        const { GenericEditComponent } = await import('app/shared/components/generic-components');
         const componentRef = this.editContainer.createComponent(GenericEditComponent);
+        const instance = componentRef.instance as any;
 
-        // ✅ Truyền Input cho component
-        componentRef.instance.showDrawer = true;
-        componentRef.instance.titleKey = 'hotel.detail';
-        componentRef.instance.fields = this.fields;
-        componentRef.instance.entityData = this.selectedHotel;
-        componentRef.instance.saveHandler = this.saveHandler.bind(this);
-        componentRef.instance.loadData = this.loadHotels.bind(this);
-        componentRef.instance.optionDestination = this.optionsDestination;
-        componentRef.instance.optionRadio = this.checkboxService;
+        instance.showDrawer = true;
+        instance.titleKey = 'hotel.detail';
+        instance.fields = this.fields;
+        instance.entityData = this.selectedHotel;
+        instance.saveHandler = this.saveHandler.bind(this);
+        instance.loadData = this.loadHotels.bind(this);
+        instance.optionDestination = this.optionsDestination;
+        instance.checkboxOptions = this.checkboxOption;
 
-        // ✅ Lắng nghe sự kiện Output
-        componentRef.instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
-        componentRef.instance.drawerOpenedChanged.subscribe((opened: boolean) => {
+        instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
+        instance.drawerOpenedChanged.subscribe((opened: boolean) => {
           this.showEditUser = opened;
           if (!opened) {
-            this.editContainer.clear(); // clear component khi đóng
+            this.editContainer.clear();
           }
         });
 
       } else {
-        // ✅ Khi đóng thì xóa component khỏi ViewContainer
         this.editContainer.clear();
       }
   }
-  toggleAddUserDrawer(){
-    this.showAddHotel = !this.showAddHotel
+
+  toggleAddUserDrawer() {
+    this.showAddHotel = !this.showAddHotel;
   }
 
   onPageSizeChange(size: number) {
       this.pageSize = size;
       this.loadHotels();
   }
+
   formatDateTime(dateStr: string): string | null {
         return this.datePipe.transform(dateStr, 'dd/MM/yyyy HH:mm', '+0700');
   }
+
   formatDateTimeUnix(timestamp: number): string | null {
-      const date = new Date(timestamp * 1000); // chuyển từ giây sang mili-giây
+      const date = new Date(timestamp * 1000);
       return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm', '+0700');
   }
-  toggleEditFilterDrawer():void{
-      this.showFilter = !this.showFilter;
-  }
+
   onDrawerOpenedChanged(opened: boolean): void {
       this.showEditUser = opened;
   }
-  onAddDrawerOpenedChanged(opened:boolean):void{
+
+  onAddDrawerOpenedChanged(opened: boolean): void {
     this.showAddHotel = opened;
   }
+
   saveHandler(payload: any): Observable<any> {
     return this.hotelService.updateHotel(payload.get('uuid'), payload);
   }
@@ -608,20 +623,18 @@ export class HotelComponent {
   addSaveHandler(payload: any): Observable<any> {
     return this.hotelService.createHotel(payload);
   }
+
   deleteHandler(id: string): Observable<any> {
-    this.selectedIds=[]
+    this.selectedIds = [];
     return this.hotelService.deleteHotel(id);
   }
 
-  toggleDeleteDialog(uuid?:string): void {
+  toggleDeleteDialog(uuid?: string): void {
       if (uuid) {
         this.selectedIds = [...this.selectedIds, uuid];
       }
       this.showDeleteDialog = !this.showDeleteDialog;
-      console.log("OPEN DELETE DIALOG", this.showDeleteDialog)
   }
-
-  
 
   toggleAllRows(event: Event): void {
       const checked = (event.target as HTMLInputElement).checked;
@@ -635,6 +648,4 @@ export class HotelComponent {
             .map((user) => user.uuid);
     this.hasSelectedHotel = this.selectedIds.length >= 1;
   }
-
-  
 }

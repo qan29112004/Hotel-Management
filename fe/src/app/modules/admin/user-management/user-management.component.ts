@@ -44,7 +44,15 @@ import { LoginHistoryComponent } from './login-history/login-history.component';
         MatIconModule,
     ],
     templateUrl: './user-management.component.html',
-    styles: ``,
+    styles: [`
+        /* Custom override to ensure sharp edges on material components if global styles don't cover it */
+        :host ::ng-deep .mat-mdc-form-field-flex {
+            border-radius: 0 !important;
+        }
+        :host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+            border-radius: 0 !important;
+        }
+    `],
     encapsulation: ViewEncapsulation.None,
     animations: [
         trigger('fadeSlideIn', [
@@ -613,6 +621,10 @@ onDeleteRefresh(): void {
                 },
             });
         }
+    }
+
+    trackByUserId(index: number, user: User): number {
+        return user.id;
     }
 
     /**

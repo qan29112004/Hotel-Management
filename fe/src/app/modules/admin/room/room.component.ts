@@ -31,6 +31,7 @@ import { environment } from 'environments/environment.fullstack';
 import { RoomtypeService } from 'app/core/admin/roomtype/roomtype.service';
 import { AmenityService } from 'app/core/admin/amenity/amenity.service';
 import { RoomService } from 'app/core/admin/room/room.service';
+
 @Component({
   selector: 'app-room',
   standalone: true,
@@ -57,7 +58,15 @@ import { RoomService } from 'app/core/admin/room/room.service';
     MatTooltipModule
   ],
   templateUrl: './room.component.html',
-  styles: ``
+  styles: [`
+    /* Custom override to ensure sharp edges on material components if global styles don't cover it */
+    :host ::ng-deep .mat-mdc-form-field-flex {
+        border-radius: 0 !important;
+    }
+    :host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+        border-radius: 0 !important;
+    }
+  `]
 })
 export class RoomComponent {
   private _unsubscribeAll: Subject<any> = new Subject<any>();
@@ -334,25 +343,14 @@ export class RoomComponent {
       });
     }
   
-    // loadAutocompleteOptions(): void {
-    //     // Cập nhật autocomplete options cho trường name
-    //     this.roomservice.getRooms({ page_index: 1, page_size: 1000 }).subscribe({
-    //         next: (response) => {
-    //             const nameField = this.filterFields.find(f => f.name === 'name');
-    //             if (nameField) {
-    //                 nameField.autocompleteOptions = response.data.map((room_type: Room) => room_type.name);
-    //             }
-    //         },
-    //         error: (error) => {
-    //             console.error('Error loading autocomplete options:', error);
-    //         }
-    //     });
-    // }
-  
     toggleFilterDrawer(): void {
           this.showFilter = !this.showFilter;
       }
-  
+    
+    toggleEditFilterDrawer(): void {
+        this.showFilter = !this.showFilter;
+    }
+
     onFilterDrawerOpenedChanged(opened: boolean): void {
         this.showFilter = opened;
     }
@@ -469,22 +467,22 @@ export class RoomComponent {
         this.showEditUser = !this.showEditUser;
         if (this.showEditUser) {
           // ✅ Lazy import component chỉ khi cần
-          const { GenericEditComponent } = await import('app/shared/components/generic-components');
           const componentRef = this.editContainer.createComponent(GenericEditComponent);
+          const instance = componentRef.instance as any;
   
           // ✅ Truyền Input cho component
-          componentRef.instance.showDrawer = true;
-          componentRef.instance.titleKey = 'room_type.detail';
-          componentRef.instance.fields = this.fields;
-          componentRef.instance.entityData = this.selectedRoom;
-          componentRef.instance.saveHandler = this.saveHandler.bind(this);
-          componentRef.instance.loadData = this.loadRooms.bind(this);
-          componentRef.instance.optionDestination = this.optionsRoomType;
-          componentRef.instance.optionRadio = this.radioAmenityOptions;
+          instance.showDrawer = true;
+          instance.titleKey = 'room_type.detail';
+          instance.fields = this.fields;
+          instance.entityData = this.selectedRoom;
+          instance.saveHandler = this.saveHandler.bind(this);
+          instance.loadData = this.loadRooms.bind(this);
+          instance.optionDestination = this.optionsRoomType;
+          instance.optionRadio = this.radioAmenityOptions;
   
           // ✅ Lắng nghe sự kiện Output
-          componentRef.instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
-          componentRef.instance.drawerOpenedChanged.subscribe((opened: boolean) => {
+          instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
+          instance.drawerOpenedChanged.subscribe((opened: boolean) => {
             this.showEditUser = opened;
             if (!opened) {
               this.editContainer.clear(); // clear component khi đóng
@@ -511,9 +509,7 @@ export class RoomComponent {
         const date = new Date(timestamp * 1000); // chuyển từ giây sang mili-giây
         return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm', '+0700');
     }
-    toggleEditFilterDrawer():void{
-        this.showFilter = !this.showFilter;
-    }
+    
     onDrawerOpenedChanged(opened: boolean): void {
         this.showEditUser = opened;
     }
@@ -529,6 +525,7 @@ export class RoomComponent {
     }
     deleteHandler(id: string): Observable<any> {
       this.selectedIds=[]
+      this.hasSelectedRoom = false;
       return this.roomService.deleteRoom(id);
     }
   

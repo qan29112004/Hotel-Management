@@ -60,6 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     is_superuser = models.BooleanField(default=False)
     last_login = models.DateTimeField(null=True)
     birthday = models.DateField(null=True)
+    classification = models.CharField(max_length=20, null=True, blank=True, default="CLUB1")
     is_deleted = models.BooleanField(default=False)
     delete_at = models.DateTimeField(null=True,blank=True)
     role =models.IntegerField(choices=UserConstants.ROLE, default=3)

@@ -3,14 +3,14 @@
     <div class="bg-[#f4f4f4] w-full p-5 mb-5">
       <div class="flex flex-col w-full p-5 bg-white">
         <div class="flex justify-between mb-5">
-          <span class="font-clearface text-[30px] font-normal">booking.guest_infor</span>
-          <span class="font-avenir text-[16px] font-bold text-black text-start">booking.required *</span>
+          <span class="font-clearface text-[30px] font-normal">{{'booking.guest_infor'| transloco}}</span>
+          <span class="font-avenir text-[16px] font-bold text-black text-start">{{'booking.required'| transloco}} *</span>
         </div>
         <form #formBooking [formGroup]="bookingForm" class="grid w-full grid-cols-2 gap-5">
           <div class="flex flex-col">
             <span class="block text-[#787878] font-avenir text-[10px] tracking-[1px] uppercase font-bold"
               [ngClass]="{'text-red-500':isSubmitted && bookingForm.get('fullname')?.invalid}"
-            >booking.fullname</span>
+            >{{'booking.fullname'| transloco}}</span>
             <input type="text" class="block w-full h-[50px] border border-[#d4d4d4] pl-[10px] text-[16px] font-avenir" name="fullname" formControlName="fullname" 
               [ngClass]="{'bg-red-300 border-red-500':isSubmitted && bookingForm.get('fullname')?.invalid}"
             />
@@ -19,7 +19,7 @@
           <div class="flex flex-col">
             <span class="block text-[#787878] font-avenir text-[10px] tracking-[1px] uppercase font-bold"
               [ngClass]="{'text-red-500':isSubmitted && bookingForm.get('email')?.invalid}"            
-            >booking.email</span>
+            >{{'booking.email'| transloco}}</span>
             <input type="text" class="block w-full h-[50px] border border-[#d4d4d4] pl-[10px] text-[16px] font-avenir" name="email" formControlName="email"
               [ngClass]="{'bg-red-300 border-red-500':isSubmitted && bookingForm.get('email')?.invalid}"
             />
@@ -36,26 +36,26 @@
     <div class="bg-[#f4f4f4] w-full p-5 mb-5">
       <div class="flex flex-col w-full p-5 bg-white">
         <div class="flex flex-col gap-8">
-          <span class="block font-clearface text-[30px] text-black font-normal">booking.policies</span>
+          <span class="block font-clearface text-[30px] text-black font-normal">{{'booking.policies'| transloco}}</span>
           <div class="grid w-full grid-cols-2">
             <p class="w-full">
               <span class="block uppercase text-[10px] tracking-[1px] font-bold ">check in</span>
-              <span class="text-[10px]">booking.after {{timeDate(dataBooking['checkin'])}}</span>
+              <span class="text-[10px]">{{'booking.after'| transloco}} {{timeDate(dataBooking['checkin'])}}</span>
             </p>
             <p class="w-full">
               <span class="block uppercase text-[10px] tracking-[1px] font-bold ">check out</span>
-              <span class="text-[10px]">booking.before {{timeDate(dataBooking['checkout'])}}</span>
+              <span class="text-[10px]">{{'booking.before'| transloco}} {{timeDate(dataBooking['checkout'])}}</span>
             </p>
           </div>
           <div class="w-full">
             <ng-container *ngFor="let rate of dataRate; let i = index">
-              <div class="bg-[#9e693d] px-[15px] py-[5px] text-[14px] uppercase font-extrabold text-white inline-flex">booking.room {{i+1}}</div>
+              <div class="bg-[#9e693d] px-[15px] py-[5px] text-[14px] uppercase font-extrabold text-white inline-flex">{{'booking.room'| transloco}} {{i+1}}</div>
               <div class="mt-[30px] w-full">
-                <span class="text-[10px] uppercase font-bold tracking-[1px] mt-[5px] block">booking.guarantee_policy</span>
+                <span class="text-[10px] uppercase font-bold tracking-[1px] mt-[5px] block">{{'booking.guarantee_policy'| transloco}}</span>
                 <span class="text-[10px] tracking-[1px]">{{rate.guaranteePolicy}}</span>
               </div>
               <div class="mt-[30px] w-full">
-                <span class="text-[10px] uppercase font-bold tracking-[1px] mt-[5px] block">booking.cancellation_policy</span>
+                <span class="text-[10px] uppercase font-bold tracking-[1px] mt-[5px] block">{{'booking.cancellation_policy'| transloco}}</span>
                 <span class="text-[10px] tracking-[1px]">{{rate.cancellationPolicy}}</span>
               </div>
             </ng-container>
@@ -115,9 +115,9 @@
     <div class="bg-[#f4f4f4] w-full p-5 mb-5">
       <div class="flex flex-col w-full p-5 bg-white">
         <div class="flex flex-col">
-          <span class="font-clearface text-[30px] font-normal">booking.guarantee_my_booking</span>
+          <span class="font-clearface text-[30px] font-normal">{{'booking.guarantee_my_booking'| transloco}}</span>
           <div class="mt-[15px]">
-            <span class="block text-[14px] font-avenir mb-[5px]">{{dataBooking['hotel_name']}} booking.accept_method</span>
+            <span class="block text-[14px] font-avenir mb-[5px]">{{dataBooking['hotel_name']}} {{'booking.accept_method'| transloco}}</span>
             <div class="flex gap-2">
               <img src="assets/images/booking/logo_paypal.svg" class="object-cover w-[100px] h-[50px]"/>
               <img src="assets/images/booking/logo_vnpay.svg" class="object-contain w-[100px] h-[50px]"/>
@@ -127,7 +127,7 @@
       </div>
     </div>
     <div class='flex flex-col w-full'>
-      <mat-checkbox (change)="onChangeCheckBox($event.checked)"> booking.agree <br> <small *ngIf="isSubmitted && showAgreeError" class="text-red-500">Please confirm that you have read, understood and agree to SLH Terms & Conditions and Privacy Policy</small></mat-checkbox>
+      <mat-checkbox (change)="onChangeCheckBox($event.checked)"> {{'booking.agree'| transloco}} <br> <small *ngIf="isSubmitted && showAgreeError" class="text-red-500">Please confirm that you have read, understood and agree to SLH Terms & Conditions and Privacy Policy</small></mat-checkbox>
       
       <div class="grid items-stretch w-full grid-cols-2 mt-[30px]">
         <button type="button" class="relative w-full hover:-translate-y-[4px] transition-all duration-300"

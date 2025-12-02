@@ -18,7 +18,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Hotel } from 'app/core/admin/hotel/hotel.types';
 import { environment } from 'environments/environment.fullstack';
 import { formatDateRange, getCurrentDateString } from 'app/shared/utils/util';
-
+import { TranslocoModule } from '@ngneat/transloco';
 @Component({
   selector: 'app-explore-hotel',
   standalone: true,
@@ -32,7 +32,8 @@ import { formatDateRange, getCurrentDateString } from 'app/shared/utils/util';
     MatFormFieldModule,
     MatNativeDateModule,
     MapComponent,
-    SharedModule
+    SharedModule,
+    TranslocoModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './explore-hotel.component.html',

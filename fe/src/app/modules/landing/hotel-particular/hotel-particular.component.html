@@ -17,7 +17,7 @@
         <img src="assets/images/explore-hotel/rating.png" class="absolute top-0 w-16 h-16 -translate-x-1/2 left-1/2"/>
         <span class="mt-[1rem] font-black w-full text-center">4.3</span>
     </div>
-    <span class="mb-[30px]">hotel.base_on total_comment hotel.review</span>
+    <span class="mb-[30px]">{{'hotel.base_on_total_comment' | transloco}}</span>
     
     <div class="flex flex-col w-full overflow-y-auto px-36">
         <div class="w-full py-8 border-t border-black mb-[30px]">
@@ -91,7 +91,7 @@
         <mat-icon class="text-black text-[50px] hover:scale-110 hover:cursor-pointer" (click)="closeFeatureAndServiceOverlay()">close</mat-icon>
     </div>
     <div class="font-clearface text-[30px] mb-[20px]">
-        hotel.feature_and_service
+        {{'hotel.feature_and_service'|transloco}}
     </div>
     <div class="flex justify-center w-full mb-[30px] px-36">
         <div class="grid w-full grid-cols-3 max-w-[50%] gap-4">
@@ -154,7 +154,7 @@
                     *ngIf="showCloseButton"
                     (click)="hideForm()"
                 >x</button>
-                <span class="text-center font-clearface text-[22px]"> hotel.make_reservation</span>
+                <span class="text-center font-clearface text-[22px]"> {{'hotel.make_reservation'|transloco}}</span>
                 <div class="grid grid-cols-2 gap-3">
                     <button type="button" class="relative flex flex-col p-2 border-b border-black/30 min-w-[105px] " >
                         <span class="self-start font-mono text-black">CHECK IN</span>
@@ -240,11 +240,11 @@
     </div>
     <div class="flex flex-col px-16 max-w-[1440px] w-full bg-white -mt-[95px] z-[3] sticky top-28">
         <div class="flex items-center h-24 gap-8">
-            <a (click)="scrollTo('overview')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">hotel.overview</a>
-            <a (click)="scrollTo('images')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">hotel.images</a>
-            <a (click)="scrollTo('rooms')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">hotel.rooms</a>
-            <a (click)="scrollTo('reviews')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">hotel.reviews</a>
-            <a (click)="scrollTo('location')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">hotel.location</a>
+            <a (click)="scrollTo('overview')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">{{'hotel.overview'|transloco}}</a>
+            <a (click)="scrollTo('images')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">{{'hotel.images'|transloco}}</a>
+            <a (click)="scrollTo('rooms')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">{{'hotel.rooms'|transloco}}</a>
+            <a (click)="scrollTo('reviews')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">{{'hotel.reviews'|transloco}}</a>
+            <a (click)="scrollTo('location')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">{{'hotel.location'|transloco}}</a>
         </div>
     </div>
     <div class="flex flex-col px-16 max-w-[1440px] w-full bg-white z-[2]">
@@ -252,18 +252,18 @@
             <div class="w-full h-full border border-[#f7f0ea]">
                 <div class="grid grid-cols-[65%_35%]">
                     <div class="flex flex-col text-black gap-5 pt-[88px] mx-[4.16%] px-[30px] border-r border-[#f7f0ea]">
-                        <pre class="font-avenir text-[16px] font-normal">{{hotel_data?.destination}}</pre>
+                        <pre class="font-avenir text-[16px] font-normal whitespace-pre-wrap break-words">{{hotel_data?.description}}</pre>
                         <span class="font-classy text-[60px] text-[#9e693d] mb-24">Enjoy your stay!</span>
                     </div>
                     <div class="flex flex-col items-center w-full gap-8 px-[25px] pt-12">
                         <div class="flex h-auto gap-4 w-max">
-                            <span class="uppercase font-avenir text-[16px] font-black text-[#282828]">hotel.rooms</span>
-                            <span class="uppercase font-avenir text-[16px] font-black text-[#282828]">hotel.floors</span>
+                            <span class="uppercase font-avenir text-[16px] font-black text-[#282828]">3 {{'hotel.rooms'|transloco}}</span>
+                            <span class="uppercase font-avenir text-[16px] font-black text-[#282828]">4 {{'hotel.floors'|transloco}}</span>
                         </div>
                         <div class="relative flex flex-wrap justify-center h-auto w-28">
                             <img src="assets/images/explore-hotel/rating.png" class="absolute top-0 -translate-x-1/2 w-28 h-28 left-1/2"/>
                             <span class="mt-[1.75rem] font-normal w-full text-center text-[30px] font-clearface">{{hotel_data?.rating.average}}</span>
-                            <span class="w-full mt-[2.25rem] text-center text-[14px]">{{hotel_data?.rating.count}} hotel.reviews</span>
+                            <span class="w-full mt-[2.25rem] text-center text-[14px]">{{hotel_data?.rating.count}} {{'hotel.reviews'|transloco}}</span>
                         </div>
                         <div class="grid w-full grid-cols-2">
                             <ng-container *ngFor="let service of hotel_data?.service.slice(0,4)">
@@ -283,7 +283,7 @@
         <div #images class="w-full flex flex-col items-center relative mt-[100px]">
 
             <div class="flex flex-col items-center justify-center relative max-w-[67%]">
-                <span class="font-clearface font-normal text-[30px] mb-[20px]">hotel.out_hotel</span>
+                <span class="font-clearface font-normal text-[30px] mb-[20px]">{{'hotel.our_hotel'|transloco}}</span>
                 <swiper-container
                     #swiperE2
                     pagination="true"
@@ -365,13 +365,13 @@
             </div>
         </div> -->
         <div #rooms class="flex flex-col items-center w-full">
-            <span class="font-clearface text-[30px] mb-5">hotel.our_room</span>
+            <span class="font-clearface text-[30px] mb-5">{{'hotel.our_room'|transloco}}</span>
             <div *ngFor="let rt of hotel_data?.roomTypes" class="relative flex items-center w-full h-auto">
                 <swiper-container
                     pagination="true"
                     rewind="true"
                     navigation="true"
-                    class="md:max-w-[67%] z-[5] h-[478px]"
+                    class="md:max-w-[59%] z-[5] h-[478px]"
                     style="--swiper-navigation-color: #fff; --swiper-pagination-color:#fff"
                 >
                     <ng-container *ngFor="let img of rt.images">
@@ -385,8 +385,8 @@
                         <span class="font-clearface text-[24px] font-normal pb-5 border-b border-[#f7f0ea]">{{rt.name}}</span>
                         <div class="flex flex-col items-center w-full gap-5 mt-5 mb-10">
                             <div class="flex items-center gap-3 text-black">
-                                <img src="assets/icons/hotel-type/Honeymoon.svg" class="sm:h-[24px]"/>
-                                <span class="font-avenir text-[16px] font-normal"> {{rt.max_occupancy}} hotel.people</span>
+                                <img src="assets/images/booking/people.svg" class="sm:w-[24px]"/>
+                                <span class="font-avenir text-[16px] font-normal"> {{rt.maxOccupancy}} {{'hotel.people'|transloco}}</span>
                             </div>
                             <!-- <div class="flex items-center gap-3 text-black">
                                 <img src="assets/icons/hotel-type/Honeymoon.svg" class="sm:h-[24px]"/>
@@ -421,7 +421,7 @@
         
         <div class="flex flex-col items-center w-full">
             <div class="flex bg-white py-14 gap-7">
-                <div class="block w-full text-center font-clearface text-[30px] text-black">hotel.key_feature</div>
+                <div class="block w-full text-center font-clearface text-[30px] text-black">{{'hotel.key_feature'| transloco}}</div>
             </div>
             <div class="flex justify-center w-full">
                 <div class="grid w-full grid-cols-4 max-w-[50%] gap-4">
@@ -463,7 +463,7 @@
         </div>
         <div class="flex flex-col items-center w-full mb-[100px]">
             <div class="flex bg-white py-14 gap-7">
-                <div class="block w-full text-center font-clearface text-[30px] text-black">hotel.key_feature_and_service</div>
+                <div class="block w-full text-center font-clearface text-[30px] text-black">{{'hotel.key_feature_and_service'| transloco}}</div>
             </div>
             <div class="flex justify-center w-full mb-[30px]">
                 <div class="grid w-full grid-cols-3 max-w-[50%] gap-4">
@@ -486,16 +486,16 @@
                     </span>
                     <div class="flex flex-col">
                         <div class="block font-clearface text-[30px] mb-[20px] text-black">
-                            hotel.name
+                            {{'hotel.name'| transloco}}
                             <br>
                             <p class="text-[18px] font-lexend_deca text-black">{{hotel_data?.name}}</p>
                         </div>
                         <div class="block font-clearface text-[30px] mb-[20px] text-black">
-                            hotel.phone
+                            {{'hotel.phone'| transloco}}
                             <p class="text-[18px] font-lexend_deca text-black">{{hotel_data?.phone}}</p>
                         </div>
                         <div class="block font-clearface text-[30px] mb-[20px] text-black">
-                            hotel.address
+                            {{'hotel.address'| transloco}}
                             <p class="text-[18px] font-lexend_deca text-black">{{hotel_data?.address ? hotel_data?.address : ''}}</p>
                         </div>
                         <div class="flex flex-col mt-[30px]">

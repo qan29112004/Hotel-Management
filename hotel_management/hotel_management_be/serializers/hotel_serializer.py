@@ -30,6 +30,14 @@ class HotelServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model=HotelService
         fields=['service_id','service_name','service_image']
+
+class HotelFacilitySerializer(serializers.ModelSerializer):
+    facilities_id = serializers.CharField(read_only=True, source="facilities.uuid")
+    facilities_name = serializers.CharField(read_only=True, source= "facilities.name")
+    facilities_image = serializers.CharField(read_only=True, source= "facilities.image")
+    class Meta:
+        model=HotelFacilies
+        fields=['facilities_id','facilities_name','facilities_image']
         
 
 class HotelSerializer(serializers.ModelSerializer):
@@ -40,13 +48,15 @@ class HotelSerializer(serializers.ModelSerializer):
     latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
     longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
     service = HotelServiceSerializer(many=True, source='hotel_services', read_only=True)
+    facilities = HotelFacilitySerializer(many=True, source='hotel_facilities', read_only=True)
     rating = serializers.SerializerMethodField()
+    price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     class Meta:
         model = Hotel
         fields = [
             'uuid', 'name', 'description', 'slug', 'address', 'phone', 'status',
             'views', 'features', 'tags', 'thumbnail', 'destination', 'check_in_time',
-            'check_out_time', 'latitude', 'longitude', 'images', 'rating' , 'created_by', 'updated_by','created_at','updated_at', 'service'
+            'check_out_time', 'latitude', 'longitude', 'images', 'rating', 'price', 'facilities' , 'created_by', 'updated_by','created_at','updated_at', 'service'
         ]
     def get_updated_by(self,obj):
         return {
@@ -76,6 +86,7 @@ class HotelDetailSerializer(serializers.ModelSerializer):
     latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
     longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
     service = HotelServiceSerializer(many=True, source='hotel_services', read_only=True)
+    facilities = HotelFacilitySerializer(many=True, source='hotel_facilities', read_only=True)
     rating = serializers.SerializerMethodField()
     room_types = serializers.SerializerMethodField()
     is_available_room = serializers.SerializerMethodField()
@@ -84,7 +95,7 @@ class HotelDetailSerializer(serializers.ModelSerializer):
         fields = [
             'uuid', 'name', 'description', 'slug', 'address', 'phone', 'status',
             'views', 'features', 'tags', 'thumbnail', 'destination', 'check_in_time',
-            'check_out_time', 'latitude', 'longitude', 'images', 'rating', 'room_types','is_available_room' , 'created_by', 'updated_by','created_at','updated_at', 'service'
+            'check_out_time', 'latitude', 'longitude', 'images', 'rating', 'room_types','is_available_room', 'facilities' , 'created_by', 'updated_by','created_at','updated_at', 'service'
         ]
     def get_updated_by(self,obj):
         return {
@@ -139,12 +150,13 @@ class HotelCreateSerializer(serializers.ModelSerializer):
     latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
     longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
     service = serializers.ListField(child=serializers.CharField(allow_blank=True), write_only=True, required=False,allow_empty=True)
+    facilities = serializers.ListField(child=serializers.CharField(allow_blank=True), write_only=True, required=False,allow_empty=True)
     class Meta:
         model = Hotel
         fields = [
             'uuid', 'name', 'description', 'slug', 'address', 'phone', 'status',
             'views', 'features', 'tags', 'thumbnail', 'destination', 'check_in_time',
-            'check_out_time', 'latitude', 'longitude', 'service','images_upload'
+            'check_out_time', 'latitude', 'longitude', 'service','facilities','images_upload'
         ]
     def update(self, instance, validated_data):
         images_upload = validated_data.pop('images_upload', [])
@@ -165,6 +177,23 @@ class HotelCreateSerializer(serializers.ModelSerializer):
             for service in new_services:
                 if service.uuid in to_add:
                     HotelService.objects.create(hotel=instance, service=service)
+        if 'facilities' in validated_data:
+            new_facilities_uuids = validated_data.pop('facilities', [])
+            new_facilities = Facilities.objects.filter(uuid__in=new_facilities_uuids)
+
+            current_facilities = HotelFacilies.objects.filter(hotel=instance)
+            current_uuids = set(current_facilities.values_list('facilities', flat=True))
+            new_uuids = set(new_facilities.values_list('uuid', flat=True))
+
+            # Xóa service bị bỏ
+            to_delete = current_uuids - new_uuids
+            HotelFacilies.objects.filter(hotel=instance, facilities__uuid__in=to_delete).delete()
+
+            # Thêm service mới
+            to_add = new_uuids - current_uuids
+            for facility in new_facilities:
+                if facility.uuid in to_add:
+                    HotelFacilies.objects.create(hotel=instance, facilities=facility)
         print("thumnail", validated_data.get('thumbnail'))
         
         for file in images_upload:
@@ -178,11 +207,16 @@ class HotelCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         images_upload = validated_data.pop('images_upload', [])
         service_uuids = validated_data.pop('service', [])
+        facilities_uuids = validated_data.pop('facilities', [])
         hotel = super().create(validated_data)
         if service_uuids:
             services = Service.objects.filter(uuid__in=service_uuids)
             for service in services:
                 HotelService.objects.get_or_create(hotel=hotel, service=service)
+        if facilities_uuids:
+            facilities = Facilities.objects.filter(uuid__in=facilities_uuids)
+            for facility in facilities:
+                HotelFacilies.objects.get_or_create(hotel=hotel, facilities=facility)
 
         for file in images_upload:
             HotelImage.objects.create(

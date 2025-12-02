@@ -42,12 +42,32 @@ import { RatingService } from 'app/core/admin/rating/rating.service';
     GenericEditComponent,
     GenericAddComponent,
     GenericDeleteComponent,
-    GenericFilterComponent
+    GenericFilterComponent,
+    RouterModule,
+    MatIconModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './rating.component.html',
-  styles: ``
+  styles: [`
+    /* Custom override to ensure sharp edges on material components if global styles don't cover it */
+    :host ::ng-deep .mat-mdc-form-field-flex {
+        border-radius: 0 !important;
+    }
+    :host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+        border-radius: 0 !important;
+    }
+  `]
 })
-export class RatingComponent {
+export class RatingComponent implements OnInit {
   private _unsubscribeAll: Subject<any> = new Subject<any>();
   fields: FieldConfig[] =[
     {
@@ -330,6 +350,10 @@ export class RatingComponent {
         this.showFilter = !this.showFilter;
     }
 
+  toggleEditFilterDrawer(): void {
+      this.showFilter = !this.showFilter;
+  }
+
   onFilterDrawerOpenedChanged(opened: boolean): void {
       this.showFilter = opened;
   }
@@ -457,8 +481,6 @@ export class RatingComponent {
     };
   }
 
-  
-
   async toggleEditUserDrawer(rating?: Rating) {
       if (rating) {
         this.selectedDes=rating;
@@ -467,21 +489,21 @@ export class RatingComponent {
       this.showEditUser = !this.showEditUser;
       if (this.showEditUser) {
         // ✅ Lazy import component chỉ khi cần
-        const { GenericEditComponent } = await import('app/shared/components/generic-components');
         const componentRef = this.editContainer.createComponent(GenericEditComponent);
+        const instance = componentRef.instance as any;
 
         // ✅ Truyền Input cho component
-        componentRef.instance.showDrawer = true;
-        componentRef.instance.titleKey = 'rating.detail';
-        componentRef.instance.fields = this.fields;
-        componentRef.instance.entityData = this.selectedDes;
-        componentRef.instance.saveHandler = this.saveHandler.bind(this);
-        componentRef.instance.loadData = this.loadRating.bind(this);
-        componentRef.instance.optionDestination = this.optionsHotel;
+        instance.showDrawer = true;
+        instance.titleKey = 'rating.detail';
+        instance.fields = this.fields;
+        instance.entityData = this.selectedDes;
+        instance.saveHandler = this.saveHandler.bind(this);
+        instance.loadData = this.loadRating.bind(this);
+        instance.optionDestination = this.optionsHotel;
 
         // ✅ Lắng nghe sự kiện Output
-        componentRef.instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
-        componentRef.instance.drawerOpenedChanged.subscribe((opened: boolean) => {
+        instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
+        instance.drawerOpenedChanged.subscribe((opened: boolean) => {
           this.showEditUser = opened;
           if (!opened) {
             this.editContainer.clear(); // clear component khi đóng
@@ -508,9 +530,7 @@ export class RatingComponent {
       const date = new Date(timestamp * 1000); // chuyển từ giây sang mili-giây
       return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm', '+0700');
   }
-  toggleEditFilterDrawer():void{
-      this.showFilter = !this.showFilter;
-  }
+  
   onDrawerOpenedChanged(opened: boolean): void {
       this.showEditUser = opened;
   }
@@ -526,6 +546,7 @@ export class RatingComponent {
   }
   deleteHandler(id: string): Observable<any> {
     this.selectedIds=[]
+    this.hasSelectedRating = false;
     return this.ratingService.deleteRating(id);
   }
 
@@ -536,8 +557,6 @@ export class RatingComponent {
       this.showDeleteDialog = !this.showDeleteDialog;
       console.log("OPEN DELETE DIALOG", this.showDeleteDialog)
   }
-
-  
 
   toggleAllRows(event: Event): void {
       const checked = (event.target as HTMLInputElement).checked;

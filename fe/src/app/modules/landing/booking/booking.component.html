@@ -140,7 +140,7 @@
         </div>
      </div> -->
     <div class="relative w-full flex flex-col gap-9 max-w-[1140px] items-center">
-        <span class="font-clearface text-[30px] font-normal text-black w-full">booking.seleted_day {{bookingState.currentRoomIndex + 1}}</span>
+        <span class="font-clearface text-[30px] font-normal text-black w-full">{{'booking.seleted_day'| transloco}} {{bookingState.currentRoomIndex + 1}}</span>
         <div
             class="flex w-full transition-transform duration-700 ease-in-out"
             
@@ -184,7 +184,7 @@
                     <div class="flex w-[350px]">
                         <div class="w-full h-auto p-5 bg-black">
                             <div class="flex flex-col w-full h-full">
-                                <span class="font-avenir text-[26px] text-white uppercase mb-5">booking.your_stay</span>
+                                <span class="font-avenir text-[26px] text-white uppercase mb-5">{{'booking.your_stay'| transloco}}</span>
                                 <div class="flex flex-col w-full mb-5 border-white border-y">
                                     <div class="flex items-center justify-between py-4 border-b border-white">
                                         <span class="font-avenir text-[12px] text-white uppercase font-bold">check_in</span>
@@ -192,7 +192,7 @@
                                             <p class="font-avenir text-[13px]">
                                                 {{formatDateToLong(payload.checkin)}}
                                                 <br>
-                                                booking.after 12:00 PM
+                                                {{'booking.after'| transloco}} 12:00 PM
                                             </p>
                                         </div>
                                     </div>
@@ -202,7 +202,7 @@
                                             <p class="font-avenir text-[13px]">
                                                 {{formatDateToLong(payload.checkout)}}
                                                 <br>
-                                                booking.before 11:00 AM
+                                                {{'booking.before'| transloco}} 11:00 AM
                                             </p>
                                         </div>
                                     </div>
@@ -210,14 +210,14 @@
                                 <div class="flex flex-col w-full gap-2">
                                     <ng-container *ngFor="let r of bookingState.rooms; let i = index">
                                         <div class="text-center bg-[#d4d4d4] p-3" (click)="toggleDetail(i)">
-                                            <p class="font-bold text-black uppercase font-avenir">booking.room {{i+1}} <mat-icon class="text-black text-[11px]">keyboard_double_arrow_down</mat-icon></p>
+                                            <p class="font-bold text-black uppercase font-avenir">{{'booking.room'| transloco}} {{i+1}} <mat-icon class="text-black text-[11px]">keyboard_double_arrow_down</mat-icon></p>
                                             
                                         </div>
                                         <div class="flex flex-col bg-[#f4f4f4] gap-6 p-5" *ngIf="selectedId === i" @slideToggle>
-                                            <button type="button" (click)="setCrrRoomIndex(i)">check</button>
+                                            <button class="self-end" type="button" (click)="setCrrRoomIndex(i)">Chỉnh sửa</button>
                                             <div class="flex justify-between">
-                                                <span class=" text-[12px] font-bold uppercase">booking.guest</span>
-                                                <span class=" text-[12px] font-bold uppercase">{{r.adults}} booking.adults, {{r.children}} booking.children</span>
+                                                <span class=" text-[12px] font-bold uppercase">{{'booking.guest'| transloco}}</span>
+                                                <span class=" text-[12px] font-bold uppercase">{{r.adults}} {{'booking.adults'| transloco}}, {{r.children}} {{'booking.children'| transloco}}</span>
                                             </div>
                                             <div *ngIf="list_room_selected[i]" class="flex justify-between">
                                                 <div class="flex flex-col justify-center gap-1">
@@ -225,16 +225,16 @@
                                                     <p class="font-avenir text-[13px]">{{list_room_selected[i]?.ratePlanName}}</p>
                                                 </div>
                                                 <div class="flex flex-col justify-center gap-1">
-                                                    <p class="font-avenir text-[12px] font-bold uppercase text-end">{{list_room_selected[i]?.totalPrice | currency:'VND':'symbol':'1.0-0'}} <br> ~ {{list_room_selected[i]?.totalPrice | currency:'USD':'symbol-narrow':'1.0-2'}}</p>
-                                                    <p class="font-avenir text-[13px] text-end">booking.include_vat</p>
+                                                    <p class="font-avenir text-[12px] font-bold uppercase text-end">{{list_room_selected[i]?.totalPrice | currency:'VND':'symbol':'1.0-0'}} <br> ~ {{list_room_selected[i]?.totalPrice/25000 | currency:'USD':'symbol-narrow':'1.0-2'}}</p>
+                                                    <p class="font-avenir text-[13px] text-end">{{'booking.include_vat'| transloco}}</p>
                                                 </div>
                                             </div>
-                                            <span class="block w-full text-[12px] font-bold uppercase mb-[10px]">booking.extras</span>
+                                            <span class="block w-full text-[12px] font-bold uppercase mb-[10px]">{{'booking.extras'| transloco}}</span>
                                             
                                             <div *ngFor="let service of list_room_selected[i].services" class="flex justify-between">
                                                 <div class="font-avenir text-[13px]">{{service.name}}</div>
                                                 <div>
-                                                    <p class="font-avenir text-[12px] font-bold uppercase text-end">{{service.price | currency:'VND':'symbol':'1.0-0'}} <br> ~ {{service.price | currency:'USD':'symbol-narrow':'1.0-2'}}</p>
+                                                    <p class="font-avenir text-[12px] font-bold uppercase text-end">{{service.price | currency:'VND':'symbol':'1.0-0'}} <br> ~ {{service.price/25000 | currency:'USD':'symbol-narrow':'1.0-2'}}</p>
                                                 </div>
                                             </div>
                                             
@@ -243,7 +243,7 @@
                                 </div>
                                 <div class="flex flex-col w-full mb-5 border-white border-y">
                                     <div class="flex items-center justify-between py-4 border-b border-white">
-                                        <span class="font-avenir text-[12px] text-white uppercase font-bold">booking.total_price</span>
+                                        <span class="font-avenir text-[12px] text-white uppercase font-bold">{{'booking.total_price'| transloco}}</span>
                                         <div class="text-right text-white">
                                             <p class="font-avenir text-[13px]">
                                                 {{totalBillObj?(totalBillObj.total_bill_vn | currency:'VND':'symbol':'1.0-0'):(totalBill.total_bill_vn | currency:'VND':'symbol':'1.0-0')}}

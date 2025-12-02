@@ -42,12 +42,32 @@ import { HotelService } from 'app/core/admin/hotel/hotel.service';
     GenericEditComponent,
     GenericAddComponent,
     GenericDeleteComponent,
-    GenericFilterComponent
+    GenericFilterComponent,
+    RouterModule,
+    MatIconModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './service.component.html',
-  styles: ``
+  styles: [`
+    /* Custom override to ensure sharp edges on material components if global styles don't cover it */
+    :host ::ng-deep .mat-mdc-form-field-flex {
+        border-radius: 0 !important;
+    }
+    :host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+        border-radius: 0 !important;
+    }
+  `]
 })
-export class ServiceComponent {
+export class ServiceComponent implements OnInit {
   fields: FieldConfig[] =[
     {
         name: 'uuid',
@@ -69,7 +89,7 @@ export class ServiceComponent {
         labelKey: 'service.image',
         type: 'file',
         placeholderKey: 'service.enterImage',
-        
+        accept: 'image/*',
     },
     {
         name: 'description',
@@ -97,8 +117,6 @@ export class ServiceComponent {
           {id:"Add on", name:"Add on"}
         ],
         placeholderKey: 'service.enterType',
-        
-        
     },
     
   ]
@@ -117,7 +135,7 @@ export class ServiceComponent {
         labelKey: 'service.image',
         type: 'file',
         placeholderKey: 'service.enterImage',
-        
+        accept: 'image/*',
     },
     {
         name: 'description',
@@ -240,7 +258,6 @@ export class ServiceComponent {
     this.userService.user$.subscribe((user)=>{
       this.user = user;
     })
-    console.log(this.showFilter)
   }
 
   loadSelectedHotel(){
@@ -322,6 +339,10 @@ export class ServiceComponent {
   toggleFilterDrawer(): void {
         this.showFilter = !this.showFilter;
     }
+  
+  toggleEditFilterDrawer(): void {
+      this.showFilter = !this.showFilter;
+  }
 
   onFilterDrawerOpenedChanged(opened: boolean): void {
       this.showFilter = opened;
@@ -450,8 +471,6 @@ export class ServiceComponent {
     };
   }
 
-  
-
   async toggleEditUserDrawer(service?: Service) {
       if (service) {
         this.selectedDes=service;
@@ -460,20 +479,20 @@ export class ServiceComponent {
       this.showEditUser = !this.showEditUser;
       if (this.showEditUser) {
         // ✅ Lazy import component chỉ khi cần
-        const { GenericEditComponent } = await import('app/shared/components/generic-components');
         const componentRef = this.editContainer.createComponent(GenericEditComponent);
+        const instance = componentRef.instance as any;
 
         // ✅ Truyền Input cho component
-        componentRef.instance.showDrawer = true;
-        componentRef.instance.titleKey = 'service.detail';
-        componentRef.instance.fields = this.fields;
-        componentRef.instance.entityData = this.selectedDes;
-        componentRef.instance.saveHandler = this.saveHandler.bind(this);
-        componentRef.instance.loadData = this.loadService.bind(this);
+        instance.showDrawer = true;
+        instance.titleKey = 'service.detail';
+        instance.fields = this.fields;
+        instance.entityData = this.selectedDes;
+        instance.saveHandler = this.saveHandler.bind(this);
+        instance.loadData = this.loadService.bind(this);
 
         // ✅ Lắng nghe sự kiện Output
-        componentRef.instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
-        componentRef.instance.drawerOpenedChanged.subscribe((opened: boolean) => {
+        instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
+        instance.drawerOpenedChanged.subscribe((opened: boolean) => {
           this.showEditUser = opened;
           if (!opened) {
             this.editContainer.clear(); // clear component khi đóng
@@ -500,9 +519,7 @@ export class ServiceComponent {
       const date = new Date(timestamp * 1000); // chuyển từ giây sang mili-giây
       return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm', '+0700');
   }
-  toggleEditFilterDrawer():void{
-      this.showFilter = !this.showFilter;
-  }
+  
   onDrawerOpenedChanged(opened: boolean): void {
       this.showEditUser = opened;
   }
@@ -518,6 +535,7 @@ export class ServiceComponent {
   }
   deleteHandler(id: string): Observable<any> {
     this.selectedIds=[]
+    this.hasSelectedService = false;
     return this.serviceService.deleteService(id);
   }
 
@@ -528,8 +546,6 @@ export class ServiceComponent {
       this.showDeleteDialog = !this.showDeleteDialog;
       console.log("OPEN DELETE DIALOG", this.showDeleteDialog)
   }
-
-  
 
   toggleAllRows(event: Event): void {
       const checked = (event.target as HTMLInputElement).checked;
@@ -544,5 +560,4 @@ export class ServiceComponent {
     this.hasSelectedService = this.selectedIds.length >= 1;
     console.log(this.hasSelectedService)
   }
-
 }

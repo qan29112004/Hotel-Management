@@ -1,339 +1,214 @@
-<div
-    *transloco="let t"
-    class="absolute inset-0 flex flex-col min-w-0 overflow-y-auto"
-    cdkScrollable
->
+<div class="absolute inset-0 flex flex-col min-w-0 overflow-y-auto bg-zinc-50" cdkScrollable *transloco="let t">
     <!-- Main -->
-    <div class="flex-auto p-4 sm:px-6 sm:py-4">
-        <!-- CONTENT GOES HERE -->
-        <div class="relative w-full">
-            <!-- Tiêu đề -->
-
-            <div class="flex items-center justify-between mb-4 text-lg">
-                <span class="text-[24px] font-bold text-primary">{{
-                    t("voucher.management")
-                }}</span>
+    <div class="flex-auto p-4 sm:px-8 sm:py-8">
+        <!-- HEADER -->
+        <div class="relative w-full mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-3xl font-black tracking-tight uppercase text-zinc-900">
+                        {{ t("voucher.management") }}
+                    </h2>
+                </div>
             </div>
 
-
-            <!-- Bộ lọc -->
-            <div class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-start">
-                <!-- Cột trái -->
-                <div class="flex flex-col w-full gap-2 mb-4 sm:flex-row">
-                    <!-- Thanh tìm kiếm -->
-                    <div class="w-full text-gray-400 sm:w-auto">
-                        <div class="relative">
-                            <mat-icon class="absolute text-gray-400 -translate-y-1/2 left-2 top-1/2">search</mat-icon>
+            <!-- FILTERS & ACTIONS BAR -->
+            <div class="flex flex-col gap-4 p-4 bg-white border shadow-sm lg:flex-row lg:justify-between lg:items-end border-zinc-200">
+                <!-- Left: Search & Filters -->
+                <div class="flex flex-col items-end w-full gap-3 sm:flex-row">
+                    <!-- Search -->
+                    <div class="relative flex-1 w-full max-w-md sm:w-auto group">
+                        <div class="relative flex items-center">
+                            <mat-icon class="absolute text-zinc-400 left-3">search</mat-icon>
                             <input
                                 type="text"
                                 [(ngModel)]="searchTerm"
                                 (ngModelChange)="onSearch()"
                                 placeholder="{{ t('voucher.search_placeholder') }}"
-                                class="h-9 sm:h-9 text-sm sm:text-base text-black pl-10 pr-10 py-2 border border-gray-300 rounded-lg w-full sm:w-[300px] lg:w-[400px]"
+                                class="w-full h-10 pl-10 pr-10 text-sm transition-all border rounded-none bg-zinc-50 border-zinc-300 text-zinc-900 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 placeholder:text-zinc-400"
                             />
+                            <!-- Filter Toggle Button inside input area -->
                             <button
-                                class="absolute right-0 top-1/2 -translate-y-1/2 rounded-md p-1 flex items-center justify-center bg-[#E0EAFF] border border-[#E0EAFF] hover:bg-[#e6f0ff] transition"
+                                class="absolute top-0 right-0 flex items-center justify-center w-10 h-10 transition-colors border-l rounded-none bg-zinc-100 border-zinc-300 hover:bg-amber-400 hover:text-zinc-900 hover:border-amber-400 text-zinc-500"
                                 (click)="toggleEditFilterDrawer(); $event.stopPropagation()"
                                 type="button"
+                                matTooltip="Advanced Filters"
                             >
-                                <mat-icon [svgIcon]="'heroicons_outline:funnel'"></mat-icon>
+                                <mat-icon [svgIcon]="'heroicons_outline:funnel'" class="icon-size-5"></mat-icon>
                             </button>
-                            <app-generic-filter
-                                #filterPopup
-                                [mode]="'inline'"
-                                [showFilter]="showFilter"
-                                [titleKey]="'content.advanced_filters'"
-                                [fields]="filterFields"
-                                [optionDestination]="optionsHotel"
-                                (filter)="onApplyFilter($event)"
-                                (reset)="onResetFilter()"
-                                (close)="toggleFilterDrawer()"
-                                (drawerOpenedChanged)="onFilterDrawerOpenedChanged($event)"
-                                class="absolute top-[40px] sm:top-[50px] z-50 left-0 bg-white shadow-lg rounded-md w-full sm:w-[300px] lg:w-[400px] max-h-[400px] flex flex-col overflow-y-auto"
-                            >
-                            </app-generic-filter>
-
                         </div>
-                    </div>
-            
-                    <div *ngIf="hasSelectedVoucher" class="flex flex-wrap items-center w-full gap-2 sm:gap-3 sm:w-auto">
-                        
-            
-                        <!-- Delete Selected Users Button -->
-                        <button
-                            (click)="toggleDeleteDialog()"
-                            [class.hidden]="!hasSelectedVoucher"
-                            class="flex items-center bg-red-100 text-red-600 px-2 sm:px-3 py-1 sm:py-1.5 gap-1 rounded text-xs sm:text-sm cursor-pointer hover:bg-red-200 transition-colors"
+
+                        <!-- Advanced Filter Dropdown -->
+                        <app-generic-filter
+                            #filterPopup
+                            [mode]="'inline'"
+                            [showFilter]="showFilter"
+                            [titleKey]="'content.advanced_filters'"
+                            [fields]="filterFields"
+                            [optionDestination]="optionsHotel"
+                            (filter)="onApplyFilter($event)"
+                            (reset)="onResetFilter()"
+                            (close)="toggleFilterDrawer()"
+                            (drawerOpenedChanged)="onFilterDrawerOpenedChanged($event)"
+                            class="absolute top-[70px] z-50 left-0 bg-white w-full sm:w-[400px] max-h-[500px] flex flex-col overflow-y-auto rounded-none"
                         >
-                            <span class="text-base material-icons">delete</span>
-                            <span class="font-semibold">{{ t('content.delete') }}</span>
-                        </button>
+                        </app-generic-filter>
                     </div>
+
+                    <!-- Delete Button (Conditional) -->
+                    <button
+                        *ngIf="hasSelectedVoucher"
+                        (click)="toggleDeleteDialog()"
+                        class="flex items-center h-10 gap-2 px-4 transition-colors border rounded-none bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200 animate-fade-in"
+                    >
+                        <mat-icon class="icon-size-5">delete</mat-icon>
+                        <span class="text-sm font-bold uppercase">{{ t('content.delete') }} ({{selectedIds.length}})</span>
+                    </button>
                 </div>
             
-                <!-- Cột phải -->
-                <div class="flex flex-wrap w-full gap-2 mb-4 lg:w-auto">
+                <!-- Right: Create Button -->
+                <div class="flex w-full lg:w-auto">
                     <button
                         (click)="toggleAddUserDrawer()"
-                        class="flex items-center justify-between h-8 gap-2 px-4 text-xs text-white rounded-md bg-primary sm:h-9 sm:px-6 sm:text-sm"
+                        class="flex items-center justify-center w-full h-10 gap-2 px-6 transition-all rounded-none sm:w-auto bg-zinc-900 text-white hover:bg-zinc-800 active:translate-y-0.5"
                     >
                         <mat-icon
-                            class="text-white icon-size-5 sm:icon-size-6"
+                            class="text-amber-400 icon-size-5"
                             svgIcon="heroicons_outline:plus-circle"
                         ></mat-icon>
-                        <span class="whitespace-nowrap">{{ t("voucher.create") }}</span>
+                        <span class="text-sm font-bold tracking-wide uppercase">{{ t("voucher.create") }}</span>
                     </button>
                 </div>
             </div>
-            
-            
-            
-        
 
-            <!-- Table -->
-            <div class="h-table-body-22">
-                <div class="h-full mb-3 overflow-x-auto bg-white">
-                    <table
-                        class="table w-full text-base border-separate border-spacing-0"
-                    >
-                        <thead
-                            class="font-medium text-left text-gray-700 bg-sky-50"
-                        >
+            <!-- TABLE CONTAINER -->
+            <div class="mt-4 overflow-hidden bg-white border shadow-sm border-zinc-200">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left border-collapse">
+                        <!-- THEAD -->
+                        <thead class="text-xs font-bold tracking-wider text-white uppercase bg-zinc-900">
                             <tr>
-                                <th class="p-0 text-center th-cell">
+                                <th class="w-12 px-4 py-4 text-center border-b border-zinc-800">
                                     <input
                                         type="checkbox"
                                         (change)="toggleAllRows($event)"
                                         (click)="$event.stopPropagation()"
-                                        class = "w-4 h-4 form-checkbox text-primary-600"
+                                        class="w-4 h-4 rounded-none border-zinc-600 bg-zinc-800 text-amber-500 focus:ring-amber-500 focus:ring-offset-zinc-900"
                                     />
                                 </th>
-                                <th class="p-0 text-center th-cell">
+                                <th class="w-16 px-4 py-4 text-center border-b border-zinc-800">
                                     {{ t("user_management.sequenceNumber") }}
                                 </th>
-                                <th
-                                    class="cursor-pointer th-cell"
-                                    (click)="sortBy('name')"
-                                    [ngClass]="{
-                                        'bg-primary-100':
-                                            sortField === 'name'
-                                    }"
-                                >
-                                    <span class="flex items-center">
+                                <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800"
+                                    (click)="sortBy('name')">
+                                    <div class="flex items-center gap-1">
                                         {{ t("voucher.name") }}
-                                        <div class="flex flex-col ml-2">
-                                            <mat-icon
-                                                class="w-3 h-2 min-w-3 min-h-2"
-                                                *ngIf="
-                                                    sortField !== 'name' ||
-                                                    sortOption === null ||
-                                                    sortOption === 'asc'
-                                                "
-                                                fontIcon="arrow_drop_up"
-                                            >
-                                            </mat-icon>
-                                            <mat-icon
-                                                class="w-3 h-2 min-w-3 min-h-2"
-                                                *ngIf="
-                                                    sortField !== 'name' ||
-                                                    sortOption === null ||
-                                                    sortOption === 'desc'
-                                                "
-                                                fontIcon="arrow_drop_down"
-                                            >
-                                            </mat-icon>
-                                        </div>
-                                    </span>
+                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'name' && sortOption === 'asc'">arrow_upward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'name' && sortOption === 'desc'">arrow_downward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-zinc-600" *ngIf="sortField !== 'name'">unfold_more</mat-icon>
+                                    </div>
                                 </th>
-                                <!-- <th class="th-cell">
-                                    {{ t("voucher.description") }}
-                                </th> -->
-
-                                
-                                <th
-                                    class="cursor-pointer th-cell"
-                                    (click)="sortBy('created_at')"
-                                    [ngClass]="{
-                                        'bg-primary-100':
-                                            sortField === 'created_at'
-                                    }"
-                                >
-                                    <span class="flex items-center">
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("voucher.code") }}</th>
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("voucher.discount_type") }}</th>
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("voucher.discount_value") }}</th>
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("voucher.start_at") }}</th>
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("voucher.expire_at") }}</th>
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("voucher.status") }}</th>
+                                <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800" (click)="sortBy('created_at')">
+                                    <div class="flex items-center gap-1">
                                         {{ t("user_management.created_at") }}
-                                        <div class="flex flex-col ml-2">
-                                            <mat-icon
-                                                class="w-3 h-2 min-w-3 min-h-2"
-                                                *ngIf="
-                                                    sortField !==
-                                                        'created_at' ||
-                                                    sortOption === null ||
-                                                    sortOption === 'asc'
-                                                "
-                                                fontIcon="arrow_drop_up"
-                                            >
-                                            </mat-icon>
-                                            <mat-icon
-                                                class="w-3 h-2 min-w-3 min-h-2"
-                                                *ngIf="
-                                                    sortField !==
-                                                        'created_at' ||
-                                                    sortOption === null ||
-                                                    sortOption === 'desc'
-                                                "
-                                                fontIcon="arrow_drop_down"
-                                            >
-                                            </mat-icon>
-                                        </div>
-                                    </span>
+                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'created_at' && sortOption === 'asc'">arrow_upward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'created_at' && sortOption === 'desc'">arrow_downward</mat-icon>
+                                    </div>
                                 </th>
-                                <th class="th-cell">
-                                    {{ t("user_management.updated_at") }}
-                                </th>
-
-                                <th class="th-cell">
-                                    <!-- {{ t("user_management.updated_at") }} -->
-                                    {{ t("voucher.code") }}
-                                </th>
-                                <th class="th-cell">
-                                    {{ t("voucher.discount_type") }}
-                                </th>
-                                <th class="th-cell">
-                                    {{ t("voucher.discount_value") }}
-                                </th>
-                                
-                                <th class="th-cell">
-                                    {{ t("voucher.max_discount_amount") }}
-                                </th>
-                                <th class="th-cell">
-                                    {{ t("voucher.min_order_value") }}
-                                </th>
-                                <th class="th-cell">
-                                    {{ t("voucher.start_at") }}
-                                </th>
-                                <th class="th-cell">
-                                    {{ t("voucher.expire_at") }}
-                                </th>
-                                <th class="th-cell">
-                                    {{ t("voucher.status") }}
-                                </th>
-                                <th class="th-cell">
-                                    {{ t("user_management.action") }}
-                                </th>
+                                <th class="px-4 py-4 text-center border-b border-zinc-800">{{ t("user_management.action") }}</th>
                             </tr>
                         </thead>
-                        <tbody>
+
+                        <!-- TBODY -->
+                        <tbody class="divide-y divide-zinc-100">
                             <tr
-                                *ngFor="
-                                    let voucher of vouchers;
-                                    let i = index;
-                                "
+                                *ngFor="let voucher of vouchers; let i = index;"
+                                class="transition-colors duration-150 bg-white group hover:bg-amber-50/50"
+                                [class.bg-amber-50]="voucher.selected"
                             >
-                                <td
-                                    class="p-0 text-center td-cell min-w-10 max-w-10"
-                                >
+                                <td class="px-4 py-3 text-center">
                                     <input
                                         type="checkbox"
                                         [(ngModel)]="voucher.selected"
                                         (ngModelChange)="toggleRow()"
                                         (click)="$event.stopPropagation()"
-                                        class = "w-4 h-4 form-checkbox text-primary-600"
+                                        class="w-4 h-4 rounded-none cursor-pointer border-zinc-300 text-amber-500 focus:ring-amber-500"
                                     />
                                 </td>
-                                <td
-                                    class="p-0 text-center td-cell min-w-10 max-w-10"
-                                >
+                                <td class="px-4 py-3 font-mono text-center text-zinc-500">
                                     {{ (currentPage - 1) * pageSize + i + 1 }}
                                 </td>
-                                <td
-                                    class="td-cell min-w-48"
-                                    (click)="toggleEditUserDrawer(voucher)"
-                                >
-                                    <div
-                                        class="flex items-center gap-2 cursor-pointer"
-                                    >
-                                        
-                                        <div class="min-w-0">
-                                            <div
-                                                class="overflow-hidden font-semibold cursor-pointer text-primary text-ellipsis whitespace-nowrap hover:underline"
-                                                [title]="voucher.name || ''"
-                                            >
-                                                {{ voucher.name }}
-                                            </div>
-                                            
-                                        </div>
+                                <td class="px-4 py-3" (click)="toggleEditUserDrawer(voucher)">
+                                    <div class="font-bold truncate transition-colors cursor-pointer text-zinc-900 group-hover:text-amber-600">
+                                        {{ voucher.name }}
+                                    </div>
+                                    <div class="text-xs text-zinc-500 truncate max-w-[200px]" [title]="voucher.description || ''">
+                                        {{ voucher.description || '---' }}
                                     </div>
                                 </td>
-                                <!-- <td class="td-cell">
-                                    <markdown
-                                        [data]="voucher.description || '---'"
-                                        (click) = "toggleEditUserDrawer(voucher)" 
-                                        class="overflow-hidden font-semibold cursor-pointer text-ellipsis whitespace-nowrap"
-                                        [title]="voucher.description || ''"
+                                <td class="px-4 py-3 font-mono text-sm text-zinc-700">
+                                    {{ voucher.code }}
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-none"
+                                        [ngClass]="{
+                                            'bg-blue-100 text-blue-800': voucher.discountType === 'FIXED',
+                                            'bg-purple-100 text-purple-800': voucher.discountType === 'PERCENT'
+                                        }"
                                     >
-                                        
-                                    </markdown>
-                                </td> -->
-                                <td class="td-cell whitespace-nowrap">
-                                    <p>{{ formatDateTimeUnix(voucher.createdAt) }}</p>
+                                        {{ voucher.discountType }}
+                                    </span>
                                 </td>
-                                <td class="td-cell whitespace-nowrap">
-                                    <p>
-                                        {{
-                                            formatDateTimeUnix(voucher.updatedAt) ||
-                                                "---"
-                                        }}
-                                    </p>
-                                    <p>
-                                        {{
-                                            voucher.updatedBy
-                                                ? voucher.updatedBy.username
-                                                : "---"
-                                        }}
-                                    </p>
+                                <td class="px-4 py-3 font-semibold text-zinc-700">
+                                    <span *ngIf="voucher.discountType === 'PERCENT'">{{ voucher.discountPercent }}%</span>
+                                    <span *ngIf="voucher.discountType === 'FIXED'">{{ voucher.discountValue | currency }}</span>
                                 </td>
-                                <td class="td-cell whitespace-nowrap">
-                                    <p>{{ voucher.code }}</p>
+                                <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
+                                    {{ voucher.startAt | date:'mediumDate' }}
                                 </td>
-                                <td class="td-cell whitespace-nowrap">
-                                    <p>{{ voucher.discountType }}</p>
+                                <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
+                                    {{ voucher.expireAt | date:'mediumDate' }}
                                 </td>
-                                <th class="th-cell">
-                                    {{ voucher.discountValue }}
-                                </th>
-                                
-                                <th class="th-cell">
-                                    {{ voucher.maxDiscountAmount }}
-                                </th>
-                                <th class="th-cell">
-                                    {{ voucher.minOrderValue }}
-                                </th>
-                                <th class="th-cell">
-                                    {{ voucher.startAt }}
-                                </th>
-                                <th class="th-cell">
-                                    {{ voucher.expireAt }}
-                                </th>
-                                <th class="th-cell">
-                                    {{ voucher.status }}
-                                </th>
-                                <td class="td-cell whitespace-nowrap">
-                                    <div
-                                        class="flex items-center gap-2 justify-left"
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-none"
+                                        [ngClass]="{
+                                            'bg-emerald-100 text-emerald-800': voucher.status === 'ACTIVE',
+                                            'bg-amber-100 text-amber-800': voucher.status === 'PAUSED',
+                                            'bg-rose-100 text-rose-800': voucher.status === 'EXPIRED',
+                                            'bg-zinc-100 text-zinc-800': voucher.status === 'EXHAUSTED'
+                                        }"
                                     >
+                                        {{ voucher.status }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
+                                     <div class="flex flex-col">
+                                        <span>{{ formatDateTimeUnix(voucher.createdAt) }}</span>
+                                        <span class="text-[10px] text-zinc-400" *ngIf="voucher.updatedBy">by {{ voucher.updatedBy.username }}</span>
+                                     </div>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <div class="flex items-center justify-center gap-1 transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
                                         <button
-                                          (click)="toggleEditUserDrawer(voucher)                       "
-
-                                          class="inline-flex items-center justify-center w-8 h-8 mr-1">
-                                          <img src="assets/images/ui/edit.svg" alt="appType" class="object-scale-down w-8 h-8 mx-auto">
+                                            (click)="toggleEditUserDrawer(voucher); $event.stopPropagation()"
+                                            class="flex items-center justify-center w-8 h-8 transition-colors rounded-none text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
+                                            matTooltip="Edit"
+                                        >
+                                            <mat-icon class="icon-size-5">edit</mat-icon>
                                         </button>
 
-                                          <button                                   
-                                          *ngIf="user.role === 1"
-                                          (click)="toggleDeleteDialog(voucher.uuid)"
-                                          title="{{ t('feedback.delete') }}"
-                                          class="inline-flex items-center justify-center w-8 h-8 mr-1">
-                                          <img src="assets/images/ui/trash.png" alt="appType" class="object-scale-down w-8 h-8 mx-auto">
-
+                                        <button
+                                            *ngIf="user.role === 1"
+                                            (click)="toggleDeleteDialog(voucher.uuid); $event.stopPropagation()"
+                                            class="flex items-center justify-center w-8 h-8 transition-colors rounded-none text-zinc-500 hover:text-rose-600 hover:bg-rose-50"
+                                            matTooltip="Delete"
+                                        >
+                                            <mat-icon class="icon-size-5">delete</mat-icon>
                                         </button>
                                     </div>
                                 </td>
@@ -341,37 +216,38 @@
                         </tbody>
                     </table>
 
-                    <div
-                        *ngIf="vouchers.length === 0"
-                        class="flex flex-col items-center justify-center font-semibold text-center text-primary"
-                    >
-                        <img
-                            src="assets/images/ui/empty-folder.svg"
-                            alt=""
-                            class="w-32 h-32 mb-4"
-                        />
-                        <p>{{ t("voucher.no_matching_data") }}</p>
+                    <!-- Empty State -->
+                    <div *ngIf="vouchers.length === 0 && !loading" class="flex flex-col items-center justify-center py-12 text-center border-t text-zinc-400 bg-zinc-50 border-zinc-100">
+                         <mat-icon class="mb-3 icon-size-12 text-zinc-300" [svgIcon]="'heroicons_outline:folder-open'"></mat-icon>
+                        <p class="text-lg font-medium text-zinc-500">{{ t("voucher.no_matching_data") }}</p>
+                        <p class="text-sm">Try adjusting your search or filters</p>
                     </div>
+                     <!-- Loading State -->
+                     <div *ngIf="loading" class="flex items-center justify-center py-12 border-t border-zinc-100">
+                        <mat-spinner diameter="32"></mat-spinner>
+                     </div>
                 </div>
 
-                <app-custom-pagination
-                    *ngIf="vouchers.length > 0"
-                    [totalRecords]="totalRecords"
-                    [totalItems]="totalItems"
-                    [currentPage]="currentPage"
-                    [pageSize]="pageSize"
-                    (pageChange)="onPageChange($event)"
-                    (pageSizeChange)="onPageSizeChange($event)"
-                >
-                </app-custom-pagination>
+                <!-- Footer / Pagination -->
+                <div class="p-2 border-t bg-zinc-50 border-zinc-200">
+                    <app-custom-pagination
+                        *ngIf="vouchers.length > 0"
+                        [totalRecords]="totalRecords"
+                        [totalItems]="totalItems"
+                        [currentPage]="currentPage"
+                        [pageSize]="pageSize"
+                        (pageChange)="onPageChange($event)"
+                        (pageSizeChange)="onPageSizeChange($event)"
+                        class="block w-full"
+                    >
+                    </app-custom-pagination>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <ng-container #editContainer></ng-container>
-
-
 
 <app-generic-add
     [showDrawer]="showAddVoucher"
@@ -382,8 +258,8 @@
     (toggleDrawer)="toggleAddUserDrawer()"
     [loadData] = "loadVoucher.bind(this)"
     (drawerOpenedChanged)="onAddDrawerOpenedChanged($event)">
-    
 </app-generic-add>
+
 <app-generic-delete
     *ngIf="showDeleteDialog"
     [entityIds]="selectedIds"
@@ -394,5 +270,3 @@
     (close)="toggleDeleteDialog()"
     (refresh)="loadVoucher()"
 ></app-generic-delete>
-
-

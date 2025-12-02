@@ -350,12 +350,6 @@ export const compactNavigation: FuseNavigationItem[] = [
                 link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.CONTENT}`,
             },
             {
-                id: 'admin.feedback',
-                title: 'FeedBack',
-                type: 'basic',
-                link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.ADMIN_FEEDBACK}`,
-            },
-            {
                 id: 'admin.destination',
                 title: 'Destination',
                 type: 'basic',
@@ -384,6 +378,12 @@ export const compactNavigation: FuseNavigationItem[] = [
                 title: 'Amenity',
                 type: 'basic',
                 link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.AMENITY}`,
+            },
+            {
+                id: 'admin.facilities',
+                title: 'Facilities',
+                type: 'basic',
+                link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.FACILITIES}`,
             },
             {
                 id: 'admin.offer',

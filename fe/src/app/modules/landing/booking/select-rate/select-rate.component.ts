@@ -7,11 +7,11 @@ import { environment } from 'environments/environment.fullstack';
 import { formatDateToLong, calculateTotalAndAverage, convertVNDToUSD } from 'app/shared/utils/util';
 import { BookingService } from 'app/core/booking/booking.service';
 import { animate, style, transition, trigger } from '@angular/animations';
-
+import { TranslocoModule } from '@ngneat/transloco';
 @Component({
   selector: 'app-select-rate',
   standalone: true,
-  imports: [CommonModule, SharedModule],
+  imports: [CommonModule, SharedModule, TranslocoModule],
   templateUrl: './select-rate.component.html',
   styles: ``,
   animations: [

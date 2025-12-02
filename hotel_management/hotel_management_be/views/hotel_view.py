@@ -1,4 +1,3 @@
-import datetime
 import json
 from constants.hotel_constants import HotelConstants
 from utils.swagger_decorators import auto_schema_post, auto_schema_get, auto_schema_delete, auto_schema_patch, auto_schema_put
@@ -128,6 +127,7 @@ def hotel_detail(request, uuid):
    
 @api_view(['POST'])
 def explore_hotels(request):
+    from datetime import date, timedelta, datetime
     des = request.data.get('destination','')
     check_in = request.data.get('check_in','')
     check_out = request.data.get('check_out','')
@@ -138,6 +138,10 @@ def explore_hotels(request):
     my_pagination_1 = MyPagination()
     total_rooms_needed = len(rooms)
     room_requirements = [room['adults'] + room['children'] for room in rooms]
+    count_children = sum([room['children'] for room in rooms])
+    if check_in and check_out:
+        check_in_date = datetime.strptime(check_in, "%Y-%m-%d").date()
+        check_out_date = datetime.strptime(check_out, "%Y-%m-%d").date()
     
     
     try:
@@ -161,6 +165,7 @@ def explore_hotels(request):
         elif sort == "rating_asc":
             hotels = hotels.order_by("average_rating")
         # List để chứa các hotel object thỏa mãn
+        
         available_hotels = []
         booked_rooms = set()
         print("check hotel: ",hotels)
@@ -169,7 +174,12 @@ def explore_hotels(request):
             booked_rooms = Utils.get_booked_rooms(check_in, check_out)
             print("check room da dat: ",booked_rooms )
         for hotel in hotels:
+            total_price = 0
             # Lấy tất cả room types của hotel
+            if check_in and check_out:
+                for i in range((check_out_date - check_in_date).days + 1):
+                    date = check_in_date + timedelta(days=i)
+                    total_price += Utils.compute_price_explore_hotel(hotel.uuid, date, sum(room_requirements), room_requirements, count_children)
             room_types = hotel.RoomType.all()
             print("check hotel loop: ",hotel)
             print("check roontype: ",room_types)
@@ -206,6 +216,7 @@ def explore_hotels(request):
             if Utils.can_accommodate(hotel_availability, room_requirements, total_rooms_needed):
                 # Gán available_room_types vào hotel object
                 hotel.available_room_types = available_room_types
+                hotel.price = total_price
                 # Thêm hotel object vào list
                 available_hotels.append(hotel)
                 

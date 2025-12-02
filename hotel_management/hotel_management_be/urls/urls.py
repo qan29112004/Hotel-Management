@@ -16,6 +16,8 @@ from hotel_management_be.views.sse_view import *
 from hotel_management_be.views.service_view import *
 from hotel_management_be.views.rating_view import *
 from hotel_management_be.views.voucher_view import *
+from hotel_management_be.views.facilities_view import *
+
 from hotel_management_be.views.dashboard_view import dashboard_overview
 
 
@@ -53,6 +55,10 @@ urlpatterns = [
     path('amenity/list/', list_amenity, name='list_amenity'),
     path('amenity/<str:uuid>/', amenity_detail, name="update_amenity"),
     path('amenity/', add_amenity, name="add_amenity"),
+    
+    path('facilities/list/', list_facilities, name='list_facilities'),
+    path('facilities/<str:uuid>/', facilities_detail, name="update_facilities"),
+    path('facilities/', add_facilities, name="add_facilities"),
     
     path('destination/list/', list_destination, name='list_destination'),
     path('destination/<str:uuid>/', destination_detail, name="update_destination"),

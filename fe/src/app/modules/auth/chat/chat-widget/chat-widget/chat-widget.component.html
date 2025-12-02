@@ -9,7 +9,7 @@
             ><mat-icon class="text-white text-[20px]">contact_support</mat-icon></button>
             <span *ngIf="groupStatus==='Waiting'" class="text-white text-[14px] ml-[8px]">Chờ phản hồi</span>
             <span *ngIf="groupStatus==='In progress'" class="text-white text-[14px] ml-[8px]">Đang tiếp nhận</span>
-            <button (click)="outGroupChat()" type="button" *ngIf="crrUser.role === 2" class="flex bg-white text-black justify-center items-center px-2 py-1 ml-[8px] rounded-full">chat.end</button>
+            <button (click)="outGroupChat()" type="button" *ngIf="crrUser.role === 2" class="flex bg-white text-black justify-center items-center px-2 py-1 ml-[8px] rounded-full">{{'chat.end'|transloco}}</button>
         </div>
         <div class="flex gap-2 pr-3">
             

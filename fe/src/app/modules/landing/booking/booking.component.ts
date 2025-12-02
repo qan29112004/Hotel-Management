@@ -21,11 +21,12 @@ import {
   animate,
 } from '@angular/animations';
 import { fromEvent, Subscription, switchMap, tap } from 'rxjs';
+import { TranslocoModule } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-booking',
   standalone: true,
-  imports: [CommonModule, SelectRateComponent, SelectServiceComponent, CustomerInfoComponent,BookingProgressComponent, CalendarComponent,SharedModule],
+  imports: [CommonModule, SelectRateComponent, SelectServiceComponent, CustomerInfoComponent,BookingProgressComponent, CalendarComponent,SharedModule, TranslocoModule],
   templateUrl: './booking.component.html',
   styles: ``,
 

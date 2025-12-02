@@ -110,6 +110,14 @@ class Facilities(BaseModel):
     icon = models.CharField(max_length=255, null=True,blank=True)
     description = models.TextField(null=True, blank=True)
     
+class HotelFacilies(BaseModel):
+    uuid  = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
+    hotel = models.ForeignKey('hotel_management_be.Hotel', on_delete=models.CASCADE, related_name='hotel_facilities')
+    facilities = models.ForeignKey(Facilities, on_delete=models.CASCADE, related_name='facilities_hotel')
+
+    class Meta:
+        unique_together = ('hotel', 'facilities')
+    
 class RoomTypeAmenity(models.Model):
     room_type = models.ForeignKey(RoomType, on_delete=models.CASCADE, related_name="roomtype_amenity")
     amenity = models.ForeignKey(Amenity, on_delete=models.CASCADE, related_name="amenity_roomtype")

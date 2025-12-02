@@ -305,6 +305,12 @@ export const appRoutes: Route[] = [
                             import('app/modules/admin/amenity/amenity.routes'),
                     },
                     {
+                        path: routeConfig.FACILITIES,
+                        data: { title: 'facilities.title' },
+                        loadChildren: () =>
+                            import('app/modules/admin/facilities/facilities.route'),
+                    },
+                    {
                         path: routeConfig.OFFER,
                         data: { title: 'offer.title' },
                         loadChildren: () =>

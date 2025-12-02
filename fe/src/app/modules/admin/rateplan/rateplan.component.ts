@@ -43,12 +43,32 @@ import { RateplanService } from 'app/core/admin/rateplan/rateplan.service';
     GenericEditComponent,
     GenericAddComponent,
     GenericDeleteComponent,
-    GenericFilterComponent
+    GenericFilterComponent,
+    RouterModule,
+    MatIconModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './rateplan.component.html',
-  styles: ``
+  styles: [`
+    /* Custom override to ensure sharp edges on material components if global styles don't cover it */
+    :host ::ng-deep .mat-mdc-form-field-flex {
+        border-radius: 0 !important;
+    }
+    :host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+        border-radius: 0 !important;
+    }
+  `]
 })
-export class RateplanComponent {
+export class RateplanComponent implements OnInit {
   private _unsubscribeAll: Subject<any> = new Subject<any>();
   fields: FieldConfig[] =[
     {
@@ -329,7 +349,6 @@ export class RateplanComponent {
     this.userService.user$.subscribe((user)=>{
       this.user = user;
     })
-    console.log(this.showFilter)
   }
 
   loadCheckboxService(){
@@ -432,6 +451,10 @@ export class RateplanComponent {
   toggleFilterDrawer(): void {
         this.showFilter = !this.showFilter;
     }
+  
+  toggleEditFilterDrawer(): void {
+      this.showFilter = !this.showFilter;
+  }
 
   onFilterDrawerOpenedChanged(opened: boolean): void {
       this.showFilter = opened;
@@ -570,22 +593,22 @@ export class RateplanComponent {
       this.showEditUser = !this.showEditUser;
       if (this.showEditUser) {
         // ✅ Lazy import component chỉ khi cần
-        const { GenericEditComponent } = await import('app/shared/components/generic-components');
         const componentRef = this.editContainer.createComponent(GenericEditComponent);
+        const instance = componentRef.instance as any;
 
         // ✅ Truyền Input cho component
-        componentRef.instance.showDrawer = true;
-        componentRef.instance.titleKey = 'rateplan.detail';
-        componentRef.instance.fields = this.fields;
-        componentRef.instance.entityData = this.selectedDes;
-        componentRef.instance.saveHandler = this.saveHandler.bind(this);
-        componentRef.instance.loadData = this.loadRateplan.bind(this);
-        componentRef.instance.optionDestination = this.optionsHotel;
-        componentRef.instance.optionRadio = this.checkboxServiceOptions;
+        instance.showDrawer = true;
+        instance.titleKey = 'rateplan.detail';
+        instance.fields = this.fields;
+        instance.entityData = this.selectedDes;
+        instance.saveHandler = this.saveHandler.bind(this);
+        instance.loadData = this.loadRateplan.bind(this);
+        instance.optionDestination = this.optionsHotel;
+        instance.optionRadio = this.checkboxServiceOptions;
 
         // ✅ Lắng nghe sự kiện Output
-        componentRef.instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
-        componentRef.instance.drawerOpenedChanged.subscribe((opened: boolean) => {
+        instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
+        instance.drawerOpenedChanged.subscribe((opened: boolean) => {
           this.showEditUser = opened;
           if (!opened) {
             this.editContainer.clear(); // clear component khi đóng
@@ -612,9 +635,7 @@ export class RateplanComponent {
       const date = new Date(timestamp * 1000); // chuyển từ giây sang mili-giây
       return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm', '+0700');
   }
-  toggleEditFilterDrawer():void{
-      this.showFilter = !this.showFilter;
-  }
+  
   onDrawerOpenedChanged(opened: boolean): void {
       this.showEditUser = opened;
   }
@@ -630,6 +651,7 @@ export class RateplanComponent {
   }
   deleteHandler(id: string): Observable<any> {
     this.selectedIds=[]
+    this.hasSelectedRateplan = false;
     return this.ratePlanService.deleteRatePlan(id);
   }
 

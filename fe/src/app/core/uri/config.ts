@@ -169,6 +169,12 @@ export const uriConfig = {
     API_AMENITY_DELETE: (uuid:string) => baseUrl + `/api/amenity/${uuid}/`,
     API_AMENITY_CREATE: baseUrl + '/api/amenity/',
 
+    //facilities
+    API_FACILITIES_ALL: baseUrl + '/api/facilities/list/',
+    API_FACILITIES_UPDATE: (uuid:string) => baseUrl + `/api/facilities/${uuid}/`,
+    API_FACILITIES_DELETE: (uuid:string) => baseUrl + `/api/facilities/${uuid}/`,
+    API_FACILITIES_CREATE: baseUrl + '/api/facilities/',
+
     //room
     API_ROOM_ALL: baseUrl + '/api/room/list/',
     API_ROOM_UPDATE: (uuid:string) => baseUrl + `/api/room/${uuid}/`,

@@ -25,6 +25,7 @@ import { formatTimestamp } from 'app/shared/utils/chat/format_time.util';
 import { ChatService } from 'app/core/chat/chat.service';
 import { UserService } from 'app/core/profile/user/user.service';
 import { SharedModule } from 'app/shared/shared.module';
+import { TranslocoModule } from '@ngneat/transloco';
 @Component({
     selector: 'app-chat-widget',
     standalone: true,
@@ -33,7 +34,8 @@ import { SharedModule } from 'app/shared/shared.module';
         ChatBubbleComponent,
         ReactiveFormsModule,
         MatIconModule,
-        SharedModule
+        SharedModule,
+        TranslocoModule
     ],
     templateUrl: './chat-widget.component.html',
     styles: ``,

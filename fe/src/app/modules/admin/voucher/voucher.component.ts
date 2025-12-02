@@ -57,7 +57,15 @@ import { HotelService } from 'app/core/admin/hotel/hotel.service';
     MatTooltipModule
   ],
   templateUrl: './voucher.component.html',
-  styles: ``
+  styles: [`
+    /* Custom override to ensure sharp edges on material components if global styles don't cover it */
+    :host ::ng-deep .mat-mdc-form-field-flex {
+        border-radius: 0 !important;
+    }
+    :host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+        border-radius: 0 !important;
+    }
+  `]
 })
 export class VoucherComponent {
   fields: FieldConfig[] =[
@@ -553,24 +561,13 @@ export class VoucherComponent {
     });
   }
 
-  // loadAutocompleteOptions(): void {
-  //     // Cập nhật autocomplete options cho trường name
-  //     this.voucherService.getVoucher({ page_index: 1, page_size: 1000 }).subscribe({
-  //         next: (response) => {
-  //             const nameField = this.filterFields.find(f => f.name === 'title');
-  //             if (nameField) {
-  //                 nameField.autocompleteOptions = response.data.map((dest: Voucher) => dest.title);
-  //             }
-  //         },
-  //         error: (error) => {
-  //             console.error('Error loading autocomplete options:', error);
-  //         }
-  //     });
-  // }
-
   toggleFilterDrawer(): void {
         this.showFilter = !this.showFilter;
     }
+  
+  toggleEditFilterDrawer(): void {
+      this.showFilter = !this.showFilter;
+  }
 
   onFilterDrawerOpenedChanged(opened: boolean): void {
       this.showFilter = opened;
@@ -699,8 +696,6 @@ export class VoucherComponent {
     };
   }
 
-  
-
   async toggleEditUserDrawer(voucher?: Voucher) {
       if (voucher) {
         this.selectedDes=voucher;
@@ -708,22 +703,21 @@ export class VoucherComponent {
       }
       this.showEditUser = !this.showEditUser;
       if (this.showEditUser) {
-        // ✅ Lazy import component chỉ khi cần
-        const { GenericEditComponent } = await import('app/shared/components/generic-components');
         const componentRef = this.editContainer.createComponent(GenericEditComponent);
+        const instance = componentRef.instance as any;
 
         // ✅ Truyền Input cho component
-        componentRef.instance.showDrawer = true;
-        componentRef.instance.titleKey = 'voucher.detail';
-        componentRef.instance.fields = this.fields;
-        componentRef.instance.entityData = this.selectedDes;
-        componentRef.instance.saveHandler = this.saveHandler.bind(this);
-        componentRef.instance.loadData = this.loadVoucher.bind(this);
-        componentRef.instance.optionRadio = this.optionsHotel;
+        instance.showDrawer = true;
+        instance.titleKey = 'voucher.detail';
+        instance.fields = this.fields;
+        instance.entityData = this.selectedDes;
+        instance.saveHandler = this.saveHandler.bind(this);
+        instance.loadData = this.loadVoucher.bind(this);
+        instance.optionRadio = this.optionsHotel;
 
         // ✅ Lắng nghe sự kiện Output
-        componentRef.instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
-        componentRef.instance.drawerOpenedChanged.subscribe((opened: boolean) => {
+        instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
+        instance.drawerOpenedChanged.subscribe((opened: boolean) => {
           this.showEditUser = opened;
           if (!opened) {
             this.editContainer.clear(); // clear component khi đóng
@@ -750,9 +744,7 @@ export class VoucherComponent {
       const date = new Date(timestamp * 1000); // chuyển từ giây sang mili-giây
       return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm', '+0700');
   }
-  toggleEditFilterDrawer():void{
-      this.showFilter = !this.showFilter;
-  }
+  
   onDrawerOpenedChanged(opened: boolean): void {
       this.showEditUser = opened;
   }
@@ -768,6 +760,7 @@ export class VoucherComponent {
   }
   deleteHandler(id: string): Observable<any> {
     this.selectedIds=[]
+    this.hasSelectedVoucher = false;
     return this.voucherService.deleteVoucher(id);
   }
 
@@ -778,8 +771,6 @@ export class VoucherComponent {
       this.showDeleteDialog = !this.showDeleteDialog;
       console.log("OPEN DELETE DIALOG", this.showDeleteDialog)
   }
-
-  
 
   toggleAllRows(event: Event): void {
       const checked = (event.target as HTMLInputElement).checked;

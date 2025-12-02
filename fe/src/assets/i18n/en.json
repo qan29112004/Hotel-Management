@@ -117,7 +117,12 @@
             "hotel":"Hotel",
             "amenity":"Amenity",
             "offer":"Offer",
-            "booking":"Booking"
+            "booking":"Booking",
+            "service":"Service",
+            "rateplan":"Rate Plan",
+            "rating":"Rating",
+            "voucher":"Voucher",
+            "facilities":"Facilities"
         },
         "mod": {
             "app_type": "App Type",
@@ -1110,6 +1115,10 @@
     "hotel":{
         "title":"Hotel",
         "management":"Hotel Management",
+        "alert":{
+            "success":"Successfully to load hotels",
+            "fail":"Failed to load hotels"
+        },
         "name": "Hotel name",
         "description": "Description",
         "enterFullName":"Enter Full Name",

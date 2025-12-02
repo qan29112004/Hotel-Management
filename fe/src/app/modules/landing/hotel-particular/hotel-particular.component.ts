@@ -14,11 +14,11 @@ import { RatingComponent } from 'app/shared/components/rating/rating.component';
 import { HotelService } from 'app/core/admin/hotel/hotel.service';
 import { MapComponent } from 'app/shared/components/map/map.component';
 import { environment } from 'environments/environment.fullstack';
-
+import { TranslocoModule } from '@ngneat/transloco';
 @Component({
   selector: 'app-hotel-particular',
   standalone: true,
-  imports: [CommonModule, SharedModule, CalendarComponent, RatingComponent, MapComponent],
+  imports: [CommonModule, SharedModule, CalendarComponent, RatingComponent, MapComponent, TranslocoModule],
   templateUrl: './hotel-particular.component.html',
   styleUrls:['./hotel-particular.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

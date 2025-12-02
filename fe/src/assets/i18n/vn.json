@@ -118,7 +118,12 @@
             "hotel":"Khách sạn",
             "amenity":"Tiện nghi",
             "offer":"Offer",
-            "booking":"Đặt phòng"
+            "booking":"Đặt phòng",
+            "service":"Dịch vụ",
+            "rateplan":"Rate Plan",
+            "rating":"Đánh giá",
+            "voucher":"Mã giảm giá",
+            "facilities":"Cơ sở vật chất"
         },
         "mod": {
             "app_type": "Ứng dụng",
@@ -222,7 +227,8 @@
         "sign_in": "Đăng nhập bằng",
         "profile": "Hồ sơ",
         "change_password": "Đổi mật khẩu",
-        "sign_out": "Đăng xuất"
+        "sign_out": "Đăng xuất",
+        "booking": "Đặt phòng"
     },
     "sign_in": {
         "title": "Đăng nhập",
@@ -464,7 +470,7 @@
             "active_filters": "Bộ lọc đang áp dụng"
         },
         "admin": "Quản trị viên",
-        "mod": "Người kiểm duyệt",
+        "receptionise": "Lễ tân",
         "user": "Người dùng",
         "login_history": "Lịch sử đăng nhập",
         "loading_login_history": "Đang tải lịch sử đăng nhập...",
@@ -882,7 +888,8 @@
         "days": "ngày",
         "just_now": "bây giờ",
         "at": "lúc",
-        "send_image": "Đã gửi ảnh"
+        "send_image": "Đã gửi ảnh",
+        "end":"Kết thúc"
     },
     "content": {
         "page_title": "Quản Lý Nội Dung",
@@ -1032,6 +1039,7 @@
         "title":"Địa điểm",
         "management":"Quản lý địa điểm",
         "name": "Tên địa điểm",
+        "thumbnail":"Ảnh đại diện",
         "introduce":"Giới thiệu",
         "description": "Mô tả về địa điểm",
         "enterFullName":"Nhập tên địa điểm",
@@ -1123,6 +1131,10 @@
     "hotel":{
         "title":"Khách sạn",
         "management":"Quản lý khách sạn",
+        "alert":{
+            "success":"Tải khách sạn thành công",
+            "fail":"Tải khách sạn thất bại"
+        },
         "name": "Tên khách sạn",
         "description": "Mô tả về khách sạn",
         "enterFullName":"Nhập tên khách sạn",
@@ -1137,6 +1149,7 @@
         "filter": "Lọc khách sạn",
         "create":"Tạo khách sạn",
         "detail":"Thông tin khách sạn",
+        "details": "Chi tiết khách sạn",
         "save":"Lưu",
         "search_placeholder": "Tìm kiếm theo tên khách sạn",
         "no_matching_data": "Không có dữ liệu.",
@@ -1174,7 +1187,74 @@
                 "title": "Trải nghiệm và cảm xúc khó quên",
                 "content": "Không chỉ là nơi nghỉ ngơi, Vinpearl Resort & Spa Hạ Long còn là hành trình trải nghiệm trọn vẹn giữa thiên nhiên và con người. Du khách có thể ngắm bình minh trên vịnh từ ban công phòng, đón hoàng hôn trên bãi cát riêng hay tham gia các hoạt động kayak, yoga biển và dạ tiệc BBQ ngoài trời. Phong cách phục vụ chuyên nghiệp, thân thiện của đội ngũ nhân viên càng khiến nơi đây trở thành lựa chọn hoàn hảo cho kỳ nghỉ gia đình, tuần trăng mật hay những chuyến du lịch nghỉ dưỡng cao cấp."
             }
-        }
+        },
+        "overview": "Tổng quan",
+        "rooms": "Phòng",
+        "reviews": "Đánh giá",
+        "location": "Vị trí",
+        "feature_and_service": "Tiện ích & Dịch vụ",
+        "make_reservation": "Đặt phòng",
+        "base_on_total_comment": "Dựa trên đánh giá",
+        "our_room": "Các loại phòng của chúng tôi",
+        "people": "người",
+        "key_feature": "Điểm nổi bật",
+        "key_feature_and_service": "Tiện ích & dịch vụ nổi bật",
+        "our_hotel": "Khách sạn của chúng tôi",
+        "floors":"tầng"
+    },
+    "service":{
+        "name":"Tên",
+        "price":"Giá",
+        "management":"Quản lý dịch vụ",
+        "create":"Tạo mới",
+        "type":"Thể loại",
+        "image":"Ảnh"
+    },
+    "voucher":{
+        "management": "Quản lý Voucher",
+        "search_placeholder": "Tìm kiếm theo tên, mã voucher...",
+        "create": "Tạo voucher mới",
+        "name": "Tên voucher",
+        "code": "Mã voucher",
+        "no_matching_data": "Không tìm thấy voucher nào phù hợp",
+        
+        "description": "Mô tả",
+        "discount_type": "Loại giảm giá",
+        "discount_value": "Giá trị giảm (số tiền cố định)",
+        "discount_percent": "Phần trăm giảm",
+        "max_discount_amount": "Số tiền giảm tối đa",
+        "min_order_value": "Giá trị đơn hàng tối thiểu",
+        "start_at": "Ngày bắt đầu",
+        "expire_at": "Ngày hết hạn",
+        "relative_expiry_hours": "Thời gian hết hạn tương đối (giờ)",
+        "max_usage_global": "Số lần sử dụng tối đa toàn cục",
+        "max_usage_per_user": "Số lần sử dụng tối đa mỗi người dùng",
+        "status": "Trạng thái",
+        "requires_claim": "Yêu cầu nhận voucher",
+        "stackable": "Có thể kết hợp",
+        "total_claimed": "Tổng số đã nhận",
+        "total_used": "Tổng số đã sử dụng",
+        "hotel": "Khách sạn áp dụng",
+        "detail": "Chi tiết voucher",
+        "enterCode": "Nhập mã voucher",
+        "entername": "Nhập tên voucher",
+        "enterDescription": "Nhập mô tả",
+        "enterdiscount_type": "Chọn loại giảm giá",
+        "enterdiscount_value": "Nhập giá trị giảm",
+        "enterdiscount_percent": "Nhập phần trăm giảm",
+        "entermax_discount_amount": "Nhập số tiền giảm tối đa",
+        "entermin_order_value": "Nhập giá trị đơn hàng tối thiểu",
+        "enterstart_at": "Chọn ngày bắt đầu",
+        "enterexpire_at": "Chọn ngày hết hạn",
+        "enterrelative_expiry_hours": "Nhập thời gian hết hạn (giờ)",
+        "entermax_usage_global": "Nhập số lần sử dụng tối đa toàn cục",
+        "entermax_usage_per_user": "Nhập số lần sử dụng tối đa mỗi người dùng",
+        "enterstatus": "Chọn trạng thái",
+        "enterrequires_claim": "Chọn có yêu cầu nhận hay không",
+        "enterstackable": "Chọn có thể kết hợp hay không",
+        "entertotal_claimed": "Nhập tổng số đã nhận",
+        "entertotal_used": "Nhập tổng số đã sử dụng",
+        "enterHotel": "Chọn khách sạn áp dụng"
     },
     "room":{
         "title":"Phòng"
@@ -1195,11 +1275,48 @@
     },
     "booking":{
         "title":"Đặt phòng",
+        "management":"Quản lý đặt phòng",
+        "status":"Trạng thái",
+        "total_rooms":"Tổng số phòng",
+        "create":"Tạo mới",
         "check":{
             "valid":"Số điện thoại hợp lệ",
             "invalid":"Số điện thoại không hợp lệ"
         },
-        "placeholder_find_country":"Tìm quốc gia.."
+        "placeholder_find_country":"Tìm quốc gia..",
+        "seleted_day": "Chọn phòng",
+    "your_stay": "Thông tin lưu trú của bạn",
+    "check_in": "Nhận phòng",
+    "check_out": "Trả phòng",
+    "room": "Phòng",
+    "guest": "Khách",
+    "adults": "Người lớn",
+    "children": "Trẻ em",
+    "extras": "Dịch vụ bổ sung",
+    "total_price": "Tổng tiền",
+    "include_vat": "Đã bao gồm VAT",
+    "per_person": "mỗi người",
+    "per_night": "mỗi đêm",
+    "nights": "đêm",
+    "continue": "Tiếp tục",
+    "remove": "Xóa",
+    "select": "Chọn",
+    "keep_room": "Giữ phòng",
+    "view_amenity": "Xem tiện ích",
+    "view_rate_detail": "Xem chi tiết giá",
+    "show_fees": "Hiển thị phí",
+    "guest_infor": "Thông tin khách hàng",
+    "required": "Bắt buộc *",
+    "fullname": "Họ và tên",
+    "email": "Email",
+    "policies": "Chính sách",
+    "guarantee_policy": "Chính sách bảo đảm",
+    "cancellation_policy": "Chính sách hủy đặt phòng",
+    "after": "Sau",
+    "before": "Trước",
+    "guarantee_my_booking": "Thanh toán bảo đảm đặt phòng",
+    "accept_method": "chấp nhận các hình thức thanh toán sau",
+    "agree": "Tôi đã đọc, hiểu và đồng ý với Điều khoản dịch vụ & Chính sách bảo mật của hệ thống"
     },
     "offer":{
         "title":"Offer"

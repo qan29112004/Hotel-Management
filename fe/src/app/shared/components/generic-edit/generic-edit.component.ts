@@ -65,6 +65,7 @@ export class GenericEditComponent implements OnInit {
     @Input() loadData!: ()=>void;
     @Input() optionDestination!: { id: string | number; name: string }[];
     @Input() optionRadio: { id: number; name: string }[] = [];
+    @Input() checkboxOptions: { [fieldName: string]: any[] } = {};
     @Output() toggleDrawer = new EventEmitter<void>();
     @Output() drawerOpenedChanged = new EventEmitter<boolean>();
     selectedFiles: { [key: string]: File | File[] } = {}; // Lưu file(s) theo field.name
@@ -81,8 +82,8 @@ export class GenericEditComponent implements OnInit {
         code: [],
     };
     showAlert: boolean = false;
-    displayCheckbox: { [key: string]: string } = {};
-    selectedRadioValues: { [key: string]: string[] } = {};
+    displayCheckbox: { [key: string]: any[] } = {};
+    selectedRadioValues: { [key: string]: any[] } = {};
 
     constructor(
         private _formBuilder: UntypedFormBuilder,
@@ -155,7 +156,7 @@ export class GenericEditComponent implements OnInit {
 
                 const existingData = this.entityData[field.name];
                 console.log(`this.entityData[${field.name}]`, this.entityData[field.name])
-                if ((field.name === 'thumbnail' || field.name === 'icon' || (field.name === 'images' && field.type =="file")) && existingData) {
+                if ((field.name === 'thumbnail' || field.name === 'icon' || ((field.name === 'images' || field.name === 'image') && field.type =="file")) && existingData) {
                     this.filePreviews[field.name] = [{
                         url: environment.baseUrl + existingData,
                         name: this.extractFileName(existingData),
@@ -185,10 +186,11 @@ export class GenericEditComponent implements OnInit {
                 console.log("selectedRadioValues", this.selectedRadioValues)
                 // Nếu bạn có displayCheckbox để hiển thị preview
                 this.displayCheckbox = {};
-                this.entityData[field.name].forEach((f: any) => {
-                    this.displayCheckbox[f[`${field.name}Name`]] = f[`${field.name}Icon`] || null; 
-                    console.log(this.displayCheckbox, this.selectedRadioValues)
-                });
+                this.displayCheckbox[`${field.name}`] = this.entityData[field.name].map((f: any) => ({
+                    id:  f[`${field.name}Id`],
+                    name:  f[`${field.name}Name`] || 'Unknown',
+                    icon: f[`${field.name}Icon`] || null
+                }));
                 console.log("check display checkbox: ", this.displayCheckbox)
             }
             
@@ -397,7 +399,7 @@ formData.forEach((value, key) => {
         this.selectedRadioValues[fieldName].splice(index, 1);
         this.editFormGroup.get(fieldName)?.patchValue(this.selectedRadioValues[fieldName]);
         this.editFormGroup.get(fieldName)?.updateValueAndValidity();
-        delete this.displayCheckbox[value];
+        this.displayCheckbox[fieldName].splice(index, 1);
     }
     onCheckboxChange(checked: boolean, fieldName: string, value: any, option?:any) {
     
@@ -408,13 +410,20 @@ formData.forEach((value, key) => {
         if (checked) {
             if (!this.selectedRadioValues[fieldName].includes(value)) {
             this.selectedRadioValues[fieldName].push(value);
-            this.displayCheckbox[option.name] = option.icon;
+            this.displayCheckbox[fieldName].push({
+                id: value,
+                name: option.name,
+                icon: option.icon
+            })
             console.log("checkbox:", this.selectedRadioValues)
             console.log("check option", option)
             }
         } else {
-            this.selectedRadioValues[fieldName] = this.selectedRadioValues[fieldName].filter(v => v !== value);
-            delete this.displayCheckbox[option.name];
+            const index = this.selectedRadioValues[fieldName].indexOf(value);
+            if (index > -1) {
+                this.selectedRadioValues[fieldName].splice(index, 1);
+                this.displayCheckbox[fieldName].splice(index, 1);
+            }
         }
 
         // Optional: cập nhật FormControl nếu cần

@@ -66,6 +66,9 @@ export class GenericFilterComponent {
     @Input() fields: FieldFilterConfig[] = [];
     @Input() optionDestination:any[] = [];
     @Input() optionRadio:any[] = [];
+    @Input() optionCheckbox:any[] = [];
+    @Input() checkboxOptions: { [fieldName: string]: any[] } = {};
+
     @Output() filter = new EventEmitter<any>();
     @Output() reset = new EventEmitter<void>();
     @Output() close = new EventEmitter<void>();

@@ -137,7 +137,7 @@
         <span class="w-full font-avenir text-black text-[16px] font-normal">{{listHotel.length + listExcludeHotel.length}} hotels</span>
         <div class="grid grid-cols-[59%_41%] w-full mt-5 max-md:grid-cols-1">
             <div class="flex flex-col mt-3 mr-6 z-[4]">
-                <span class="w-full mb-4 font-clearface text-[26px]">{{total}} hotels available for your selected dates</span>
+                <span class="w-full mb-4 font-clearface text-[26px]">{{total}} khách sạn có sẵn cho lựa chọn của bạn</span>
                 <ng-container *ngFor="let hotel of listHotel; let i = index">
                     <div class="flex w-full gap-3 mb-5 h-max max-lg:flex-col">
                         <div class="relative w-[305px] max-lg:w-full">
@@ -174,19 +174,21 @@
                         <div class="flex flex-col flex-grow">
                             <span class="w-full font-clearface text-[30px] hover:cursor-pointer" (click)="chooseHotel(hotel.slug, hotel.uuid)">{{hotel.name}}</span>
                             <span class="inline-flex mb-[30px] items-center w-full italic font-parisienne text-[12px]"><img src="assets/images/map/hotel-icon.png" class="w-[14px] h-4 align-middle mr-2"/>{{hotel.address}}</span>
+                            <span class="inline-flex w-full text-black font-lexend_deca">Giá tối thiểu: 1.000.000đ/đêm (chưa áp dụng các chính sách điều chỉnh giá)</span>
+
                             <div class="flex items-end gap-6 mt-auto">
                                 <div class="px-6 py-2 bg-yellow-500 font-avenir text-[14px] font-black hover:cursor-pointer" (click)="chooseHotel(hotel.slug, hotel.uuid)">hotel.book_now</div>
                                 <div class="relative flex flex-wrap justify-center ml-auto h-[5rem] w-20">
                                     <img src="assets/images/explore-hotel/rating.png" class="absolute top-0 w-16 h-16 -translate-x-1/2 left-1/2"/>
                                     <span class="mt-[1rem] font-black w-full text-center">{{hotel.rating.average}}</span>
-                                    <span class="w-full mt-auto text-center text-[12px]">{{hotel.rating.count}} reviews</span>
+                                    <span class="w-full mt-auto text-center text-[12px]">{{hotel.rating.count}} đánh giá</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </ng-container>
 
-                <span class="w-full mb-4 font-clearface text-[26px] mt-3">Unavailable hotels during selected dates</span>
+                <span class="w-full mb-4 font-clearface text-[26px] mt-3">Khách sạn không có sẵn cho lựa chọn của bạn</span>
                 <ng-container *ngFor="let hotel of listExcludeHotel; let i = index">
                     <div class="flex w-full gap-3 mb-5 h-max max-lg:flex-col">
                         <div class="relative w-[305px] max-lg:w-full">
@@ -224,8 +226,9 @@
                             <div class="w-full py-[10px] px-[30px] bg-[#f4f4f4]">Hotel not available for selected dates.</div>
                             <span class="w-full font-clearface text-[30px] hover:cursor-pointer" (click)="chooseHotel(hotel.slug, hotel.uuid)">{{hotel.name}}</span>
                             <span class="inline-flex mb-[30px] items-center w-full italic font-parisienne text-[12px]"><img src="assets/images/map/hotel-icon.png" class="w-[14px] h-4 align-middle mr-2"/>{{hotel.address}}</span>
+                            <span class="inline-flex w-full text-black font-lexend_deca">Giá tối thiểu: 1.000.000đ/đêm (chưa áp dụng các chính sách điều chỉnh giá)</span>
                             <div class="flex items-end gap-6 mt-auto">
-                                <div class="px-6 py-2 bg-yellow-500 font-avenir text-[14px] font-black hover:cursor-pointer" (click)="chooseHotel(hotel.slug, hotel.uuid)">hotel.book_now</div>
+                                <div class="px-6 py-2 bg-yellow-500 font-avenir text-[14px] font-black hover:cursor-pointer" (click)="chooseHotel(hotel.slug, hotel.uuid)">Đặt ngay</div>
                                 <div class="relative flex flex-wrap justify-center ml-auto h-[5rem] w-20">
                                     <img src="assets/images/explore-hotel/rating.png" class="absolute top-0 w-16 h-16 -translate-x-1/2 left-1/2"/>
                                     <span class="mt-[1rem] font-black w-full text-center">{{hotel.rating.average}}</span>

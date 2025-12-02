@@ -57,9 +57,17 @@ import { HotelService } from 'app/core/admin/hotel/hotel.service';
     MatTooltipModule
   ],
   templateUrl: './offer.component.html',
-  styles: ``
+  styles: [`
+    /* Custom override to ensure sharp edges on material components if global styles don't cover it */
+    :host ::ng-deep .mat-mdc-form-field-flex {
+        border-radius: 0 !important;
+    }
+    :host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+        border-radius: 0 !important;
+    }
+  `]
 })
-export class OfferComponent {
+export class OfferComponent implements OnInit {
   fields: FieldConfig[] =[
     {
         name: 'uuid',
@@ -413,6 +421,10 @@ export class OfferComponent {
   toggleFilterDrawer(): void {
         this.showFilter = !this.showFilter;
     }
+  
+  toggleEditFilterDrawer(): void {
+      this.showFilter = !this.showFilter;
+  }
 
   onFilterDrawerOpenedChanged(opened: boolean): void {
       this.showFilter = opened;
@@ -541,8 +553,6 @@ export class OfferComponent {
     };
   }
 
-  
-
   async toggleEditUserDrawer(offer?: Offer) {
       if (offer) {
         this.selectedDes=offer;
@@ -550,22 +560,21 @@ export class OfferComponent {
       }
       this.showEditUser = !this.showEditUser;
       if (this.showEditUser) {
-        // ✅ Lazy import component chỉ khi cần
-        const { GenericEditComponent } = await import('app/shared/components/generic-components');
         const componentRef = this.editContainer.createComponent(GenericEditComponent);
+        const instance = componentRef.instance as any;
 
         // ✅ Truyền Input cho component
-        componentRef.instance.showDrawer = true;
-        componentRef.instance.titleKey = 'offer.detail';
-        componentRef.instance.fields = this.fields;
-        componentRef.instance.entityData = this.selectedDes;
-        componentRef.instance.saveHandler = this.saveHandler.bind(this);
-        componentRef.instance.loadData = this.loadOffer.bind(this);
-        componentRef.instance.optionDestination = this.optionsHotel;
+        instance.showDrawer = true;
+        instance.titleKey = 'offer.detail';
+        instance.fields = this.fields;
+        instance.entityData = this.selectedDes;
+        instance.saveHandler = this.saveHandler.bind(this);
+        instance.loadData = this.loadOffer.bind(this);
+        instance.optionDestination = this.optionsHotel;
 
         // ✅ Lắng nghe sự kiện Output
-        componentRef.instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
-        componentRef.instance.drawerOpenedChanged.subscribe((opened: boolean) => {
+        instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
+        instance.drawerOpenedChanged.subscribe((opened: boolean) => {
           this.showEditUser = opened;
           if (!opened) {
             this.editContainer.clear(); // clear component khi đóng
@@ -592,9 +601,7 @@ export class OfferComponent {
       const date = new Date(timestamp * 1000); // chuyển từ giây sang mili-giây
       return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm', '+0700');
   }
-  toggleEditFilterDrawer():void{
-      this.showFilter = !this.showFilter;
-  }
+  
   onDrawerOpenedChanged(opened: boolean): void {
       this.showEditUser = opened;
   }
@@ -610,6 +617,7 @@ export class OfferComponent {
   }
   deleteHandler(id: string): Observable<any> {
     this.selectedIds=[]
+    this.hasSelectedOffer = false;
     return this.offerService.deleteOffer(id);
   }
 
