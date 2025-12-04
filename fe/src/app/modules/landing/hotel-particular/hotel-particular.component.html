@@ -7,7 +7,7 @@
     </div>
     <div class="flex items-center gap-1 mb-[20px]">
         <ng-container *ngFor="let star of stars">
-            <app-rating [starId]="star" [rating]="4" (enter)="enter($event)" (leave)="leave($event)"
+            <app-rating [starId]="star" [rating]="hotel_data?.rating.average" (enter)="enter($event)" (leave)="leave($event)"
                 (bigClick)="updateRating(star)">
             </app-rating>
         </ng-container>
@@ -17,73 +17,26 @@
         <img src="assets/images/explore-hotel/rating.png" class="absolute top-0 w-16 h-16 -translate-x-1/2 left-1/2"/>
         <span class="mt-[1rem] font-black w-full text-center">4.3</span>
     </div>
-    <span class="mb-[30px]">{{'hotel.base_on_total_comment' | transloco}}</span>
+    <span class="mb-[30px]">{{'hotel.base_on_total_comment' | transloco}} ({{hotel_data?.rating.count}} {{'hotel.reviews'|transloco}})</span>
     
     <div class="flex flex-col w-full overflow-y-auto px-36">
-        <div class="w-full py-8 border-t border-black mb-[30px]">
+        <div *ngFor="let rating of hotel_data?.rating?.list" class="w-full py-8 border-t border-black mb-[30px]">
             <div class="flex items-center gap-1 mb-[20px]">
                 <ng-container *ngFor="let star of stars">
-                    <app-rating [starId]="star" [rating]="4" (enter)="enter($event)" (leave)="leave($event)"
+                    <app-rating [starId]="star" [rating]="rating.rating" (enter)="enter($event)" (leave)="leave($event)"
                         (bigClick)="updateRating(star)">
                     </app-rating>
                 </ng-container>
-                <span class="text-black font-clearface text-[30px]"></span>
+                <span class="text-black font-clearface text-[30px]">{{rating.rating}}</span>
             </div>
-            <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">Title</h3>
-            <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">Review</p>
+            <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">{{rating.subject}}</h3>
+            <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">{{rating.review}}</p>
             <div class="flex gap-8">
-                <span class="font-avenir text-[16px] font-normal">By</span>
-                <span class="font-avenir text-[16px] font-normal">At</span>
+                <span class="font-avenir text-[16px] font-normal">By <span class="font-bold font-lexend_deca">{{rating.createdBy.email}}</span></span>
+                <span class="font-avenir text-[16px] font-normal">At <span class="font-bold font-lexend_deca">{{formatISODate(rating.createdAt)}}</span></span>
             </div>
         </div>
-        <div class="w-full py-8 border-t border-black mb-[30px]">
-            <div class="flex items-center gap-1 mb-[20px]">
-                <ng-container *ngFor="let star of stars">
-                    <app-rating [starId]="star" [rating]="4" (enter)="enter($event)" (leave)="leave($event)"
-                        (bigClick)="updateRating(star)">
-                    </app-rating>
-                </ng-container>
-                <span class="text-black font-clearface text-[30px]"></span>
-            </div>
-            <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">Title</h3>
-            <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">Review</p>
-            <div class="flex gap-8">
-                <span class="font-avenir text-[16px] font-normal">By</span>
-                <span class="font-avenir text-[16px] font-normal">At</span>
-            </div>
-        </div>
-        <div class="w-full py-8 border-t border-black mb-[30px]">
-            <div class="flex items-center gap-1 mb-[20px]">
-                <ng-container *ngFor="let star of stars">
-                    <app-rating [starId]="star" [rating]="4" (enter)="enter($event)" (leave)="leave($event)"
-                        (bigClick)="updateRating(star)">
-                    </app-rating>
-                </ng-container>
-                <span class="text-black font-clearface text-[30px]"></span>
-            </div>
-            <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">Title</h3>
-            <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">Review</p>
-            <div class="flex gap-8">
-                <span class="font-avenir text-[16px] font-normal">By</span>
-                <span class="font-avenir text-[16px] font-normal">At</span>
-            </div>
-        </div>
-        <div class="w-full py-8 border-t border-black mb-[30px]">
-            <div class="flex items-center gap-1 mb-[20px]">
-                <ng-container *ngFor="let star of stars">
-                    <app-rating [starId]="star" [rating]="4" (enter)="enter($event)" (leave)="leave($event)"
-                        (bigClick)="updateRating(star)">
-                    </app-rating>
-                </ng-container>
-                <span class="text-black font-clearface text-[30px]"></span>
-            </div>
-            <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">Title</h3>
-            <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">Review</p>
-            <div class="flex gap-8">
-                <span class="font-avenir text-[16px] font-normal">By</span>
-                <span class="font-avenir text-[16px] font-normal">At</span>
-            </div>
-        </div>
+        
     </div>
 </div>
 <div *ngIf="isFeatureAndServiceOverlayOpen" class="fixed inset-0 z-50 flex flex-col items-center w-full h-screen bg-white">
@@ -95,21 +48,14 @@
     </div>
     <div class="flex justify-center w-full mb-[30px] px-36">
         <div class="grid w-full grid-cols-3 max-w-[50%] gap-4">
-            <div class="flex flex-col gap-2">
+            <div *ngFor="let service of hotel_data?.service" class="flex flex-col gap-2">
                 <div class="block text-center text-[16px] font-avenir">
-                    - Restaurant
+                    <mat-icon class="text-black text-[11px]">circle</mat-icon> {{service.serviceName}}
                 </div>
             </div>
-            <div class="flex flex-col gap-2">
-                
+            <div *ngFor="let facilities of hotel_data?.facilities" class="flex flex-col gap-2">
                 <div class="block text-center text-[16px] font-avenir">
-                    - Restaurant
-                </div>
-            </div>
-            <div class="flex flex-col gap-2">
-                
-                <div class="block text-center text-[16px] font-avenir">
-                    - Restaurant
+                    <mat-icon class="text-black text-[11px]">circle</mat-icon> {{facilities.facilitiesName}}
                 </div>
             </div>
         </div>
@@ -266,12 +212,12 @@
                             <span class="w-full mt-[2.25rem] text-center text-[14px]">{{hotel_data?.rating.count}} {{'hotel.reviews'|transloco}}</span>
                         </div>
                         <div class="grid w-full grid-cols-2">
-                            <ng-container *ngFor="let service of hotel_data?.service.slice(0,4)">
+                            <ng-container *ngFor="let facilities of hotel_data?.facilities.slice(0,4)">
                                 
                                 <a class="relative w-full h-full px-[10px]">
-                                    <div class="flex flex-col text-center text-black">
-                                        <img [src]="service.serviceImage" class="sm:h-[75px] mb-[10px]"/>
-                                        <span class="font-avenir text-[14px] mb-[30px]"> {{service.serviceName}}</span>
+                                    <div class="flex flex-col text-center text-black items-center">
+                                        <img [src]="baseUrl + facilities.facilitiesImage" class="sm:w-[100px] mb-[10px]"/>
+                                        <span class="font-avenir text-[14px] mb-[30px]"> {{facilities.facilitiesName}}</span>
                                     </div>
                                 </a>
                             </ng-container>
@@ -366,7 +312,7 @@
         </div> -->
         <div #rooms class="flex flex-col items-center w-full">
             <span class="font-clearface text-[30px] mb-5">{{'hotel.our_room'|transloco}}</span>
-            <div *ngFor="let rt of hotel_data?.roomTypes" class="relative flex items-center w-full h-auto">
+            <div *ngFor="let rt of hotel_data?.roomTypes" class="relative flex items-center w-full h-auto mb-[25px]">
                 <swiper-container
                     pagination="true"
                     rewind="true"
@@ -388,10 +334,10 @@
                                 <img src="assets/images/booking/people.svg" class="sm:w-[24px]"/>
                                 <span class="font-avenir text-[16px] font-normal"> {{rt.maxOccupancy}} {{'hotel.people'|transloco}}</span>
                             </div>
-                            <!-- <div class="flex items-center gap-3 text-black">
-                                <img src="assets/icons/hotel-type/Honeymoon.svg" class="sm:h-[24px]"/>
-                                <span class="font-avenir text-[16px] font-normal"> Honeymoon</span>
-                            </div> -->
+                            <div class="flex items-center gap-3 text-black" *ngIf="getFirstBedAmenity(rt) as bed">
+                                <img [src]="baseUrl + bed.amenityIcon" class="sm:w-[24px]" />
+                                <span class="font-avenir text-[16px] font-normal"> {{ bed.amenityName }} </span>
+                            </div>
                         </div>
                         <span class="font-avenir text-[16px] font-normal">Please enter dates to check availability</span>
                     </div>
@@ -400,7 +346,7 @@
         </div>
         <div #reviews class="flex flex-col items-center w-full mb-[100px]">
             <span class="font-clearface text-[30px] mb-16">Rating & Reviews</span>
-            <div *ngFor="let rating of hotel_data?.rating?.list" class="w-full py-8 border-t border-black mb-[30px]">
+            <div *ngFor="let rating of hotel_data?.rating?.list.slice(0,4)" class="w-full py-8 border-t border-black mb-[30px]">
                 <div class="flex items-center gap-1 mb-[20px]">
                     <ng-container *ngFor="let star of stars">
                         <app-rating [starId]="star" [rating]="rating.rating" (enter)="enter($event)" (leave)="leave($event)"
@@ -425,36 +371,12 @@
             </div>
             <div class="flex justify-center w-full">
                 <div class="grid w-full grid-cols-4 max-w-[50%] gap-4">
-                    <div class="flex flex-col gap-2">
+                    <div *ngFor="let amenity of hotel_data?.amenities.slice(0,4)" class="flex flex-col gap-2">
                         <div class="border-[15px] border-[#f4f4f4] flex justify-center items-center aspect-square">
-                            <img src="assets/icons/hotel-type/Honeymoon.svg" class="object-contain w-[70%] h-[70%]"/>
+                            <img [src]="baseUrl + amenity.icon" class="object-contain w-[70%] h-[70%]"/>
                         </div>
                         <div class="block text-center text-[14px] font-avenir">
-                            Restaurant
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <div class="border-[15px] border-[#f4f4f4] flex justify-center items-center aspect-square">
-                            <img src="assets/icons/hotel-type/Honeymoon.svg" class="object-contain w-[70%] h-[70%]"/>
-                        </div>
-                        <div class="block text-center text-[14px] font-avenir">
-                            Restaurant
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <div class="border-[15px] border-[#f4f4f4] flex justify-center items-center aspect-square">
-                            <img src="assets/icons/hotel-type/Honeymoon.svg" class="object-contain w-[70%] h-[70%]"/>
-                        </div>
-                        <div class="block text-center text-[14px] font-avenir">
-                            Restaurant
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <div class="border-[15px] border-[#f4f4f4] flex justify-center items-center aspect-square">
-                            <img src="assets/icons/hotel-type/Honeymoon.svg" class="object-contain w-[70%] h-[70%]"/>
-                        </div>
-                        <div class="block text-center text-[14px] font-avenir">
-                            Restaurant
+                            {{amenity.name}}
                         </div>
                     </div>
                 </div>
@@ -467,9 +389,9 @@
             </div>
             <div class="flex justify-center w-full mb-[30px]">
                 <div class="grid w-full grid-cols-3 max-w-[50%] gap-4">
-                    <div *ngFor="let service of hotel_data?.service" class="flex flex-col gap-2">
+                    <div *ngFor="let service of hotel_data?.service.slice(0,9)" class="flex flex-col gap-2">
                         <div class="block text-center text-[16px] font-avenir">
-                            - {{service.name}}
+                            <mat-icon class="text-black text-[11px]">circle</mat-icon> {{service.serviceName}}
                         </div>
                     </div>
                 </div>

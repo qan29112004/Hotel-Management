@@ -208,6 +208,13 @@ export class HotelParticularComponent implements OnDestroy, OnInit, OnChanges, D
     tagNavigate[`${tag}`].nativeElement.scrollIntoView({behavior:'smooth', block:'center'})
   }
 
+  getFirstBedAmenity(rt: any) {
+    if (!rt?.amenity) return null;
+    return rt.amenity.find((a: any) =>
+      a.amenityName?.toLowerCase().includes("bed")
+    ) || null;
+  }
+
   openRatingOverlay() {
     this.isRatingOverlayOpen = true;
     this.renderer.addClass(document.body, 'overflow-hidden');  // Ngăn scroll toàn trang

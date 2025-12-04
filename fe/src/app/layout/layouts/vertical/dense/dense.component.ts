@@ -222,10 +222,11 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
                             'home-page',
                             'feedback',
                             'destination',
-                            'voucher'
+                            'voucher',
+                            'deal'
                         ];
                     } else {
-                        includeIds = ['home-page', 'chat', 'destination'];
+                        includeIds = ['home-page', 'chat', 'destination','deal'];
                     }
 
                     if (this.crrUser.role === 1) {

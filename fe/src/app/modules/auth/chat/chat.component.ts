@@ -54,7 +54,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.chatService.getAllRequirementChat().subscribe(res=>{
       console.log("requirement:", res.data)
       this.listRequirement = res.requirements;
-      this.isJoin == res.isJoin;
+      // FIX: Changed == to = for correct assignment
+      this.isJoin = res.isJoin; 
     })
 
     this.messageSubscription = this.chatService.messages$.subscribe(msg =>{

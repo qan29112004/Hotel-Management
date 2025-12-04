@@ -89,6 +89,13 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
       phone: [null,Validators.required],
       country : [null,Validators.required]
     })
+    if (this.crrUser?.fullName && this.crrUser?.fullName.length > 0  ) {
+      this.bookingForm.get('fullname')?.disable();
+    }
+    
+    if (this.crrUser?.email && this.crrUser?.email.length > 0 ) {
+      this.bookingForm.get('email')?.disable();
+    }
     this.loadActiveVouchers();
   }
 
@@ -333,6 +340,9 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
         // localStorage.removeItem('session_id')
         const queryParams: { [key: string]: any } = {};
         queryParams.transaction_id = result.transactionId;
+        queryParams.amount = result.amount;
+        queryParams.response_code = result.responseCode;
+        queryParams.booking_id = result.bookingId;
         this.router.navigate(['booking/success'], {queryParams})
       },
 

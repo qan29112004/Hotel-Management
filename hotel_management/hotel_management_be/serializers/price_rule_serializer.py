@@ -10,4 +10,9 @@ from hotel_management_be.models.offer import PriceRule
 class PriceRuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = PriceRule
-        fields=['uuid', 'rule_type','multiplier']
+        fields=['uuid', 'rule_type','multiplier','updated_by','created_at','updated_at']
+
+    def get_updated_by(self,obj):
+        return {
+            'username':obj.updated_by.username if obj.updated_by else None
+        }

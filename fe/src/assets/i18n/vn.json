@@ -123,7 +123,8 @@
             "rateplan":"Rate Plan",
             "rating":"Đánh giá",
             "voucher":"Mã giảm giá",
-            "facilities":"Cơ sở vật chất"
+            "facilities":"Cơ sở vật chất",
+            "price_rule":"Luật tính giá"
         },
         "mod": {
             "app_type": "Ứng dụng",
@@ -891,13 +892,13 @@
         "send_image": "Đã gửi ảnh",
         "end":"Kết thúc"
     },
-    "content": {
+    "knowlegdeBase": {
         "page_title": "Quản Lý Nội Dung",
         "STT": "STT",
         "title": "Tiêu Đề",
         "content": "Nội dung",
         "update_content": "Cập Nhật Nội Dung",
-        "add": "Thêm Nội Dung",
+        "create": "Thêm Nội Dung",
         "delete": "Xóa",
         "update": "Cập Nhật",
         "filter": "Lọc ",
@@ -913,6 +914,8 @@
         "updated_at": "Ngày Cập Nhật",
         "action": "Chức Năng",
         "result": "Kết quả",
+        "management":"Quản lý tệp dữ liệu",
+        "is_embedded":"Nhúng dữ liệu hay chưa ?",
         "Next": "Tiếp",
         "Previous": "Trước",
         "per_page": "Mỗi trang",
@@ -1138,6 +1141,7 @@
         "name": "Tên khách sạn",
         "description": "Mô tả về khách sạn",
         "enterFullName":"Nhập tên khách sạn",
+        "load_more":"Xem thêm",
         "enterdDescription": "Nhập mô tả",
         "enterAddress":"Nhập địa chỉ",
         "enterPhone":"Nhập số điện thoại",
@@ -1161,6 +1165,7 @@
         "address":"Địa chỉ",
         "phone":"Số điện thoại",
         "email":"Email",
+        "book_now":"Đặt ngay",
         "rating":"Đánh giá",
         "requiredName":"Tên khách sạn là bắt buộc",
         "requiredDescription":"Mô tả là bắt buộc",
@@ -1197,8 +1202,8 @@
         "base_on_total_comment": "Dựa trên đánh giá",
         "our_room": "Các loại phòng của chúng tôi",
         "people": "người",
-        "key_feature": "Điểm nổi bật",
-        "key_feature_and_service": "Tiện ích & dịch vụ nổi bật",
+        "key_feature": "Dịch vụ nổi bật",
+        "key_feature_and_service": "Cơ sở vật chất & dịch vụ nổi bật",
         "our_hotel": "Khách sạn của chúng tôi",
         "floors":"tầng"
     },
@@ -1285,6 +1290,10 @@
         },
         "placeholder_find_country":"Tìm quốc gia..",
         "seleted_day": "Chọn phòng",
+        "relevance":"Liên quan",
+        "from_a_to_z":"Từ a đến z",
+        "rating":"Đánh giá",
+        "filter_by_facilities":"LỌC THEO CƠ SỞ VẬT CHẤT",
     "your_stay": "Thông tin lưu trú của bạn",
     "check_in": "Nhận phòng",
     "check_out": "Trả phòng",

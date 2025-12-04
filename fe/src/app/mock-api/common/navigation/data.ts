@@ -313,6 +313,13 @@ export const compactNavigation: FuseNavigationItem[] = [
         link: `my-voucher`
     },
     {
+        id: 'deal',
+        title:'Deal',
+        type: 'basic',
+        icon: 'assets/images/ui/menu/voucher.svg',
+        link: `deal`
+    },
+    {
         id: 'feedback',
         title: 'FeedBack',
         type: 'sticky',
@@ -420,6 +427,12 @@ export const compactNavigation: FuseNavigationItem[] = [
                 title: 'Voucher',
                 type: 'basic',
                 link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.VOUCHER}`,
+            },
+            {
+                id: 'admin.price_rule',
+                title: 'Price rule',
+                type: 'basic',
+                link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.PRICE_RULE}`,
             }
         ]
     },

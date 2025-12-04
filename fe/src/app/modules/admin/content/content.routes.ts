@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { ContentComponent } from './content.component';
+import { KnowlegdeBaseComponent } from './content.component';
 
 const routes: Routes = [
     {
         path: '',
-        component: ContentComponent,
+        component: KnowlegdeBaseComponent,
     },
 ];
 

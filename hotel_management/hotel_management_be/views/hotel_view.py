@@ -134,6 +134,12 @@ def explore_hotels(request):
     code = request.data.get('code','')
     rooms = request.data.get('rooms',[])
     sort = request.data.get("sort", "")
+    facilities = request.data.get('facilities', [])  # Get facilities filter
+    # Handle facilities as list or string
+    if isinstance(facilities, str):
+        facilities = [f.strip() for f in facilities.split(',') if f.strip()] if facilities else []
+    elif not isinstance(facilities, list):
+        facilities = []
     my_pagination = MyPagination()
     my_pagination_1 = MyPagination()
     total_rooms_needed = len(rooms)
@@ -151,6 +157,18 @@ def explore_hotels(request):
 
         if des:  # chỉ lọc khi des có giá trị (không None, không rỗng)
             hotels = hotels.filter(destination__uuid=des)
+        
+        # Filter by facilities if provided
+        if facilities and len(facilities) > 0:
+            # Filter hotels that have all selected facilities
+            # Use annotation to count matching facilities and filter to hotels with all
+            hotels = hotels.annotate(
+                matching_facilities_count=Count(
+                    'hotel_facilities',
+                    filter=Q(hotel_facilities__facilities__uuid__in=facilities),
+                    distinct=True
+                )
+            ).filter(matching_facilities_count=len(facilities)).distinct()
         hotels = hotels.annotate(
             average_rating=Avg("hotel_review__rating"),
             rating_count=Count("hotel_review")

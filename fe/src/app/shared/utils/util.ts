@@ -36,6 +36,7 @@ export function parseDate(dateStr: string): Date {
 }
 
 export function formatDateRange(checkin: string, checkout: string): string {
+  if (!checkin || !checkout) return "";
   const months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -65,7 +66,6 @@ export function formatDateRange(checkin: string, checkout: string): string {
     return `${checkinDay} ${checkinMonth} ${checkinYear} - ${checkoutDay} ${checkoutMonth} ${checkoutYear}`;
   }
 
-  // ✅ nếu khác tháng cùng năm
   return `${checkinDay} ${checkinMonth} - ${checkoutDay} ${checkoutMonth} ${checkoutYear}`;
 }
 

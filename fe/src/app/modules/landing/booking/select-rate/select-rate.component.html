@@ -41,9 +41,9 @@
                                     <div class="bg-size-[12px] bg-no-repeat bg-left pl-5 italic text-[12px]"
                                         [style.background-image]="'url('+ ('assets/images/booking/people.svg')+ ')'"
                                     >Sleeps {{rt.maxOccupancy}}</div>
-                                    <div class="bg-size-[12px] bg-no-repeat bg-left pl-5 italic text-[12px]"
+                                    <div *ngIf="getFirstBedAmenity(rt) as bed" class="bg-size-[12px] bg-no-repeat bg-left pl-5 italic text-[12px]"
                                         [style.background-image]="'url('+ ('assets/images/booking/bed.svg')+ ')'"
-                                    >King 1</div>
+                                    >{{ bed.amenityName }}</div>
                                     <div class="bg-size-[12px] bg-no-repeat bg-left pl-5 italic text-[12px]"
                                         [style.background-image]="'url('+ ('assets/images/booking/size.svg')+ ')'"
                                     >{{rt.size}} m²</div>

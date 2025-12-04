@@ -123,8 +123,8 @@ def paypal_capture(request):
         currency = result["purchase_units"][0]["payments"]["captures"][0]["amount"]["currency_code"]
 
         # ===  Cập nhật CSDL ===
-        booking = Booking.objects.get(uuid=booking_id)
-        payment = Payment.objects.update_or_create(
+        booking = Booking.objects.select_related("hotel_id", "created_by").get(uuid=booking_id)
+        payment, created  = Payment.objects.update_or_create(
             booking=booking,
             defaults={
                 "amount": amount,
@@ -146,7 +146,7 @@ def paypal_capture(request):
                 )
                 if not success:
                     # Log error nhưng không fail payment
-                    print(f"Voucher redeem failed for booking: {error_message}")
+                    print(f"Voucher redeem failed for booking {booking_id}: {error_message}")
         
         
         hotel = booking.hotel_id
@@ -166,7 +166,7 @@ def paypal_capture(request):
             "check_out_time":Utils.format_time(hotel.check_out_time)
         }
         send_booking_email.delay(payload)
-        return AppResponse.success(SuccessCodes.PAYMENT,{"message": "Payment captured successfully", "transaction_id": transaction_id})
+        return AppResponse.success(SuccessCodes.PAYMENT,{"message": "Payment captured successfully", "transaction_id": transaction_id,"response_code":'00', "amount": payment.amount, 'booking_id': booking_id})
     except Exception as e:
         # Xử lý lỗi khi gọi PayPal
         booking = Booking.objects.get(uuid=booking_id)
@@ -183,7 +183,8 @@ def paypal_capture(request):
         return AppResponse.error(ErrorCodes.PAYMENT,{
             'message': "Payment processing failed",
             "message": str(e),
-            "booking_id": booking_id
+            "booking_id": booking_id,
+            "transaction_id": transaction_id,"response_code":'00', "amount": payment.amount
         })
 
 
@@ -211,33 +212,31 @@ def payment_ipn(request):
     session_id = request.GET.get("vnp_OrderInfo")
 
     try:
-        booking = Booking.objects.get(uuid=txn_ref)
+        booking = Booking.objects.select_related("hotel_id", "created_by").get(uuid=txn_ref)
     except Booking.DoesNotExist:
         return AppResponse.error(ErrorCodes.NOT_FOUND,{"RspCode": "01", "Message": "Booking not found"})
 
     # ===  Bước 3: Xử lý kết quả thanh toán ===
     if vnp_response_code == "00" and vnp_transaction_status == "00":
         # Thanh toán thành công
-        payment = Payment.objects.update_or_create(
+        payment, created  = Payment.objects.update_or_create(
             booking=booking,
             defaults={
-                "amount": amount,
+                "amount": vnp_amount,
                 "status": "Paid",  
-                "transaction_id": transaction_id,
-                "method": "PayPal",
-                "currency": currency
+                "transaction_id": vnp_transaction_no,
+                "method": "vnpay",
+                "currency": 'VND'
             }
         )
         booking.status = "Confirm"
         booking.save()
-        print('check booking voucher: ', booking.voucher_code)
         # Redeem voucher nếu có (chỉ redeem khi payment success)
         if booking.voucher_code:
             user = booking.created_by if booking.created_by else None
-            print("check user: ", user)
             if user:
                 success, error_code, error_message = _redeem_voucher_for_booking_internal(
-                    booking, user
+                    booking, user, skip_lock=False
                 )
                 if not success:
                     # Log error nhưng không fail payment
@@ -246,7 +245,6 @@ def payment_ipn(request):
         hotel = booking.hotel_id
         # set_booking_room.delay(session_id, txn_ref)
         RedisUtils.finalize_booking_success(session_id)
-        print('check booking: ', booking, )
         payload = {
             "to_email":booking.user_email,
             "transactionId":payment.transaction_id,

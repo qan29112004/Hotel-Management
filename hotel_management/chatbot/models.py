@@ -14,6 +14,8 @@ class KnowlegdeBaseModel(models.Model):
     is_embedded = models.BooleanField(default=False)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
+    created_by = models.ForeignKey("hotel_management_be.User", on_delete=models.CASCADE, related_name="knowlegde_base_model_create", null=True, blank=True)
+    updated_by = models.ForeignKey("hotel_management_be.User", on_delete=models.CASCADE, related_name="knowlegde_base_model_update", null=True, blank=True)
     
 class GroupChat(models.Model):
     uuid = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")

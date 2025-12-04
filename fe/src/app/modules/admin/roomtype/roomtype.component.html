@@ -45,7 +45,7 @@
                             [titleKey]="'content.advanced_filters'"
                             [fields]="filterFields"
                             [optionDestination]="optionsHotel"
-                            [optionRadio]="radioAmenityOptions"
+                            [checkboxOptions]="checkboxOptions"
                             (filter)="onApplyFilter($event)"
                             (reset)="onResetFilter()"
                             (close)="toggleFilterDrawer()"
@@ -232,7 +232,7 @@
     [fields]="addFields"
     [saveHandler]="addSaveHandler.bind(this)"
     [optionDestination]="optionsHotel"
-    [optionRadio]="radioAmenityOptions"
+    [checkboxOptions]="checkboxOptions"
     (toggleDrawer)="toggleAddUserDrawer()"
     [loadData] = "loadRoomTypes.bind(this)"
     (drawerOpenedChanged)="onAddDrawerOpenedChanged($event)">

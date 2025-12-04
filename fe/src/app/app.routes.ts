@@ -145,6 +145,11 @@ export const appRoutes: Route[] = [
                     ),
             },
             {
+                path: routeConfig.MY_CLUB,
+                data: {title: 'My Club'},
+                loadChildren: () => import('app/modules/auth/my-club/my-club.routes'),
+            },
+            {
                 path: routeConfig.AUTH_CHANGE_PASS,
                 data: { title: 'change_password.title' },
                 loadChildren: () =>
@@ -362,6 +367,14 @@ export const appRoutes: Route[] = [
                                 'app/modules/admin/voucher/voucher.route'
                             ),
                     },
+                    {
+                        path: routeConfig.PRICE_RULE,
+                        data: { title: 'price_rule.title' },
+                        loadChildren: () =>
+                            import(
+                                'app/modules/admin/price-rule/price-rule.routes'
+                            ),
+                    },
                     
                     {
                         path: routeConfig.MARKET_MANAGEMENT,
@@ -486,9 +499,15 @@ export const appRoutes: Route[] = [
             },
             {
                 path: routeConfig.OFFER + '/:slug',
-                data: { title: 'home-page.title' },
+                data: { title: 'offer.title' },
                 loadChildren: () =>
                     import('app/modules/landing/offer-detail/offer-detail.route'),
+            },
+            {
+                path: routeConfig.DEAL,
+                data: { title: 'voucher.title' },
+                loadChildren: () =>
+                    import('app/modules/landing/deal/deal.route'),
             },
             {
                 path: ':slug',

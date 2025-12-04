@@ -122,7 +122,8 @@
             "rateplan":"Rate Plan",
             "rating":"Rating",
             "voucher":"Voucher",
-            "facilities":"Facilities"
+            "facilities":"Facilities",
+            "price_rule":"Price rule"
         },
         "mod": {
             "app_type": "App Type",
@@ -1128,6 +1129,7 @@
         "create":"Create Hotel",
         "detail":"Hotel Detail",
         "save":"Save",
+        "book_now":"Book now",
         "search_placeholder": "Search by hotel name",
         "no_matching_data": "No matching data.",
         "status":"Status",
@@ -1173,6 +1175,10 @@
     },
     "booking":{
         "title":"Booking",
+        "relevance":"Relevance",
+        "from_a_to_z":"From a to z",
+        "rating":"Rating",
+        "filter_by_facilities":"FILTER BY FACILITIES",
         "check":{
             "valid":"Valid number phone",
             "invalid":"Invalid number phone"

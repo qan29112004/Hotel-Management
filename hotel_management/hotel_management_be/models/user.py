@@ -114,8 +114,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
         self.delete_at = None
         self.save()
 
-    def __str__(self):
-        return self.username
+    
 
     class Meta:
         app_label = "hotel_management_be"

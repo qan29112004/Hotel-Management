@@ -12,6 +12,8 @@ import { map } from 'rxjs';
 import { DestinationService } from 'app/core/admin/destination/destination.service';
 import { TranslocoService } from '@ngneat/transloco';
 import { HotelService } from 'app/core/admin/hotel/hotel.service';
+import { FacilitiesService } from 'app/core/admin/facilities/facilities.service';
+import { Facilities } from 'app/core/admin/facilities/facilities.types';
 import { MapComponent } from 'app/shared/components/map/map.component';
 import { register } from 'swiper/element/bundle';
 import { ActivatedRoute } from '@angular/router';
@@ -85,15 +87,18 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
   destinationService = inject(DestinationService);
   translocoService = inject(TranslocoService);
   hotelService = inject(HotelService);
+  facilitiesService = inject(FacilitiesService);
   isOpenFilter:boolean = false;
   isHidden:boolean = false;
+  facilities: Facilities[] = [];
+  selectedFacilities: string[] = []; // Array of facility UUIDs
   listImageExploreHotel = 
     ['assets/images/explore-hotel/images_1.jpg', 'assets/images/explore-hotel/images_2.jpg', 'assets/images/explore-hotel/images_3.jpg', 'assets/images/explore-hotel/images_4.jpg', 'assets/images/explore-hotel/images_5.jpg', 'assets/images/explore-hotel/images_6.jpg', 'assets/images/explore-hotel/images_7.jpg', 'assets/images/explore-hotel/images_8.jpg', 'assets/images/explore-hotel/images_9.jpg', 'assets/images/explore-hotel/images_10.jpg', 'assets/images/explore-hotel/images_11.jpg', 'assets/images/explore-hotel/images_12.jpg']
   ;
   constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone, private activeRoute: ActivatedRoute, private router: Router) {}
 
   get checkInDate(){
-    return this.searchData.check_in;
+    return this.searchData?.check_in;
   }
 
   set checkInDate(value:any){
@@ -102,7 +107,7 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   get checkOutDate(){
-    return this.searchData.check_out;
+    return this.searchData?.check_out;
   }
 
   set checkOutDate(value:any){
@@ -138,6 +143,15 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
       this.previous = data['hotel']?.apiData?.data.previous;
       this.roomList = data['hotel']?.searchData.rooms;
       this.listExcludeHotel = data['hotel']?.apiData?.data.excludeHotel;
+      
+      // Load selected facilities from query params or searchData
+      const facilitiesParam = this.activeRoute.snapshot.queryParamMap.get('facilities');
+      if (facilitiesParam) {
+        this.selectedFacilities = facilitiesParam.split(',').filter(f => f);
+      } else if (this.searchData?.facilities && Array.isArray(this.searchData?.facilities)) {
+        this.selectedFacilities = [...this.searchData?.facilities];
+      }
+      
       console.log("data['hotel']", data['hotel'])
       console.log("this.listExcludeHotel", this.listExcludeHotel)
       console.log("this listhotel: ", this.listHotel);
@@ -153,6 +167,7 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
     this.checkScreenSize();
     this.updateImageExplore();
     this.intervalId = setInterval(() => this.updateImageExplore(), 60 * 1000);
+    this.loadFacilities();
   }
 
   ngOnDestroy(): void {
@@ -224,12 +239,18 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
 
   submitSearch() {
     this.searchData.offset = 0;
+    if (this.selectedFacilities.length > 0) {
+      this.searchData.facilities = this.selectedFacilities;
+    }
     console.log("seardata",this.searchData)
     const queryParams: { [key: string]: any } = {};
     queryParams.dest = this.searchData.destination;
     queryParams.checkin = this.searchData.check_in;
     queryParams.checkout = this.searchData.check_out;
     queryParams.code = this.searchData.code;
+    if (this.selectedFacilities.length > 0) {
+      queryParams.facilities = this.selectedFacilities.join(',');
+    }
     this.roomList.forEach((room, i) => {
         queryParams[`rooms[${i}][adults]`] = room.adults;
         queryParams[`rooms[${i}][children]`] = room.children;
@@ -284,10 +305,10 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   get guestSummary() {
-      const totalAdults = this.roomList.reduce((sum, r) => sum + r.adults, 0);
-      const totalChildren = this.roomList.reduce((sum, r) => sum + r.children, 0);
+      const totalAdults = this.roomList?.reduce((sum, r) => sum + r.adults, 0);
+      const totalChildren = this.roomList?.reduce((sum, r) => sum + r.children, 0);
       const totalGuests = totalAdults + totalChildren;
-      return `${this.roomList.length} room${this.roomList.length > 1 ? 's' : ''}${totalGuests >= 1 ? ', ' + totalGuests + ' guests' : ''}`;
+      return `${this.roomList?.length} room${this.roomList?.length > 1 ? 's' : ''}${totalGuests >= 1 ? ', ' + totalGuests + ' guests' : ''}`;
   }
 
   removeRoom() {
@@ -359,6 +380,9 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
 
   loadMoreHotes(){
     this.searchData.offset = this.searchData.limit + this.searchData.offset;
+    if (this.selectedFacilities.length > 0) {
+      this.searchData.facilities = this.selectedFacilities;
+    }
     this.hotelService.getExploreHotels(this.searchData, this.next).subscribe(res=>{
       this.listHotel = [...this.listHotel,...res.data.data];
       console.log('this list hotel load more', this.listHotel)
@@ -372,6 +396,9 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
   onSortChange(event: any) {
     const sortValue = event.target.value;
     this.searchData['sort'] = sortValue
+    if (this.selectedFacilities.length > 0) {
+      this.searchData.facilities = this.selectedFacilities;
+    }
 
     this.hotelService.getExploreHotels(this.searchData).subscribe(res=>{
       this.listHotel = res.data.data;
@@ -401,4 +428,98 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
     });
     this.router.navigate([`hotel/${slug}`], {queryParams})
   }
+
+  loadFacilities() {
+    this.facilitiesService.getAllFacilities({ page_size: 0 }).subscribe(res => {
+      this.facilities = res.data || [];
+    });
+  }
+
+  toggleFilter() {
+    this.isOpenFilter = !this.isOpenFilter;
+  }
+
+  toggleFacility(facilityUuid: string) {
+    const index = this.selectedFacilities.indexOf(facilityUuid);
+    if (index > -1) {
+      this.selectedFacilities.splice(index, 1);
+    } else {
+      this.selectedFacilities.push(facilityUuid);
+    }
+    this.applyFacilitiesFilter();
+  }
+
+  isFacilitySelected(facilityUuid: string): boolean {
+    return this.selectedFacilities.includes(facilityUuid);
+  }
+
+  removeFacility(facilityUuid: string) {
+    const index = this.selectedFacilities.indexOf(facilityUuid);
+    if (index > -1) {
+      this.selectedFacilities.splice(index, 1);
+      this.applyFacilitiesFilter();
+    }
+  }
+
+  clearAllFacilities() {
+    this.selectedFacilities = [];
+    this.applyFacilitiesFilter();
+  }
+
+  applyFacilitiesFilter() {
+    // Update searchData with facilities filter
+    if (this.searchData) {
+      this.searchData.facilities = this.selectedFacilities.length > 0 ? this.selectedFacilities : undefined;
+      this.searchData.offset = 0;
+      
+      // Update URL query params (preserve existing params)
+      const currentParams = { ...this.activeRoute.snapshot.queryParams };
+      
+      if (this.selectedFacilities.length > 0) {
+        currentParams['facilities'] = this.selectedFacilities.join(',');
+      } else {
+        delete currentParams['facilities'];
+      }
+      
+      this.router.navigate([], {
+        relativeTo: this.activeRoute,
+        queryParams: currentParams,
+        replaceUrl: true
+      });
+      
+      // Call API with facilities filter
+      this.hotelService.getExploreHotels(this.searchData).subscribe(res => {
+        this.listHotel = res.data.data;
+        this.next = res.data?.next;
+        this.total = res.data?.total;
+        this.previous = res.data?.previous;
+        this.listExcludeHotel = res.data?.excludeHotel;
+        this.buttonNext = !!(this.next && this.next.trim());
+        setTimeout(() => {
+          this.initializeSwipers(this.swiperElements, this.swipers, this.currentIndexes);
+          this.initializeSwipers(this.swiperElements2, this.swipers2, this.currentIndexes2);
+        }, 0);
+      });
+    }
+  }
+
+  getSelectedFacilityNames(): string[] {
+    return this.selectedFacilities.map(uuid => {
+      const facility = this.facilities.find(f => f.uuid === uuid);
+      return facility ? facility.name : '';
+    }).filter(name => name !== '');
+  }
+
+  // Helper method to divide facilities into 3 columns
+  getFacilitiesColumn(columnIndex: number): Facilities[] {
+    const itemsPerColumn = Math.ceil(this.facilities.length / 3);
+    const start = columnIndex * itemsPerColumn;
+    const end = start + itemsPerColumn;
+    return this.facilities.slice(start, end);
+  }
+
+  getFacilityName(uuid: string) {
+    return this.facilities.find(f => f.uuid === uuid)?.name;
+  }
+  
 }

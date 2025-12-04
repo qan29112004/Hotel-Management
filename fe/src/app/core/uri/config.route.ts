@@ -100,5 +100,8 @@ export const routeConfig = {
     MY_BOOKING:'my-booking',
     VOUCHER: 'voucher',
     MY_VOUCHER: 'my-voucher',
-    FACILITIES:'facilities'
+    FACILITIES:'facilities',
+    PRICE_RULE:"price-rule",
+    DEAL:"deal",
+    MY_CLUB:"my-club"
 };

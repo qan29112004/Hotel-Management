@@ -1,32 +1,77 @@
-<div class="fixed top-0 left-0 w-full h-full bg-black/50 z-50 flex flex-col justify-center items-center">
-    <div class="w-auto flex flex-col">    
-        <button (click)="closeDetail()" type="button" class="self-end"><mat-icon class="text-black text-[15px] p-3 rounded-full bg-white">close</mat-icon></button>
-        <div
-            class="voucher-card"
-            >
-                <div class="voucher-card-left">
-                    <img src='assets/images/ui/menu/bill-ticket.svg'/>
+<div class="fixed inset-0 w-full h-full bg-black/90 z-50 flex flex-col justify-center items-center font-sans backdrop-blur-sm">
+    <div class="w-full max-w-[40%] flex flex-col p-4 animate-fade-in">    
+        <!-- Close Button: Sharp, Black/White with Gold Hover -->
+        <button (click)="closeDetail()" type="button" class="self-end mb-4 group focus:outline-none">
+            <div class="bg-white text-black p-3 border border-black group-hover:bg-[#D4AF37] group-hover:text-white group-hover:border-[#D4AF37] transition-all duration-300 shadow-none">
+                <mat-icon class="text-lg flex items-center justify-center">close</mat-icon>
+            </div>
+        </button>
+
+        <!-- Main Card: No radius, black border -->
+        <div class="bg-white w-full border border-black shadow-none flex flex-col">
+            
+            <!-- Ticket Section: Dashed separator -->
+            <div class="flex flex-row border-b-2 border-black border-dashed relative">
+                <!-- Left: Icon Area -->
+                <div class="w-1/3 bg-gray-50 flex items-center justify-center p-6 border-r-2 border-black border-dashed">
+                    <img src='assets/images/ui/menu/bill-ticket.svg' class="w-16 h-16 object-contain opacity-90"/>
                 </div>
-                <div class="voucher-card-right">
-                    <div class="voucher-info">
-                    <div class="discount-text">{{ getDiscountText(claim.voucher) }}</div>
-                    <div class="min-order">Số tiền tối thiểu Tối Thiểu {{ formatCurrency(claim.voucher.minOrderValue) }}</div>
-                    
-                    <div class="usage-progress" *ngIf="getUsagePercentage(claim) > 0">
-                        <div class="progress-bar">
-                        <div class="progress-fill" [style.width.%]="getUsagePercentage(claim)"></div>
-                        </div>
-                        <span class="progress-text">Đã dùng {{ getUsagePercentage(claim) }}%</span>
+                
+                <!-- Right: Summary Area -->
+                <div class="w-2/3 p-6 flex flex-col justify-center bg-white">
+                    <div class="text-xl font-bold uppercase tracking-tight text-black leading-tight mb-2">
+                        {{ getDiscountText(claim.voucher) }}
+                    </div>
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-widest">
+                        Tối thiểu {{ formatCurrency(claim.voucher.minOrderValue) }}
                     </div>
                     
+                    <!-- Progress Bar: Gold fill, sharp corners -->
+                    <div class="mt-4 w-full" *ngIf="getUsagePercentage(claim) > 0">
+                        <div class="w-full bg-gray-200 h-2 rounded-none overflow-hidden">
+                            <div class="bg-[#D4AF37] h-full rounded-none" [style.width.%]="getUsagePercentage(claim)"></div>
+                        </div>
+                        <span class="text-[10px] text-[#D4AF37] font-bold uppercase tracking-wider mt-1 block">
+                            Đã dùng {{ getUsagePercentage(claim) }}%
+                        </span>
+                    </div>
                 </div>
-        </div>
-        <div class="bg-white rounded-lg p-4 w-full">
-            <h2 class="text-2xl font-bold">Chi tiết voucher</h2>
-            <p class="text-[16px] font-avenir text-gray-500">Mã voucher: {{ claim.voucher.code }}</p>
-            <p class="text-[16px] font-avenir text-gray-500">Mô tả: {{ claim.voucher.description }}</p>
-            <p class="text-[16px] font-avenir text-gray-500">Giảm: {{ claim.voucher.discountValue ? (claim.voucher.discountValue | currency:'VND':'symbol':'1.0-0') : (claim.voucher.discountPercent + ' %') }}</p>
-            <p class="text-[16px] font-avenir text-gray-500">Ngày hết hạn: {{ claim.voucher.expireAt }}</p>
+            </div>
+
+            <!-- Details Section -->
+            <div class="p-8 bg-white w-full">
+                <h2 class="text-2xl font-bold uppercase tracking-widest text-black mb-6 border-l-4 border-[#D4AF37] pl-4">
+                    Chi tiết voucher
+                </h2>
+                
+                <div class="space-y-4">
+                    <!-- Code -->
+                    <div class="flex flex-col border-b border-gray-100 pb-2">
+                        <span class="text-gray-400 uppercase text-[10px] tracking-widest mb-1">Mã voucher</span>
+                        <p class="text-[16px] font-avenir font-medium text-black">{{ claim.voucher.code }}</p>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="flex flex-col border-b border-gray-100 pb-2">
+                        <span class="text-gray-400 uppercase text-[10px] tracking-widest mb-1">Mô tả</span>
+                        <p class="text-[16px] font-avenir text-gray-600 leading-relaxed">{{ claim.voucher.description }}</p>
+                    </div>
+
+                    <!-- Discount Value -->
+                    <div class="flex flex-col border-b border-gray-100 pb-2">
+                        <span class="text-gray-400 uppercase text-[10px] tracking-widest mb-1">Giảm</span>
+                        <p class="text-[16px] font-avenir font-bold text-[#D4AF37] text-xl">
+                            {{ claim.voucher.discountValue && claim.voucher.discountValue > 0 ? (claim.voucher.discountValue | currency:'VND':'symbol':'1.0-0') : (claim.voucher.discountPercent + ' %') }}
+                        </p>
+                    </div>
+
+                    <!-- Expiry -->
+                    <div class="flex flex-col">
+                        <span class="text-gray-400 uppercase text-[10px] tracking-widest mb-1">Ngày hết hạn</span>
+                        <p class="text-[16px] font-avenir font-medium text-black">{{ formatDate(claim.voucher.expireAt) }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

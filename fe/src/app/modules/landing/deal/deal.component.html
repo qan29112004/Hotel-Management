@@ -1,0 +1,66 @@
+<div class="deal-page">
+  <div class="bg-black h-28 mb-[60px] w-full"></div>
+  <section class="deal-header">
+    <div class="deal-eyebrow">
+      <span class="deal-eyebrow-dot"></span>
+      ƯU ĐÃI ĐẶC QUYỀN
+    </div>
+    <h2 class="deal-title">
+      Vouchers đang hoạt động cho kỳ nghỉ của bạn
+    </h2>
+    <p class="deal-subtitle">
+      Chọn một ưu đãi phù hợp, áp dụng khi đặt phòng để tối ưu chi phí mà không cần săn sale phức tạp.
+    </p>
+  </section>
+
+  <section *ngIf="getDisplayVouchers().length > 0; else noVoucher" class="deal-grid">
+    <article
+      class="deal-card"
+      *ngFor="let voucher of getDisplayVouchers(); let i = index"
+    >
+      <header class="deal-card-top">
+        <div>
+          <div class="deal-card-discount">
+            {{ getDiscountLabel(voucher) }}
+            <span>{{ getSubDiscountLabel(voucher) }}</span>
+          </div>
+        </div>
+        <div class="deal-card-chip">
+          CODE : {{ voucher.code || 'VOUCHER' }}
+        </div>
+      </header>
+
+      <div class="deal-card-body">
+        <div class="deal-card-meta">
+          Áp dụng cho đơn từ {{ formatCurrency(voucher.minOrderValue) }}
+        </div>
+        <h3 class="deal-card-title">
+          {{ voucher.name }}
+        </h3>
+        <p class="deal-card-description">
+          {{ voucher.description || 'Ưu đãi áp dụng cho một số khách sạn, điều kiện chi tiết sẽ được hiển thị trong bước thanh toán.' }}
+        </p>
+
+        <div class="deal-card-footer">
+          <div class="deal-card-expiry">
+            {{ getDaysLeft(voucher) }}
+          </div>
+          <a [ngClass]="{'pointer-events-none bg-gray-400 cursor-default':!user || loading}"
+            class="deal-card-cta cursor-pointer"
+            target="_blank"
+            [class.is-secondary]="i === 2 || i === 5"
+            href="my-voucher"
+          >
+            Nhận phiếu giảm giá
+          </a>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <ng-template #noVoucher>
+    <div class="deal-empty">
+      Hiện tại chưa có voucher đang hoạt động. Hãy quay lại sau để xem thêm ưu đãi mới.
+    </div>
+  </ng-template>
+</div>

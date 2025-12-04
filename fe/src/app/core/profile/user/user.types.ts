@@ -15,6 +15,8 @@ export interface User {
     address?: string;
     birth_day?: string;
     last_login?: boolean;
+    classification?:string;
+    totalNights?:number;
     created_by: string;
     updated_by: string;
     created_at: string;

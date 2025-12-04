@@ -410,7 +410,7 @@
 }
 
 .use-btn {
-  @apply w-full;
+  @apply w-full text-center text-white bg-black;
   padding: 10px 24px;
   border: 2px solid;
   font-size: 14px;
@@ -460,6 +460,7 @@
 }
 
 .reclaim-btn {
+  @apply w-full text-center;
   padding: 10px 24px;
   background: #ffc107;
   color: #1a1a1a;

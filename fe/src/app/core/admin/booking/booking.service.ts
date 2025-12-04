@@ -77,4 +77,25 @@ export class BookingService {
       map(res => res.data)
     );
   }
+
+  // Get booking details by ID
+  getBookingById(bookingId: string): Observable<any> {
+    return this.http.post<any>(uriConfig.API_MY_BOOKING, {
+      page_size: 1,
+      filterRules: [{
+        field: 'uuid',
+        option: 'equals',
+        value: bookingId
+      }]
+    }).pipe(
+      map(res => {
+        const bookings = res.data?.data || [];
+        return bookings.length > 0 ? bookings[0] : null;
+      }),
+      catchError(error => {
+        console.error('Error fetching booking details:', error);
+        return of(null);
+      })
+    );
+  }
 }

@@ -250,6 +250,30 @@ export class RateplanComponent implements OnInit {
         
     },
     {
+      name: 'refund_full_days',
+      labelKey: 'rateplan.refund_full_days',
+      type: 'number',
+      placeholderKey: 'rateplan.enterRefundFullDays',
+      required: true,
+      
+    },
+    {
+      name: 'refund_partial_days',
+      labelKey: 'rateplan.refund_partial_days',
+      type: 'textarea',
+      placeholderKey: 'rateplan.enterCancellationPolicy',
+      required: true,
+    
+    },
+    {
+      name: 'cancellation_policy',
+      labelKey: 'rateplan.cancellation_policy',
+      type: 'textarea',
+      placeholderKey: 'rateplan.enterCancellationPolicy',
+      required: true,
+      
+    },
+    {
         name: 'service',
         labelKey: 'rateplan.services',
         type: 'checkbox',

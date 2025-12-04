@@ -50,6 +50,7 @@ class Voucher(BaseModel):
     total_claimed = models.PositiveIntegerField(default=0)
     total_used = models.PositiveIntegerField(default=0)
     conditions = models.JSONField(default=dict, blank=True)
+    is_delete = models.BooleanField(default=False)
     hotels = models.ManyToManyField(
         "hotel_management_be.Hotel", related_name="vouchers", blank=True
     )
@@ -60,8 +61,6 @@ class Voucher(BaseModel):
             models.Index(fields=["status", "start_at", "expire_at"]),
         ]
 
-    def __str__(self):
-        return f"{self.code} - {self.name}"
 
     def save(self, *args, **kwargs):
         if self.code:
@@ -142,8 +141,6 @@ class VoucherClaim(BaseModel):
             models.Index(fields=["user", "status"]),
         ]
 
-    def __str__(self):
-        return f"{self.voucher.code} - {self.user.username}"
 
     def is_active(self, now=None):
         now = now or timezone.now()
@@ -215,6 +212,4 @@ class VoucherUsageLog(BaseModel):
             models.Index(fields=["booking", "status"]),
         ]
 
-    def __str__(self):
-        return f"{self.voucher.code if self.voucher else 'N/A'} - {self.discount_amount}"
-
+   

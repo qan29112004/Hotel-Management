@@ -3,6 +3,7 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from hotel_management_be.models.hotel import *
 from hotel_management_be.models.voucher import *
+from hotel_management_be.service.booking_service import BookingService
 
 from hotel_management_be.models.offer import Offer
 from hotel_management_be.models.booking import Payment, HoldRecord, Booking
@@ -12,6 +13,8 @@ from libs.Redis import RedisWrapper
 import logging
 from hotel_management_be.celery_hotel.task import compute_hotel_calendar_prices
 from libs.Redis import RedisWrapper, RedisUtils
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +113,18 @@ def payment_update_paid(sender, instance, **kwargs):
             instance.status = "Maintenance"
         elif instance.housekeeping_status == "Cleaned":
             instance.status = "Available"
+            
+# @receiver(pre_save, sender=Booking)
+# def track_booking_status_change(sender, instance, **kwargs):
+#     """Track xem status có thay đổi không"""
+#     if instance.pk:  # Chỉ track khi update (không phải create)
+#         try:
+#             old_instance = Booking.objects.get(pk=instance.pk)
+#             instance._old_status = old_instance.status
+#         except Booking.DoesNotExist:
+#             instance._old_status = None
+#     else:
+#         instance._old_status = None
 @receiver(post_save, sender=Booking)
 def update_status_room_book(sender, instance, **kwargs):
     print(">>> SIGNAL RUNNING <<<")
@@ -147,8 +162,10 @@ def update_status_room_book(sender, instance, **kwargs):
                 checkout=str(instance.check_out),
                 quantity=1
             )
+        BookingService.update_classification_user(instance.user_email)
+            
     elif(instance.status in ["Expired","Cancelled"]):
-        print(">>> SIGNAL RUNNING CHECK OUT<<<")
+        print(">>> SIGNAL RUNNING expire or cancelled<<<")
         for br in booking_room:
             room = br.room_id
             print("check status", room.status)
@@ -190,10 +207,10 @@ def update_status_room_book_when_delete(sender, instance, **kwargs):
             quantity=1
         )
         
-@receiver(post_save, sender=VoucherClaim)
-def update_status(sender, instance, **kwargs):
-    voucher = instance.voucher
-    if instance.usage_count >= voucher.max_usage_per_user:
-        instance.status = "EXHAUSTED"
-        instance.save()
+# @receiver(pre_save, sender=VoucherClaim)
+# def update_status(sender, instance, **kwargs):
+#     voucher = instance.voucher
+#     if instance.usage_count >= voucher.max_usage_per_user:
+#         instance.status = "EXHAUSTED"
+#         instance.save()
     

@@ -153,8 +153,11 @@ export class SelectRateComponent implements OnInit {
     )
   }
 
-  isSelectedRate(){
-
+  getFirstBedAmenity(rt: any) {
+    if (!rt?.amenity) return null;
+    return rt.amenity.find((a: any) =>
+      a.amenityName?.toLowerCase().includes("bed")
+    ) || null;
   }
   
 }

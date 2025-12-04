@@ -1,0 +1,100 @@
+<div class="relative items-center flex flex-col flex-auto w-full h-full max-w-[1920px]">
+    <div #overview
+        class="md:min-h-[100svh] h-[100svh] pb-10 bg-center bg-no-repeat bg-cover text-white flex flex-col justify-center items-center relative w-full"
+        [style.background-image]="'url('+ ('assets/images/ui/my-club.jpg')+ ')'"
+    >
+        <div class="absolute bg-gradient-to-b from-black/50 to-transparent w-full h-[50%] top-0 left-0 z-[0]">
+
+        </div>
+        <div class="flex font-clearface text-[30px] text-white z-[1]">
+            <span>Chào mừng {{crrUser?.fullname ?crrUser?.fullname:crrUser?.email}}</span>
+        </div>
+        <div class="font-avenir text-[16px] text-white z-[1] mt-[15px]">
+            <span>club hiện tại</span>
+        </div>
+        <div class="font-lexend_deca text-[80px] font-semibold text-[#dd781d] z-[1]">
+            {{crrUser?.classification}}
+        </div>
+    </div>
+    
+    <div class="flex flex-col px-16 max-w-[1440px] w-full bg-white -mt-[95px] z-[3] sticky top-28 mb-[50px]">
+        <div class="flex items-center h-24 gap-8">
+            <a (click)="scrollTo('overview')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">overview</a>
+            <a (click)="scrollTo('images')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">status</a>
+            <a (click)="scrollTo('bookingReward')" class="font-avenir text-[12px] no-underline uppercase cursor-pointer">bookingReward</a>
+        </div>
+    </div>
+    <div class="flex flex-col px-16 max-w-[1440px] w-full bg-white z-[2]">
+        <div  class="w-full h-full flex flex-col justify-center items-center">
+            <span class="font-clearface text-[30px] text-black">Tổng quan</span>
+        </div>
+        <div #status class="flex flex-col items-center justify-center text-center bg-white max-w-[1440px] w-full py-12">
+            <span class="text-[60px] font-classy text-[#9e693d] mb-[35px]">Club Activity</span>
+            <div class="relative flex items-center justify-center w-full h-auto max-md:justify-start ">
+                <div class="absolute bg-[#f7f0ea] w-full max-w-[1920px] self-center h-[144px]"></div>
+                <div class="grid grid-cols-2 gap-[20px] max-w-[60%] w-full  max-md:min-w-[900px] z-10 items-stretch">
+                    <div class="p-2 bg-gray-50">
+                        <div class="flex flex-col items-center justify-center flex-grow h-full gap-4 py-[100px] px-[20px] text-center bg-white">
+                            <div class="flex flex-col items-center">
+                                <span class="font-clearface text-[80px]">{{crrUser?.totalNights}}</span>
+                                <span class="font-clearface text-[16px]">Số đêm đã ở</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-2 bg-gray-50">
+                        <div class="flex flex-col items-center justify-center flex-grow h-full gap-4 py-[100px] px-[20px] text-center bg-white">
+                            <div class="flex flex-col items-center">
+                                <span class="font-clearface text-[80px]">{{crrUser?.classification ==="CLUB1"? (3-crrUser?.totalNights):crrUser?.classification ==="CLUB2"?(6-crrUser?.totalNights):'Bạn đã đạt cấp hạng cao nhất'}}</span>
+                                <span class="font-clearface text-[16px]">Số đêm tiếp theo để tăng hạng</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center justify-center text-center bg-white max-w-[1440px] w-full py-12">
+            <span  class="text-[60px] font-classy text-[#9e693d] mb-[35px]">Bookings & Rewards</span>
+            <div #bookingReward class="relative flex items-center justify-center w-full h-auto max-md:justify-start ">
+                <div class="absolute bg-[#f7f0ea] w-full max-w-[1920px] self-center h-[144px]"></div>
+                <div class="grid grid-cols-3 gap-2 max-w-[80%] max-md:min-w-[900px] z-10 items-stretch">
+                    <div class="p-2 bg-gray-50">
+                        <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
+                            <img class="object-cover w-full h-[20rem]" src="assets/images/ui/future_booking.jpg" alt="curated_hotels" />
+                            <span class="text-black text-[24px] font-clearface">{{translocoService.translate('my-club.pioneers.future_booking')}}</span>
+                            <p class="text-[16px] text-black font-avenir">{{translocoService.translate('my-club.pioneers.future_booking_content')}}</p>
+                            <div class="flex flex-grow items-end">
+
+                                <a target="_blank" href="my-booking" class="bottom-0 text-base font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">my-club.pioneers.view_all </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-2 bg-gray-50">
+                        <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
+                            <img class="object-cover w-full h-[20rem]" src="assets/images/ui/explore_hotel.jpg" alt="curated_hotels" />
+                            <span class="text-black text-[24px] font-clearface">{{translocoService.translate('my-club.pioneers.explore_hotel')}}</span>
+                            <p class="text-[16px] text-black font-avenir">{{translocoService.translate('my-club.pioneers.explore_hotel_content')}}</p>
+                            <div class="flex flex-grow items-end">
+
+                                <a target="_blank" href="explore-hotels" class="bottom-0 text-base font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">my-club.pioneers.view_all </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-2 bg-gray-50">
+                        <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
+                            <img class="object-cover w-full h-[20rem]" src="assets/images/ui/reward.jpg" alt="curated_hotels" />
+                            <span class="text-black text-[24px] font-clearface">{{translocoService.translate('my-club.pioneers.rewards')}}</span>
+                            <p class="text-[16px] text-black font-avenir">{{translocoService.translate('my-club.pioneers.rewards_content')}}</p>
+                            <div class="flex flex-grow items-end">
+
+                                <a target="_blank" href="my-voucher" class="bottom-0 text-base font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">my-club.pioneers.view_all</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>

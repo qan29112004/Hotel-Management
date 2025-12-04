@@ -23,8 +23,12 @@ export const exploreHotelsResolver: ResolveFn<any> = (route) => {
     i++;
   }
 
+  // Parse facilities from query params
+  const facilitiesParam = params.get('facilities');
+  const facilities = facilitiesParam ? facilitiesParam.split(',').filter(f => f) : undefined;
+
   // Build search data
-  const searchData = {
+  const searchData: any = {
     limit: 2,
     offset: 0,
     destination: params.get('dest') || '',
@@ -33,6 +37,10 @@ export const exploreHotelsResolver: ResolveFn<any> = (route) => {
     code: params.get('code') || '',
     rooms
   };
+
+  if (facilities && facilities.length > 0) {
+    searchData.facilities = facilities;
+  }
 
   // Call API
   return hotelService.getExploreHotels(searchData).pipe(

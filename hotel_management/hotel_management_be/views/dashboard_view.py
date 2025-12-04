@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAdminUser
 from libs.response_handle import AppResponse
 from constants.error_codes import ErrorCodes
 from constants.success_codes import SuccessCodes
-from hotel_management_be.models.booking import Booking, BookingRoom, Payment
+from hotel_management_be.models.booking import Booking, BookingRoom, Payment, Refund
 from hotel_management_be.models.hotel import Hotel, RoomType, Room
 from hotel_management_be.models.user import User
 from hotel_management_be.models.rating import ReviewRating
@@ -186,6 +186,62 @@ def dashboard_overview(request):
             "total_reviews": rating_agg["total_reviews"] or 0,
         }
 
+        # === 6. Tổng số tiền đã hoàn (Refund status = Completed) ===
+        refund_total = Refund.objects.filter(status="Completed").aggregate(
+            total_refund=Sum("amount")
+        )
+        total_refund_amount = float(refund_total["total_refund"] or 0)
+
+        # === 7. Tổng số phòng (Room) ===
+        total_rooms_count = Room.objects.count()
+
+        # === 8. Tổng số loại phòng (RoomType) ===
+        total_room_types_count = RoomType.objects.count()
+
+        # === 9. Tổng số khách sạn (Hotel) ===
+        total_hotels_count = Hotel.objects.filter(status="Active").count()
+
+        # === 10. Tổng số booking thành công (Confirm, Paid, Check In, Check Out) ===
+        successful_statuses = ["Confirm", "Paid", "Check In", "Check Out"]
+        total_successful_bookings = Booking.objects.filter(
+            status__in=successful_statuses
+        ).count()
+
+        # === 11. Tổng số booking ===
+        total_bookings = Booking.objects.count()
+
+        # === 12. Tỷ lệ hủy booking ===
+        cancelled_bookings = Booking.objects.filter(status="Cancelled").count()
+        cancellation_rate = (
+            (float(cancelled_bookings) / float(total_bookings) * 100)
+            if total_bookings > 0
+            else 0.0
+        )
+
+        # === 13. Doanh thu trung bình mỗi booking thành công ===
+        successful_payments = Payment.objects.filter(
+            status="Paid",
+            booking__status__in=successful_statuses,
+        ).aggregate(
+            total_revenue=Sum(
+                Case(
+                    When(currency="USD", then=F("amount") * 25000),
+                    default=F("amount"),
+                    output_field=FloatField(),
+                )
+            ),
+            count=Count("uuid"),
+        )
+        avg_revenue_per_booking = (
+            float(successful_payments["total_revenue"] or 0)
+            / float(successful_payments["count"] or 1)
+            if successful_payments["count"] > 0
+            else 0.0
+        )
+
+        # === 14. Tổng số booking đang chờ thanh toán (Pending) ===
+        pending_bookings_count = Booking.objects.filter(status="Pending").count()
+
         data = {
             "revenue": {
                 "monthly": monthly_revenue,
@@ -195,6 +251,17 @@ def dashboard_overview(request):
             "occupancy": occupancy_per_hotel,
             "users_monthly": users_monthly,
             "rating": rating_info,
+            "summary": {
+                "total_refund": total_refund_amount,
+                "total_rooms": total_rooms_count,
+                "total_room_types": total_room_types_count,
+                "total_hotels": total_hotels_count,
+                "total_successful_bookings": total_successful_bookings,
+                "total_bookings": total_bookings,
+                "cancellation_rate": cancellation_rate,
+                "avg_revenue_per_booking": avg_revenue_per_booking,
+                "pending_bookings": pending_bookings_count,
+            },
         }
 
         return AppResponse.success(SuccessCodes.DEFAULT, data=data)

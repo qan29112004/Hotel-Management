@@ -44,7 +44,7 @@
                             [showFilter]="showFilter"
                             [titleKey]="'content.advanced_filters'"
                             [fields]="filterFields"
-                            [optionDestination]="optionsHotel"
+                            [optionDestination]="checkboxOptions"
                             (filter)="onApplyFilter($event)"
                             (reset)="onResetFilter()"
                             (close)="toggleFilterDrawer()"
@@ -254,7 +254,7 @@
     [titleKey]="'voucher.create'"
     [fields]="addFields"
     [saveHandler]="addSaveHandler.bind(this)"
-    [optionRadio]="optionsHotel"
+    [checkboxOptions]="checkboxOptions"
     (toggleDrawer)="toggleAddUserDrawer()"
     [loadData] = "loadVoucher.bind(this)"
     (drawerOpenedChanged)="onAddDrawerOpenedChanged($event)">

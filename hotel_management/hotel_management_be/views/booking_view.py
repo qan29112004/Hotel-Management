@@ -105,7 +105,7 @@ def ensure_inventory_for_range(hotel_id, room_type_id, checkin, checkout):
     while cur < checkout:
         key = RedisUtils.inventory_key(hotel_id, room_type_id, cur.isoformat())
         # chỉ tạo nếu chưa tồn tại
-        RedisUtils.r.setnx(key, available_room)
+        RedisUtils.r.set(key, available_room)
         
         # TTL = (checkout - today).days + 3 ngày dự phòng
         ttl_days = max((checkout - today).days + 3, 3)

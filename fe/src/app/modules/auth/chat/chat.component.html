@@ -1,38 +1,70 @@
-<div class="flex flex-col items-center w-full">
+<div class="flex flex-col items-center w-full min-h-screen bg-white text-black font-avenir">
+    <!-- Header Block -->
     <div class="w-full bg-black h-28 mb-[60px]"></div>
-    <ng-container *ngIf="listRequirement?.length <=0 || !listRequirement">
-        <span class='font-clearface text-[30px]'>
+
+    <!-- Empty State -->
+    <ng-container *ngIf="listRequirement?.length <= 0 || !listRequirement">
+        <span class='font-clearface text-[30px] mb-8 block'>
             chat.no_require
         </span>
-        <div class="flex items-center justify-center mt-[20px]"
-        >
-            <div class="text-center">
-                <img src="assets/images/chatbot/none_user.svg" class="object-contain"/>
+        <div class="flex items-center justify-center mt-[20px]">
+            <div class="text-center border border-black p-10 bg-white">
+                <img src="assets/images/chatbot/none_user.svg" class="object-contain w-32 h-32 grayscale hover:grayscale-0 transition-all duration-300"/>
             </div>
         </div>
     </ng-container>
-    <ng-container *ngIf="listRequirement?.length >0">
+
+    <!-- Content State -->
+    <ng-container *ngIf="listRequirement?.length > 0">
         <ng-container *ngIf="listRequirement | groupByStatus as grouped">
-            <span *ngIf="!isJoin" class="font-clearface text-[30px]">Chờ tiếp nhận</span>
-            <span *ngIf="isJoin" class="font-clearface text-[30px]">Bạn đang tiếp nhận 1 yêu cầu</span>
-            <div class="w-full py-6 border-b border-[#787878] flex gap-2 flex-wrap px-16">
-
-                <button [disabled]="isJoin" (click)="requestJoin(item.uuid)" *ngFor="let item of grouped['Waiting']; let i=index" type="button" class="border border-black flex p-2 gap-2 items-center">
-                    <img [src]="item.user.avatar?item.user.avatar:'assets/images/avatars/default-avatar.svg'" class="rounded-full object-cover w-10 h-10" />
-                    <span class="font-lexend_deca text-[14px]">{{item.user.email}}</span>
-                </button>
+            
+            <!-- Waiting Section -->
+            <div class="w-full max-w-[1400px] px-16 flex flex-col items-start mb-10">
+                <span *ngIf="!isJoin" class="font-clearface text-[30px] mb-4 block">Chờ tiếp nhận</span>
+                <span *ngIf="isJoin" class="font-clearface text-[30px] mb-4 block">Bạn đang tiếp nhận 1 yêu cầu</span>
+                
+                <div class="w-full py-6 border-b border-black flex gap-4 flex-wrap bg-white">
+                    <button 
+                        [disabled]="isJoin" 
+                        (click)="requestJoin(item.uuid)" 
+                        *ngFor="let item of grouped['Waiting']; let i=index" 
+                        type="button" 
+                        class="border border-black bg-white hover:bg-[#FFE14D] transition-colors duration-200 flex p-3 gap-3 items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+                    >
+                        <img 
+                            [src]="item.user.avatar ? item.user.avatar : 'assets/images/avatars/default-avatar.svg'" 
+                            class="w-10 h-10 object-cover border border-black rounded-none" 
+                        />
+                        <span class="font-lexend_deca text-[14px] uppercase tracking-wide">{{item.user.email}}</span>
+                    </button>
+                    
+                    <span *ngIf="grouped['Waiting']?.length === 0" class="font-lexend_deca italic text-gray-500">
+                        Không có yêu cầu chờ.
+                    </span>
+                </div>
             </div>
 
-            <span class="font-clearface text-[30px]">Đang xử lý</span>
-            <div class="w-full py-6 flex gap-2 flex-wrap px-16">
-
-                <button disabled *ngFor="let item of grouped['In progress']; let i=index" type="button" class="shadow-md rounded-3xl flex items-center gap-2 p-2 disabled:opacity-70 disabled:cursor-not-allowed">
-                    <img [src]="item.user.avatar?item.user.avatar:'assets/images/avatars/default-avatar.svg'" class="rounded-full object-cover w-10 h-10" />
-                    <span class="font-lexend_deca text-[14px]">{{item.user.email}}</span>
-                </button>
+            <!-- In Progress Section -->
+            <div class="w-full max-w-[1400px] px-16 flex flex-col items-start">
+                <span class="font-clearface text-[30px] mb-4 block">Đang xử lý</span>
+                
+                <div class="w-full py-6 flex gap-4 flex-wrap">
+                    <button 
+                        disabled 
+                        *ngFor="let item of grouped['In progress']; let i=index" 
+                        type="button" 
+                        class="border border-black bg-[#FFE14D] flex items-center gap-3 p-3 shadow-none rounded-none disabled:opacity-100 disabled:cursor-not-allowed"
+                    >
+                        <img 
+                            [src]="item.user.avatar ? item.user.avatar : 'assets/images/avatars/default-avatar.svg'" 
+                            class="w-10 h-10 object-cover border border-black rounded-none" 
+                        />
+                        <span class="font-lexend_deca text-[14px] font-medium">{{item.user.email}}</span>
+                    </button>
+                </div>
             </div>
+
         </ng-container>
-
     </ng-container>
         
     <!-- Main Content Area -->

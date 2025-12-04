@@ -5,10 +5,14 @@ from utils.utils import Utils
 from chatbot.models import *
 
 class KnowlegdeBaseSerializer(serializers.ModelSerializer):
+    updated_by = serializers.SerializerMethodField()
     class Meta:
         model=KnowlegdeBaseModel
-        fields='__all__'
-        
+        fields=['uuid', 'title', 'content', 'is_embedded', 'created_at', 'created_by', 'updated_by', 'updated_at']
+    def get_updated_by(self,obj):
+        return {
+            'username':obj.updated_by.username if obj.updated_by else None
+        }   
 class ChatBotRequestSerializer(serializers.Serializer):
     user_input = serializers.CharField()
     

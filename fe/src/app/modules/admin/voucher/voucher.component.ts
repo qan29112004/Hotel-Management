@@ -210,13 +210,15 @@ export class VoucherComponent {
         name: 'totalClaimed',
         labelKey: 'voucher.total_claimed',
         type: 'number',
-        placeholderKey: 'voucher.entertotal_claimed'
+        placeholderKey: 'voucher.entertotal_claimed',
+        disabled:true
     },
     {
         name: 'totalUsed',
         labelKey: 'voucher.total_used',
         type: 'number',
-        placeholderKey: 'voucher.entertotal_used'
+        placeholderKey: 'voucher.entertotal_used',
+        disabled:true
     },
     {
         name: 'hotels',
@@ -359,18 +361,6 @@ export class VoucherComponent {
         placeholderKey: 'voucher.enterstackable'
     },
     {
-        name: 'total_claimed',
-        labelKey: 'voucher.total_claimed',
-        type: 'number',
-        placeholderKey: 'voucher.entertotal_claimed'
-    },
-    {
-        name: 'total_used',
-        labelKey: 'voucher.total_used',
-        type: 'number',
-        placeholderKey: 'voucher.entertotal_used'
-    },
-    {
         name: 'hotels',
         labelKey: 'voucher.hotel',
         type: 'checkbox',
@@ -429,7 +419,7 @@ export class VoucherComponent {
   user:User
   selectedDes:Voucher = null;
   selectedIds: string[] = [];
-  optionsHotel:any[];
+  checkboxOptions:any={};
   vouchers: Voucher[] = [];
   hasSelectedVoucher:boolean= false;
   displayedColumns: string[] = ['name', 'description', 'actions'];
@@ -514,8 +504,8 @@ export class VoucherComponent {
           }
           )
       ).subscribe(hotels=>{
-        this.optionsHotel = hotels;
-        console.log("optionHotel", this.optionsHotel)
+        this.checkboxOptions['hotels'] = hotels;
+        console.log("optionHotel", this.checkboxOptions)
       })
     }else{
       this.hotelService.getAllHotels({"page_size":0}).pipe(
@@ -532,8 +522,8 @@ export class VoucherComponent {
           }
           )
       ).subscribe(res=>{
-        this.optionsHotel = res;
-        console.log("optionHotel", this.optionsHotel)
+        this.checkboxOptions['hotels'] = res;
+        console.log("optionHotel", this.checkboxOptions)
       })
     }
   }
@@ -713,7 +703,7 @@ export class VoucherComponent {
         instance.entityData = this.selectedDes;
         instance.saveHandler = this.saveHandler.bind(this);
         instance.loadData = this.loadVoucher.bind(this);
-        instance.optionRadio = this.optionsHotel;
+        instance.checkboxOptions = this.checkboxOptions;
 
         // ✅ Lắng nghe sự kiện Output
         instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());

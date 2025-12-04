@@ -105,7 +105,7 @@ export class RoomTypeComponent {
   showDeleteDialog:boolean = false; 
 
   optionsHotel:any = [];
-  radioAmenityOptions:any = [];
+  checkboxOptions:any = {};
 
   fields: FieldConfig[] =[
     {
@@ -344,7 +344,7 @@ export class RoomTypeComponent {
           ),
         takeUntil(this._unsubscribeAll)
         ).subscribe(option=>{
-          this.radioAmenityOptions = option;
+          this.checkboxOptions['amenity'] = option;
         })
       }else{
         this.amenityService.getAllAmenities({page_size:0}).pipe(
@@ -362,7 +362,7 @@ export class RoomTypeComponent {
           ),
         takeUntil(this._unsubscribeAll)
         ).subscribe((options)=>{
-          this.radioAmenityOptions = options;
+          this.checkboxOptions['amenity'] = options;
           console.log("amenity options:", options)
         });
       }
@@ -547,7 +547,7 @@ export class RoomTypeComponent {
           instance.saveHandler = this.saveHandler.bind(this);
           instance.loadData = this.loadRoomTypes.bind(this);
           instance.optionDestination = this.optionsHotel;
-          instance.optionRadio = this.radioAmenityOptions;
+          instance.checkboxOptions = this.checkboxOptions;
   
           // ✅ Lắng nghe sự kiện Output
           instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());

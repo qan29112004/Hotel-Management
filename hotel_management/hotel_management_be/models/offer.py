@@ -25,8 +25,7 @@ class Offer(BaseModel):
     
     hotel = models.ForeignKey('hotel_management_be.Hotel', on_delete=models.CASCADE, related_name='offers_hotel', null=True, blank=True)
     
-    def __str__(self):
-        return self.title
+   
     
 class Service(BaseModel):
     uuid  = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
@@ -63,8 +62,7 @@ class RatePlan(BaseModel):
     refund_partial_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=50.00, help_text="Phần trăm hoàn tiền khi hủy trong khoảng refund_full_days đến refund_partial_days")
     
     hotel = models.ForeignKey('hotel_management_be.Hotel', on_delete=models.CASCADE, related_name='rate_plans_hotel', null=True, blank=True)
-    def __str__(self):
-        return self.name
+    
     
 class ServiceRatePlan(models.Model):
     uuid = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
@@ -73,7 +71,7 @@ class ServiceRatePlan(models.Model):
     
 class PriceRule(BaseModel):
     uuid = ShortUUIDField(primary_key=True, unique=True, max_length=20, length=10, alphabet="abcdefghjklmnopqrstuvwxyz")
-    rule_type = models.CharField(max_length=50, choices=HotelConstants.RULE_PRICE,null=True, blank=False)
+    rule_type = models.CharField(max_length=50, choices=HotelConstants.RULE_PRICE,null=True, blank=False, unique=True)
     multiplier = models.DecimalField(
         max_digits=3,
         decimal_places=2,

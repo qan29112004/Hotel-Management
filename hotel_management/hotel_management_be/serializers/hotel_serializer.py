@@ -3,6 +3,8 @@ from rest_framework import serializers
 import os
 from django.conf import settings
 from hotel_management_be.serializers.rating_serializer import RatingSerializer
+from hotel_management_be.serializers.amenity_serializer import AmenitySerializer
+
 from utils.utils import Utils
 from hotel_management_be.models.hotel import *
 from hotel_management_be.models.offer import *
@@ -34,7 +36,7 @@ class HotelServiceSerializer(serializers.ModelSerializer):
 class HotelFacilitySerializer(serializers.ModelSerializer):
     facilities_id = serializers.CharField(read_only=True, source="facilities.uuid")
     facilities_name = serializers.CharField(read_only=True, source= "facilities.name")
-    facilities_image = serializers.CharField(read_only=True, source= "facilities.image")
+    facilities_image = serializers.CharField(read_only=True, source= "facilities.icon")
     class Meta:
         model=HotelFacilies
         fields=['facilities_id','facilities_name','facilities_image']
@@ -90,12 +92,13 @@ class HotelDetailSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
     room_types = serializers.SerializerMethodField()
     is_available_room = serializers.SerializerMethodField()
+    amenities = serializers.SerializerMethodField()
     class Meta:
         model = Hotel
         fields = [
             'uuid', 'name', 'description', 'slug', 'address', 'phone', 'status',
             'views', 'features', 'tags', 'thumbnail', 'destination', 'check_in_time',
-            'check_out_time', 'latitude', 'longitude', 'images', 'rating', 'room_types','is_available_room', 'facilities' , 'created_by', 'updated_by','created_at','updated_at', 'service'
+            'check_out_time', 'latitude', 'longitude', 'images', 'rating', 'amenities', 'room_types','is_available_room', 'facilities' , 'created_by', 'updated_by','created_at','updated_at', 'service'
         ]
     def get_updated_by(self,obj):
         return {
@@ -118,6 +121,18 @@ class HotelDetailSerializer(serializers.ModelSerializer):
             "count": count,
             'list': RatingSerializer(reviews, many=True).data
         }
+    def get_amenities(self, obj):
+        # Lấy tất cả roomtype thuộc khách sạn
+        room_type_ids = obj.RoomType.values_list('uuid', flat=True)
+
+        # Lấy tất cả amenity qua bảng trung gian RoomTypeAmenity
+        amenity_ids = RoomTypeAmenity.objects.filter(
+            room_type_id__in=room_type_ids
+        ).values_list('amenity_id', flat=True).distinct()
+
+        amenities = Amenity.objects.filter(uuid__in=amenity_ids)
+
+        return AmenitySerializer(amenities, many=True).data
         
     def get_room_types(self,obj):
         room_type = obj.RoomType.all()

@@ -5,10 +5,11 @@ from constants.constants import Constants
 from validators.validator import Validator
 from utils.utils import Utils
 from hotel_management_be.models.user import User
+
 # from hotel_management.constants.constants import Constants
 
 class UserSerializer(serializers.ModelSerializer):
-    
+    total_nights = serializers.SerializerMethodField()
     username = serializers.CharField(
         required=True,
         validators=[]  # 🔥 loại bỏ UniqueValidator
@@ -16,6 +17,12 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ['groups', 'user_permissions','password']
+        
+    def get_total_nights(self,obj):
+        from hotel_management_be.service.booking_service import BookingService
+
+        total_nights = BookingService.caculate_nights_user(obj.email)
+        return total_nights
         
     def create(self, validated_data):
         request = self.context.get("request")

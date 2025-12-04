@@ -1,15 +1,16 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from 'app/shared/shared.module';
-
+import { formatDate } from 'app/shared/utils/util';
 @Component({
   selector: 'app-detail-voucher',
   standalone: true,
   imports: [CommonModule, SharedModule],
   templateUrl: './detail-voucher.component.html',
-  styleUrls:['../voucher.component.scss']
+  // styleUrls removed to use Tailwind CSS exclusively
 })
 export class DetailVoucherComponent {
+  formatDate = formatDate
   @Input() claim: any;
   @Output() close = new EventEmitter<string>()
   getDiscountText(voucher:any): string {
@@ -35,15 +36,6 @@ export class DetailVoucherComponent {
       return 0;
     }
     return Math.round((claim.voucher.totalUsed / claim.voucher.maxUsagePerUser) * 100);
-  }
-  formatDate(dateString: string | null | undefined): string {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
   }
   closeDetail(){
     this.close.emit('close')

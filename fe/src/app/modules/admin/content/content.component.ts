@@ -1,582 +1,449 @@
-import {
-    Component,
-    OnInit,
-    ViewChild,
-    ElementRef,
-    HostListener,
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { CustomPaginationComponent } from 'app/shared/components/custom-pagination/custom-pagination.component';
 import { FormsModule } from '@angular/forms';
-import { ContentService } from 'app/core/admin/content/content.service';
-import { Content } from 'app/core/admin/content/content.types';
+import { AlertService } from 'app/core/alert/alert.service';
+import { TranslocoService } from '@ngneat/transloco';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
+import { Component, ElementRef, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTableModule } from '@angular/material/table';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { SharedModule } from 'app/shared/shared.module';
+import { GenericEditComponent } from 'app/shared/components/generic-components';
+import { GenericAddComponent } from 'app/shared/components/generic-components';
+import { GenericFilterComponent, FieldFilterConfig } from 'app/shared/components/generic-components';
+import { GenericDeleteComponent } from 'app/shared/components/generic-components';
+import { FieldConfig } from 'app/core/admin/destination/destination.type';
+import { Observable } from 'rxjs';
 import { UserService } from 'app/core/profile/user/user.service';
 import { User } from 'app/core/profile/user/user.types';
-import { AddContentComponent } from './add-content/add-content.component';
-import { DeleteContentComponent } from './delete-content/delete-content.component';
-import { UpdateContentComponent } from './update-content/update-content.component';
-import { FilterContentComponent } from './filter-content/filter-content.component';
-import { MatIconModule } from '@angular/material/icon';
-
-import { TranslocoService } from '@ngneat/transloco';
-import { TranslocoModule } from '@ngneat/transloco';
-import { CustomPaginationComponent } from 'app/shared/components/custom-pagination/custom-pagination.component';
-
-import { AlertService } from 'app/core/alert/alert.service';
-
+import { environment } from 'environments/environment.fullstack';
+import { KnowlegdeBase } from 'app/core/admin/content/content.types';
+import { KnowlegdeBaseService } from 'app/core/admin/content/content.service';
 
 @Component({
-    selector: 'app-content',
-    standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        RouterModule,
-        AddContentComponent,
-        DeleteContentComponent,
-        UpdateContentComponent,
-        MatIconModule,
-        FilterContentComponent,
-        TranslocoModule,
-        CustomPaginationComponent,
-    ],
-    templateUrl: './content.component.html',
-    styleUrls: ['./add-content/add-content.component.scss'],
+  selector: 'app-knowlegdeBase',
+  standalone: true,
+  imports: [
+    SharedModule,
+    CommonModule,
+    FormsModule,
+    CustomPaginationComponent,
+    GenericEditComponent,
+    GenericAddComponent,
+    GenericDeleteComponent,
+    GenericFilterComponent,
+    RouterModule,
+    MatIconModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule
+  ],
+  templateUrl: './content.component.html',
+  styles: [`
+    /* Custom override to ensure sharp edges on material components if global styles don't cover it */
+    :host ::ng-deep .mat-mdc-form-field-flex {
+        border-radius: 0 !important;
+    }
+    :host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+        border-radius: 0 !important;
+    }
+  `]
 })
-export class ContentComponent implements OnInit {
-    @ViewChild('filterToggleBtn', { read: ElementRef })
-    filterToggleBtnRef!: ElementRef;
-    @ViewChild('filterContainer', { read: ElementRef })
-    filterContainerRef!: ElementRef;
-    allContents: Content[] = [];
-    contents: Content[] = [];
-    selectedIdsToDelete: number[] = [];
-    currentUser: User | null = null;
-    justOpened = false;
-    isLoading: boolean = false;
-    sortField: string = '';
-    sortDirection: 'asc' | 'desc' | null = null;
-    filteredContents: Content[] = [];
-    filterKeyWord: string = '';
-    showFilter: boolean = false;
-    showFilterModal = false;
-    showInlineFilter = false;
-    isFiltered = false;
-    currentFilterRules: any[] = [];
-    currentSearchRule: any = {
-        fields: ['title', 'created_by', 'updated_by'],
-        option: 'contains',
-        value: '',
-    };
-    // Phân trang
-    currentPage = 1;
-    pageSize = 10;
-    totalItems = 0;
+export class KnowlegdeBaseComponent implements OnInit {
+  fields: FieldConfig[] =[
+    {
+        name: 'uuid',
+        labelKey: 'uuid',
+        type: 'text',
+        required: true,
+        disabled: true,
+    },
+    {
+        name: 'title',
+        labelKey: 'knowlegdeBase.title',
+        type: 'text',
+        placeholderKey: 'knowlegdeBase.enterTitle',
+        required: true,
+        
+    },
+    {
+        name: 'content',
+        labelKey: 'knowlegdeBase.content',
+        type: 'text',
+        placeholderKey: 'knowlegdeBase.enterdContent',
+        required: true,
+        
+    },
+    {
+        name: 'is_embedded',
+        labelKey: 'hotel.is_embedded',
+        type: 'select',
+        options:[
+            {id:true, name:"True"},
+            {id:false, name:"False"}
+        ],
+        placeholderKey: 'knowlegdeBase.enterdIsEmbedded',
+        disabled:true
+    }
+  ]
 
-    // Form thêm mới
-    form = {
-        title: '',
-        content: '',
-    };
-    showAddForm = false;
+  addFields: FieldConfig[] =[
+    {
+        name: 'title',
+        labelKey: 'knowlegdeBase.title',
+        type: 'text',
+        placeholderKey: 'knowlegdeBase.enterTitle',
+        required: true,
+        
+    },
+    {
+        name: 'content',
+        labelKey: 'knowlegdeBase.content',
+        type: 'text',
+        placeholderKey: 'knowlegdeBase.enterdContent',
+        required: true,
+        
+    },
+    {
+        name: 'is_embedded',
+        labelKey: 'hotel.is_embedded',
+        type: 'select',
+        options:[
+            {id:true, name:"True"},
+            {id:false, name:"False"}
+        ],
+        placeholderKey: 'knowlegdeBase.enterdIsEmbedded',
+        disabled:true
+    }
+  ]
 
-    // Delete
-    showDeleteForm = false;
-    selectedIdToDelete: number | null = null;
+  filterFields: FieldFilterConfig[] = [
+    {
+        name: 'title',
+        labelKey: 'knowlegdeBase.title',
+        type: 'text',
+        placeholderKey: 'knowlegdeBase.enterTitle'
+        
+    },
+    {
+        name: 'content',
+        labelKey: 'knowlegdeBase.content',
+        type: 'text',
+        placeholderKey: 'knowlegdeBase.enterdContent'
+        
+    },
+    {
+        name: 'is_embedded',
+        labelKey: 'hotel.is_embedded',
+        type: 'select',
+        options:[
+            {id:true, name:"True"},
+            {id:false, name:"False"}
+        ],
+        placeholderKey: 'knowlegdeBase.enterdIsEmbedded'
+    },
+      {
+          name: 'created_at',
+          labelKey: 'user_management.created_at',
+          type: 'date-range',
+          rangeFields: { from: 'created_from', to: 'created_to' },
+      },
+      {
+          name: 'updated_at',
+          labelKey: 'user_management.updated_at',
+          type: 'date-range',
+          rangeFields: { from: 'updated_from', to: 'updated_to' },
+      },
+  ];
+  @ViewChild('editContainer', { read: ViewContainerRef }) editContainer: ViewContainerRef;
+  baseUrl = environment.baseUrl;
+  user:User
+  selectedDes:KnowlegdeBase = null;
+  selectedIds: string[] = [];
+  knowlegdeBases: KnowlegdeBase[] = [];
+  hasSelectedKnowlegdeBase:boolean= false;
+  displayedColumns: string[] = ['name', 'description', 'actions'];
+  loading = false;
+  currentPage = 1;
+  pageSize = 10;
+  searchTerm = '';
+  totalRecords: number = 0;
+  totalItems: number = 0;
+  selectedStatusIds: number[] = [];
+  selectedRoleIds: number[] = [];
+  openFilterDropdowns = new Set<string>();
+  externalFilters: any = {};
+  filterToggleBtnRef!: ElementRef;
+  
+  // Sắp xếp
+  sortField: string | null = null;
+  sortOption: 'asc' | 'desc' | null = null;
 
-    // Update
-    showUpdateForm = false;
-    selectedContentToUpdate: Content | null = null;
+  // Show popup
+  showEditUser: boolean = false;
+  showAddUser: boolean = false;
+  showFilter: boolean = false;
+  showDeleteDialog:boolean = false; 
 
-    // checkbox
+  constructor(
+    public translocoService: TranslocoService,
+    private _alertService: AlertService,
+    private knowlegdeBaseService: KnowlegdeBaseService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private datePipe: DatePipe,
+    private userService: UserService
+  ) {}
 
-    isAllSelected: boolean = false;
-    constructor(
-        private contentService: ContentService,
-        private userService: UserService,
-        private translocoService: TranslocoService,
-        private _alertService: AlertService
-    ) {}
+  ngOnInit(): void {
+    this.loadKnowlegdeBases();
+    this.userService.user$.subscribe((user)=>{
+      this.user = user;
+    })
+  }
 
-    ngOnInit(): void {
-        this.userService.user$.subscribe((user) => {
-            this.currentUser = user;
+  loadKnowlegdeBases(): void {
+    this.loading = true;
+    const payload = this.getPayload();
+
+    this.knowlegdeBaseService.getKnowlegdeBase(payload).subscribe({
+      next: (response) => {
+        console.log("knowlegdeBase res:",response)
+        this.knowlegdeBases = response.data || [];
+        this.totalItems = response.total || 0;
+        this.loading = false;
+      },
+      error: (error) => {
+        this.loading = false;
+        this._alertService.showAlert({
+          title: 'Error',
+          message: 'Failed to load knowlegdeBases',
+          type: 'error'
         });
-        this.loadContent();
+        console.error('Error loading knowlegdeBases:', error);
+      }
+    });
+  }
 
-        this.contentService.getTrainingStatusUpdates().subscribe({
-            next: (event: any) => {
-                // Ví dụ event có cấu trúc: { job_id, status, model, notes }
-                let type: 'success' | 'error' | 'info' = 'success';
-                let message = '';
+//   
 
-                if (event.status === 'succeeded') {
-                    type = 'success';
-                    message = this.translocoService.translate(
-                        'fine-tuning.TRAINING_SUCCEEDED'
-                    );
-                } else if (event.status === 'failed') {
-                    type = 'error';
-                    message = this.translocoService.translate(
-                        'fine-tuning.TRAINING_FAILED'
-                    );
-                } else if (
-                    event.status === 'validating_files' ||
-                    event.status === 'running'
-                ) {
-                    type = 'info';
-                    message = this.translocoService.translate(
-                        'fine-tuning.TRAINING_RUNNING'
-                    );
-                } else {
-                    type = 'info';
-                    message = this.translocoService.translate(
-                        'fine-tuning.TRAINING_NO_ACTIVE'
-                    );
-                }
-
-                if (message) {
-                    this._alertService.showAlert({
-                        type,
-                        title: this.translocoService.translate(
-                            'fine-tuning.title'
-                        ),
-                        message,
-                    });
-                }
-            },
-            error: (err) => {
-                this._alertService.showAlert({
-                    type: 'error',
-                    title: this.translocoService.translate('errors.default'),
-                    message: this.translocoService.translate('errors.default'),
-                });
-            },
-        });
-    }
-
-    loadContent(): void {
-        this.isLoading = true;
-
-        this.contentService.getContents().subscribe({
-            next: (res) => {
-                this.isLoading = false;
-
-                this.allContents = res.result || [];
-                this.totalItems = this.allContents.length;
-
-                this.allContents.forEach((item) => (item.selected = false));
-
-                this.filteredContents = [...this.allContents]; // Copy để filter
-                this.currentPage = 1;
-                this.applySort();
-                this.updatePagedContent();
-                this.updateSelectedIds();
-                this.isAllSelected = false;
-                this.contents.forEach((item) => (item.selected = false));
-                this.selectedIdsToDelete = [];
-            },
-            error: (err) => {
-                console.error('Lỗi khi tải content:', err);
-                this.isLoading = false;
-                this.allContents = [];
-                this.filteredContents = [];
-                this.contents = [];
-                this.totalItems = 0;
-            },
-        });
-    }
-
-    // Thêm nội dung
-    openAddForm(): void {
-        this.showAddForm = true;
-    }
-
-    cancelAddForm(): void {
-        this.showAddForm = false;
-        this.resetForm();
-    }
-
-    createContent(): void {
-        if (!this.form.title || !this.form.content) return;
-
-        this.contentService.createContents(this.form).subscribe(() => {
-            this.loadContent();
-            this.resetForm();
-            this.showAddForm = false;
-        });
-    }
-
-    resetForm(): void {
-        this.form = {
-            title: '',
-            content: '',
-        };
-    }
-
-    // Xóa nội dung
-    openDeleteForm(id: number): void {
-        this.selectedIdToDelete = id;
-        this.selectedIdsToDelete = []; // Reset danh sách checkbox để tránh nhầm lẫn
-        this.showDeleteForm = true;
-    }
-
-    cancelDeleteForm(): void {
-        this.showDeleteForm = false;
-        this.selectedIdToDelete = null;
-    }
-
-    // Cập nhật nội dung
-    openUpdateForm(content: Content): void {
-        this.selectedContentToUpdate = content;
-        this.showUpdateForm = true;
-    }
-
-    cancelUpdateForm(): void {
-        this.showUpdateForm = false;
-        this.selectedContentToUpdate = null;
-    }
-
-    // Phân trang
-    hasNextPage(): boolean {
-        return this.currentPage * this.pageSize < this.totalItems;
-    }
-
-    onPageChange(page: number): void {
-        this.currentPage = page;
-        this.updatePagedContent();
-    }
-    onPageSizeChange(): void {
-        this.currentPage = 1;
-        this.loadContent();
-    }
-    getPageNumbers(): number[] {
-        const totalPages = Math.ceil(this.totalItems / this.pageSize);
-        const pages: number[] = [];
-        for (let i = 1; i <= totalPages; i++) {
-            pages.push(i);
-        }
-        return pages;
-    }
-
-    updatePagedContent(): void {
-        const pageSizeNumber = Number(this.pageSize);
-        const start = (this.currentPage - 1) * pageSizeNumber;
-        const end = start + pageSizeNumber;
-        this.contents = this.filteredContents.slice(start, end);
-    }
-
-    // xử lí check box
-    toggleSelectAll(event: Event): void {
-        const checked = (event.target as HTMLInputElement).checked;
-        this.isAllSelected = checked;
-
-        this.contents.forEach((item) => {
-            item.selected = checked;
-            const index = this.allContents.findIndex((i) => i.id === item.id);
-            if (index !== -1) {
-                this.allContents[index].selected = checked;
-            }
-        });
-
-        this.updateSelectedIds();
-    }
-    toggleItemSelection(item: Content, event: Event): void {
-        const checked = (event.target as HTMLInputElement).checked;
-        item.selected = checked;
-
-        // Cập nhật trong allContents
-        const index = this.allContents.findIndex((i) => i.id === item.id);
-        if (index !== -1) {
-            this.allContents[index].selected = checked;
-        }
-
-        // Cập nhật danh sách id đã chọn
-        this.updateSelectedIds();
-
-        // Cập nhật trạng thái isAllSelected dựa trên tất cả các item trong current page
-        this.isAllSelected = this.contents.every((c) => c.selected);
-    }
-    updateSelectedIds(): void {
-        this.selectedIdsToDelete = this.contents
-            .filter((item) => item.selected)
-            .map((item) => item.id);
-    }
-    deleteSelectedItems(): void {
-        this.selectedIdsToDelete = this.contents
-            .filter((item) => item.selected)
-            .map((item) => item.id);
-
-        if (this.selectedIdsToDelete.length > 0) {
-            this.selectedIdToDelete = null;
-            this.showDeleteForm = true;
-        }
-    }
-    get hasSelectedItems(): boolean {
-        return this.contents.some((c) => c.selected);
-    }
-
-    // xử lí search
-
-    sortBy(field: string) {
-        if (this.sortField === field) {
-            if (this.sortDirection === 'asc') {
-                this.sortDirection = 'desc';
-            } else if (this.sortDirection === 'desc') {
-                // Bấm lần 3: trở về trạng thái bình thường
-                this.sortField = '';
-                this.sortDirection = null;
-            } else {
-                this.sortDirection = 'asc';
-            }
-        } else {
-            this.sortField = field;
-            this.sortDirection = 'asc';
-        }
-        this.handleSort();
-    }
-
-    @HostListener('document:click', ['$event'])
-    onClickOutside(event: MouseEvent): void {
-        const target = event.target as HTMLElement;
-
-        const clickedInsideFilter =
-            this.filterContainerRef?.nativeElement.contains(target);
-        const clickedToggleBtn =
-            this.filterToggleBtnRef?.nativeElement.contains(target);
-
-        if (!clickedInsideFilter && !clickedToggleBtn && this.showFilter) {
-            this.showFilter = false;
-        }
-    }
-
-    applySort(): void {
-        if (!this.sortField || !this.sortDirection) {
-            this.updatePagedContent();
-            return;
-        }
-
-        const field = this.getActualField(this.sortField);
-        const direction = this.sortDirection;
-
-        this.filteredContents.sort((a: any, b: any) => {
-            let valueA = a[field];
-            let valueB = b[field];
-
-            const isDateField = ['createdAt', 'updateAt'].includes(field);
-
-            if (isDateField) {
-                valueA = new Date(valueA);
-                valueB = new Date(valueB);
-                return direction === 'asc'
-                    ? valueA.getTime() - valueB.getTime()
-                    : valueB.getTime() - valueA.getTime();
-            }
-
-            if (typeof valueA === 'string' && typeof valueB === 'string') {
-                return direction === 'asc'
-                    ? valueA.localeCompare(valueB)
-                    : valueB.localeCompare(valueA);
-            }
-
-            if (typeof valueA === 'number' && typeof valueB === 'number') {
-                return direction === 'asc' ? valueA - valueB : valueB - valueA;
-            }
-
-            return 0;
-        });
-
-        this.updatePagedContent();
-    }
-    getActualField(field: string): keyof Content {
-        const map: Record<string, keyof Content> = {
-            title: 'title',
-            content: 'content',
-            updatedBy: 'updated_by',
-            createdBy: 'created_by',
-            updateAt: 'update_at',
-            createdAt: 'created_at',
-        };
-        return map[field] || (field as keyof Content);
-    }
-
-    handleAdvancedFilter(rawFilters: any): void {
-        const filter_rules = [];
-
-        if (rawFilters.created_by) {
-            filter_rules.push({
-                field: 'created_by',
-                option: 'exact',
-                value: Number(rawFilters.created_by),
-            });
-        }
-
-        if (rawFilters.updated_by) {
-            filter_rules.push({
-                field: 'updated_by',
-                option: 'exact',
-                value: Number(rawFilters.updated_by),
-            });
-        }
-
-        if (rawFilters.updated_at) {
-            filter_rules.push({
-                field: 'updated_at',
-                option: 'exact',
-                value: rawFilters.updated_at,
-            });
-        }
-
-        const payload = {
-            page_index: 1,
-            page_size: this.pageSize,
-            filter_rules,
-        };
-        this.currentFilterRules = payload.filter_rules;
-
-        this.isLoading = true;
-        this.contentService.filterContents(payload).subscribe({
-            next: ({ result, total }) => {
-                this.isLoading = false;
-                this.contents = result || [];
-                this.totalItems = total || 0;
-                this.currentPage = 1;
-                this.isFiltered = true;
-            },
-            error: (err) => {
-                console.error('Lọc thất bại:', err);
-                this.isLoading = false;
-            },
-        });
-    }
-    toggleFilter(): void {
+  toggleFilterDrawer(): void {
         this.showFilter = !this.showFilter;
     }
+  
+  toggleEditFilterDrawer():void{
+      this.showFilter = !this.showFilter;
+  }
 
-    applyFilter(): void {
-        const keyword = this.filterKeyWord.toLowerCase().trim();
+  onFilterDrawerOpenedChanged(opened: boolean): void {
+      this.showFilter = opened;
+  }
 
-        this.filteredContents = this.allContents.filter(
-            (item) =>
-                item.title?.toLowerCase().includes(keyword) ||
-                item.content?.toLowerCase().includes(keyword) ||
-                item.created_by?.toLowerCase().includes(keyword) ||
-                item.updated_by?.toLowerCase().includes(keyword)
-        );
+  onApplyFilter(filterRules: any[]): void {
+      this.externalFilters = filterRules;
+      this.currentPage = 1;
+      this.loadKnowlegdeBases();
+  }
 
-        this.totalItems = this.filteredContents.length;
-        this.currentPage = 1;
-        this.applySort(); // nếu có sort
-        this.updatePagedContent();
+  onResetFilter(): void {
+      this.externalFilters = {};
+      this.currentPage = 1;
+      this.loadKnowlegdeBases();
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadKnowlegdeBases();
+  }
+
+  onSearch(): void {
+    this.currentPage = 1;
+    this.loadKnowlegdeBases();
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.currentPage = 1;
+    this.loadKnowlegdeBases();
+  }
+
+  sortBy(field: string) {
+      if (this.sortField === field) {
+          if (this.sortOption === 'asc') {
+              this.sortOption = 'desc';
+          } else if (this.sortOption === 'desc') {
+              this.sortField = null;
+              this.sortOption = null;
+          } else {
+              this.sortOption = 'asc';
+          }
+      } else {
+          this.sortField = field;
+          this.sortOption = 'asc';
+      }
+      this.loadKnowlegdeBases();
+  }
+  // Updated payload method to include filters
+  getPayload() {
+    const filterRules = this.getFilterRule();
+    const payload: any = {
+        page_index: this.currentPage,
+        page_size: this.pageSize,
+        search_rule: this.getSearchRule(),
+        sort_rule: this.getSortRule(),
+    };
+
+    // Add filter rules
+    if (Object.keys(filterRules).length > 0) {
+        payload.filterRules = filterRules;
     }
-    clearFilter(): void {
-        this.isFiltered = false;
-        this.loadContent();
-    }
-    buildFilterPayload(): any {
-        return {
-            page_index: this.currentPage,
-            page_size: this.pageSize,
-            filter_rules: [
-                {
-                    field: 'created_by',
-                    option: 'exact',
-                    value: this.currentUser?.id,
-                },
-                {
-                    field: 'updated_by',
-                    option: 'exact',
-                    value: this.currentUser?.id,
-                },
-                { field: 'updated_at', option: 'exact', value: '2024-01-01' },
-            ],
-            
-            sort_rule:
-                this.sortField && this.sortDirection
-                    ? {
-                          field: this.getActualField(this.sortField),
-                          direction: this.sortDirection,
-                      }
-                    : {
-                          field: 'updated_at',
-                          direction: 'desc',
-                      },
-        };
-    }
-    handleSort(): void {
-        const payload = {
-            page_index: this.currentPage, // Không reset page
-            page_size: this.pageSize,
-            filter_rules: this.currentFilterRules ?? [],
-            
-            sort_rule:
-                this.sortField && this.sortDirection
-                    ? {
-                          field: this.getActualField(this.sortField),
-                          direction: this.sortDirection,
-                      }
-                    : {
-                          field: 'updated_at',
-                          direction: 'desc',
-                      },
-        };
 
-        this.isLoading = true;
-        this.contentService.filterContents(payload).subscribe({
-            next: ({ result, total }) => {
-                this.isLoading = false;
-                this.contents = result || [];
-                this.totalItems = total || this.contents.length;
-            },
-            error: (err) => {
-                console.error('Sort thất bại:', err);
-                this.isLoading = false;
-            },
+    return payload;
+  }
+  getSearchRule(): any {
+    const defaultSearchFields = {
+        fields: ['name', 'uuid'],
+        option: 'contains',
+        value: this.searchTerm.trim(),
+    };
+    return this.searchTerm?.trim() ? defaultSearchFields : {};
+  }
+  getFilterRule(): any[] {
+        const filters: any[] = [];
+
+        if (this.selectedStatusIds.length > 0) {
+            filters.push({
+                field: 'status',
+                option: 'in',
+                value: this.selectedStatusIds,
+            });
+        }
+
+        if (this.selectedRoleIds.length > 0) {
+            filters.push({
+                field: 'role',
+                option: 'in',
+                value: this.selectedRoleIds,
+            });
+        }
+
+        // filter từ bộ lọc
+        if (this.externalFilters && Array.isArray(this.externalFilters)) {
+            filters.push(...this.externalFilters);
+        }
+
+        return filters;
+    }
+  getSortRule(): any {
+    if (!this.sortField || !this.sortOption) {
+        return {};
+    }
+    return {
+        field: this.sortField,
+        option: this.sortOption,
+    };
+  }
+
+  async toggleEditUserDrawer(knowlegdeBase?: KnowlegdeBase) {
+      if (knowlegdeBase) {
+        this.selectedDes=knowlegdeBase;
+      }
+      this.showEditUser = !this.showEditUser;
+      if (this.showEditUser) {
+        // ✅ Lazy import component chỉ khi cần
+        const { GenericEditComponent } = await import('app/shared/components/generic-components');
+        const componentRef = this.editContainer.createComponent(GenericEditComponent);
+
+        // ✅ Truyền Input cho component
+        componentRef.instance.showDrawer = true;
+        componentRef.instance.titleKey = 'knowlegdeBase.detail';
+        componentRef.instance.fields = this.fields;
+        componentRef.instance.entityData = this.selectedDes;
+        componentRef.instance.saveHandler = this.saveHandler.bind(this);
+        componentRef.instance.loadData = this.loadKnowlegdeBases.bind(this);
+
+        // ✅ Lắng nghe sự kiện Output
+        componentRef.instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
+        componentRef.instance.drawerOpenedChanged.subscribe((opened: boolean) => {
+          this.showEditUser = opened;
+          if (!opened) {
+            this.editContainer.clear(); // clear component khi đóng
+          }
         });
-        console.log('Total items:', this.totalItems);
-        console.log('Total pages:', Math.ceil(this.totalItems / this.pageSize));
-        console.log('Current page:', this.currentPage);
-    }
-    // checkbox
-    onDeleteRefresh(): void {
-        this.isAllSelected = false;
-        this.contents.forEach((item) => (item.selected = false));
-        this.selectedIdsToDelete = [];
-        this.loadContent();
-        this.isAllSelected = false;
-    }
 
-    onItemSelectionChange(): void {
-        this.isAllSelected = this.contents.every((item) => item.selected);
-        this.updateSelectedIds();
-    }
+      } else {
+        // ✅ Khi đóng thì xóa component khỏi ViewContainer
+        this.editContainer.clear();
+      }
+  }
+  toggleAddUserDrawer(){
+    this.showAddUser = !this.showAddUser
+  }
 
-    startTraining(): void {
-        this.contentService.startTraining().subscribe({
-            next: (event) => {
-                console.log('Training started:', event);
+  onPageSizeChange(size: number) {
+      this.pageSize = size;
+      this.loadKnowlegdeBases();
+  }
+  formatDateTime(dateStr: string): string | null {
+        return this.datePipe.transform(dateStr, 'dd/MM/yyyy HH:mm', '+0700');
+  }
+  formatDateTimeUnix(timestamp: number): string | null {
+      const date = new Date(timestamp * 1000); // chuyển từ giây sang mili-giây
+      return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm', '+0700');
+  }
+  
+  onDrawerOpenedChanged(opened: boolean): void {
+      this.showEditUser = opened;
+  }
+  onAddDrawerOpenedChanged(opened:boolean):void{
+    this.showAddUser = opened;
+  }
+  saveHandler(payload: any): Observable<any> {
+    return this.knowlegdeBaseService.updateKnowlegdeBase(payload.get('uuid'), payload);
+  }
 
-                this._alertService.showAlert({
-                    type: 'success',
-                    title: this.translocoService.translate(
-                        'other.success_title'
-                    ),
-                    message: this.translocoService.translate(
-                        'fine-tuning.TRAINING_STARTED'
-                    ),
-                });
-            },
-            error: (err) => {
-                this._alertService.showAlert({
-                    type: 'error',
-                    title: this.translocoService.translate('other.error_title'),
-                    message:
-                        err?.error?.error ||
-                        this.translocoService.translate(
-                            'fine-tuning.errors.training_start_failed'
-                        ),
-                });
-            },
-        });
-    }
+  addSaveHandler(payload: any): Observable<any> {
+    return this.knowlegdeBaseService.createKnowlegdeBase(payload);
+  }
+  deleteHandler(id: string): Observable<any> {
+    this.selectedIds=[]
+    this.hasSelectedKnowlegdeBase = false;
+    return this.knowlegdeBaseService.deleteKnowlegdeBase(id);
+  }
+
+  toggleDeleteDialog(uuid?:string): void {
+      if (uuid) {
+        this.selectedIds = [...this.selectedIds, uuid];
+      }
+      this.showDeleteDialog = !this.showDeleteDialog;
+  }
+
+  toggleAllRows(event: Event): void {
+      const checked = (event.target as HTMLInputElement).checked;
+        this.knowlegdeBases.forEach((knowlegdeBase) => (knowlegdeBase.selected = checked));
+        this.toggleRow();
+  }
+
+  toggleRow(): void {
+    this.selectedIds = this.knowlegdeBases
+            .filter((user) => user.selected)
+            .map((user) => user.uuid);
+    this.hasSelectedKnowlegdeBase = this.selectedIds.length >= 1;
+  }
 }

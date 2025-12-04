@@ -12,18 +12,62 @@
                 <div class="block">
                     <img src="assets/images/booking/green_tick.gif" class="w-40 h-40"/>
                 </div>
-                <div class="flex items-center justify-between w-full" *ngIf="transactionId">
-                    <span class="font-clearface text-[20px] text-black tracking-wider">Mã giao dịch:</span>
-                    <span class="font-avenir text-[16px]">03654872</span>
+                
+                <!-- Loading state -->
+                <div *ngIf="loading" class="w-full text-center py-4">
+                    <span class="font-avenir text-[16px] text-gray-500">Đang tải thông tin booking...</span>
                 </div>
-                <div class="flex items-center justify-between w-full" *ngIf="amount">
-                    <span class="font-clearface text-[20px] text-black tracking-wider">Số tiền:</span>
-                    <span class="font-avenir text-[16px]">301000đ</span>
+
+                <!-- Booking Details -->
+                <div class="w-full space-y-3" *ngIf="!loading">
+                    <div class="flex items-center justify-between w-full" *ngIf="transactionId">
+                        <span class="font-clearface text-[20px] text-black tracking-wider">Mã giao dịch:</span>
+                        <span class="font-avenir text-[16px]">{{transactionId}}</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between w-full" *ngIf="bookingId">
+                        <span class="font-clearface text-[20px] text-black tracking-wider">Mã booking:</span>
+                        <span class="font-avenir text-[16px]">{{bookingId}}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.hotel?.name || hotelName">
+                        <span class="font-clearface text-[20px] text-black tracking-wider">Khách sạn:</span>
+                        <span class="font-avenir text-[16px]">{{bookingDetails?.hotel?.name || hotelName}}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.check_in">
+                        <span class="font-clearface text-[20px] text-black tracking-wider">Ngày nhận phòng:</span>
+                        <span class="font-avenir text-[16px]">{{formatDateDisplay(bookingDetails.check_in)}}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.check_out">
+                        <span class="font-clearface text-[20px] text-black tracking-wider">Ngày trả phòng:</span>
+                        <span class="font-avenir text-[16px]">{{formatDateDisplay(bookingDetails.check_out)}}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.total_rooms">
+                        <span class="font-clearface text-[20px] text-black tracking-wider">Số phòng:</span>
+                        <span class="font-avenir text-[16px]">{{bookingDetails.total_rooms}}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.num_guest">
+                        <span class="font-clearface text-[20px] text-black tracking-wider">Số khách:</span>
+                        <span class="font-avenir text-[16px]">{{bookingDetails.num_guest}}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between w-full" *ngIf="getRoomTypeNames()">
+                        <span class="font-clearface text-[20px] text-black tracking-wider">Loại phòng:</span>
+                        <span class="font-avenir text-[16px]">{{getRoomTypeNames()}}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.total_price || bookingDetails?.price_in_vnd || amount">
+                        <span class="font-clearface text-[20px] text-black tracking-wider">Tổng tiền:</span>
+                        <span class="font-avenir text-[16px] font-semibold">
+                            {{formatCurrency(bookingDetails?.price_in_vnd || bookingDetails?.total_price || amount)}}
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center justify-between w-full" *ngIf="hotelName">
-                    <span class="font-clearface text-[20px] text-black tracking-wider">Khách sạn:</span>
-                    <span class="font-avenir text-[16px]">Đà Nẵng Hotel</span>
-                </div>
+
                 <div class="grid grid-cols-2 gap-4 w-full mt-4">
                     <button type="button" (click)="goHome()" class="px-6 py-3 text-white bg-black font-clearface text-[17px] hover:bg-gray-800 transition-colors">Trang chủ</button>
                     <button type="button" (click)="viewBooking()" class="px-6 py-3 text-white bg-black font-clearface text-[17px] hover:bg-gray-800 transition-colors">Xem booking</button>

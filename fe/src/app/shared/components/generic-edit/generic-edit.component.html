@@ -53,7 +53,7 @@
                             floatLabel="always"
                             class="w-full fuse-mat-dense"
                         >
-                            <mat-label>{{ t(field.labelKey) }}</mat-label>
+                            <mat-label>{{ t(field.labelKey) }} {{field.helpText?'(' + field.helpText +')' : ''}}</mat-label>
                             <input
                                 [id]="field.name"
                                 matInput
@@ -80,7 +80,7 @@
                             floatLabel="always"
                             class="w-full fuse-mat-dense"
                         >
-                            <mat-label>{{ t(field.labelKey) }}</mat-label>
+                            <mat-label>{{ t(field.labelKey) }} {{field.helpText?'(' + field.helpText +')' : ''}}</mat-label>
                             <mat-select *ngIf="field.asyncOptionsKey; else staticSelect" [formControlName]="field.name">
                                 <mat-option *ngFor="let option of optionDestination" [value]="option.id">
                                     {{ option.name }}
@@ -106,7 +106,7 @@
                             floatLabel="always"
                             class="w-full fuse-mat-dense"
                         >
-                            <mat-label>{{ t(field.labelKey) }}</mat-label>
+                            <mat-label>{{ t(field.labelKey) }} {{field.helpText?'(' + field.helpText +')' : ''}}</mat-label>
                             <textarea
                                 matInput
                                 [id]="field.name"
@@ -139,7 +139,7 @@
                             floatLabel="always"
                             class="w-full fuse-mat-dense"
                         >
-                            <mat-label>{{ t(field.labelKey) }}</mat-label>
+                            <mat-label>{{ t(field.labelKey) }} {{field.helpText?'(' + field.helpText +')' : ''}}</mat-label>
                             <input
                                 matInput
                                 [matDatepicker]="picker"
@@ -162,7 +162,7 @@
                             *ngIf="field.type === 'radio'"
                             class="flex flex-col w-full fuse-mat-dense"
                         >
-                            <mat-label>{{ t(field.labelKey) }}</mat-label>
+                            <mat-label>{{ t(field.labelKey) }} {{field.helpText?'(' + field.helpText +')' : ''}}</mat-label>
                             <mat-radio-group
                                 [formControlName]="field.name"
                                 class="flex flex-row space-x-4"
@@ -177,7 +177,7 @@
                             *ngIf="field.type === 'checkbox'"
                             class="flex flex-col w-full fuse-mat-dense"
                         >
-                            <mat-label>{{ t(field.labelKey) }}</mat-label>
+                            <mat-label>{{ t(field.labelKey) }} {{field.helpText?'(' + field.helpText +')': ''}}</mat-label>
                             <!-- Khi có asyncOptionsKey -->
                             <div *ngIf="field.asyncOptionsKey; else staticCheckbox">
                             <mat-checkbox
@@ -224,7 +224,7 @@
                             *ngIf="field.type === 'file' || field.type === 'files'"
                             class="flex flex-col w-full fuse-mat-dense"
                         >
-                            <mat-label class="font-medium">{{ t(field.labelKey) }}</mat-label>
+                            <mat-label class="font-medium">{{ t(field.labelKey) }} {{field.helpText?'(' + field.helpText +')' : ''}}</mat-label>
                             <input
                                 type="file"
                                 [multiple]="field.type === 'files'"

@@ -21,7 +21,7 @@ class RatePlanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RatePlan
-        fields = ['uuid','name','description','price_modifier','is_active','refundable','is_breakfast','hotel', 'cancellation_policy','guarantee_policy', 'service', 'created_by', 'updated_by','created_at','updated_at']
+        fields = ['uuid','name','description','price_modifier','is_active','refundable','is_breakfast','need_login','refund_partial_percentage','refund_partial_days','refund_full_days','hotel', 'cancellation_policy','guarantee_policy', 'service', 'created_by', 'updated_by','created_at','updated_at']
         
     def get_service(self, obj):
         return ServiceRateSerializer(

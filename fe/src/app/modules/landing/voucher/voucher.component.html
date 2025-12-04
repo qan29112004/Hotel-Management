@@ -86,9 +86,9 @@
                 <div class="expiry-date">HSD: {{ formatDate(claim.expiresAt || claim.voucher.expireAt) }}</div>
                 <a (click)="detailClaim(claim)" class="conditions-link">Xem chi tiết</a>
                 </div>
-                <button class="use-btn" [class]="'use-btn-' + getVoucherTypeClass(claim.voucher)">
+                <a href="explore-hotels" class="use-btn" [class]="'use-btn-' + getVoucherTypeClass(claim.voucher)">
                 Dùng Ngay
-                </button>
+                </a>
             </div>
             </div>
         </div>
@@ -116,7 +116,7 @@
                 <div class="discount-text">{{ getDiscountText(claim.voucher) }}</div>
                 <div class="min-order">Đơn Tối Thiểu {{ formatCurrency(claim.voucher.minOrderValue) }}</div>
                 <div class="expiry-date">HSD Voucher: {{ formatDate(claim.voucher.expireAt) }}</div>
-                <a class="conditions-link">Xem chi tiết</a>
+                <a (click)="detailClaim(claim)" class="conditions-link">Xem chi tiết</a>
                 </div>
                 <button
                 class="reclaim-btn"

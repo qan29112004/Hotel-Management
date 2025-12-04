@@ -94,8 +94,6 @@ class BookingSession(BaseModel):
     requested_rooms = models.PositiveIntegerField(default=1)
     expires_at = models.DateTimeField()
 
-    def __str__(self):
-        return str(self.uuid)
 
 class HoldRecord(BaseModel):
     """

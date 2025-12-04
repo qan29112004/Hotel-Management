@@ -220,11 +220,23 @@ export const uriConfig = {
     API_RATE_PLAN_DELETE: (uuid:string) => baseUrl + `/api/rate-plan/${uuid}/`,
     API_RATE_PLAN_CREATE: baseUrl + '/api/rate-plan/',
 
+    //price rule
+    API_PRICE_RULE_ALL: baseUrl + '/api/price-rule/list/',
+    API_PRICE_RULE_UPDATE: (uuid:string) => baseUrl + `/api/price-rule/${uuid}/`,
+    API_PRICE_RULE_DELETE: (uuid:string) => baseUrl + `/api/price-rule/${uuid}/`,
+    API_PRICE_RULE_CREATE: baseUrl + '/api/price-rule/',
+
     //rating
     API_RATING_ALL: baseUrl + '/api/rating/list/',
     API_RATING_UPDATE: (uuid:string) => baseUrl + `/api/rating/${uuid}/`,
     API_RATING_DELETE: (uuid:string) => baseUrl + `/api/rating/${uuid}/`,
     API_RATING_CREATE: baseUrl + '/api/rating/',
+
+    //content
+    API_KNOWN_LEGDE_ALL: baseUrl + '/api/chatbot/knowlegde-base/list/',
+    API_KNOWN_LEGDE_UPDATE: (uuid:string) => baseUrl + `/api/chatbot/knowlegde-base/${uuid}/`,
+    API_KNOWN_LEGDE_DELETE: (uuid:string) => baseUrl + `/api/chatbot/knowlegde-base/${uuid}/`,
+    API_KNOWN_LEGDE_CREATE: baseUrl + '/api/chatbot/knowlegde-base/',
 
     //my-booking
     API_MY_BOOKING: baseUrl + '/api/my-booking/list/',

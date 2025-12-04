@@ -1,532 +1,244 @@
-<div
-    class="flex-auto pt-3 sm:px-6 overflow-auto max-h-full"
-    *transloco="let t"
->
-    <div class="relative w-full flex-1 h-full flex flex-col">
-        <div class="mb-4 w-full">
-            <!-- Tiêu đề -->
-            <h2 class="text-[24px] font-bold text-primary mb-2">
-                {{ t("content.page_title") }}
-            </h2>
+<div class="absolute inset-0 flex flex-col min-w-0 overflow-y-auto bg-zinc-50" cdkScrollable *transloco="let t">
+    <!-- Main -->
+    <div class="flex-auto p-4 sm:px-8 sm:py-8">
+        <!-- HEADER -->
+        <div class="relative w-full mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-3xl font-black tracking-tight uppercase text-zinc-900">
+                        {{ t("knowlegdeBase.management") }}
+                    </h2>
+                </div>
+            </div>
 
-            <!-- Toolbar -->
-
-            <div class="flex sm:flex-wrap max-sm:flex-col max-sm:items-start justify-between items-center mb-4 gap-4">
-                <div class="flex flex-wrap gap-3 items-center">
-                    <!-- Tìm kiếm -->
-                    <div class="relative w-[320px]">
-                        <input
-                            type="text"
-                            placeholder="{{ t('content.search_placeholder') }}"
-                            [(ngModel)]="filterKeyWord"
-                            (input)="applyFilter()"
-                            class="h-10 w-[330px] pl-10 pr-1 border border-blue-500 rounded-md text-sm placeholder-blue-600"
-                        />
-                        <div
-                            #filterToggleBtn
-                            (click)="toggleFilter()"
-                            class="h-full px-3 bg-blue-100 hover:bg-blue-200 border-l text-white border-blue-500 flex items-center justify-center"
-                        >
-                            <span
-                                class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-blue-300"
-                                >search</span
-                            >
+            <!-- FILTERS & ACTIONS BAR -->
+            <div class="flex flex-col gap-4 p-4 bg-white border shadow-sm lg:flex-row lg:justify-between lg:items-end border-zinc-200">
+                <!-- Left: Search & Filters -->
+                <div class="flex flex-col items-end w-full gap-3 sm:flex-row">
+                    <!-- Search -->
+                    <div class="relative flex-1 w-full max-w-md sm:w-auto group">
+                        <div class="relative flex items-center">
+                            <mat-icon class="absolute text-zinc-400 left-3">search</mat-icon>
+                            <input
+                                type="text"
+                                [(ngModel)]="searchTerm"
+                                (ngModelChange)="onSearch()"
+                                placeholder="{{ t('knowlegdeBase.search_placeholder') }}"
+                                class="w-full h-10 pl-10 pr-10 text-sm transition-all border rounded-none bg-zinc-50 border-zinc-300 text-zinc-900 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 placeholder:text-zinc-400"
+                            />
+                            <!-- Filter Toggle Button inside input area -->
                             <button
-                                class="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1 flex items-center justify-center bg-[#E0EAFF] border border-[#E0EAFF] hover:bg-[#e6f0ff] transition translate-x-2"
-                                (click)="
-                                    toggleFilter(); $event.stopPropagation()
-                                "
+                                class="absolute top-0 right-0 flex items-center justify-center w-10 h-10 transition-colors border-l rounded-none bg-zinc-100 border-zinc-300 hover:bg-amber-400 hover:text-zinc-900 hover:border-amber-400 text-zinc-500"
+                                (click)="toggleEditFilterDrawer(); $event.stopPropagation()"
                                 type="button"
+                                matTooltip="Advanced Filters"
                             >
-                                <mat-icon
-                                    [svgIcon]="'heroicons_outline:funnel'"
-                                ></mat-icon>
+                                <mat-icon [svgIcon]="'heroicons_outline:funnel'" class="icon-size-5"></mat-icon>
                             </button>
                         </div>
-                        <app-filter-content
-                            [hidden]="!showFilter"
-                            #filterContainer
-                            [mode]="'inline'"
-                            (filter)="handleAdvancedFilter($event)"
-                            (close)="showFilter = false"
-                            class="absolute top-[110%] left-0 z-50 bg-white shadow-lg rounded-md w-[320px] border border-gray-300"
-                        >
-                        </app-filter-content>
 
+                        <!-- Advanced Filter Dropdown -->
+                        <app-generic-filter
+                            #filterPopup
+                            [mode]="'inline'"
+                            [showFilter]="showFilter"
+                            [titleKey]="'content.advanced_filters'"
+                            [fields]="filterFields"
+                            (filter)="onApplyFilter($event)"
+                            (reset)="onResetFilter()"
+                            (close)="toggleFilterDrawer()"
+                            (drawerOpenedChanged)="onFilterDrawerOpenedChanged($event)"
+                            class="absolute top-[70px] z-50 left-0 bg-white w-full sm:w-[400px] max-h-[500px] flex flex-col overflow-y-auto rounded-none"
+                        >
+                        </app-generic-filter>
                     </div>
 
-                    <!-- xóa -->
+                    <!-- Delete Button (Conditional) -->
                     <button
-                        (click)="deleteSelectedItems()"
-                        [class.hidden]="!hasSelectedItems"
-                        class="flex items-center bg-red-100 text-red-600 px-3 py-3 gap-1 rounded text-sm cursor-pointer">
-                          <span class="material-icons text-base">delete</span>
-                         <span class="font-semibold">{{ t('content.delete') }}</span>
-                    </button>
-                    <button
-                        *ngIf="isFiltered"
-                        (click)="clearFilter()"
-                        class="flex items-center gap-2 h-9 p-5 text-sm text-white rounded-lg transition-colors bg-red-500"
+                        *ngIf="hasSelectedKnowlegdeBase"
+                        (click)="toggleDeleteDialog()"
+                        class="flex items-center h-10 gap-2 px-4 transition-colors border rounded-none bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200 animate-fade-in"
                     >
-                        {{ t("content.clear_filter") }}
+                        <mat-icon class="icon-size-5">delete</mat-icon>
+                        <span class="text-sm font-bold uppercase">{{ t('content.delete') }} ({{selectedIds.length}})</span>
                     </button>
                 </div>
-
-                <div class="flex flex-wrap max-sm:self-end items-center gap-3">
-                    <!-- Nút training -->
-                    <!-- Nút training -->
+            
+                <!-- Right: Create Button -->
+                <div class="flex w-full lg:w-auto">
                     <button
-                        (click)="startTraining()"
-                        class="flex items-center gap-1 h-9 px-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm"
+                        (click)="toggleAddUserDrawer()"
+                        class="h-10 w-full sm:w-auto px-6 flex items-center justify-center gap-2 bg-zinc-900 text-white hover:bg-zinc-800 active:translate-y-0.5 transition-all rounded-none"
                     >
                         <mat-icon
-                            [svgIcon]="'heroicons_solid:cpu-chip'"
-                            class="text-white"
+                            class="text-amber-400 icon-size-5"
+                            svgIcon="heroicons_outline:plus-circle"
                         ></mat-icon>
-                        <span>Training</span>
-                    </button>
-
-                    <!-- Nút thêm -->
-                    <button
-                        (click)="openAddForm()"
-                        class="flex items-center gap-1 h-9 px-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm"
-                    >
-                        <span
-                            _ngcontent-ng-c1875381954=""
-                            class="material-icons"
-                            >add</span
-                        >
-                        <span>{{ t("content.add") }}</span>
+                        <span class="text-sm font-bold tracking-wide uppercase">{{ t("knowlegdeBase.create") }}</span>
                     </button>
                 </div>
             </div>
 
-            <div
-                class="bg-white overflow-y-auto max-h-[70vh] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
-            >
-                <table
-                    class="table w-full border-separate border-spacing-0 text-base"
-                >
-                    <thead
-                        class="text-sm font-medium text-gray-700 text-left bg-sky-50"
+            <!-- TABLE CONTAINER -->
+            <div class="mt-4 overflow-hidden bg-white border shadow-sm border-zinc-200">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left border-collapse">
+                        <!-- THEAD -->
+                        <thead class="text-xs font-bold tracking-wider text-white uppercase bg-zinc-900">
+                            <tr>
+                                <th class="w-12 px-4 py-4 text-center border-b border-zinc-800">
+                                    <input
+                                        type="checkbox"
+                                        (change)="toggleAllRows($event)"
+                                        (click)="$event.stopPropagation()"
+                                        class="w-4 h-4 rounded-none border-zinc-600 bg-zinc-800 text-amber-500 focus:ring-amber-500 focus:ring-offset-zinc-900"
+                                    />
+                                </th>
+                                <th class="w-16 px-4 py-4 text-center border-b border-zinc-800">
+                                    #
+                                </th>
+                                <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800"
+                                    (click)="sortBy('title')">
+                                    <div class="flex items-center gap-1">
+                                        {{ t("knowlegdeBase.title") }}
+                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'title' && sortOption === 'asc'">arrow_upward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'title' && sortOption === 'desc'">arrow_downward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-zinc-600" *ngIf="sortField !== 'title'">unfold_more</mat-icon>
+                                    </div>
+                                </th>
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("knowlegdeBase.content") }}</th>
+                                <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800" (click)="sortBy('created_at')">
+                                    <div class="flex items-center gap-1">
+                                        {{ t("user_management.created_at") }}
+                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'created_at' && sortOption === 'asc'">arrow_upward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'created_at' && sortOption === 'desc'">arrow_downward</mat-icon>
+                                    </div>
+                                </th>
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("knowlegdeBase.is_embedded") }}</th>
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("user_management.updated_at") }}</th>
+                                <th class="px-4 py-4 text-center border-b border-zinc-800">{{ t("user_management.action") }}</th>
+                            </tr>
+                        </thead>
+
+                        <!-- TBODY -->
+                        <tbody class="divide-y divide-zinc-100">
+                            <tr
+                                *ngFor="let knowlegdeBase of knowlegdeBases; let i = index;"
+                                class="transition-colors duration-150 bg-white group hover:bg-amber-50/50"
+                                [class.bg-amber-50]="knowlegdeBase.selected"
+                            >
+                                <td class="px-4 py-3 text-center">
+                                    <input
+                                        type="checkbox"
+                                        [(ngModel)]="knowlegdeBase.selected"
+                                        (ngModelChange)="toggleRow()"
+                                        (click)="$event.stopPropagation()"
+                                        class="w-4 h-4 rounded-none cursor-pointer border-zinc-300 text-amber-500 focus:ring-amber-500"
+                                    />
+                                </td>
+                                <td class="px-4 py-3 font-mono text-center text-zinc-500">
+                                    {{ (currentPage - 1) * pageSize + i + 1 }}
+                                </td>
+                                <td class="px-4 py-3" (click)="toggleEditUserDrawer(knowlegdeBase)">
+                                    <div class="font-bold truncate transition-colors cursor-pointer text-zinc-900 group-hover:text-amber-600">
+                                        {{ knowlegdeBase.title }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-zinc-600 max-w-xs truncate" [title]="knowlegdeBase.description">
+                                    {{ knowlegdeBase.content || '---' }}
+                                </td>
+                                <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
+                                    {{ knowlegdeBase.createdAt }}
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-none"
+                                        [ngClass]="{
+                                            'bg-emerald-100 text-emerald-800': knowlegdeBase.isEmbedded === true,
+                                            'bg-red-100 text-red-600': knowlegdeBase.isEmbedded === false
+                                        }"
+                                    >
+                                        {{ knowlegdeBase.isEmbedded}}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
+                                     <div class="flex flex-col">
+                                        <span>{{ knowlegdeBase.updatedAt|| '---' }}</span>
+                                        <span class="text-[10px] text-zinc-400" *ngIf="knowlegdeBase.updatedBy">by {{ knowlegdeBase.updatedBy.username }}</span>
+                                     </div>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <div class="flex items-center justify-center gap-1 transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
+                                        <button
+                                            (click)="toggleEditUserDrawer(knowlegdeBase); $event.stopPropagation()"
+                                            class="flex items-center justify-center w-8 h-8 transition-colors rounded-none text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
+                                            matTooltip="Edit"
+                                        >
+                                            <mat-icon class="icon-size-5">edit</mat-icon>
+                                        </button>
+
+                                        <button
+                                            *ngIf="user.role === 1"
+                                            (click)="toggleDeleteDialog(knowlegdeBase.uuid); $event.stopPropagation()"
+                                            class="flex items-center justify-center w-8 h-8 transition-colors rounded-none text-zinc-500 hover:text-rose-600 hover:bg-rose-50"
+                                            matTooltip="Delete"
+                                        >
+                                            <mat-icon class="icon-size-5">delete</mat-icon>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Empty State -->
+                    <div *ngIf="knowlegdeBases.length === 0 && !loading" class="flex flex-col items-center justify-center py-12 text-center border-t text-zinc-400 bg-zinc-50 border-zinc-100">
+                         <mat-icon class="mb-3 icon-size-12 text-zinc-300" [svgIcon]="'heroicons_outline:folder-open'"></mat-icon>
+                        <p class="text-lg font-medium text-zinc-500">{{ t("knowlegdeBase.no_matching_data") }}</p>
+                        <p class="text-sm">Try adjusting your search or filters</p>
+                    </div>
+                     <!-- Loading State -->
+                     <div *ngIf="loading" class="flex items-center justify-center py-12 border-t border-zinc-100">
+                        <mat-spinner diameter="32"></mat-spinner>
+                     </div>
+                </div>
+
+                <!-- Footer / Pagination -->
+                <div class="p-2 border-t bg-zinc-50 border-zinc-200">
+                    <app-custom-pagination
+                        *ngIf="knowlegdeBases.length > 0"
+                        [totalRecords]="totalRecords"
+                        [totalItems]="totalItems"
+                        [currentPage]="currentPage"
+                        [pageSize]="pageSize"
+                        (pageChange)="onPageChange($event)"
+                        (pageSizeChange)="onPageSizeChange($event)"
+                        class="block w-full"
                     >
-                        <tr>
-                            <th class="p-3 border-b text-center td-cell">
-                                <input
-                                    type="checkbox"
-                                    [checked]="isAllSelected"
-                                    (change)="toggleSelectAll($event)"
-                                    class="form-checkbox h-4 w-4 text-primary-600"
-                                />
-                            </th>
-                            <th
-                                class="p-3 border-b font-semibold text-center td-cell"
-                            >
-                                {{ t("content.STT") }}
-                            </th>
-                            <th class="p-3 text-center border-b td-cell">
-                                <span class="flex items-center justify-center">
-                                    {{ t("content.title") }}
-                                </span>
-                            </th>
-
-                            <th
-                                class="p-3 text-center border-b cursor-pointer td-cell"
-                                (click)="sortBy('updated_by')"
-                                [ngClass]="{
-                                    'bg-primary-100': sortField === 'updated_by'
-                                }"
-                            >
-                                <span class="flex items-center justify-center">
-                                    {{ t("content.updated_by") }}
-                                    <div class="flex flex-col ml-2">
-                                        <!-- Khi KHÔNG sort theo cột này -->
-                                        <ng-container
-                                            *ngIf="sortField !== 'updated_by'"
-                                        >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base"
-                                                >arrow_drop_up</span
-                                            >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base"
-                                                style="margin-top: -8px"
-                                                >arrow_drop_down</span
-                                            >
-                                        </ng-container>
-
-                                        <!-- Khi sort ASC -->
-                                        <ng-container
-                                            *ngIf="
-                                                sortField === 'updated_by' &&
-                                                sortDirection === 'asc'
-                                            "
-                                        >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base text-blue-600"
-                                                >arrow_drop_up</span
-                                            >
-                                        </ng-container>
-
-                                        <!-- Khi sort DESC -->
-                                        <ng-container
-                                            *ngIf="
-                                                sortField === 'updated_by' &&
-                                                sortDirection === 'desc'
-                                            "
-                                        >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base text-blue-600"
-                                                >arrow_drop_down</span
-                                            >
-                                        </ng-container>
-                                    </div>
-                                </span>
-                            </th>
-                            <th
-                                class="p-3 text-center border-b cursor-pointer td-cell"
-                                (click)="sortBy('createdBy')"
-                                [ngClass]="{
-                                    'bg-primary-100': sortField === 'createdBy'
-                                }"
-                            >
-                                <span class="flex items-center justify-center">
-                                    {{ t("content.created_by") }}
-                                    <div class="flex flex-col ml-2">
-                                        <!-- Khi KHÔNG sort theo cột này -->
-                                        <ng-container
-                                            *ngIf="sortField !== 'createdBy'"
-                                        >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base"
-                                                >arrow_drop_up</span
-                                            >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base"
-                                                style="margin-top: -8px"
-                                                >arrow_drop_down</span
-                                            >
-                                        </ng-container>
-
-                                        <!-- Khi sort ASC -->
-                                        <ng-container
-                                            *ngIf="
-                                                sortField === 'createdBy' &&
-                                                sortDirection === 'asc'
-                                            "
-                                        >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base text-blue-600"
-                                                >arrow_drop_up</span
-                                            >
-                                        </ng-container>
-
-                                        <!-- Khi sort DESC -->
-                                        <ng-container
-                                            *ngIf="
-                                                sortField === 'createdBy' &&
-                                                sortDirection === 'desc'
-                                            "
-                                        >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base text-blue-600"
-                                                >arrow_drop_down</span
-                                            >
-                                        </ng-container>
-                                    </div>
-                                </span>
-                            </th>
-                            <th
-                                class="p-3 text-center border-b cursor-pointer td-cell"
-                                (click)="sortBy('createdAt')"
-                                [ngClass]="{
-                                    'bg-primary-100': sortField === 'createdAt'
-                                }"
-                            >
-                                <span class="flex items-center justify-center">
-                                    {{ t("content.created_at") }}
-                                    <div class="flex flex-col ml-2">
-                                        <!-- Khi KHÔNG sort theo cột này -->
-                                        <ng-container
-                                            *ngIf="sortField !== 'createdAt'"
-                                        >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base"
-                                                >arrow_drop_up</span
-                                            >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base"
-                                                style="margin-top: -8px"
-                                                >arrow_drop_down</span
-                                            >
-                                        </ng-container>
-
-                                        <!-- Khi sort ASC -->
-                                        <ng-container
-                                            *ngIf="
-                                                sortField === 'createdAt' &&
-                                                sortDirection === 'asc'
-                                            "
-                                        >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base text-blue-600"
-                                                >arrow_drop_up</span
-                                            >
-                                        </ng-container>
-
-                                        <!-- Khi sort DESC -->
-                                        <ng-container
-                                            *ngIf="
-                                                sortField === 'createdAt' &&
-                                                sortDirection === 'desc'
-                                            "
-                                        >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base text-blue-600"
-                                                >arrow_drop_down</span
-                                            >
-                                        </ng-container>
-                                    </div>
-                                </span>
-                            </th>
-
-                            <th
-                                class="p-3 text-center border-b cursor-pointer td-cell"
-                                (click)="sortBy('updated_at')"
-                                [ngClass]="{
-                                    'bg-primary-100': sortField === 'updated_at'
-                                }"
-                            >
-                                <span class="flex items-center justify-center">
-                                    {{ t("content.updated_at") }}
-                                    <div class="flex flex-col ml-2">
-                                        <!-- Khi KHÔNG sort theo cột này -->
-                                        <ng-container
-                                            *ngIf="sortField !== 'updated_at'"
-                                        >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base"
-                                                >arrow_drop_up</span
-                                            >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base"
-                                                style="margin-top: -8px"
-                                                >arrow_drop_down</span
-                                            >
-                                        </ng-container>
-
-                                        <!-- Khi sort ASC -->
-                                        <ng-container
-                                            *ngIf="
-                                                sortField === 'updated_at' &&
-                                                sortDirection === 'asc'
-                                            "
-                                        >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base text-blue-600"
-                                                >arrow_drop_up</span
-                                            >
-                                        </ng-container>
-
-                                        <!-- Khi sort DESC -->
-                                        <ng-container
-                                            *ngIf="
-                                                sortField === 'updated_at' &&
-                                                sortDirection === 'desc'
-                                            "
-                                        >
-                                            <span
-                                                class="material-icons leading-none h-4 text-base text-blue-600"
-                                                >arrow_drop_down</span
-                                            >
-                                        </ng-container>
-                                    </div>
-                                </span>
-                            </th>
-                            <th
-                                class="p-3 border-b font-semibold text-center td-cell"
-                            >
-                                {{ t("feedback.action") }}
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            class="hover:bg-blue-50 transition cursor-pointer"
-                            (click)="openUpdateForm(item)"
-                            *ngFor="let item of contents; let i = index"
-                        >
-                            <!-- checkbox -->
-                            <td class="p-3 border-b text-center td-cell">
-                                <input
-                                    type="checkbox"
-                                    [(ngModel)]="item.selected"
-                                    (ngModelChange)="updateSelectedIds()"
-                                    (click)="$event.stopPropagation()"
-                                    class="form-checkbox h-4 w-4 text-primary-600"
-                                />
-                            </td>
-                            <!-- STT -->
-                            <td
-                                class="p-3 border-b font-semibold text-center td-cell"
-                            >
-                                {{ (currentPage - 1) * pageSize + i + 1 }}
-                            </td>
-                            <!-- Tiêu đề -->
-                            <td
-                                class="p-5 border-b text-left td-cell font-semibold max-w-[400px] truncate text-blue-600"
-                                [title]="item.content"
-                            >
-                                {{ item.title }}
-                            </td>
-                            <!-- updatedBy -->
-                            <td
-                                class="p-3 border-b text-center font-semibold td-cell"
-                            >
-                                {{ item.updatedBy || "---" }}
-                            </td>
-                            <!-- createdBy -->
-                            <td
-                                class="p-3 border-b text-center font-semibold td-cell"
-                            >
-                                <div
-                                    class="flex items-center justify-center gap-2"
-                                >
-                                    <img
-                                        [src]="
-                                            item.createdBy?.avatar ||
-                                            'assets/images/avatars/default-avatar.svg'
-                                        "
-                                        alt="avatar"
-                                        class="w-7 h-8 rounded-full object-cover inline-block"
-                                    />
-                                    <span>{{ item.createdBy || "---" }}</span>
-                                </div>
-                            </td>
-                            <!-- createdAt -->
-                            <td
-                                class="p-3 border-b text-center font-semibold td-cell"
-                            >
-                                {{
-                                    item.createdAt
-                                        ? (item.createdAt
-                                          | date : "dd/MM/yyyy ")
-                                        : "---"
-                                }}
-                            </td>
-                            <!-- updatedAt -->
-                            <td
-                                class="p-3 border-b text-center font-semibold td-cell"
-                            >
-                                {{
-                                    item.updatedAt
-                                        ? (item.updatedAt
-                                          | date : "dd/MM/yyyy ")
-                                        : "---"
-                                }}
-                            </td>
-                            <!-- Actions -->
-                            <td class="p-3 border-b text-center td-cell">
-                                <!-- nút sửa  -->
-                                <button
-                                    (click)="
-                                        $event.stopPropagation();
-                                        openUpdateForm(item)
-                                    "
-                                    title="{{ t('content.update') }}"
-                                    class="inline-flex items-center justify-center w-8 h-8 mr-1"
-                                >
-                                    <img
-                                        src="assets/images/ui/edit.svg"
-                                        alt="appType"
-                                        class="w-8 h-8 object-scale-down mx-auto"
-                                    />
-                                </button>
-
-                                <!-- nút xóa -->
-                                <button
-                                    (click)="
-                                        $event.stopPropagation();
-                                        openDeleteForm(item.id)
-                                    "
-                                    title="{{ t('content.delete') }}"
-                                    class="inline-flex items-center justify-center w-8 h-8 mr-1"
-                                >
-                                    <img
-                                        src="assets/images/ui/trash.png"
-                                        alt="appType"
-                                        class="w-8 h-8 object-scale-down mx-auto"
-                                    />
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr *ngIf="contents.length === 0">
-                            <td colspan="8" class="py-10">
-                                <div
-                                    class="flex flex-col items-center justify-center text-blue-500"
-                                >
-                                    <img
-                                        src="assets/images/ui/empty-folder-1.svg"
-                                        alt="Empty"
-                                        class="w-32 h-32 mb-4"
-                                    />
-                                    <p class="font-semibold">
-                                        {{ t("errors.CO_E_023") }}
-                                    </p>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                    </app-custom-pagination>
+                </div>
             </div>
-        </div>
-        <!-- PHÂN TRANG -->
-        <div
-            class="mt-auto flex flex-row items-start justify-between flex-wrap gap-2"
-        >
-            <span class="text-[#2563EB] text-sm font-medium block"
-                >{{ t("content.result") }}: {{ contents.length }}/{{
-                    contents.length
-                }}</span
-            >
-            <app-custom-pagination
-                [currentPage]="currentPage"
-                [pageSize]="pageSize"
-                [totalItems]="totalItems"
-                (pageChange)="onPageChange($event)"
-                (pageSizeChange)="onPageSizeChange($event)"
-            >
-            </app-custom-pagination>
         </div>
     </div>
 </div>
-<!-- add content -->
-<app-add-content
-    *ngIf="showAddForm"
-    (close)="cancelAddForm()"
-    (refresh)="loadContent()"
->
-</app-add-content>
-<!-- delete content -->
-<app-delete-content
-    *ngIf="showDeleteForm"
-    [contentId]="selectedIdToDelete"
-    [contentIds]="selectedIdsToDelete"
-    (close)="showDeleteForm = false"
-    (refresh)="onDeleteRefresh()"
-></app-delete-content>
-<app-update-content
-    *ngIf="showUpdateForm && selectedContentToUpdate"
-    [contentData]="selectedContentToUpdate"
-    (close)="cancelUpdateForm()"
-    (refresh)="loadContent()"
->
-</app-update-content>
-<!-- filter content -->
-<app-filter-content
-    *ngIf="showFilterModal"
-    [mode]="'modal'"
-    (filter)="handleAdvancedFilter($event)"
-    (close)="showFilterModal = false"
-></app-filter-content>
+
+<ng-container #editContainer></ng-container>
+
+<app-generic-add
+    [showDrawer]="showAddUser"
+    [titleKey]="'knowlegdeBase.create'"
+    [fields]="addFields"
+    [saveHandler]="addSaveHandler.bind(this)"
+    (toggleDrawer)="toggleAddUserDrawer()"
+    [loadData] = "loadKnowlegdeBases.bind(this)"
+    (drawerOpenedChanged)="onAddDrawerOpenedChanged($event)">
+</app-generic-add>
+
+<app-generic-delete
+    *ngIf="showDeleteDialog"
+    [entityIds]="selectedIds"
+    [titleKey]="'content.confirm_delete'"
+    [warningKey]="'other.warning_text'"
+    [deleteHandler]="deleteHandler.bind(this)"
+    (close)="toggleDeleteDialog()"
+    (refresh)="loadKnowlegdeBases()"
+></app-generic-delete>

@@ -161,7 +161,6 @@ def _apply_voucher_to_booking_internal(booking, voucher_code, user, order_total,
             return False, error_code, error_message, None
         
         discount = context["discount"]
-        finalTotal= context["order_total"] - context["discount"],
         # Chỉ lưu code và discount amount, CHƯA trừ usage
         booking.voucher_code = voucher.code
         booking.voucher_discount_amount = discount
@@ -177,7 +176,7 @@ def _apply_voucher_to_booking_internal(booking, voucher_code, user, order_total,
         return False, ErrorCodes.VOUCHER_APPLY_FAIL, str(exc), None
 
 
-def _redeem_voucher_for_booking_internal(booking, user, now=None):
+def _redeem_voucher_for_booking_internal(booking, user, now=None, skip_lock=False):
     """
     Helper function: Redeem voucher đã apply vào booking (trừ usage thực sự).
     Chỉ gọi khi payment success.
@@ -188,17 +187,32 @@ def _redeem_voucher_for_booking_internal(booking, user, now=None):
     if not booking.voucher_code:
         return False, ErrorCodes.VOUCHER_NOT_FOUND, "Booking chưa có voucher code."
     
+    booking_uuid = booking.uuid
+    
+    # Kiểm tra xem đã redeem chưa (tránh redeem nhiều lần)
+    # if booking.voucher and booking.voucher_metadata and not booking.voucher_metadata.get("pending_redeem"):
+    #     # Đã redeem rồi, không cần làm gì
+    #     return True, None, None
+    
     try:
         with transaction.atomic():
+            # Refresh booking với lock để đảm bảo data mới nhất
+            if not skip_lock:
+                booking = Booking.objects.select_for_update().select_related("hotel_id", "created_by").get(uuid=booking_uuid)
+            print('check booking:', booking.uuid)
+            # Kiểm tra lại sau khi lock - đã được redeem bởi process khác
+            if booking.voucher and booking.voucher_metadata and not booking.voucher_metadata.get("pending_redeem"):
+                return True, None, None
+            
+            if not booking.voucher_code:
+                return False, ErrorCodes.VOUCHER_NOT_FOUND, "Booking chưa có voucher code."
+            
             voucher = _load_voucher_by_code(booking.voucher_code, lock=True)
             if not voucher:
                 return False, ErrorCodes.VOUCHER_NOT_FOUND, "Voucher không tồn tại."
-            
-            booking = Booking.objects.select_for_update().get(uuid=booking.uuid)
-            print("check booking: ", booking)
+            print('check voucher:', voucher.code)
             # Kiểm tra lại validation
             hotel_uuid = str(booking.hotel_id.uuid) if booking.hotel_id else None
-            print('check hotel id: ', hotel_uuid)
             context, error_code, error_message = _validate_usage_context(
                 voucher=voucher,
                 user=user,
@@ -213,31 +227,36 @@ def _redeem_voucher_for_booking_internal(booking, user, now=None):
                 booking.voucher_metadata = {}
                 booking.save(update_fields=["voucher_code", "voucher_discount_amount", "voucher_metadata"])
                 return False, error_code, error_message
-            
+            print('check context:', context)
             claim = context["claim"]
-            print("check claim: ", claim)
             if not claim and not voucher.requires_claim:
                 claim = _ensure_claim_for_user(voucher, user, now)
             elif not claim and voucher.requires_claim:
                 return False, ErrorCodes.VOUCHER_CLAIM_REQUIRED, "Vui lòng claim voucher trước khi sử dụng."
             
+            print('check claim:', claim.uuid)
             # Bây giờ mới redeem thực sự (trừ usage)
             claim.usage_count += 1
             claim.last_used_at = now
             if claim.usage_count >= voucher.max_usage_per_user:
                 claim.status = VoucherConstants.CLAIM_EXHAUSTED
+            print("Before claim.save")
             claim.save(update_fields=["usage_count", "last_used_at", "status"])
-            
+            print('check claim after save:', claim.uuid)
             voucher.total_used += 1
             if voucher.has_reached_global_limit():
                 voucher.status = VoucherConstants.STATUS_EXHAUSTED
+            print("Before voucher.save")
             voucher.save(update_fields=["total_used", "status"])
-            
+            print('check voucher after save:', voucher.uuid)
             # Link voucher object và xóa flag pending
             booking.voucher = voucher
+            if booking.voucher_metadata is None:
+                booking.voucher_metadata = {}
             booking.voucher_metadata.pop("pending_redeem", None)
+            print("Before booking.save")
             booking.save(update_fields=["voucher", "voucher_metadata"])
-            
+            print('check booking after:', booking.voucher.code)
             # Tạo usage log
             VoucherUsageLog.objects.create(
                 voucher=voucher,

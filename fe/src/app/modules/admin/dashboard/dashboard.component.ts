@@ -226,18 +226,41 @@ export class DashboardKpiComponent {
             console.log("check res dashboard: ", res.data)
             this.data = res.data;
             this.setViewRevenue('month', res.data);
-            this.occupancyChartOptions = {
-                ...this.occupancyChartOptions,
-                series: [{ name: 'Tỷ lệ lấp phòng', data: this.data.occupancy.map(item => item.occupancyRate) }],
-                xaxis: { 
-                    ...this.occupancyChartOptions.xaxis,
-                    categories: this.data.occupancy.map(item => item.hotelName) 
-                }
+            if (this.data.occupancy && this.data.occupancy.length > 0) {
+                this.occupancyChartOptions = {
+                    ...this.occupancyChartOptions,
+                    series: [{ name: 'Tỷ lệ lấp phòng', data: this.data.occupancy.map((item: any) => item.occupancyRate || 0) }],
+                    xaxis: { 
+                        ...this.occupancyChartOptions.xaxis,
+                        categories: this.data.occupancy.map((item: any) => item.hotelName || 'N/A') 
+                    }
+                };
             }
-            this.bookingStatusChartOptions = {
-                ...this.bookingStatusChartOptions,
-                series: this.data.bookingStatus.map(item => item.count),
-                labels: this.data.bookingStatus.map(item => item.status)
+            
+            if (this.data.bookingStatus && this.data.bookingStatus.length > 0) {
+                this.bookingStatusChartOptions = {
+                    ...this.bookingStatusChartOptions,
+                    series: this.data.bookingStatus.map((item: any) => item.count),
+                    labels: this.data.bookingStatus.map((item: any) => item.status)
+                };
+            }
+            
+            // Update user chart
+            if (this.data.usersMonthly && this.data.usersMonthly.length > 0) {
+                const userMonths = Array.from({length: 12}, (_, i) => i + 1);
+                const userData = new Array(12).fill(0);
+                this.data.usersMonthly.forEach((item: any) => {
+                    userData[item.month - 1] = item.total;
+                });
+                
+                this.userChartOptions = {
+                    ...this.userChartOptions,
+                    series: [{ name: 'Người dùng mới', data: userData }],
+                    xaxis: {
+                        ...this.userChartOptions.xaxis,
+                        categories: userMonths.map(m => `T${m}`)
+                    }
+                };
             }
         })
     }
@@ -274,6 +297,6 @@ export class DashboardKpiComponent {
     }
     get avrOccupancy() {
         if(!this.data?.occupancy?.length) return 0;
-        return this.data?.occupancy.reduce((acc, curr) => acc + curr.occupancyRate * 100, 0) / this.data.occupancy.length;
+        return this.data?.occupancy.reduce((acc: number, curr: any) => acc + (curr.occupancyRate || 0) * 100, 0) / this.data.occupancy.length;
     }
 }
