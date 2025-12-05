@@ -890,7 +890,10 @@
         "just_now": "bây giờ",
         "at": "lúc",
         "send_image": "Đã gửi ảnh",
-        "end":"Kết thúc"
+        "end":"Kết thúc",
+        "send_require":"Gửi yêu cầu thành công",
+        "out_group":"Kết thúc hỗ trợ"
+
     },
     "knowlegdeBase": {
         "page_title": "Quản Lý Nội Dung",

@@ -77,9 +77,10 @@ export class AuthService {
      *
      * @param password
      */
-    changePassword(password: string): Observable<any> {
+    changePassword(password: string, crrPassword: string): Observable<any> {
         return this._httpClient.post(uriConfig.API_USER_CHANGE_PASSWORD, {
-            newPassword: password,
+            new_password: password,
+            current_password:crrPassword
         });
     }
 

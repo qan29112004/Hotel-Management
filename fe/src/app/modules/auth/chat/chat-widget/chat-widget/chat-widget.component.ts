@@ -26,6 +26,7 @@ import { ChatService } from 'app/core/chat/chat.service';
 import { UserService } from 'app/core/profile/user/user.service';
 import { SharedModule } from 'app/shared/shared.module';
 import { TranslocoModule } from '@ngneat/transloco';
+import { AlertService } from 'app/core/alert/alert.service';
 @Component({
     selector: 'app-chat-widget',
     standalone: true,
@@ -61,14 +62,18 @@ export class ChatWidgetComponent implements OnInit, OnDestroy
     isLoadingChat: boolean = false;
     crrUser:any;
     memberCount:number;
+    isOpenPopup:boolean = false;
     private userSubscription: Subscription;
     private messageSubscription: Subscription;
 
-    constructor(private chatService:ChatService, private userService: UserService) {
+    constructor(private chatService:ChatService, private userService: UserService,
+        private alertService:AlertService
+    ) {
         
     }
     
     ngOnInit(): void {
+        
         this.userSubscription = this.userService.user$.subscribe(user=>{
             this.crrUser = user;
         })
@@ -101,6 +106,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy
                         time:this.formatTimestamp(msg.timestamp)
                     }
                     this.chats.push(message);
+                    this.isResponding =  this.memberCount && this.memberCount >1  ||Number(msg.role)!== this.crrUser.role ? false :true;
                     setTimeout(() => {
                         this.scrollToBottom();
                     }, 20);
@@ -112,6 +118,11 @@ export class ChatWidgetComponent implements OnInit, OnDestroy
                     console.log("check out group:", msg)
                     this.groupStatus = msg.group_status
                     this.memberCount = 1
+                    this.alertService.showAlert({
+                        title:"test",
+                        message:"test",
+                        type:'success'
+                    })
                 }
                 else if(msg.action === 'noti_join_group'){
                     console.log("check join group:", msg)
@@ -126,6 +137,18 @@ export class ChatWidgetComponent implements OnInit, OnDestroy
         this.messageSubscription.unsubscribe();
     }
 
+    acceptOutGroup(action:string){
+        if(action === "Hủy"){
+            this.isOpenPopup = false;
+
+        }else{
+            this.isOpenPopup = false;
+            this.outGroupChat() 
+        }
+    }
+    openPopup(){
+        this.isOpenPopup=true;
+    }
     sendRequirement(){
         const message :MessageSocket = {
             action: 'send_requirement',
@@ -177,7 +200,8 @@ export class ChatWidgetComponent implements OnInit, OnDestroy
             text:messageValue,
             group_name:this.groupId
         }
-        console.log("check payload: ", message)
+        console.log("check payload: ", this.memberCount)
+        this.isResponding = this.memberCount && this.memberCount <=1? true:false;
         this.chatService.sendMessage(message);
 
         // TODO: xử lý gửi message

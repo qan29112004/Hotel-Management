@@ -1,4 +1,28 @@
 <div class="flex flex-col items-center w-full min-h-full bg-white">
+    <div *ngIf="isOpenPopup" class="fixed inset-0 bg-black/50 flex justify-center items-center z-[30]">
+        <div class="bg-white w-[320px] p-4 border border-gray-300 flex flex-col gap-4">
+    
+            <div class="flex justify-end">
+                <mat-icon class="text-black cursor-pointer">close</mat-icon>
+            </div>
+            <div class="text-center text-base font-medium text-gray-800">
+                Bạn chắc chắn muốn hủy đặt phòng?
+            </div>
+    
+            <!-- Actions -->
+            <div class="flex justify-end gap-3">
+                <button (click)="acceptRefund('Hủy')" type="button" class="py-2 px-4 bg-red-500 text-white font-semibold">
+                    Hủy
+                </button>
+    
+                <button (click)="acceptRefund('Ok')" type="button" class="py-2 px-4 bg-black text-white font-semibold">
+                    OK
+                </button>
+            </div>
+    
+        </div>
+    </div>
+    
     <div class="bg-black h-28 w-full">
 
     </div>
@@ -110,7 +134,7 @@
         </div>
 
         <ng-container *ngIf="filteredBookings?.length > 0">
-            <div *ngFor="let booking of filteredBookings; let i = index" class="group w-full bg-white border border-black transition-all duration-500 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div *ngFor="let booking of filteredBookings; let i = index" class="group w-full bg-white border border-black transition-all duration-500">
                 
                 <!-- Main Card Content -->
                 <div class="flex flex-col md:flex-row">
@@ -118,7 +142,7 @@
                     <div class="w-full md:w-[350px] h-[250px] md:h-auto overflow-hidden relative border-b md:border-b-0 md:border-r border-black">
                         <img [src]="baseUrl + booking.hotel.thumbnail" class="object-cover w-full h-full transform transition-transform duration-700 group-hover:scale-110" />
                         <!-- Status Badge Overlay -->
-                        <div class="absolute top-0 left-0 bg-black text-white px-4 py-2 font-lexend_deca text-xs uppercase font-bold tracking-widest z-10">
+                        <div [ngClass]="getClassStatus(booking?.status)" class="absolute top-0 left-0 px-4 py-2 font-lexend_deca text-xs uppercase font-bold tracking-widest z-10">
                             {{booking?.status}}
                         </div>
                     </div>
@@ -132,7 +156,7 @@
                                     {{booking?.hotel.name}}
                                 </h3>
                                 <span class="font-lexend_deca font-bold text-lg">
-                                    {{calculateTotalPrice(booking) | currency:'VND':'symbol':'1.0-0'}} ~ {{calculateTotalPrice(booking)/25000 | currency:'USD':'symbol-narrow':'1.0-2'}}
+                                    {{booking?.priceInVnd| currency:'VND':'symbol':'1.0-0'}} ~{{ booking?.priceInVnd/25000 | currency:'USD':'symbol-narrow':'1.0-2'}}
                                 </span>
                             </div>
 
@@ -203,7 +227,7 @@
                             </p>
                         </div>
                         <button *ngIf="refundInfo[booking.uuid].refundable"
-                                (click)="processRefund(booking)"
+                                (click)="openPopup(booking)"
                                 [disabled]="refundLoading[booking.uuid]"
                                 class="px-6 py-2 bg-red-600 text-white font-lexend_deca text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-colors rounded-none">
                              {{refundLoading[booking.uuid] ? 'Processing...' : 'Confirm Cancellation'}}

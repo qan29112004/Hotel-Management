@@ -229,7 +229,7 @@ def cal_price_per_night(request):
             exist_hold = HoldRecord.objects.filter(session__uuid = session_id, room_type=room_type, status='Hold').first()
             if not ok and not exist_hold:continue
 
-            all_rooms = room_type.room.filter(status='Available')
+            all_rooms = room_type.room.filter(status='Available', is_lock = False)
             print("all rooom", all_rooms)
             # Đếm số phòng chưa bị book
             available_count = sum(

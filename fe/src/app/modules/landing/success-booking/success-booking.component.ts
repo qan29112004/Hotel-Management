@@ -111,10 +111,7 @@ export class SuccessBookingComponent implements OnInit {
     
     // If amount is from VNPAY and is very large (likely in smallest unit), divide by 100
     // VNPAY returns amount in đồng * 100 (e.g., 30100000 means 301,000 VND)
-    if (numValue > 1000000 && numValue % 100 === 0) {
-      // Check if it looks like VNPAY format (ends with 00 and is large)
-      numValue = numValue / 100;
-    }
+    
     
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',

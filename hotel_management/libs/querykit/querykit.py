@@ -258,17 +258,17 @@ class SortItem:
         elif self.option == SortOptionChoices.DESCENDING:
             sort_direction = "-"
 
-        if re.fullmatch(r".+__.+", self.field):
-            json_result_value = "json_result_value"
-            json_field, json_to_find = str(self.field).split("__", 1)
-            queryset = QuerykitHelper.transform_json_queryset(
-                queryset, json_field, json_to_find, json_result_value
-            )
+        # if re.fullmatch(r".+__.+", self.field):
+        #     json_result_value = "json_result_value"
+        #     json_field, json_to_find = str(self.field).split("__", 1)
+        #     queryset = QuerykitHelper.transform_json_queryset(
+        #         queryset, json_field, json_to_find, json_result_value
+        #     )
 
-            queryset = queryset.order_by(f"{sort_direction}{json_result_value}")
+        #     queryset = queryset.order_by(f"{sort_direction}{json_result_value}")
 
-        else:
-            queryset = queryset.order_by(f"{sort_direction}{self.field}")
+        # else:
+        queryset = queryset.order_by(f"{sort_direction}{self.field}")
 
         return queryset
 

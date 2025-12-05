@@ -31,7 +31,6 @@ import { environment } from 'environments/environment.fullstack';
 import { RoomtypeService } from 'app/core/admin/roomtype/roomtype.service';
 import { AmenityService } from 'app/core/admin/amenity/amenity.service';
 import { RoomService } from 'app/core/admin/room/room.service';
-
 @Component({
   selector: 'app-room',
   standalone: true,
@@ -103,7 +102,7 @@ export class RoomComponent {
   showFilterModal: boolean = false;
   showDeleteDialog:boolean = false; 
 
-  optionsRoomType:any = [];
+  optionsSelect:any = {};
   radioAmenityOptions:any = [];
 
   private debounceSearch = new Subject<string>();
@@ -163,14 +162,25 @@ export class RoomComponent {
         name: 'images',
         labelKey: 'room.images',
         type: 'files',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room.enterdDescription',
+        accept: 'image/*',
+    },
+    {
+        name: 'isLock',
+        labelKey: 'room.is_lock',
+        type: 'select',
+        options:[
+          {id:true, name:"True"},
+          {id: false, name:"False"}
+        ],
+        placeholderKey: 'room.enterdDescription',
         accept: 'image/*',
     },
     {
         name: 'roomTypeId',
-        labelKey: 'destination.name',
+        labelKey: 'room.name',
         type: 'select',
-        placeholderKey: 'destination.enterFullName',
+        placeholderKey: 'room.enterFullName',
         asyncOptionsKey: true,
         isForeignKey:true
     },
@@ -202,14 +212,25 @@ export class RoomComponent {
         name: 'images',
         labelKey: 'room.images',
         type: 'files',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'room.enterdDescription',
         accept: 'image/*',
     },
     {
+      name: 'is_lock',
+      labelKey: 'room.is_lock',
+      type: 'select',
+      options:[
+        {id:true, name:"True"},
+        {id: false, name:"False"}
+      ],
+      placeholderKey: 'room.enterislock',
+      accept: 'image/*',
+  },
+    {
         name: 'room_type_id',
-        labelKey: 'destination.name',
+        labelKey: 'room.name',
         type: 'select',
-        placeholderKey: 'destination.enterFullName',
+        placeholderKey: 'room.enterFullName',
         asyncOptionsKey: true,
         isForeignKey:true
     },
@@ -225,6 +246,25 @@ export class RoomComponent {
         
     },
     {
+      name: 'hotels',
+      labelKey: 'room.hotel',
+      type: 'select',
+      placeholderKey: 'room.hotel',
+      relatedName:"room_type_id__hotel_id__uuid",
+      asyncOptionsKey: true,
+        isForeingKey:true
+  },
+    {
+      name: 'is_lock',
+      labelKey: 'room.is_lock',
+      type: 'select',
+      options:[
+        {id:true, name:"True"},
+        {id: false, name:"False"}
+      ],
+      placeholderKey: 'room.enterislock',
+  },
+    {
         name: 'housekeeping_status',
         labelKey: 'room.housekeeping_status',
         type: 'select',
@@ -236,10 +276,11 @@ export class RoomComponent {
         placeholderKey: 'room.housekeeping_status',
     },
     {
-        name: 'room_type_id',
-        labelKey: 'destination.name',
+        name: 'roomTypeId',
+        labelKey: 'room.name',
         type: 'select',
-        placeholderKey: 'destination.enterFullName',
+        relatedName:'room_type_id',
+        placeholderKey: 'room.enterFullName',
         asyncOptionsKey: true,
         isForeingKey:true
     },
@@ -271,7 +312,7 @@ export class RoomComponent {
   
   ngOnInit(): void {
       this.loadRooms();
-
+      this.loadHotels();
       this.debounceSearch.pipe(
         debounceTime(500),
         takeUntil(this.destroy$)
@@ -312,7 +353,8 @@ export class RoomComponent {
         ),
       takeUntil(this._unsubscribeAll)
       ).subscribe((options)=>{
-        this.optionsRoomType = options;
+        this.optionsSelect['roomTypeId'] = options;
+        console.log("check optionsSelect:", this.optionsSelect)
       });
       this.userService.user$.subscribe((user)=>{
         this.user = user;
@@ -341,6 +383,42 @@ export class RoomComponent {
           console.error('Error loading destinations:', error);
         }
       });
+    }
+    loadHotels(){
+      if(this.hotelService.getHotelData().length > 0){
+        this.hotelService.hotel$.pipe(
+          map(hotels => {
+  
+          if (hotels) {
+            return hotels.map(hotel => ({
+              id: hotel.uuid,
+              name: hotel.name
+            }));
+          }
+          return []; 
+        })
+        ).subscribe(hotels=>{
+          this.optionsSelect['hotels'] = hotels;
+          console.log("check optionsSelect:", this.optionsSelect)
+        })
+      }else{
+        this.hotelService.getAllHotels({page_size:0}).pipe(
+          map(hotels => {
+  
+            if (hotels) {
+              return hotels.data.map(hotel => ({
+                id: hotel.uuid,
+                name: hotel.name
+              }));
+            }
+            return []; 
+          })
+        ).subscribe(res=>{
+          this.optionsSelect['hotels'] = res;
+          console.log("check optionsSelect:", this.optionsSelect)
+        })
+
+      }
     }
   
     toggleFilterDrawer(): void {
@@ -477,7 +555,7 @@ export class RoomComponent {
           instance.entityData = this.selectedRoom;
           instance.saveHandler = this.saveHandler.bind(this);
           instance.loadData = this.loadRooms.bind(this);
-          instance.optionDestination = this.optionsRoomType;
+          instance.optionDestination = this.optionsSelect;
           instance.optionRadio = this.radioAmenityOptions;
   
           // ✅ Lắng nghe sự kiện Output

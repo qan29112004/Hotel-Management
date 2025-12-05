@@ -22,19 +22,18 @@ import { GenericAddComponent } from 'app/shared/components/generic-components';
 import { GenericFilterComponent, FieldFilterConfig } from 'app/shared/components/generic-components';
 import { GenericDeleteComponent } from 'app/shared/components/generic-components';
 import { FieldConfig } from 'app/core/admin/destination/destination.type';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { UserService } from 'app/core/profile/user/user.service';
 import { User } from 'app/core/profile/user/user.types';
 import { environment } from 'environments/environment.fullstack';
-import { Booking } from 'app/core/admin/booking/booking.type';
-import { BookingService } from 'app/core/admin/booking/booking.service';
-import { HotelService } from 'app/core/admin/hotel/hotel.service';
-
+import { Payment } from 'app/core/admin/payment/payment.types';
+import { PaymentService } from 'app/core/admin/payment/payment.service';
 
 @Component({
-  selector: 'app-booking',
+  selector: 'app-payment',
   standalone: true,
-  imports: [ SharedModule,
+  imports: [
+    SharedModule,
     CommonModule,
     FormsModule,
     CustomPaginationComponent,
@@ -53,8 +52,9 @@ import { HotelService } from 'app/core/admin/hotel/hotel.service';
     MatToolbarModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    MatTooltipModule],
-  templateUrl: './booking.component.html',
+    MatTooltipModule
+  ],
+  templateUrl: './payment.component.html',
   styles: [`
     /* Custom override to ensure sharp edges on material components if global styles don't cover it */
     :host ::ng-deep .mat-mdc-form-field-flex {
@@ -65,7 +65,7 @@ import { HotelService } from 'app/core/admin/hotel/hotel.service';
     }
   `]
 })
-export class BookingComponent implements OnInit {
+export class PaymentComponent implements OnInit {
   fields: FieldConfig[] =[
     {
         name: 'uuid',
@@ -75,226 +75,151 @@ export class BookingComponent implements OnInit {
         disabled: true,
     },
     {
-        name: 'userEmail',
-        labelKey: 'booking.userEmail',
+        name: 'transactionId',
+        labelKey: 'payment.transaction_id',
         type: 'text',
-        placeholderKey: 'booking.enterUserEmail',
-        required: true,
+        placeholderKey: 'payment.enterTransactionId',
+        disabled: true,
         
-    },
-    {
-        name: 'userFullname',
-        labelKey: 'booking.userFullname',
-        type: 'text',
-        placeholderKey: 'booking.enterUserFullname',
-        required: true,
-        
-    },
-    {
-        name: 'userPhone',
-        labelKey: 'booking.userPhone',
-        type: 'text',
-        placeholderKey: 'booking.enterUserPhone',
-        required: true,
-        
-    },
-    {
-        name: 'userCountry',
-        labelKey: 'booking.user_country',
-        type: 'country',
-        placeholderKey: 'booking.enterUserCountry',
-        required: true,
-        
-    },
-    {
-        name: 'checkIn',
-        labelKey: 'booking.start_date',
-        type: 'date',
-        placeholderKey: 'booking.enterStartDate',
-        
-        
-    },
-    {
-        name: 'checkOut',
-        labelKey: 'booking.end_date',
-        type: 'date',
-        placeholderKey: 'booking.enterEndDate',
-        
-        
-    },
-    {
-        name: 'numGuest',
-        labelKey: 'booking.num_guest',
-        type: 'number',
-        placeholderKey: 'booking.enterEndDate',
-    },
-    {
-        name: 'totalPrice',
-        labelKey: 'booking.amount_days',
-        type: 'number',
-        placeholderKey: 'booking.enterEndDate',
     },
     {
         name: 'status',
-        labelKey: 'booking.status',
+        labelKey: 'payment.status',
         type: 'select',
         options:[
           {id: "Pending", name:"Pending"},
-          {id:"Confirm", name:"Confirm"},
-          {id:"Cancelled", name:"Cancelled"},
-          {id:"Check In", name:"Check In"},
-          {id:"Check Out", name:"Check Out"}
+          {id: "Paid", name:"Paid"},
+          {id: "Refund", name:"Refund"},
+          {id: "Fail", name:"Fail"},
+          {id: "Partially Refunded", name:"Partially Refunded"},
         ],
-        placeholderKey: 'booking.enterImages'
+        placeholderKey: 'payment.enterstatus',
+        
     },
     {
-        name: 'totalRooms',
-        labelKey: 'booking.amount_days',
+        name: 'amount',
+        labelKey: 'payment.amount',
         type: 'number',
-        placeholderKey: 'booking.enterEndDate',
+        placeholderKey: 'payment.enterAmount',
+        required:true
     },
     {
-        name: 'hotelId',
-        labelKey: 'booking.hotel',
-        type: 'select',
-        placeholderKey: 'booking.enterHotel',
-        asyncOptionsKey: true,
-        isForeignKey:true
-    }
+      name: 'method',
+      labelKey: 'payment.method',
+      type: 'select',
+      options:[
+        {id: "PayPal", name:"PayPal"},
+        {id: "vnpay", name:"VNPAY"},
+      ],
+      placeholderKey: 'payment.entermethod',
+      
+    },
+    {
+      name: 'currency',
+      labelKey: 'hotel.currency',
+      type: 'text',
+      placeholderKey: 'payment.enterCurrency',
+      disabled:true
+    },
+
   ]
 
   addFields: FieldConfig[] =[
     {
-        name: 'user_email',
-        labelKey: 'booking.userEmail',
-        type: 'text',
-        placeholderKey: 'booking.enterUserEmail',
-        required: true,
-        disabled:true
-    },
-    {
-        name: 'user_fullname',
-        labelKey: 'booking.userFullname',
-        type: 'text',
-        placeholderKey: 'booking.enterUserFullname',
-        required: true,
-        disabled:true
-    },
-    {
-        name: 'user_phone',
-        labelKey: 'booking.userPhone',
-        type: 'text',
-        placeholderKey: 'booking.enterUserPhone',
-        required: true,
-        disabled:true
-    },
-    {
-        name: 'user_country',
-        labelKey: 'booking.user_country',
-        type: 'country',
-        placeholderKey: 'booking.enterUserCountry',
-        required: true,
-        disabled:true
-    },
-    {
-        name: 'check_in',
-        labelKey: 'booking.start_date',
-        type: 'date',
-        placeholderKey: 'booking.enterStartDate',
-        disabled:true
-        
-    },
-    {
-        name: 'check_out',
-        labelKey: 'booking.end_date',
-        type: 'date',
-        placeholderKey: 'booking.enterEndDate',
-        disabled:true
-        
-    },
-    {
-        name: 'num_guest',
-        labelKey: 'booking.num_guest',
-        type: 'number',
-        placeholderKey: 'booking.enterEndDate',
-        disabled:true
-    },
-    {
-        name: 'total_price',
-        labelKey: 'booking.amount_days',
-        type: 'number',
-        placeholderKey: 'booking.enterEndDate',
-        disabled:true
-    },
-    {
-        name: 'status',
-        labelKey: 'booking.status',
-        type: 'select',
-        options:[
-          {id: "Pending", name:"Pending"},
-          {id:"Confirm", name:"Confirm"},
-          {id:"Cancelled", name:"Cancelled"},
-          {id:"Check In", name:"Check In"},
-          {id:"Check Out", name:"Check Out"}
-        ],
-        placeholderKey: 'booking.enterImages',
-        disabled:true
-    },
-    {
-        name: 'total_rooms',
-        labelKey: 'booking.amount_days',
-        type: 'number',
-        placeholderKey: 'booking.enterEndDate',
-        disabled:true
-    },
-    {
-        name: 'hotel_id',
-        labelKey: 'booking.hotel',
-        type: 'select',
-        placeholderKey: 'booking.enterHotel',
-        asyncOptionsKey: true,
-        isForeignKey:true,
-        disabled:true
-    }
+      name: 'transaction_id',
+      labelKey: 'payment.transaction_id',
+      type: 'text',
+      placeholderKey: 'payment.enterTransactionId',
+      disabled:true
+  },
+  {
+      name: 'status',
+      labelKey: 'payment.status',
+      type: 'select',
+      options:[
+        {id: "Pending", name:"Pending"},
+        {id: "Paid", name:"Paid"},
+        {id: "Refund", name:"Refund"},
+        {id: "Fail", name:"Fail"},
+        {id: "Partially Refunded", name:"Partially Refunded"},
+      ],
+      placeholderKey: 'payment.enterstatus',
+      disabled:true
+  },
+  {
+      name: 'amount',
+      labelKey: 'payment.amount',
+      type: 'number',
+      placeholderKey: 'payment.enterAmount',
+      required:true,
+      disabled:true
+  },
+  {
+    name: 'method',
+    labelKey: 'payment.method',
+    type: 'select',
+    options:[
+      {id: "PayPal", name:"PayPal"},
+      {id: "vnpay", name:"VNPAY"},
+    ],
+    placeholderKey: 'payment.entermethod',
+    disabled:true
+  },
+  {
+    name: 'currency',
+    labelKey: 'hotel.currency',
+    type: 'text',
+    placeholderKey: 'payment.enterCurrency',
+    disabled:true
+  },
   ]
 
   filterFields: FieldFilterConfig[] = [
+    {
+      name: 'method',
+      labelKey: 'payment.method',
+      type: 'select',
+      options:[
+        {id: "PayPal", name:"PayPal"},
+        {id: "vnpay", name:"VNPAY"},
+      ],
+      placeholderKey: 'payment.entermethod',
+      
+    },
       {
-          name: 'title',
-          labelKey: 'booking.title',
-          type: 'text',
-          placeholderKey: 'booking.enterTitle',
-          autocompleteOptions: [], // Sẽ được cập nhật động
-      },
+        name: 'status',
+        labelKey: 'payment.status',
+        type: 'select',
+        options:[
+          {id: "Pending", name:"Pending"},
+          {id: "Paid", name:"Paid"},
+          {id: "Refund", name:"Refund"},
+          {id: "Fail", name:"Fail"},
+          {id: "Partially Refunded", name:"Partially Refunded"},
+        ],
+        placeholderKey: 'payment.enterstatus',
+        
+    },
       {
-          name: 'check_in',
-          labelKey: 'user_management.check_in',
+          name: 'created_at',
+          labelKey: 'user_management.created_at',
           type: 'date-range',
           rangeFields: { from: 'created_from', to: 'created_to' },
       },
       {
-          name: 'check_out',
-          labelKey: 'user_management.check_out',
+          name: 'updated_at',
+          labelKey: 'user_management.updated_at',
           type: 'date-range',
           rangeFields: { from: 'updated_from', to: 'updated_to' },
       },
-      {
-        name: 'hotel_id',
-        labelKey: 'booking.hotel',
-        type: 'select',
-        placeholderKey: 'booking.enterHotel',
-        asyncOptionsKey: true,
-        isForeingKey:true
-    },
   ];
   @ViewChild('editContainer', { read: ViewContainerRef }) editContainer: ViewContainerRef;
   baseUrl = environment.baseUrl;
   user:User
-  selectedDes:Booking = null;
+  selectedDes:Payment = null;
   selectedIds: string[] = [];
-  optionsHotel:any = {};
-  bookings: Booking[] = [];
-  hasSelectedBooking:boolean= false;
+  payment: Payment[] = [];
+  hasSelectedPayment:boolean= false;
   displayedColumns: string[] = ['name', 'description', 'actions'];
   loading = false;
   currentPage = 1;
@@ -307,115 +232,42 @@ export class BookingComponent implements OnInit {
   openFilterDropdowns = new Set<string>();
   externalFilters: any = {};
   filterToggleBtnRef!: ElementRef;
-  selectedCreateAt : string = '';
+  
   // Sắp xếp
   sortField: string | null = null;
   sortOption: 'asc' | 'desc' | null = null;
 
-
   // Show popup
   showEditUser: boolean = false;
-  showAddBooking: boolean = false;
-  showImport: boolean = false;
+  showAddUser: boolean = false;
   showFilter: boolean = false;
-  showFilterModal: boolean = false;
   showDeleteDialog:boolean = false; 
-  // Form data for create/edit
-  bookingForm = {
-    name: '',
-    description: ''
-  };
-  editingBooking: Booking | null = null;
-  showForm = false;
 
   constructor(
     public translocoService: TranslocoService,
     private _alertService: AlertService,
-    private bookingService: BookingService,
+    private paymentService: PaymentService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private datePipe: DatePipe,
-    private userService: UserService,
-    private hotelService:HotelService
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
-    this.loadBooking();
-    this.loadSelectedHotel();
-
+    this.loadPayments();
     this.userService.user$.subscribe((user)=>{
       this.user = user;
     })
-    console.log(this.showFilter)
   }
 
-  /**
-   * Returns Tailwind CSS classes for status badges based on status value.
-   * Vivid colors for high contrast management UI.
-   */
-  getStatusClass(status: string): string {
-    switch (status) {
-      case 'Pending':
-        return 'bg-amber-100 text-amber-900 border-amber-500';
-      case 'Confirm':
-        return 'bg-blue-100 text-blue-900 border-blue-600';
-      case 'Check In':
-        return 'bg-emerald-100 text-emerald-900 border-emerald-600';
-      case 'Check Out':
-        return 'bg-slate-200 text-slate-900 border-slate-600';
-      case 'Cancelled':
-        return 'bg-rose-100 text-rose-900 border-rose-600';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-400';
-    }
-  }
-
-  loadSelectedHotel(){
-    if(this.hotelService.getHotelData.length > 0){
-      this.hotelService.hotel$.pipe(
-        map(hotels => {
-          
-            if (hotels) {
-              return hotels.map(dest => ({
-                id: dest.uuid,
-                name: dest.name
-              }));
-            }
-            return []; 
-          }
-          )
-      ).subscribe(hotels=>{
-        this.optionsHotel['hotel_id'] = hotels;
-        console.log("optionHotel", this.optionsHotel)
-      })
-    }else{
-      this.hotelService.getAllHotels({"page_size":0}).pipe(
-        map(hotels => {
-          
-            if (hotels) {
-              return hotels.data.map(dest => ({
-                id: dest.uuid,
-                name: dest.name
-              }));
-            }
-            return []; 
-          }
-          )
-      ).subscribe(res=>{
-        this.optionsHotel['hotel_id'] = res;
-        console.log("optionHotel", this.optionsHotel)
-      })
-    }
-  }
-
-  loadBooking(): void {
+  loadPayments(): void {
     this.loading = true;
     const payload = this.getPayload();
 
-    this.bookingService.getBooking(payload).subscribe({
+    this.paymentService.getPayment(payload).subscribe({
       next: (response) => {
-        console.log("booking res:",response)
-        this.bookings = response.data || [];
+        console.log("payment res:",response)
+        this.payment = response.data || [];
         this.totalItems = response.total || 0;
         this.loading = false;
       },
@@ -423,17 +275,22 @@ export class BookingComponent implements OnInit {
         this.loading = false;
         this._alertService.showAlert({
           title: 'Error',
-          message: 'Failed to load bookings',
+          message: 'Failed to load payments',
           type: 'error'
         });
-        console.error('Error loading bookings:', error);
+        console.error('Error loading payments:', error);
       }
     });
   }
 
+
   toggleFilterDrawer(): void {
         this.showFilter = !this.showFilter;
     }
+  
+  toggleEditFilterDrawer():void{
+      this.showFilter = !this.showFilter;
+  }
 
   onFilterDrawerOpenedChanged(opened: boolean): void {
       this.showFilter = opened;
@@ -442,38 +299,29 @@ export class BookingComponent implements OnInit {
   onApplyFilter(filterRules: any[]): void {
       this.externalFilters = filterRules;
       this.currentPage = 1;
-      this.loadBooking();
+      this.loadPayments();
   }
 
   onResetFilter(): void {
       this.externalFilters = {};
       this.currentPage = 1;
-      this.loadBooking();
+      this.loadPayments();
   }
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.loadBooking();
+    this.loadPayments();
   }
 
   onSearch(): void {
     this.currentPage = 1;
-    this.loadBooking();
+    this.loadPayments();
   }
 
   clearSearch(): void {
     this.searchTerm = '';
     this.currentPage = 1;
-    this.loadBooking();
-  }
-
-  showCreateForm(): void {
-    this.editingBooking = null;
-    this.bookingForm = {
-      name: '',
-      description: ''
-    };
-    this.showForm = true;
+    this.loadPayments();
   }
 
   sortBy(field: string) {
@@ -490,7 +338,7 @@ export class BookingComponent implements OnInit {
           this.sortField = field;
           this.sortOption = 'asc';
       }
-      this.loadBooking();
+      this.loadPayments();
   }
   // Updated payload method to include filters
   getPayload() {
@@ -511,7 +359,7 @@ export class BookingComponent implements OnInit {
   }
   getSearchRule(): any {
     const defaultSearchFields = {
-        fields: ['user_fullname', 'user_email'],
+        fields: ['name', 'uuid'],
         option: 'contains',
         value: this.searchTerm.trim(),
     };
@@ -538,8 +386,8 @@ export class BookingComponent implements OnInit {
 
         // filter từ bộ lọc
         if (this.externalFilters && Array.isArray(this.externalFilters)) {
-    filters.push(...this.externalFilters);
-  }
+            filters.push(...this.externalFilters);
+        }
 
         return filters;
     }
@@ -553,21 +401,9 @@ export class BookingComponent implements OnInit {
     };
   }
 
-  hideForm(): void {
-    this.showForm = false;
-    this.editingBooking = null;
-    this.bookingForm = {
-      name: '',
-      description: ''
-    };
-  }
-
-  
-
-  async toggleEditUserDrawer(booking?: Booking) {
-      if (booking) {
-        this.selectedDes=booking;
-        console.log("selected: ", this.selectedDes)
+  async toggleEditUserDrawer(payment?: Payment) {
+      if (payment) {
+        this.selectedDes=payment;
       }
       this.showEditUser = !this.showEditUser;
       if (this.showEditUser) {
@@ -577,12 +413,11 @@ export class BookingComponent implements OnInit {
 
         // ✅ Truyền Input cho component
         componentRef.instance.showDrawer = true;
-        componentRef.instance.titleKey = 'booking.detail';
+        componentRef.instance.titleKey = 'payment.detail';
         componentRef.instance.fields = this.fields;
         componentRef.instance.entityData = this.selectedDes;
         componentRef.instance.saveHandler = this.saveHandler.bind(this);
-        componentRef.instance.loadData = this.loadBooking.bind(this);
-        componentRef.instance.optionDestination = this.optionsHotel;
+        componentRef.instance.loadData = this.loadPayments.bind(this);
 
         // ✅ Lắng nghe sự kiện Output
         componentRef.instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
@@ -599,12 +434,12 @@ export class BookingComponent implements OnInit {
       }
   }
   toggleAddUserDrawer(){
-    this.showAddBooking = !this.showAddBooking
+    this.showAddUser = !this.showAddUser
   }
 
   onPageSizeChange(size: number) {
       this.pageSize = size;
-      this.loadBooking();
+      this.loadPayments();
   }
   formatDateTime(dateStr: string): string | null {
         return this.datePipe.transform(dateStr, 'dd/MM/yyyy HH:mm', '+0700');
@@ -613,26 +448,24 @@ export class BookingComponent implements OnInit {
       const date = new Date(timestamp * 1000); // chuyển từ giây sang mili-giây
       return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm', '+0700');
   }
-  toggleEditFilterDrawer():void{
-      this.showFilter = !this.showFilter;
-  }
+  
   onDrawerOpenedChanged(opened: boolean): void {
       this.showEditUser = opened;
   }
   onAddDrawerOpenedChanged(opened:boolean):void{
-    this.showAddBooking = opened;
+    this.showAddUser = opened;
   }
   saveHandler(payload: any): Observable<any> {
-    return this.bookingService.updateBooking(payload.get('uuid'), payload);
+    return this.paymentService.updatePayment(payload.get('uuid'), payload);
   }
 
   addSaveHandler(payload: any): Observable<any> {
-    return this.bookingService.createBooking(payload);
+    return this.paymentService.createPayment(payload);
   }
   deleteHandler(id: string): Observable<any> {
     this.selectedIds=[]
-    this.hasSelectedBooking = false;
-    return this.bookingService.deleteBooking(id);
+    this.hasSelectedPayment = false;
+    return this.paymentService.deletePayment(id);
   }
 
   toggleDeleteDialog(uuid?:string): void {
@@ -640,22 +473,18 @@ export class BookingComponent implements OnInit {
         this.selectedIds = [...this.selectedIds, uuid];
       }
       this.showDeleteDialog = !this.showDeleteDialog;
-      console.log("OPEN DELETE DIALOG", this.showDeleteDialog)
   }
-
-  
 
   toggleAllRows(event: Event): void {
       const checked = (event.target as HTMLInputElement).checked;
-        this.bookings.forEach((booking) => (booking.selected = checked));
+        this.payment.forEach((payment) => (payment.selected = checked));
         this.toggleRow();
   }
 
   toggleRow(): void {
-    this.selectedIds = this.bookings
+    this.selectedIds = this.payment
             .filter((user) => user.selected)
             .map((user) => user.uuid);
-    this.hasSelectedBooking = this.selectedIds.length >= 1;
-    console.log(this.hasSelectedBooking)
+    this.hasSelectedPayment = this.selectedIds.length >= 1;
   }
 }

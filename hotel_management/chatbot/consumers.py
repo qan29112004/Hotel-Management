@@ -97,7 +97,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             # 2️⃣ Gọi AI reply chạy background, không await
             async def ai_reply():
-                ai_text = await chat_bot_test_socket(data.get('text', ''))
+                # Lấy một ít lịch sử hội thoại để AI hiểu ngữ cảnh
+                history_qs = await sync_to_async(list)(
+                    Message.objects.filter(group=group_chat).order_by('-created_at')[:8]
+                )
+                history = []
+                for msg in reversed(history_qs):
+                    role = "assistant" if msg.sender == '1' else "user"
+                    history.append({"role": role, "text": msg.text})
+
+                ai_text = await chat_bot_test_socket(data.get('text', ''), history=history)
                 ai_message = await sync_to_async(Message.objects.create)(
                     group=group_chat,
                     text=ai_text,

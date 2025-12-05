@@ -14,7 +14,7 @@ export const uriConfig = {
     API_USER_INFOR_UPDATE: baseUrl + '/api/update/',
     API_USER_REFRESH_TOKEN: baseUrl + '/api/refresh/',
     API_USER_RESET_PASSWORD: baseUrl + '/api/user/reset-password/',
-    API_USER_CHANGE_PASSWORD: baseUrl + '/api/user/change-password/',
+    API_USER_CHANGE_PASSWORD: baseUrl + '/api/change-password/',
     API_USER_REGISTER: baseUrl + '/api/register/',
     API_USER_AUTH_GOOGLE: baseUrl + '/api/auth/google/',
 
@@ -264,4 +264,10 @@ export const uriConfig = {
 
     //dashboard
     API_DASHBOARD_OVERVIEW: baseUrl + '/api/dashboard/overview/',
+
+    //payment
+    API_PAYMENT_ALL: baseUrl + '/api/payment/list/',
+    API_PAYMENT_UPDATE: (uuid:string) => baseUrl + `/api/payment/${uuid}/`,
+    API_PAYMENT_DELETE: (uuid:string) => baseUrl + `/api/payment/${uuid}/`,
+    API_PAYMENT_CREATE: baseUrl + '/api/payment/',
 };

@@ -116,6 +116,7 @@
                                         {{ t("booking.user_country") }}
                                         <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'user_country' && sortOption === 'asc'">arrow_upward</mat-icon>
                                         <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'user_country' && sortOption === 'desc'">arrow_downward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-zinc-600" *ngIf="sortField !== 'user_country'">unfold_more</mat-icon>
                                     </div>
                                 </th>
                                 <th class="px-4 py-4 border-b border-zinc-800">{{ t("booking.user_email") }}</th>
@@ -124,11 +125,20 @@
                                         {{ t("user_management.created_at") }}
                                         <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'created_at' && sortOption === 'asc'">arrow_upward</mat-icon>
                                         <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'created_at' && sortOption === 'desc'">arrow_downward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-zinc-600" *ngIf="sortField !== 'created_at'">unfold_more</mat-icon>
                                     </div>
                                 </th>
                                 <th class="px-4 py-4 border-b border-zinc-800">{{ t("booking.check_in") }}</th>
                                 <th class="px-4 py-4 border-b border-zinc-800">{{ t("booking.check_out") }}</th>
-                                <th class="px-4 py-4 text-right border-b border-zinc-800">{{ t("booking.total_price") }}</th>
+                                <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800"
+                                    (click)="sortBy('price_in_vnd')">
+                                    <div class="flex items-center gap-1">
+                                        {{ t("booking.total_price") }}
+                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'price_in_vnd' && sortOption === 'asc'">arrow_upward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'price_in_vnd' && sortOption === 'desc'">arrow_downward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-zinc-600" *ngIf="sortField !== 'price_in_vnd'">unfold_more</mat-icon>
+                                    </div>
+                                </th>
                                 <th class="px-4 py-4 text-center border-b border-zinc-800">{{ t("booking.status") }}</th>
                                 <th class="px-4 py-4 text-center border-b border-zinc-800">{{ t("booking.total_rooms") }}</th>
                                 <th class="px-4 py-4 text-center border-b border-zinc-800">{{ t("user_management.action") }}</th>
@@ -181,7 +191,7 @@
                                     {{ booking.checkOut }}
                                 </td>
                                 <td class="px-4 py-3 font-bold text-right whitespace-nowrap text-zinc-900">
-                                    {{ +booking.totalPrice | currency:'VND':'symbol':'1.0-0' }}
+                                    {{ booking.totalPrice === booking.priceInVnd?( booking.totalPrice | currency:'VND':'symbol':'1.0-0'): (booking.totalPrice | currency:'USD':'symbol-narrow':'1.0-2' )}}
                                 </td>
                                 <td class="px-4 py-3 text-center whitespace-nowrap">
                                     <!-- Vivid Status Badge -->

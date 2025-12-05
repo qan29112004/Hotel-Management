@@ -16,6 +16,8 @@ import { result, take } from 'lodash';
 import { formatDate } from 'app/shared/utils/util';
 import { Router } from '@angular/router';
 import { BookingService as PaymentService } from 'app/core/booking/booking.service';
+import { TranslocoService } from '@ngneat/transloco';
+import { AlertService } from 'app/core/alert/alert.service';
 declare var paypal: any;
 
 @Component({
@@ -60,6 +62,8 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
   today = new Date();
   private $destroy = new Subject();
   bookingId:string;
+  bookingRefund:any;
+  isOpenPopup:boolean = false;
 
   @ViewChild('pickerCheckin') pickerCheckin!: MatDatepicker<Date>;
   @ViewChild('pickerCheckout') pickerCheckout!: MatDatepicker<Date>;
@@ -135,7 +139,9 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
   refundLoading: { [key: string]: boolean } = {};
   retryLoading: { [key: string]: boolean } = {};
   
-  constructor(private fb: FormBuilder,private ratingService:RatingService, private bookingService:BookingService, private userService:UserService, private hotelService: HotelService, private router:Router, private paymentService: PaymentService) {
+  constructor(private fb: FormBuilder,private ratingService:RatingService, private bookingService:BookingService, private userService:UserService, private hotelService: HotelService, private router:Router, private paymentService: PaymentService, private alertService: AlertService,
+    private translocoService:TranslocoService
+  ) {
     
   }
 
@@ -196,6 +202,10 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
     return this.availableHotels.filter(h => 
       h.name.toLowerCase().includes(this.hotelSearchQuery.toLowerCase())
     );
+  }
+  openPopup(booking:any){
+    this.bookingRefund = booking;
+    this.isOpenPopup = true
   }
 
   selectHotel(name: string) {
@@ -284,7 +294,7 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
     // --- 7) Gọi API ---
     this.bookingService
       .getMyBooking({
-        filterRules: rules,
+        filterRules: [...rules,...this.filter],
         sortRule: sortRule
       })
       .subscribe((res) => {
@@ -362,26 +372,58 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
     });
   }
 
+  acceptRefund(action:string){
+    if(action === 'Hủy'){
+      this.isOpenPopup = false;
+      this.bookingRefund=null;
+    }else{
+      this.isOpenPopup= false;
+      this.processRefund(this.bookingRefund)
+    }
+  }
+
   // Process refund
   processRefund(booking: any): void {
-    if (!confirm('Bạn có chắc chắn muốn hủy booking và hoàn tiền?')) {
-      return;
-    }
     
     this.refundLoading[booking.uuid] = true;
     this.bookingService.processRefund(booking.uuid).subscribe({
       next: (res) => {
-        alert(`Hoàn tiền thành công! Số tiền: ${this.formatCurrency(res.refund_amount)}`);
+        this.alertService.showAlert({
+          title: this.translocoService.translate('payment.success.title'),
+          message: this.translocoService.translate('payment.success.message'),
+          type: 'success'
+        });
         this.getMyBooking(this.crrUser.email);
         this.refundLoading[booking.uuid] = false;
       },
       error: (err) => {
-        alert(`Lỗi: ${err?.error?.message || 'Không thể hoàn tiền'}`);
+        this.alertService.showAlert({
+          title: this.translocoService.translate('payment.error.title'),
+          message: err?.error?.message,
+          type: 'error'
+        });
         this.refundLoading[booking.uuid] = false;
       }
     });
   }
-
+  getClassStatus(status:string){
+    if(status === 'Cancelled'){
+      return 'bg-red-400 text-red-900'
+    }
+    if(status === 'Pending'){
+      return 'bg-amber-400 text-amber-900'
+    }
+    if(status === 'Check In'){
+      return 'bg-emerald-400 text-emerald-900'
+    }
+    if(status === 'Check Out'){
+      return 'bg-slate-400 text-slate-900'
+    }
+    if(status === 'Cancelled'){
+      return 'bg-rose-400 text-rose-900'
+    }
+    return 'bg-gray-400 text-grat-900'
+  }
   // Retry payment
   // retryPayment(booking: any): void {
   //   if(booking.currency === 'VND'){

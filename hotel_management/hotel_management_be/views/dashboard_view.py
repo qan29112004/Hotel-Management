@@ -69,7 +69,7 @@ def dashboard_overview(request):
             })  
 
         # === 1b. Doanh thu theo tuần (4 tuần gần nhất) ===
-        start_4_weeks_ago = today - timedelta(weeks=4)
+        start_4_weeks_ago = today + timedelta(days=1) - timedelta(weeks=4)
         weekly_payments = Payment.objects.filter(
             status="Paid",
             booking__check_in__gte=start_4_weeks_ago,
@@ -126,7 +126,7 @@ def dashboard_overview(request):
         }
 
         # Số phòng được đặt theo khách sạn (BookingRoom join Booking)
-        active_status = ["Pending", "Confirm", "Check In", "Check Out", "Paid"]
+        active_status = ["Confirm", "Check In", "Check Out", "Paid"]
         booked_rooms_qs = (
             BookingRoom.objects.filter(
                 booking_id__status__in=active_status,

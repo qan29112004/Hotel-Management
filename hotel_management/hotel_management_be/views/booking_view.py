@@ -92,14 +92,14 @@ def list_booking(request):
         return AppResponse.error(ErrorCodes.LIST_AMENITY_FAIL, str(e))
     
     
-HOLD_TTL_SECONDS = getattr(settings, "HOLD_TTL_SECONDS", 20*60)
-SESSION_TTL_SECONDS = getattr(settings, "SESSION_TTL_SECONDS", 20*60)
+HOLD_TTL_SECONDS = getattr(settings, "HOLD_TTL_SECONDS", 2*60)
+SESSION_TTL_SECONDS = getattr(settings, "SESSION_TTL_SECONDS", 2*60)
 
 # Utility: ensure inventory keys exist for requested range (init from DB)
 def ensure_inventory_for_range(hotel_id, room_type_id, checkin, checkout):
     rt = RoomType.objects.get(uuid=room_type_id)
     set_room_booked = Utils.get_booked_rooms(checkin, checkout)
-    available_room = Room.objects.filter(room_type_id=rt, status='Available').exclude(uuid__in=set_room_booked).count()
+    available_room = Room.objects.filter(room_type_id=rt, status='Available', is_lock=False).exclude(uuid__in=set_room_booked).count()
     cur = checkin
     today = timezone.now().date()
     while cur < checkout:
@@ -413,7 +413,7 @@ def add_and_update_service_to_hold_record(request):
 @api_view(['POST'])
 def list_my_booking(request):
     try:
-        list_booking = Booking.objects.exclude(status__in =['Expired'])
+        list_booking = Booking.objects.exclude(status__in =['Expired']).order_by('-created_at')
         paginated_booking, total = Querykit.apply_filter_paginate_search_sort(request=request, queryset=list_booking).values()
         serializers = MyBookingSerializer(paginated_booking, many=True)
         return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data, 'total':total})

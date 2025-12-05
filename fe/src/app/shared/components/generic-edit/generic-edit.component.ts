@@ -63,7 +63,7 @@ export class GenericEditComponent implements OnInit {
     @Input() entityData: any = {};
     @Input() saveHandler: (payload: any) => Observable<any> = () => of(null);
     @Input() loadData!: ()=>void;
-    @Input() optionDestination!: { id: string | number; name: string }[];
+    @Input() optionDestination:{ [key: string]: { id: number; name: string }[]} = {};
     @Input() optionRadio: { id: number; name: string }[] = [];
     @Input() checkboxOptions: { [fieldName: string]: any[] } = {};
     @Output() toggleDrawer = new EventEmitter<void>();

@@ -143,7 +143,8 @@ class HotelDetailSerializer(serializers.ModelSerializer):
         #  Lấy tất cả room Available của khách sạn
         available_rooms = Room.objects.filter(
             room_type_id__hotel_id=obj,
-            status="Available"
+            status="Available",
+            is_lock=False
         )
 
         # #  Lấy tất cả room đã được booking từ hôm nay trở đi

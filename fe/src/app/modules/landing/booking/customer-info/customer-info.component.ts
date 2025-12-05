@@ -343,7 +343,8 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
         queryParams.amount = result.amount;
         queryParams.response_code = result.responseCode;
         queryParams.booking_id = result.bookingId;
-        this.router.navigate(['booking/success'], {queryParams})
+        // this.router.navigate(['booking/success'], {queryParams})
+        console.log("check querypram: ", queryParams)
       },
 
       onCancel: (data: any) => {

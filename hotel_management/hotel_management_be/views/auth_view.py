@@ -25,7 +25,9 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.utils import timezone
 from utils.voucher_utils import VoucherUtis
-
+from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
+from django.db import transaction
 
 @auto_schema_post(UserSerializer)
 @permission_classes([AllowAny])
@@ -162,3 +164,45 @@ def google_auth(request):
         return AppResponse.success(SuccessCodes.LOGIN, data={'token':token, 'user':UserSerializer(user, context = {"request": request}).data})
     except Exception as e:
         return AppResponse.error(ErrorCodes.LOGIN_TOO_MANY_ATTEMPTS, str(e))
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    try:
+        current_password: str = request.data.get("current_password")
+        new_password: str = request.data.get("new_password")
+
+        if not current_password:
+            return AppResponse.error(
+                error_code=ErrorCodes.CURRENT_PASSWORD_REQUIRED,
+                errors=["Old password is required"]
+            )
+
+        if not new_password:
+            return AppResponse.error(
+                error_code=ErrorCodes.NEW_PASSWORD_REQUIRED,
+                errors=["New password is required"]
+            )
+
+        user: User = request.user
+        
+        try:
+            validate_password(new_password, user)
+        except ValidationError as e:
+            return AppResponse.error(
+                error_code=ErrorCodes.VALIDATION_NEW_PASSWORD,
+                errors=e.messages
+            )
+
+        with transaction.atomic():
+            user.set_password(new_password)
+            user.save()
+
+
+        return AppResponse.success(success_code=SuccessCodes.CHANGE_PASSWORD)
+
+    except Exception as e:
+        return AppResponse.error(
+            error_code=ErrorCodes.CANNOT_CHANGE_PASSWORD,
+            errors=str(e)
+        )

@@ -97,6 +97,9 @@ class RedisUtils:
     def session_holds_key(session_id):
         return f"session:{session_id}:holds"
     @staticmethod
+    def booking_success_key(booking_id):
+        return f"booking:success:{booking_id}"
+    @staticmethod
     def session_hold_slot_key(session_id: str, room_index: int) -> str:
         return f"session:{session_id}:holds:{room_index}"
 
@@ -355,17 +358,33 @@ class RedisUtils:
         RedisUtils.r.setnx(key, int(default))
         
     @staticmethod  
-    def finalize_booking_success(session_id):
+    def finalize_booking_success(session_id, booking_id=None):
         
-        from hotel_management_be.models.booking import HoldRecord, BookingSession
+        from hotel_management_be.models.booking import HoldRecord, BookingSession, Booking
         """
         Dọn Redis và cập nhật HoldRecord sau khi thanh toán thành công.
         """
         session_id = str(session_id)
-        session = BookingSession.objects.get(uuid=session_id)
+        try:
+            session = BookingSession.objects.get(uuid=session_id)
+        except BookingSession.DoesNotExist:
+            # Session đã bị xóa rồi, có thể do đã thanh toán thành công trước đó
+            if booking_id:
+                RedisUtils.mark_booking_success(booking_id)
+            return
+        
+        # Lấy booking_id nếu chưa có
+        if not booking_id:
+            booking = Booking.objects.filter(session_id=session_id).first()
+            if booking:
+                booking_id = str(booking.uuid)
+        
         # === 1 Lấy danh sách hold trong Redis (nếu còn) ===
         hold_ids = RedisUtils.get_session_holds(session_id, total_slots=session.requested_rooms)
         if not hold_ids:
+            # Đánh dấu booking thành công ngay cả khi không có hold (có thể đã expired)
+            if booking_id:
+                RedisUtils.mark_booking_success(booking_id)
             return  # có thể do Redis đã expired
 
         for hid in hold_ids:
@@ -384,6 +403,10 @@ class RedisUtils:
         # ===  Xóa session key trong Redis ===
         RedisUtils.r.delete(RedisUtils.session_holds_key(session_id))
         RedisUtils.r.delete(RedisUtils.session_key(session_id))
+
+        # === ĐÁNH DẤU BOOKING THÀNH CÔNG TRONG REDIS ===
+        if booking_id:
+            RedisUtils.mark_booking_success(booking_id)
 
         session.delete()
         # ===  Cập nhật HoldRecord hết hạn (optional) ===
@@ -421,3 +444,20 @@ class RedisUtils:
             ttl = None  # key tồn tại vô hạn
 
         return bool(exist), ttl
+    
+    @staticmethod
+    def mark_booking_success(booking_id, ttl_seconds=3600):
+        """
+        Đánh dấu booking đã thanh toán thành công trong Redis.
+        Task monitor sẽ check flag này để dừng monitoring.
+        """
+        key = RedisUtils.booking_success_key(booking_id)
+        RedisUtils.r.set(key, "1", ex=ttl_seconds)
+    
+    @staticmethod
+    def check_booking_success(booking_id):
+        """
+        Kiểm tra booking đã thanh toán thành công chưa.
+        """
+        key = RedisUtils.booking_success_key(booking_id)
+        return RedisUtils.r.exists(key)

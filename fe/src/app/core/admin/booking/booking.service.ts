@@ -84,7 +84,7 @@ export class BookingService {
       page_size: 1,
       filterRules: [{
         field: 'uuid',
-        option: 'equals',
+        option: 'exact',
         value: bookingId
       }]
     }).pipe(

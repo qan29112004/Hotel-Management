@@ -1,4 +1,27 @@
 <div class="relative flex flex-col w-full h-full">
+    <div *ngIf="isOpenPopup" class="fixed inset-0 bg-black/50 flex justify-center items-center z-[30]">
+        <div class="bg-white w-[320px] p-4 border border-gray-300 flex flex-col gap-4">
+    
+            <div class="flex justify-end">
+                <mat-icon class="text-black cursor-pointer">close</mat-icon>
+            </div>
+            <div class="text-center text-base font-medium text-gray-800">
+                Bạn chắc chắn muốn kết thúc phiên hỗ trợ?
+            </div>
+    
+            <!-- Actions -->
+            <div class="flex justify-end gap-3">
+                <button (click)="acceptOutGroup('Hủy')" type="button" class="py-2 px-4 bg-red-500 text-white font-semibold">
+                    Hủy
+                </button>
+    
+                <button (click)="acceptOutGroup('Ok')" type="button" class="py-2 px-4 bg-black text-white font-semibold">
+                    OK
+                </button>
+            </div>
+    
+        </div>
+    </div>
     <div
         class="flex items-center justify-between w-full bg-primary h-15 rounded-t-xl"
     >
@@ -9,7 +32,7 @@
             ><mat-icon class="text-white text-[20px]">contact_support</mat-icon></button>
             <span *ngIf="groupStatus==='Waiting'" class="text-white text-[14px] ml-[8px]">Chờ phản hồi</span>
             <span *ngIf="groupStatus==='In progress'" class="text-white text-[14px] ml-[8px]">Đang tiếp nhận</span>
-            <button (click)="outGroupChat()" type="button" *ngIf="crrUser.role === 2" class="flex bg-white text-black justify-center items-center px-2 py-1 ml-[8px] rounded-full">{{'chat.end'|transloco}}</button>
+            <button (click)="openPopup()" type="button" *ngIf="crrUser.role === 2" class="flex bg-white text-black justify-center items-center px-2 py-1 ml-[8px] rounded-full">{{'chat.end'|transloco}}</button>
         </div>
         <div class="flex gap-2 pr-3">
             

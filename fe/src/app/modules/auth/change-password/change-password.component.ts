@@ -81,6 +81,7 @@ export class AuthChangePasswordComponent implements OnInit {
         // this._authLayoutService.setTitleDes('Make things better for you');
         this.resetPasswordForm = this._formBuilder.group(
             {
+                crrPassword:['', Validators.required],
                 password: ['', Validators.required],
                 passwordConfirm: ['', Validators.required],
             },
@@ -137,10 +138,9 @@ export class AuthChangePasswordComponent implements OnInit {
 
         // Send the request to the server
         this._authService
-            .changePassword(this.resetPasswordForm.get('password')?.value)
+            .changePassword(this.resetPasswordForm.get('password')?.value, this.resetPasswordForm.get('crrPassword')?.value)
             .subscribe(
                 () => {
-                    this._router.navigate([`/${routeConfig.AUTH_SIGN_IN}`]);
 
                     this._alertService.showAlert({
                         title: this._translocoService.translate(

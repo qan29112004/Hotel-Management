@@ -39,6 +39,10 @@ export const appRoutes: Route[] = [
     
     {
         path: '',
+        component: LayoutComponent,
+        data: {
+            layout: 'auth',
+        },
         canActivate: [NoAuthGuard],
         canActivateChild: [NoAuthGuard],
 
@@ -343,6 +347,12 @@ export const appRoutes: Route[] = [
                         data: { title: 'rating.title' },
                         loadChildren: () =>
                             import('app/modules/admin/rating/rating.route'),
+                    },
+                    {
+                        path: routeConfig.PAYMENT,
+                        data: { title: 'payment.title' },
+                        loadChildren: () =>
+                            import('app/modules/admin/payment/payment.route'),
                     },
                     {
                         path: routeConfig.ADMIN_FEEDBACK,

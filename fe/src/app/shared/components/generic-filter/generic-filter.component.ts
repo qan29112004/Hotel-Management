@@ -64,7 +64,7 @@ export class GenericFilterComponent {
     @Input() showFilter: boolean = false;
     @Input() titleKey: string = 'content.advanced_filters';
     @Input() fields: FieldFilterConfig[] = [];
-    @Input() optionDestination:any[] = [];
+    @Input() optionDestination:{ [key: string]: { id: number; name: string }[]} = {};
     @Input() optionRadio:any[] = [];
     @Input() optionCheckbox:any[] = [];
     @Input() checkboxOptions: { [fieldName: string]: any[] } = {};
@@ -102,6 +102,7 @@ export class GenericFilterComponent {
         }, {});
 
         this.filterForm = this._fb.group(controls);
+        console.log("check optionDestination: ", this.optionDestination)
     }
 
     onInputChange(fieldName: string): void {
@@ -132,7 +133,7 @@ export class GenericFilterComponent {
                 const to = this.formatDate(formValues[field.rangeFields.to]);
                 if (from && to) {
                     filterRules.push({
-                        field: field.name,
+                        field: field.relatedName || field.name,
                         option: 'range',
                         value: [from, to],
                     });
@@ -140,7 +141,7 @@ export class GenericFilterComponent {
             } else if (formValues[field.name] && field.isForeingKey) {
                 console.log("value field: ", formValues[field.name])
                 filterRules.push({
-                    field: field.name,
+                    field: field.relatedName || field.name,
                     option: 'in',
                     value: [formValues[field.name]],
                 });
@@ -154,7 +155,7 @@ export class GenericFilterComponent {
             else if (formValues[field.name]) {
                 filterRules.push({
                     field: field.relatedName || field.name,
-                    option: 'contains',
+                    option: typeof formValues[field.name] ==="string" ?'contains':'exact',
                     value: formValues[field.name],
                 });
             }

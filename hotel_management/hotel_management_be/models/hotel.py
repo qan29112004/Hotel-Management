@@ -73,6 +73,7 @@ class Room(BaseModel):
     status = models.CharField(choices=HotelConstants.ROOM_STATUS, null=True,blank=True, max_length=50, default='Available')
     floor = models.IntegerField()  
     housekeeping_status = models.CharField(choices=HotelConstants.HOUSEKEEPING_STATUS, null=True,blank=True, max_length=50, default='Cleaned')  
+    is_lock = models.BooleanField(default=False)
     def save(self, *args, **kwargs):
         # Auto tăng id toàn hệ thống
         if not self.auto_increment_id:

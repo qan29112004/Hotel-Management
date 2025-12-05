@@ -118,6 +118,23 @@ def reconcile_expired_holds():
 @shared_task(bind=True)
 def monitor_session_task(self, session_id, booking_id):
     logger.info(f"=== TASK STARTED for session {session_id} ===") 
+    
+    # === KIỂM TRA BOOKING ĐÃ THANH TOÁN THÀNH CÔNG CHƯA ===
+    if RedisUtils.check_booking_success(booking_id):
+        logger.info(f"Booking {booking_id} already paid successfully. Stopping monitor task.")
+        return
+    
+    # Kiểm tra booking status trong DB
+    try:
+        booking = Booking.objects.get(uuid=booking_id)
+        # Nếu booking đã Confirm, Cancelled, Check In, Check Out thì dừng monitoring
+        if booking.status in ["Confirm", "Cancelled", "Check In", "Check Out"]:
+            logger.info(f"Booking {booking_id} status is {booking.status}. Stopping monitor task.")
+            return
+    except Booking.DoesNotExist:
+        logger.warning(f"Booking {booking_id} not found. Stopping monitor task.")
+        return
+    
     exist, ttl = RedisUtils.check_session(session_id)
     logger.info(f"check_session returned: exist={exist}, ttl={ttl}") 
     message = {
@@ -127,8 +144,14 @@ def monitor_session_task(self, session_id, booking_id):
     }
     logger.info(f"Publishing session {session_id}: exist={exist}, ttl={ttl}")
     RedisUtils.r.publish("session_status_channel", json.dumps(message))
-    session = BookingSession.objects.get(uuid = session_id)
-    booking = Booking.objects.get(uuid = booking_id)
+    
+    try:
+        session = BookingSession.objects.get(uuid = session_id)
+    except BookingSession.DoesNotExist:
+        logger.info(f"Session {session_id} not found in DB. Stopping monitor task.")
+        # Nếu session đã bị xóa (thanh toán thành công), dừng monitoring
+        return
+    
     # === QUAN TRỌNG: LÊN LỊCH LẠI DỰA TRÊN TTL THỰC TẾ ===
     if exist and ttl not in (None, 0):
         # Lên lịch chạy lại ngay trước hoặc SAU khi hết hạn
@@ -204,7 +227,7 @@ def set_booking_room(session_id, booking_id):
             hold.delete()
         # Lấy danh sách room thuộc roomtype này, đang available
         available_rooms = list(Room.objects.filter(
-            room_type_id=hold.room_type, status="Available"
+            room_type_id=hold.room_type, status="Available", is_lock=False
         ).exclude(uuid__in=conflict_room_ids))
 
         # Nếu không đủ phòng

@@ -392,7 +392,7 @@ class Utils:
         available_rooms = []
 
         for rt in room_type_of_hotel:
-            rooms = rt.room.filter(status='Available')
+            rooms = rt.room.filter(status='Available', is_lock=False)
 
             for room in rooms:
                 if room.uuid not in booked_room_uuids:

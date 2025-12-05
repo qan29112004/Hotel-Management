@@ -429,6 +429,12 @@ export const compactNavigation: FuseNavigationItem[] = [
                 link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.VOUCHER}`,
             },
             {
+                id: 'admin.payment',
+                title: 'Payment',
+                type: 'basic',
+                link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.PAYMENT}`,
+            },
+            {
                 id: 'admin.price_rule',
                 title: 'Price rule',
                 type: 'basic',

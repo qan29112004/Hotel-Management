@@ -6,7 +6,7 @@
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h2 class="text-3xl font-black tracking-tight uppercase text-zinc-900">
-                        {{ t("room.management") }}
+                        {{ t("payment.management") }}
                     </h2>
                 </div>
             </div>
@@ -23,7 +23,7 @@
                                 type="text"
                                 [(ngModel)]="searchTerm"
                                 (ngModelChange)="onSearch()"
-                                placeholder="{{ t('room.search_placeholder') }}"
+                                placeholder="{{ t('payment.search_placeholder') }}"
                                 class="w-full h-10 pl-10 pr-10 text-sm transition-all border rounded-none bg-zinc-50 border-zinc-300 text-zinc-900 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 placeholder:text-zinc-400"
                             />
                             <!-- Filter Toggle Button inside input area -->
@@ -44,8 +44,6 @@
                             [showFilter]="showFilter"
                             [titleKey]="'content.advanced_filters'"
                             [fields]="filterFields"
-                            [optionDestination]="optionsSelect"
-                            [optionRadio]="radioAmenityOptions"
                             (filter)="onApplyFilter($event)"
                             (reset)="onResetFilter()"
                             (close)="toggleFilterDrawer()"
@@ -57,7 +55,7 @@
 
                     <!-- Delete Button (Conditional) -->
                     <button
-                        *ngIf="hasSelectedRoom"
+                        *ngIf="hasSelectedPayment"
                         (click)="toggleDeleteDialog()"
                         class="flex items-center h-10 gap-2 px-4 transition-colors border rounded-none bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200 animate-fade-in"
                     >
@@ -70,13 +68,13 @@
                 <div class="flex w-full lg:w-auto">
                     <button
                         (click)="toggleAddUserDrawer()"
-                        class="flex items-center justify-center w-full h-10 gap-2 px-6 transition-all rounded-none sm:w-auto bg-zinc-900 text-white hover:bg-zinc-800 active:translate-y-0.5"
+                        class="h-10 w-full sm:w-auto px-6 flex items-center justify-center gap-2 bg-zinc-900 text-white hover:bg-zinc-800 active:translate-y-0.5 transition-all rounded-none"
                     >
                         <mat-icon
                             class="text-amber-400 icon-size-5"
                             svgIcon="heroicons_outline:plus-circle"
                         ></mat-icon>
-                        <span class="text-sm font-bold tracking-wide uppercase">{{ t("room.create") }}</span>
+                        <span class="text-sm font-bold tracking-wide uppercase">{{ t("payment.create") }}</span>
                     </button>
                 </div>
             </div>
@@ -97,18 +95,17 @@
                                     />
                                 </th>
                                 <th class="w-16 px-4 py-4 text-center border-b border-zinc-800">
-                                    {{ t("user_management.sequenceNumber") }}
+                                    #
                                 </th>
                                 <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800"
-                                    (click)="sortBy('room_number')">
+                                    (click)="sortBy('amount')">
                                     <div class="flex items-center gap-1">
-                                        {{ t("room.room_number") }}
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'room_number' && sortOption === 'asc'">arrow_upward</mat-icon>
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'room_number' && sortOption === 'desc'">arrow_downward</mat-icon>
-                                        <mat-icon class="icon-size-4 text-zinc-600" *ngIf="sortField !== 'room_number'">unfold_more</mat-icon>
+                                        {{ t("payment.amount") }}
+                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'amount' && sortOption === 'asc'">arrow_upward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'amount' && sortOption === 'desc'">arrow_downward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-zinc-600" *ngIf="sortField !== 'amount'">unfold_more</mat-icon>
                                     </div>
                                 </th>
-                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("room.status") }}</th>
                                 <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800" (click)="sortBy('created_at')">
                                     <div class="flex items-center gap-1">
                                         {{ t("user_management.created_at") }}
@@ -116,22 +113,10 @@
                                         <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'created_at' && sortOption === 'desc'">arrow_downward</mat-icon>
                                     </div>
                                 </th>
-                                <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800" (click)="sortBy('updated_at')">
-                                    <div class="flex items-center gap-1">
-                                        {{ t("user_management.updated_at") }}
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'updated_at' && sortOption === 'asc'">arrow_upward</mat-icon>
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'updated_at' && sortOption === 'desc'">arrow_downward</mat-icon>
-                                    </div>
-                                </th>
-                                <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800" (click)="sortBy('floor')">
-                                    <div class="flex items-center gap-1">
-                                        {{ t("room.floor") }}
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'floor' && sortOption === 'asc'">arrow_upward</mat-icon>
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'floor' && sortOption === 'desc'">arrow_downward</mat-icon>
-                                    </div>
-                                </th>
-                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("room.housekeeping_status") }}</th>
-                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("room.room_type") }}</th>
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("payment.transaction_id") }}</th>
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("payment.method") }}</th>
+                                
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("user_management.updated_at") }}</th>
                                 <th class="px-4 py-4 text-center border-b border-zinc-800">{{ t("user_management.action") }}</th>
                             </tr>
                         </thead>
@@ -139,14 +124,14 @@
                         <!-- TBODY -->
                         <tbody class="divide-y divide-zinc-100">
                             <tr
-                                *ngFor="let room of rooms; let i = index;"
+                                *ngFor="let payment of payment; let i = index;"
                                 class="transition-colors duration-150 bg-white group hover:bg-amber-50/50"
-                                [class.bg-amber-50]="room.selected"
+                                [class.bg-amber-50]="payment.selected"
                             >
                                 <td class="px-4 py-3 text-center">
                                     <input
                                         type="checkbox"
-                                        [(ngModel)]="room.selected"
+                                        [(ngModel)]="payment.selected"
                                         (ngModelChange)="toggleRow()"
                                         (click)="$event.stopPropagation()"
                                         class="w-4 h-4 rounded-none cursor-pointer border-zinc-300 text-amber-500 focus:ring-amber-500"
@@ -155,43 +140,37 @@
                                 <td class="px-4 py-3 font-mono text-center text-zinc-500">
                                     {{ (currentPage - 1) * pageSize + i + 1 }}
                                 </td>
-                                <td class="px-4 py-3" (click)="toggleEditUserDrawer(room)">
+                                <td class="px-4 py-3" (click)="toggleEditUserDrawer(payment)">
                                     <div class="font-bold truncate transition-colors cursor-pointer text-zinc-900 group-hover:text-amber-600">
-                                        {{ room.roomNumber }}
+                                        {{ payment.currency === 'VND'?(payment.amount | currency:'VND':'symbol':'1.0-0'):(payment.amount)| currency:'USD':'symbol-narrow':'1.0-2' }}
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 text-zinc-600 max-w-xs truncate" [title]="room.status || ''">
+                                <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
+                                    {{ formatDateTimeUnix(payment.createdAt) }}
+                                </td>
+                                <td class="px-4 py-3">
+                                    {{ payment.transactionId}}
+                                </td>
+                                <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
                                     <span class="px-2 py-1 text-xs font-semibold rounded-none"
-                                        [ngClass]="{
-                                            'bg-emerald-100 text-emerald-800': room.status === 'Available',
-                                            'bg-blue-100 text-blue-800': room.status === 'Booked',
-                                            'bg-orange-100 text-orange-800': room.status === 'Maintenance'
-                                        }">
-                                        {{ room.status || "---" }}
+                                    [ngClass]="{
+                                        'bg-yellow-100 text-blue-800': payment.method === 'PayPal',
+                                        'bg-red-100 text-white-600': payment.method === 'vnpay',
+                                    }"
+                                    >
+                                        {{ payment.method}}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
-                                    {{ formatDateTimeUnix(room.createdAt) }}
-                                </td>
-                                <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
-                                     <div class="flex flex-col">
-                                        <span>{{ formatDateTimeUnix(room.updatedAt) || '---' }}</span>
-                                        <span class="text-[10px] text-zinc-400" *ngIf="room.updatedBy">by {{ room.updatedBy.username }}</span>
-                                     </div>
-                                </td>
-                                <td class="px-4 py-3 text-zinc-600">
-                                    {{ room.floor }}
-                                </td>
-                                <td class="px-4 py-3 text-zinc-600">
-                                    {{ room.housekeepingStatus }}
-                                </td>
-                                <td class="px-4 py-3 text-zinc-600">
-                                    {{ room.roomTypeId?.name }}
-                                </td>
+                                    <div class="flex flex-col">
+                                       <span>{{ formatDateTimeUnix(payment.updatedAt) || '---' }}</span>
+                                       <span class="text-[10px] text-zinc-400" *ngIf="payment.updatedBy">by {{ payment.updatedBy.username }}</span>
+                                    </div>
+                               </td>
                                 <td class="px-4 py-3 text-center">
                                     <div class="flex items-center justify-center gap-1 transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
                                         <button
-                                            (click)="toggleEditUserDrawer(room); $event.stopPropagation()"
+                                            (click)="toggleEditUserDrawer(payment); $event.stopPropagation()"
                                             class="flex items-center justify-center w-8 h-8 transition-colors rounded-none text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
                                             matTooltip="Edit"
                                         >
@@ -200,7 +179,7 @@
 
                                         <button
                                             *ngIf="user.role === 1"
-                                            (click)="toggleDeleteDialog(room.uuid); $event.stopPropagation()"
+                                            (click)="toggleDeleteDialog(payment.uuid); $event.stopPropagation()"
                                             class="flex items-center justify-center w-8 h-8 transition-colors rounded-none text-zinc-500 hover:text-rose-600 hover:bg-rose-50"
                                             matTooltip="Delete"
                                         >
@@ -213,9 +192,9 @@
                     </table>
 
                     <!-- Empty State -->
-                    <div *ngIf="rooms.length === 0 && !loading" class="flex flex-col items-center justify-center py-12 text-center border-t text-zinc-400 bg-zinc-50 border-zinc-100">
+                    <div *ngIf="payment.length === 0 && !loading" class="flex flex-col items-center justify-center py-12 text-center border-t text-zinc-400 bg-zinc-50 border-zinc-100">
                          <mat-icon class="mb-3 icon-size-12 text-zinc-300" [svgIcon]="'heroicons_outline:folder-open'"></mat-icon>
-                        <p class="text-lg font-medium text-zinc-500">{{ t("room.no_matching_data") }}</p>
+                        <p class="text-lg font-medium text-zinc-500">{{ t("payment.no_matching_data") }}</p>
                         <p class="text-sm">Try adjusting your search or filters</p>
                     </div>
                      <!-- Loading State -->
@@ -227,7 +206,7 @@
                 <!-- Footer / Pagination -->
                 <div class="p-2 border-t bg-zinc-50 border-zinc-200">
                     <app-custom-pagination
-                        *ngIf="rooms.length > 0"
+                        *ngIf="payment.length > 0"
                         [totalRecords]="totalRecords"
                         [totalItems]="totalItems"
                         [currentPage]="currentPage"
@@ -246,14 +225,12 @@
 <ng-container #editContainer></ng-container>
 
 <app-generic-add
-    [showDrawer]="showAddRoom"
-    [titleKey]="'room.create'"
+    [showDrawer]="showAddUser"
+    [titleKey]="'payment.create'"
     [fields]="addFields"
     [saveHandler]="addSaveHandler.bind(this)"
-    [optionDestination]="optionsSelect"
-    [optionRadio]="radioAmenityOptions"
     (toggleDrawer)="toggleAddUserDrawer()"
-    [loadData] = "loadRooms.bind(this)"
+    [loadData] = "loadPayments.bind(this)"
     (drawerOpenedChanged)="onAddDrawerOpenedChanged($event)">
 </app-generic-add>
 
@@ -261,9 +238,8 @@
     *ngIf="showDeleteDialog"
     [entityIds]="selectedIds"
     [titleKey]="'content.confirm_delete'"
-    [messageKey]="'customer.dialog.message'"
     [warningKey]="'other.warning_text'"
     [deleteHandler]="deleteHandler.bind(this)"
     (close)="toggleDeleteDialog()"
-    (refresh)="loadRooms()"
+    (refresh)="loadPayments()"
 ></app-generic-delete>

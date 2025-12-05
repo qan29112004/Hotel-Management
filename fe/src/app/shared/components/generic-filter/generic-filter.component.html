@@ -22,7 +22,7 @@
                 (input)="onInputChange(field.name)"
               />
               <datalist *ngIf="field.autocompleteOptions" [id]="field.name + 'List'">
-                <option *ngFor="let option of field.autocompleteOptions" [value]="option"></option>
+                <option *ngFor="let option of field.autocompleteOptions" [ngValue]="option"></option>
               </datalist>
               <div *ngIf="filterForm.get(field.name)?.hasError('invalidPhone') && field.name === 'phone'" class="text-sm text-red-500">
                 {{ t(field.errorMessages?.invalidPhone || 'errors.fields.phone_number_invalid') }}
@@ -38,7 +38,7 @@
                 class="px-3 py-2 text-sm text-gray-700 border rounded"
               >
                 <option value="">{{ t(field.placeholderKey || 'common.select') }}</option>
-                <option *ngFor="let option of optionDestination" [value]="option.id">
+                <option *ngFor="let option of optionDestination[field.name]" [ngValue]="option.id">
                   {{ t(option.name) || option.name }}
                 </option>
               </select>
@@ -48,7 +48,7 @@
                   class="px-3 py-2 text-sm text-gray-700 border rounded"
                 >
                   <option value="">{{ t(field.placeholderKey || 'common.select') }}</option>
-                  <option *ngFor="let option of field.options" [value]="option.id">
+                  <option *ngFor="let option of field.options" [ngValue]="option.id">
                     {{ t(option.name) || option.name }}
                   </option>
                 </select>

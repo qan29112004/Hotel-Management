@@ -206,7 +206,7 @@ def explore_hotels(request):
             
             for room_type in room_types:
                 # Lấy tất cả phòng của room type này
-                all_rooms = room_type.room.filter(status='Available')
+                all_rooms = room_type.room.filter(status='Available', is_lock=False)
                 print("check roomtype: ", room_type)
                 # Đếm số phòng chưa bị book
                 available_count = sum(

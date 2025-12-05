@@ -50,7 +50,7 @@ class BookingSerializer(serializers.ModelSerializer):
         
 class BookingRoomSerializer(serializers.ModelSerializer):
     booking_id = serializers.PrimaryKeyRelatedField(queryset = Booking.objects.all())
-    room_id = serializers.PrimaryKeyRelatedField(queryset = Room.objects.all())
+    room_id = serializers.PrimaryKeyRelatedField(queryset = Room.objects.filter(is_lock=False))
     rate_plan_id = serializers.PrimaryKeyRelatedField(queryset = RatePlan.objects.all())
     class Meta:
         model = BookingRoom

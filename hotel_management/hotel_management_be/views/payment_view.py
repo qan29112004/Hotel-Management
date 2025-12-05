@@ -15,6 +15,7 @@ from rest_framework.decorators import api_view
 from constants.success_codes import SuccessCodes
 from configuration.jwt_config import JwtConfig
 from hotel_management_be.serializers.offer_serializer import *
+from hotel_management_be.serializers.payment_serializer import *
 from django.contrib.auth import authenticate
 from constants.error_codes import ErrorCodes
 from django.contrib.auth.models import update_last_login
@@ -38,6 +39,64 @@ from utils.refund_utils import calculate_refund_amount, can_refund_booking
 from utils.paypal_utils import PayPalService
 from django.utils import timezone
 from datetime import timedelta
+
+
+@auto_schema_post(PaymentSerializer)
+@permission_classes([IsAdminUser])
+@api_view(['POST'])
+def add_payment(request):
+    try:
+        
+        serializers = PaymentSerializer(data=request.data, context={'request':request})
+        if serializers.is_valid():
+            new_payment = serializers.save(created_by = request.user)
+            return AppResponse.success(SuccessCodes.CREATE_AMENITY, data={"data":PaymentSerializer(new_payment).data})
+        return AppResponse.error(ErrorCodes.CREATE_AMENITY_FAIL, serializers.errors)
+    except Exception as e:
+        return AppResponse.error(ErrorCodes.CREATE_AMENITY_FAIL, str(e))
+    
+@auto_schema_patch(PaymentSerializer)
+@permission_classes([IsAdminUser])
+@auto_schema_delete(PaymentSerializer)
+@permission_classes([IsAdminUser])
+@api_view(['PATCH', 'DELETE'])
+def payment_detail(request, uuid):
+    try:
+        payment = Payment.objects.get(uuid__icontains=uuid)
+
+        if request.method == 'PATCH':
+            
+            serializer = PaymentSerializer(payment, data=request.data, partial=True)
+            if serializer.is_valid():
+                with transaction.atomic():
+                    updated = serializer.save(updated_by=request.user)
+                return AppResponse.success(SuccessCodes.UPDATE_AMENITY, data={"data": PaymentSerializer(updated).data})
+            return AppResponse.error(ErrorCodes.UPDATE_AMENITY_FAIL, serializer.errors)
+
+        elif request.method == 'DELETE':
+            
+            payment.delete()
+            return AppResponse.success(SuccessCodes.DELETE_AMENITY)
+
+    except Payment.DoesNotExist:
+        return AppResponse.error(ErrorCodes.NOT_FOUND, "Payment not found")
+    except Exception as e:
+        return AppResponse.error(ErrorCodes.UNKNOWN_ERROR, str(e))
+    
+    
+@auto_schema_post(QuerykitSerializer)
+@permission_classes([IsAdminUser])
+@api_view(['POST'])
+def list_payment(request):
+    try:
+        list_payment = Payment.objects.all()
+        paginated_payment, total = Querykit.apply_filter_paginate_search_sort(request=request, queryset=list_payment).values()
+        serializers = PaymentSerializer(paginated_payment, many=True)
+        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data})
+    except Exception as e:
+        return AppResponse.error(ErrorCodes.LIST_AMENITY_FAIL, str(e))
+    
+    
 
 @api_view(["POST"])
 
@@ -152,7 +211,7 @@ def paypal_capture(request):
         hotel = booking.hotel_id
         # set_booking_room.delay(session_id,booking_id)
         
-        RedisUtils.finalize_booking_success(session_id)
+        RedisUtils.finalize_booking_success(session_id, booking_id)
         payload = {
             "to_email":booking.user_email,
             "transactionId":payment.transaction_id,
@@ -244,7 +303,7 @@ def payment_ipn(request):
         
         hotel = booking.hotel_id
         # set_booking_room.delay(session_id, txn_ref)
-        RedisUtils.finalize_booking_success(session_id)
+        RedisUtils.finalize_booking_success(session_id, txn_ref)
         payload = {
             "to_email":booking.user_email,
             "transactionId":payment.transaction_id,

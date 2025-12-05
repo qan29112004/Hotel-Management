@@ -38,6 +38,7 @@ urlpatterns = [
     path("update/user/<int:id>/", update_user_profile),
     path("delete/user/<int:id>/", delete_user),
     path('upload-image/', upload_image),
+    path('change-password/', change_password),
 
     path('hotel/check-available-room/', check_available_room),
     path('hotel/list/', list_hotel, name='list_hotel'),
@@ -51,6 +52,8 @@ urlpatterns = [
     path('room/list/', list_room, name="list_room"),
     path('room/<str:uuid>/', room_detail, name="add_room_type"),
     path('room/', add_room, name="add_room"),
+    
+    
 
     path('amenity/list/', list_amenity, name='list_amenity'),
     path('amenity/<str:uuid>/', amenity_detail, name="update_amenity"),
@@ -112,6 +115,9 @@ urlpatterns = [
     path("payment/check-expiration/", check_booking_expiration, name="check_booking_expiration"),
     path("payment/refund/", process_refund, name="process_refund"),
     path("payment/refund-info/<str:booking_id>/", get_refund_info, name="get_refund_info"),
+    path('payment/list/', list_payment, name="list_payment"),
+    path('payment/<str:uuid>/', payment_detail, name="add_payment_type"),
+    path('payment/', add_payment, name="add_payment"),
     # path("paypal/capture/", paypal_capture),
     
     

@@ -9,7 +9,9 @@ class Document():
     metadata: dict
 
 class State(dict):
-    question:str
+    question:str  # Câu hỏi gốc (có thể có history)
+    original_question:str  # Câu hỏi gốc KHÔNG có history - dùng cho vector search
+    question_with_history:str  # Câu hỏi có history - dùng cho prompt LLM
     after_sanitize_input:str
     response:str
     retrieve_data:List[Tuple[Document, float]]
