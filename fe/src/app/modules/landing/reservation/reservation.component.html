@@ -1,0 +1,162 @@
+<div class="flex flex-col w-full overflow-y-auto">
+
+    <div class='relative w-full h-[75vh] flex flex-col items-center'>
+        
+        <div class='w-full h-full relative bg-center bg-no-repeat bg-cover flex flex-col items-center justify-center'
+        [style.background-image]="'url('+ ('assets/images/ui/reservation.png')+ ')'">
+            <div class="absolute w-full h-full bg-black/30 z-[0]"></div>
+            <div class="relative flex flex-col h-full w-full justify-center items-center z-[1] max-w-[1920px]">
+                <div class="absolute w-full top-0 flex justify-center items-center py-[20px]">
+                    <img
+                        src="assets/images/logo/logo_icon_hotel.svg"
+                        class="object-contain w-[10%] h-full scale-110 invert brightness-200"
+                        alt="logo"
+                    />
+                    <span class="text-white font-lexend_deca text-[40px]">Luskibeck Hotel</span>
+                </div>
+                <div class="absolute top-2 right-2">
+                    <languages class="scale-120"></languages>
+                </div>
+                <div class="flex flex-col justify-center">
+                    <span class="text-white font-avenir text-[40px]">{{'reservation.title'|transloco}}</span>
+                    <a href="/" class="text-center cursor-pointer underline underline-offset-2 mt-[20px] text-white font-avenir text-[14px] font-bold">{{'reservation.back_to_homepage' |transloco}}</a>
+                </div>
+            </div>
+            <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent"></div>
+        </div>
+        
+        
+    </div>
+    <div class='relative w-full h-[75vh] flex flex-col items-center bg-white'>
+        <div class="w-full flex justify-center mb-[60px]">
+            <div class="p-5 bg-[#f4f4f4] w-full max-w-[1140px]">
+                <div class="p-5 bg-white flex">
+                    <img src="assets/images/ui/reservation-form.png"  class="w-[50%]"/>
+                    <form (ngSubmit)="submit()" [formGroup]="reservationForm" class="flex flex-col p-5 gap-5 w-[50%]">
+                        <span class="font-clearface text-[30px]">{{'reservation.search'|transloco}}</span>
+                        <div class="w-full">
+                            <mat-label class="uppercase font-avenir text-[#787878]">email</mat-label>
+                            <input formControlName="email" type="text" class="!border !border-[#d4d4d4] !rounded-none !w-full !pl-[10px] !font-avenir !text-[#282828] h-[50px]"/>
+                            <small *ngIf="isSubmitted && reservationForm.get('email')?.invalid" class="text-red-500">{{'reservation.validate_email'|transloco}}</small>
+                        </div>
+                        <div class="w-full">
+                            <mat-label class="uppercase font-avenir text-[#787878]">{{'reservation.transaction_id' | transloco}}</mat-label>
+                            <input formControlName="transactionId" type="text" class="!border !border-[#d4d4d4] !rounded-none !w-full !pl-[10px] !font-avenir !text-[#282828] h-[50px]"/>
+                            <small *ngIf="isSubmitted && reservationForm.get('transactionId')?.invalid" class="text-red-500">{{'reservation.validate_transaction_id'|transloco}}</small>
+                        </div>
+                        <button class="w-full bg-yellow-500 text-black py-[10px] font-avenir text-[14px] font-bold">{{'reservation.search'|transloco}}</button>
+                        <span class="font-avenir text-[#787878] text-[12px]">{{'reservation.dont_find_booking'|transloco}}? <span class="underline">{{'reservation.contact_us'|transloco}}</span></span>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div *ngFor="let booking of bookings; let i = index" class="group w-full  max-w-[1140px] bg-white border border-black transition-all duration-500">
+                
+            <!-- Main Card Content -->
+            <div class="flex flex-col md:flex-row">
+                <!-- Image Section -->
+                <div class="w-full md:w-[350px] h-[250px] md:h-auto overflow-hidden relative border-b md:border-b-0 md:border-r border-black">
+                    <img [src]="baseUrl + booking.hotel.thumbnail" class="object-cover w-full h-full transform transition-transform duration-700 group-hover:scale-110" />
+                    <!-- Status Badge Overlay -->
+                    <div [ngClass]="getClassStatus(booking?.status)" class="absolute top-0 left-0 px-4 py-2 font-lexend_deca text-xs uppercase font-bold tracking-widest z-10">
+                        {{booking?.status}}
+                    </div>
+                </div>
+    
+                <!-- Details Section -->
+                <div class="flex-1 p-6 md:p-8 flex flex-col justify-between">
+                    <!-- Top Info -->
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-3xl font-clearface text-black group-hover:text-yellow-600 transition-colors duration-300">
+                                {{booking?.hotel.name}}
+                            </h3>
+                            <span class="font-lexend_deca font-bold text-lg">
+                                {{booking?.priceInVnd| currency:'VND':'symbol':'1.0-0'}} ~{{ booking?.priceInVnd/25000 | currency:'USD':'symbol-narrow':'1.0-2'}}
+                            </span>
+                        </div>
+    
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 mb-6">
+                            <div>
+                                <p class="font-lexend_deca text-[10px] uppercase tracking-widest text-gray-500 mb-1">Location</p>
+                                <p class="font-lexend_deca text-sm text-black border-l-2 border-yellow-500 pl-3">
+                                    {{booking?.hotel.address}}, {{booking?.userCountry}}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="font-lexend_deca text-[10px] uppercase tracking-widest text-gray-500 mb-1">Date</p>
+                                <p class="font-lexend_deca text-sm text-black">
+                                    {{booking?.checkIn}} <span class="mx-2 text-yellow-500">&rarr;</span> {{booking?.checkOut}}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Actions Bar -->
+                    <div class="flex flex-wrap items-center gap-4 mt-4 pt-6 border-t border-gray-100">
+                        <!-- Detail Toggle -->
+                        <button *ngIf="booking?.bookingRoom" 
+                                (click)="booking.showDetails = !booking.showDetails"
+                                class="flex items-center gap-2 font-lexend_deca text-xs font-bold uppercase tracking-widest hover:text-yellow-600 transition-colors">
+                            <span>Room Details</span>
+                            <mat-icon class="text-sm transition-transform duration-300" [class.rotate-180]="booking.showDetails">expand_more</mat-icon>
+                        </button>
+    
+                        <div class="flex-grow"></div>
+                        
+                        
+    
+                    </div>
+                </div>
+            </div>
+    
+            
+    
+            <!-- Room Details Panel (Collapsible) -->
+            <div *ngIf="booking.showDetails || booking?.bookingRoom && selectDetailRoom?.id_bk === i" @slideToggle class="bg-white border-t border-black">
+                <div class="p-6 md:p-8 grid grid-cols-1 gap-6">
+                    <div *ngFor="let room of booking?.bookingRoom; let j = index" class="border border-gray-200 p-4 hover:border-black transition-colors duration-300">
+                        <div class="flex justify-between items-center mb-4 cursor-pointer" (click)="toggleDetailRoom(i,j)">
+                            <h4 class="font-lexend_deca font-bold text-sm uppercase tracking-wider text-black">Room {{j+1}} - {{room.roomTypeName}}</h4>
+                            <mat-icon class="text-gray-400">add</mat-icon>
+                        </div>
+                        
+                        <!-- Detailed Room Info -->
+                        <div *ngIf="selectDetailRoom?.id_bk === i && selectDetailRoom?.id_room === j" @slideToggle>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm font-lexend_deca text-gray-600">
+                                <div>
+                                    <span class="block text-[10px] uppercase text-gray-400 mb-1">Number</span>
+                                    <span class="text-black font-medium">{{room.numberRoom}}</span>
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] uppercase text-gray-400 mb-1">Rate</span>
+                                    <span class="text-black font-medium">{{room.rateName}}</span>
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] uppercase text-gray-400 mb-1">Price</span>
+                                    <span class="text-black font-bold">{{room.price | currency:'VND':'symbol':'1.0-0'}}</span>
+                                </div>
+                            </div>
+    
+                            <!-- Services -->
+                            <div *ngIf="room.services && room.services.length > 0" class="mt-4 pt-4 border-t border-dashed border-gray-300">
+                                <span class="text-[10px] uppercase tracking-widest text-gray-400 block mb-2">Services</span>
+                                <div class="space-y-2">
+                                    <div *ngFor="let service of room.services" class="flex justify-between text-sm font-lexend_deca">
+                                        <span class="text-black">{{service.name}} (x{{service.quantity}})</span>
+                                        <span class="text-black font-medium">{{service.price | currency:'VND':'symbol':'1.0-0'}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            
+    
+        </div>
+    </div>
+    <div class="w-full flex justify-center mb-[60px]">
+    </div>
+</div>

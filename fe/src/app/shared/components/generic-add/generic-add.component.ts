@@ -58,8 +58,7 @@ export class GenericAddComponent implements OnInit {
     @Input() fields: FieldConfig[] = [];
     @Input() saveHandler: (payload: any) => Observable<any> = () => of(null);
     @Input() loadData!: ()=>void;
-    @Input() optionDestination: { id: number; name: string }[] = [];
-    @Input() optionRadio: { id: number; name: string }[] = [];
+    @Input() optionDestination:{ [key: string]: { id: number; name: string }[]} = {};    @Input() optionRadio: { id: number; name: string }[] = [];
     @Input() checkboxOptions: { [fieldName: string]: any[] } = {};
 
     @Output() toggleDrawer = new EventEmitter<void>();

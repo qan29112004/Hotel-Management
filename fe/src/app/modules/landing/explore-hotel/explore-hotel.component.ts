@@ -136,12 +136,13 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
     
 
     this.activeRoute.data.subscribe(data =>{
+      console.log("check param: ", data)
       this.listHotel = data['hotel']?.apiData?.data.data;
       this.searchData = data['hotel']?.searchData;
       this.total = data['hotel']?.apiData?.data.total;
       this.next = data['hotel']?.apiData?.data.next;
       this.previous = data['hotel']?.apiData?.data.previous;
-      this.roomList = data['hotel']?.searchData.rooms;
+      this.roomList = data['hotel']?.searchData.rooms.length > 0 ? data['hotel']?.searchData.rooms: this.roomList;
       this.listExcludeHotel = data['hotel']?.apiData?.data.excludeHotel;
       
       // Load selected facilities from query params or searchData

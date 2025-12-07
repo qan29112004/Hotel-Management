@@ -1129,6 +1129,7 @@
         "create":"Create Hotel",
         "detail":"Hotel Detail",
         "save":"Save",
+        "edit":"Edit",
         "book_now":"Book now",
         "search_placeholder": "Search by hotel name",
         "no_matching_data": "No matching data.",
@@ -1140,7 +1141,22 @@
         "address":"Address",
         "phone":"Phone Number",
         "email":"Email",
-        "rating":"Rating"
+        "rating":"Rating",
+        "enterPhone": "Phone Number",
+        "enterAddress": "Hotel Address",
+        "service": "Services",
+        "enterService": "Select services",
+        "facilities": "Facilities",
+        "enterfacilities": "Select facilities",
+        "enterphone": "Enter phone number",
+        "enterstatus": "Select status",
+        "enterthumbnail": "Choose thumbnail",
+        "enterimages": "Choose gallery images",
+        "enterdestination": "Select destination",
+        "enterlatitude": "Enter latitude",
+        "enterlongitude": "Enter longitude",
+        "latitude":"Latitude",
+        "longitude":"Longtitude"
         
     },
 
@@ -1171,7 +1187,39 @@
         "placeholder_find_country":"Find country.."
     },
     "offer":{
-        "title":"Offer"
+        "title":"Offer",
+        "exclusive":{
+            "title":"Our Exclusive Offer",
+            "introduce":"Discover our flexible offers designed to provide the best value for your stay. Each package includes specific conditions such as minimum booking value, required length of stay, or booking periods within the valid dates. Whether you are traveling for leisure or business, our attractive promotions help you save more while enjoying an elevated hotel experience.",
+            "bonus":[
+                "Smart Savings for Every Journey \nEnjoy a wide selection of flexible offers tailored to match your budget and travel plans. Our promotions feature clear conditions—such as minimum nights or booking value—allowing you to optimize your expenses with confidence while still enjoying a high-quality stay.",
+                "Tailored Promotions for Every Type of Stay \nWe offer a diverse range of promotions designed for various travel purposes. Whether you’re planning a relaxing getaway or a short business trip, each offer comes with compelling discounts and easy-to-understand conditions, giving you the flexibility to choose the perfect deal at the right time.",
+                "Maximum Value – Exceptional Experience \nOur offers are designed to help you make the most of your budget while still enjoying a comfortable and memorable stay. With clearly outlined booking conditions applied during specific periods, you can plan ahead and secure the best rates available for your trip."
+            ]
+        },
+        "management": "Offer Management",
+        "search_placeholder": "Search by code, offer title...",
+        "create": "Create New Offer",
+        "entertitle": "Enter offer title",
+        "code": "Offer Code",
+        "enterCode": "Enter offer code",
+        "description": "Offer Description",
+        "enterDescription": "Enter offer description",
+        "discount_percentage": "Discount Percentage",
+        "enterdiscount_percentage": "Enter discount percentage (0-100)",
+        "start_date": "Offer Start Date",
+        "enterStartDate": "Select start date",
+        "end_date": "Offer End Date",
+        "enterEndDate": "Select end date",
+        "amount_days": "Number of Applicable Days",
+        "is_active": "Active Status",
+        "images": "Offer Images",
+        "enterImages": "Choose images",
+        "hotel": "Applicable Hotel",
+        "enterHotel": "Select hotel",
+        "no_matching_data": "No matching offers found",
+        "detail": "Offer Details",
+        "min_price":"Min price"
     },
     "booking":{
         "title":"Booking",
@@ -1183,6 +1231,63 @@
             "valid":"Valid number phone",
             "invalid":"Invalid number phone"
         },
-        "placeholder_find_country":"Find country.."
+        "placeholder_find_country":"Find country..",
+        "confirm_cancel": "Are you sure you want to cancel the booking?",
+        "cancel": "Cancel",
+        "ok": "OK",
+        "my_bookings": "MY BOOKINGS",
+        "check_in": "Check In",
+        "check_out": "Check Out",
+        "hotel": "Hotel",
+        "sort_by_price": "Sort By Price",
+        "default": "Default",
+        "low_to_high": "Low to High",
+        "high_to_low": "High to Low",
+        "pending": "Pending",
+        "confirm": "Confirm",
+        "cancelled": "Cancelled",
+        "search": "Search",
+        "no_bookings_found": "No bookings found",
+        "refund_options": "Refund Options",
+        "refund_amount": "Refund Amount",
+        "confirm_cancellation": "Confirm Cancellation",
+        "processing": "Processing...",
+        "room": "Room",
+        "number": "Number",
+        "rate": "Rate",
+        "price": "Price",
+        "services": "Services",
+        "write_a_review": "Write a Review",
+        "subject_headline": "Subject Headline",
+        "share_your_experience": "Share your experience...",
+        "submit_review": "Submit Review",
+        "policy_note": "Note on refund policy applied across the system:",
+        "policy_1": "For rooms with Rates that allow refunds, users can refund with the following rules:",
+        "policy_1_1": "Cancel the room within 3 days from the booking date, the user will be refunded 100% of the amount.",
+        "policy_1_2": "Cancel the room in the next 3 days, the user will be refunded based on the refund policy of the Rate for each room in one booking.",
+        "policy_1_3": "After the above 6 days, the user canceling the room will not be refunded any amount.",
+        "policy_2": "For rooms with Rates that do not allow refunds, the user will not be refunded for that room even if requesting a refund at any time.",
+        "select_hotel": "Select Hotel...",
+        "no_hotels_found": "No hotels found"
+        
+    },
+    "reservation": {
+        "title": "Check Your Reservation",
+        "back_to_homepage": "Back to Homepage",
+        "search": "Search",
+        "transaction_id": "Transaction ID / Booking ID",
+        "validate_email": "Please enter a valid email",
+        "validate_transaction_id": "Please enter transaction ID",
+        "dont_find_booking": "Can't find your booking",
+        "contact_us": "Contact us"
+    },
+    "payment":{
+        "success": {
+        "title": "Payment Success",
+        "message": "Your payment has been processed successfully"
+        },
+        "error": {
+        "title": "Payment Error"
+        }
     }
 }

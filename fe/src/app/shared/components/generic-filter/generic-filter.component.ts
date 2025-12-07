@@ -34,9 +34,9 @@ export interface FieldFilterConfig {
     errorMessages?: { [key: string]: string };
     autocompleteOptions?: string[];
     rangeFields?: { from: string; to: string };
-    asyncOptionsKey?:any;
-    isForeingKey?:boolean;
-    relatedName?:string;
+    asyncOptionsKey?: any;
+    isForeingKey?: boolean;
+    relatedName?: string;
 }
 
 @Component({
@@ -64,9 +64,9 @@ export class GenericFilterComponent {
     @Input() showFilter: boolean = false;
     @Input() titleKey: string = 'content.advanced_filters';
     @Input() fields: FieldFilterConfig[] = [];
-    @Input() optionDestination:{ [key: string]: { id: number; name: string }[]} = {};
-    @Input() optionRadio:any[] = [];
-    @Input() optionCheckbox:any[] = [];
+    @Input() optionDestination: { [key: string]: { id: number; name: string }[] } = {};
+    @Input() optionRadio: any[] = [];
+    @Input() optionCheckbox: any[] = [];
     @Input() checkboxOptions: { [fieldName: string]: any[] } = {};
 
     @Output() filter = new EventEmitter<any>();
@@ -74,22 +74,22 @@ export class GenericFilterComponent {
     @Output() close = new EventEmitter<void>();
     @Output() drawerOpenedChanged = new EventEmitter<boolean>();
 
-    
-    baseUrl:string = environment.baseUrl;
+
+    baseUrl: string = environment.baseUrl;
     filterForm: UntypedFormGroup;
     selectedRadioValues: { [key: string]: string[] } = {};
-    listCheckboxValues: string[] = [];
-    displayCheckbox: { [key: string]: string } = {};
+    listCheckboxValues: { [key: string]: any[] } = {};
+    displayCheckbox: { [key: string]: any[] } = {};
 
     constructor(
         private _fb: UntypedFormBuilder,
         private _translocoService: TranslocoService
-    ) {}
+    ) { }
 
     ngOnInit(): void {
         // Tạo form động dựa trên fields
         const controls = this.fields.reduce((controls, field) => {
-            if ((field.type === 'date-range'||field.type === 'range') && field.rangeFields) {
+            if ((field.type === 'date-range' || field.type === 'range') && field.rangeFields) {
                 controls[field.rangeFields.from] = [null, field.validators || []];
                 controls[field.rangeFields.to] = [null, field.validators || []];
             } else {
@@ -128,7 +128,7 @@ export class GenericFilterComponent {
 
         this.fields.forEach(field => {
             console.log("value field: ", field.name)
-            if ((field.type === 'date-range'||field.type === 'range') && field.rangeFields) {
+            if ((field.type === 'date-range' || field.type === 'range') && field.rangeFields) {
                 const from = this.formatDate(formValues[field.rangeFields.from]);
                 const to = this.formatDate(formValues[field.rangeFields.to]);
                 if (from && to) {
@@ -138,24 +138,29 @@ export class GenericFilterComponent {
                         value: [from, to],
                     });
                 }
-            } else if (formValues[field.name] && field.isForeingKey) {
+            } else if (formValues[field.name] !== null &&
+         formValues[field.name] !== undefined &&
+         formValues[field.name] !== "" && field.isForeingKey) {
                 console.log("value field: ", formValues[field.name])
                 filterRules.push({
                     field: field.relatedName || field.name,
                     option: 'in',
                     value: [formValues[field.name]],
                 });
-            }else if (field.type === 'checkbox' && this.listCheckboxValues.length > 0) {
-                filterRules.push({
-                    field: field.relatedName || field.name, 
-                    option: 'in',
-                    value: this.listCheckboxValues,
-                });
-            }
-            else if (formValues[field.name]) {
+            } else if (field.type === 'checkbox' && this.listCheckboxValues[field.name]?.length > 0) {
                 filterRules.push({
                     field: field.relatedName || field.name,
-                    option: typeof formValues[field.name] ==="string" ?'contains':'exact',
+                    option: 'in',
+                    value: this.listCheckboxValues[field.name],
+                });
+            }
+            else if (formValues[field.name] !== null &&
+         formValues[field.name] !== undefined &&
+         formValues[field.name] !== "") {
+                console.log("check value field: ",field.name,formValues[field.name] )
+                filterRules.push({
+                    field: field.relatedName || field.name,
+                    option: typeof formValues[field.name] === "string" ? 'contains' : 'exact',
                     value: formValues[field.name],
                 });
             }
@@ -175,7 +180,7 @@ export class GenericFilterComponent {
             }
         });
         this.displayCheckbox = {};
-        this.listCheckboxValues = [];
+        this.listCheckboxValues = {};
         this.selectedRadioValues = {};
         this.reset.emit();
     }
@@ -201,11 +206,11 @@ export class GenericFilterComponent {
     }
 
     // Xóa giá trị radio khỏi danh sách
-    removeRadioValue(fieldName: string, index: number, value?:any): void {
+    removeRadioValue(fieldName: string, index: number, value?: any): void {
         this.selectedRadioValues[fieldName].splice(index, 1);
         this.filterForm.get(fieldName)?.patchValue(this.selectedRadioValues[fieldName]);
         this.filterForm.get(fieldName)?.updateValueAndValidity();
-        delete this.displayCheckbox[value];
+        this.displayCheckbox[fieldName].splice(index, 1);
     }
 
     getOptionName(field: any, value: any): string {
@@ -216,25 +221,34 @@ export class GenericFilterComponent {
         }
         return '';
     }
-    onCheckboxChange(checked: boolean, fieldName: string, value: any, option?:any) {
+    onCheckboxChange(checked: boolean, fieldName: string, value: any, option?: any) {
         if (!this.selectedRadioValues[fieldName]) {
             this.selectedRadioValues[fieldName] = [];
+            this.listCheckboxValues[fieldName] = [];
+            this.displayCheckbox[fieldName] = []
         }
 
         if (checked) {
             if (!this.selectedRadioValues[fieldName].includes(value)) {
-            this.selectedRadioValues[fieldName].push(value);
-            this.listCheckboxValues.push(value);
-            this.displayCheckbox[option.name] = option.icon;
-            console.log(this.selectedRadioValues, this.listCheckboxValues)
+                this.selectedRadioValues[fieldName].push(value);
+                this.listCheckboxValues[fieldName].push(value);
+                this.displayCheckbox[fieldName].push({
+                    id: value,
+                    name: option.name,
+                    icon: option.icon
+                })
+                console.log("checkbox:", this.displayCheckbox)
+                console.log("check option", option)
             }
+            console.log(this.selectedRadioValues, this.listCheckboxValues)
+
         } else {
             this.selectedRadioValues[fieldName] = this.selectedRadioValues[fieldName].filter(v => v !== value);
-            this.listCheckboxValues = this.listCheckboxValues.filter(v => v !== value);
+            this.listCheckboxValues[fieldName] = this.listCheckboxValues[fieldName].filter(v => v !== value);
             delete this.displayCheckbox[option.name];
         }
 
         // Optional: cập nhật FormControl nếu cần
         // this.form.get(fieldName)?.setValue(this.selectedValues[fieldName]);
-        }
+    }
 }

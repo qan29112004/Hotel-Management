@@ -193,7 +193,7 @@ export const uriConfig = {
     API_SSE : (session_id:string)=> baseUrl + `/api/sse/session/${session_id}/`,
 
     //websocket
-    WEBSOCKET_URL : 'ws://192.168.100.135:8000/ws/chat/',
+    WEBSOCKET_URL : 'ws://localhost:8000/ws/chat/',
 
     //offer
     API_OFFER_ALL: baseUrl + '/api/offer/list/',

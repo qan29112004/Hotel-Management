@@ -1,0 +1,107 @@
+<div class="w-full flex flex-col items-center h-full">
+  <div
+      class="md:min-h-[100svh] h-[100svh] pb-10 bg-center bg-no-repeat bg-cover text-white flex flex-col justify-end items-center relative w-full"
+      [style.background-image]="'url('+ ('assets/images/offer/header.jpg')+ ')'"
+  >
+      <div class="absolute inset-0 bg-black/50"></div>
+      <div class="flex flex-col items-center gap-5 w-full-col z-[1] mb-[20%]">
+          <span class="font-avenir text-[40px] text-white uppercase">{{'offer.exclusive.title' | transloco}}</span>  
+      </div>
+      <!-- Search -->
+
+  </div>
+  <div class="flex flex-col px-16 max-w-[1440px] w-full bg-white -mt-[95px] z-[3] h-24">
+      
+  </div>
+  <div class="flex flex-col px-16 max-w-[1440px] w-full bg-white z-[2] items-center mb-[90px]">
+    <pre class="font-avenir leading-6 text-[16px] font-normal text-center whitespace-pre-wrap break-words">{{'offer.exclusive.introduce'|transloco}}</pre>
+  </div>
+
+  <div class="flex flex-col items-center justify-center text-center bg-white max-w-[1440px] w-full py-12">
+      <div class="relative flex items-center justify-center w-full h-auto max-md:justify-start ">
+          <div class="absolute bg-[#f7f0ea] w-full max-w-[1920px] self-center h-[144px]"></div>
+          <div class="grid grid-cols-3 gap-5 max-w-[80%] max-md:min-w-[900px] z-10 items-stretch">
+              <div *ngFor="let offer of formattedOffers; let i = index" class="p-2 bg-gray-50">
+                  <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
+                      <img class="object-cover w-full" [src]="listImageBonus[i]" alt="curated_hotels" />
+                      <span class="text-black text-[24px] font-semibold font-lexend_deca">{{ offer.firstLine }}</span>
+                      <p class="text-xl text-black font-avenir">{{ offer.otherLines }}</p>
+                      
+                  </div>
+              </div>
+              
+          </div>
+      </div>
+    </div>
+  
+  <div class="grid grid-cols-12 gap-4 auto-rows-[200px]">
+      <div
+      *ngFor="let item of offers; let i = index"
+        class="relative overflow-hidden group cursor-pointer"
+        [ngClass]="getGridClass(i)"
+        (click)="openOfferPopup(item, item.images)"
+      >
+        
+        <img
+          [src]="baseUrl + item.images"
+          class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+        />
+        <div class="absolute p-[10px] top-0 w-full h-full bg-black/20  drop-shadow-xl">
+          <div class="group-hover:border group-hover:border-white transition-all duration-200 p-5 w-full h-full">
+
+            <div class="flex flex-col justify-end  text-white w-full h-full" >
+
+              <h3 class="text-[30px] font-clearface font-semibold leading-9">{{ item.title }} (CODE: {{item.code}})</h3>
+              <p class="text-sm font-avenir underline underline-offset-2 leading-9">VIEW OFFER</p>
+            </div>
+          </div> 
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-col items-center justify-center text-center bg-white max-w-[1440px] w-full py-12">
+      <div class="relative flex items-center justify-center w-full h-auto max-md:justify-start ">
+          <div class="absolute bg-[#f7f0ea] w-full max-w-[1920px] self-center h-[144px]"></div>
+          <div class="grid grid-cols-3 gap-5 max-w-[80%] max-md:min-w-[900px] z-10 items-stretch">
+              <div class="p-2 bg-gray-50">
+                  <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
+                      <img class="object-cover w-full h-48" src="assets/images/home-page/curated_hotels.jpg" alt="curated_hotels" />
+                      <span class="text-black text-[24px] font-semibold font-lexend_deca">{{translocoService.translate('home-page.pioneers.curated_hotels')}}</span>
+                      <p class="text-xl text-black font-avenir">{{translocoService.translate('home-page.pioneers.curated_hotels_content')}}</p>
+                      <div class="flex flex-grow items-end">
+  
+                          <a href="explore-hotels" class="bottom-0  font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Explore Hotels </a>
+                      </div>
+                  </div>
+              </div>
+              <div class="p-2 bg-gray-50">
+                  <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
+                      <img class="object-cover w-full h-48" src="assets/images/home-page/perfectly_matched.jpg" alt="curated_hotels" />
+                      <span class="text-black text-[24px] font-semibold font-lexend_deca">{{translocoService.translate('home-page.pioneers.perfectly_matched')}}</span>
+                      <p class="text-xl text-black font-avenir">{{translocoService.translate('home-page.pioneers.perfectly_matched_content')}}</p>
+                      <div class="flex flex-grow items-end">
+  
+                          <a href="destination" class="bottom-0 font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Discover Destinations </a>
+                      </div>
+                  </div>
+              </div>
+              <div class="p-2 bg-gray-50">
+                  <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
+                      <img class="object-cover w-full h-48" src="assets/images/home-page/balloon.jpg" alt="curated_hotels" />
+                      <span class="text-black text-[24px] font-semibold font-lexend_deca">{{translocoService.translate('home-page.pioneers.emotional_connections')}}</span>
+                      <p class="text-xl text-black font-avenir">{{translocoService.translate('home-page.pioneers.emotional_connections_content')}}</p>
+                      <div class="flex flex-grow items-end">
+  
+                          <a href="#" class="bottom-0  font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Explore Hotels </a>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+    <app-offer-popup 
+        *ngIf="selectedOffer" 
+        [offer]="selectedOffer" 
+        [image]="selectedOfferImage" 
+        (close)="closeOfferPopup()">
+    </app-offer-popup>
+</div>

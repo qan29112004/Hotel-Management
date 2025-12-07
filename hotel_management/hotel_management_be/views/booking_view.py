@@ -100,12 +100,20 @@ def ensure_inventory_for_range(hotel_id, room_type_id, checkin, checkout):
     rt = RoomType.objects.get(uuid=room_type_id)
     set_room_booked = Utils.get_booked_rooms(checkin, checkout)
     available_room = Room.objects.filter(room_type_id=rt, status='Available', is_lock=False).exclude(uuid__in=set_room_booked).count()
+    
     cur = checkin
     today = timezone.now().date()
     while cur < checkout:
         key = RedisUtils.inventory_key(hotel_id, room_type_id, cur.isoformat())
         # chỉ tạo nếu chưa tồn tại
-        RedisUtils.r.set(key, available_room)
+        print(f"check room before setnx: {key}, available from DB: {available_room}")
+        # Use setnx to avoid overwriting existing inventory (which might have holds deducted)
+        is_new = RedisUtils.r.setnx(key, available_room)
+        print(f"setnx result for {key}: {is_new}")
+        
+        # Verify immediately
+        val_check = RedisUtils.r.get(key)
+        print(f"Immediate verification for {key}: {val_check}")
         
         # TTL = (checkout - today).days + 3 ngày dự phòng
         ttl_days = max((checkout - today).days + 3, 3)
@@ -144,7 +152,7 @@ def create_booking_session(request):
             "checkout": checkout,
             "requested_rooms": requested_rooms,
             "expires_at": expires_at,
-            "created_by": request.user if request.user else None
+            "created_by": request.user if request.user.is_authenticated else None
         }
     )
     print("check session request rôm: ", session.requested_rooms)
@@ -157,7 +165,7 @@ def create_booking_session(request):
             "check_in": checkin,
             "check_out": checkout,
             "status": "Pending",
-            "created_by": request.user if request.user else None
+            "created_by": request.user if request.user.is_authenticated else None
         }
     )
     # store minimal session pointer in redis (not mandatory)
@@ -277,6 +285,7 @@ def create_hold(request):
         status='Hold',
         expires_at=timezone.now() + timedelta(seconds=HOLD_TTL_SECONDS)
     )
+    print("check time expired: ", timezone.now() + timedelta(seconds=HOLD_TTL_SECONDS))
 
     # # enqueue event to other systems async (optional)
     # # enqueue_hold_created_event.delay(payload)

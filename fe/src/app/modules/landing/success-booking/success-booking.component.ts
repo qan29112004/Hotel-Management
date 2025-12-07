@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookingService } from 'app/core/admin/booking/booking.service';
 import { formatISODate } from 'app/shared/utils/util';
-
+import { UserService } from 'app/core/profile/user/user.service';
 @Component({
   selector: 'app-success-booking',
   standalone: true,
@@ -12,6 +12,7 @@ import { formatISODate } from 'app/shared/utils/util';
   styles: ``
 })
 export class SuccessBookingComponent implements OnInit {
+  crrUser:any;
   status: 'success' | 'failed' | null = null;
   transactionId: string = '';
   bookingId: string = '';
@@ -47,23 +48,29 @@ export class SuccessBookingComponent implements OnInit {
     "95": "Giao dịch này không thành công bên VNPAY. VNPAY từ chối xử lý yêu cầu.",
     "97": "Chữ ký không hợp lệ",
     "98": "Timeout Exception",
+    "20":"Giao dịch không thành công"
 }
+
+
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
-    this.status = 'success'
+    this.userService.user$.subscribe(user=>{
+      this.crrUser=user;
+    })
     this.route.queryParams.subscribe(params => {
       this.status = params['vnp_ResponseCode'] === '00' || params['response_code'] === '00'?'success':'failed';
       this.transactionId = params['vnp_TransactionNo']? params['vnp_TransactionNo']: params['transaction_id'] || '';
       this.bookingId = params['vnp_TxnRef'] ? params['vnp_TxnRef']: params['booking_id'] || '';
       this.amount = params['vnp_Amount']?params['vnp_Amount']:params['amount'] || 0;
-      this.errorMessage = this.VNPAY_ERROR_CODES[params['vnp_ResponseCode']] || '';
-      this.errorCode = params['error_code'] || '';
+      this.errorMessage = this.VNPAY_ERROR_CODES[params['vnp_ResponseCode']] || this.VNPAY_ERROR_CODES[params['response_code']];
+      this.errorCode = (params['vnp_ResponseCode']?params['vnp_ResponseCode']:params['response_code']) || '';
       if(localStorage.getItem('session_id')){localStorage.removeItem("session_id")}
       if(localStorage.getItem('booking_id')){localStorage.removeItem("booking_id")}
       
@@ -124,7 +131,7 @@ export class SuccessBookingComponent implements OnInit {
     if (!this.bookingDetails?.bookingRoom || this.bookingDetails.bookingRoom.length === 0) {
       return '';
     }
-    const roomTypes = this.bookingDetails.bookingRoom.map((room: any) => room.room_type_name);
+    const roomTypes = this.bookingDetails.bookingRoom.map((room: any) => room.roomTypeName);
     return [...new Set(roomTypes)].join(', ');
   }
 
@@ -149,15 +156,29 @@ export class SuccessBookingComponent implements OnInit {
   }
 
   viewBooking(): void {
-    this.router.navigate(['/my-booking']);
+    if(!this.crrUser){
+      const queryParams = {
+        transactionId:this.transactionId
+      }
+      this.router.navigate(['/reservation'], {queryParams});
+    }else{
+
+      this.router.navigate(['/my-booking']);
+    }
   }
 
   retryPayment(): void {
+    if(!this.crrUser){
+      const queryParams = {
+        transactionId:this.transactionId
+      }
+      this.router.navigate(['/reservation'], {queryParams});
+    }else{
     if (this.bookingId) {
       // Redirect to booking page with booking_id
       this.router.navigate(['/booking'], { 
         queryParams: { booking_id: this.bookingId, retry: true } 
       });
-    }
+    }}
   }
 }

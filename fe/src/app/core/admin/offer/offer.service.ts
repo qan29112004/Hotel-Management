@@ -25,7 +25,7 @@ export class OfferService {
           page_size: res.data?.page_size
         })),
         tap(res=>{
-          this.offer.next(res.data?.data);
+          this.offer.next(res.data);
         }),
         catchError(error => {
           console.error('Error fetching amenities:', error);

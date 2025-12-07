@@ -213,7 +213,7 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
         }});
         this._navigationService.navigation$.subscribe((navigation)=>{
         
-                let includeIds = ['home-page', 'news-feed', 'marketplace', 'list-app', 'destination'];
+                let includeIds = ['home-page', 'news-feed', 'marketplace', 'list-app', 'destination','offer_exclusive', 'reservation'];
                 if (this.crrUser) {
                     
                     
@@ -223,7 +223,8 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
                             'feedback',
                             'destination',
                             'voucher',
-                            'deal'
+                            'deal',
+                            'offer_exclusive'
                         ];
                     } else {
                         includeIds = ['home-page', 'chat', 'destination','deal'];

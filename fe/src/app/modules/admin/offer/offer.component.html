@@ -44,7 +44,7 @@
                             [showFilter]="showFilter"
                             [titleKey]="'content.advanced_filters'"
                             [fields]="filterFields"
-                            [optionDestination]="optionsHotel"
+                            [optionDestination]="optionsSelect"
                             (filter)="onApplyFilter($event)"
                             (reset)="onResetFilter()"
                             (close)="toggleFilterDrawer()"
@@ -238,7 +238,7 @@
     [titleKey]="'offer.create'"
     [fields]="addFields"
     [saveHandler]="addSaveHandler.bind(this)"
-    [optionDestination]="optionsHotel"
+    [optionDestination]="optionsSelect"
     (toggleDrawer)="toggleAddUserDrawer()"
     [loadData] = "loadOffer.bind(this)"
     (drawerOpenedChanged)="onAddDrawerOpenedChanged($event)">

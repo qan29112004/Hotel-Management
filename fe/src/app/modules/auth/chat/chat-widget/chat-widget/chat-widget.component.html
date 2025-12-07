@@ -166,13 +166,14 @@
 
             <!-- Nút gửi (luôn giữ) -->
             <button
+                [disabled]="!messageValue|| messageValue.length ==0 "
                 type="submit"
                 class="flex items-center justify-center w-12 h-12 overflow-hidden text-white transition-all duration-200 transform rounded-full shadow-lg bg-gradient-to-r hover:shadow-xl hover:scale-105 group"
             >
                 <img
                     class="w-6 h-6 object-contain group-hover:translate-x-0.5 transition-transform duration-200"
                     [src]="
-                        true
+                        messageValue
                             ? 'assets/icons/marketplace/Icon Active.svg'
                             : 'assets/icons/marketplace/Icon Disable.svg'
                     "

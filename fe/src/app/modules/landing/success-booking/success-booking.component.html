@@ -35,24 +35,24 @@
                         <span class="font-avenir text-[16px]">{{bookingDetails?.hotel?.name || hotelName}}</span>
                     </div>
 
-                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.check_in">
+                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.checkIn">
                         <span class="font-clearface text-[20px] text-black tracking-wider">Ngày nhận phòng:</span>
-                        <span class="font-avenir text-[16px]">{{formatDateDisplay(bookingDetails.check_in)}}</span>
+                        <span class="font-avenir text-[16px]">{{formatDateDisplay(bookingDetails.checkIn)}}</span>
                     </div>
 
-                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.check_out">
+                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.checkOut">
                         <span class="font-clearface text-[20px] text-black tracking-wider">Ngày trả phòng:</span>
-                        <span class="font-avenir text-[16px]">{{formatDateDisplay(bookingDetails.check_out)}}</span>
+                        <span class="font-avenir text-[16px]">{{formatDateDisplay(bookingDetails.checkOut)}}</span>
                     </div>
 
-                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.total_rooms">
+                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.totalRooms">
                         <span class="font-clearface text-[20px] text-black tracking-wider">Số phòng:</span>
-                        <span class="font-avenir text-[16px]">{{bookingDetails.total_rooms}}</span>
+                        <span class="font-avenir text-[16px]">{{bookingDetails.totalRooms}}</span>
                     </div>
 
-                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.num_guest">
+                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.numGuest">
                         <span class="font-clearface text-[20px] text-black tracking-wider">Số khách:</span>
-                        <span class="font-avenir text-[16px]">{{bookingDetails.num_guest}}</span>
+                        <span class="font-avenir text-[16px]">{{bookingDetails.numGuest}}</span>
                     </div>
 
                     <div class="flex items-center justify-between w-full" *ngIf="getRoomTypeNames()">
@@ -60,10 +60,10 @@
                         <span class="font-avenir text-[16px]">{{getRoomTypeNames()}}</span>
                     </div>
 
-                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.total_price || bookingDetails?.price_in_vnd || amount">
+                    <div class="flex items-center justify-between w-full" *ngIf="bookingDetails?.totalPrice || bookingDetails?.priceInVnd || amount">
                         <span class="font-clearface text-[20px] text-black tracking-wider">Tổng tiền:</span>
                         <span class="font-avenir text-[16px] font-semibold">
-                            {{formatCurrency(bookingDetails?.price_in_vnd || bookingDetails?.total_price || amount)}}
+                            {{bookingDetails?.priceInVnd | currency:'VND':'symbol':'1.0-0'}}~{{bookingDetails?.priceInVnd/25000 | currency:'USD':'symbol-narrow':'1.0-2'}}
                         </span>
                     </div>
                 </div>
@@ -97,8 +97,8 @@
                     <span class="font-avenir text-[16px]">{{bookingId}}</span>
                 </div>
                 <div class="grid grid-cols-2 gap-4 w-full mt-4">
-                    <button type="button" (click)="goHome()" class="px-6 py-3 text-white bg-gray-500 font-clearface text-[17px] hover:bg-gray-600 transition-colors">Trang chủ</button>
-                    <button type="button" (click)="retryPayment()" class="px-6 py-3 text-white bg-red-500 font-clearface text-[17px] hover:bg-red-600 transition-colors">Thanh toán lại</button>
+                    <button type="button" (click)="goHome()" class="px-6 py-3 text-white bg-black font-clearface text-[17px]">Trang chủ</button>
+                    <button type="button" (click)="retryPayment()" class="px-6 py-3 text-white bg-red-500 font-clearface text-[17px]">Thanh toán lại</button>
                 </div>
             </ng-container>
 

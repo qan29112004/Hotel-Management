@@ -313,23 +313,37 @@ export const compactNavigation: FuseNavigationItem[] = [
         link: `my-voucher`
     },
     {
+        id: 'reservation',
+        title:'Reservation',
+        type: 'basic',
+        icon: 'assets/images/ui/booking.svg',
+        link: routeConfig.RESERVATION
+    },
+    {
+        id: 'offer_exclusive',
+        title:'Offer Exclusive',
+        type: 'basic',
+        icon: 'assets/images/ui/exclusive.png',
+        link: routeConfig.OFFER_EXCLUSIVE
+    },
+    {
         id: 'deal',
         title:'Deal',
         type: 'basic',
         icon: 'assets/images/ui/menu/voucher.svg',
         link: `deal`
     },
-    {
-        id: 'feedback',
-        title: 'FeedBack',
-        type: 'sticky',
-        code:'user',
-        icon: 'heroicons_outline:megaphone',
-        function: () => {
-          const event = new CustomEvent('open-feedback');
-          window.dispatchEvent(event);
-        }
-    },
+    // {
+    //     id: 'feedback',
+    //     title: 'FeedBack',
+    //     type: 'sticky',
+    //     code:'user',
+    //     icon: 'heroicons_outline:megaphone',
+    //     function: () => {
+    //       const event = new CustomEvent('open-feedback');
+    //       window.dispatchEvent(event);
+    //     }
+    // },
     {
         id: 'admin.management',
         title: 'Quản lý',

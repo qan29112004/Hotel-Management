@@ -114,17 +114,17 @@ def payment_update_paid(sender, instance, **kwargs):
         elif instance.housekeeping_status == "Cleaned":
             instance.status = "Available"
             
-# @receiver(pre_save, sender=Booking)
-# def track_booking_status_change(sender, instance, **kwargs):
-#     """Track xem status có thay đổi không"""
-#     if instance.pk:  # Chỉ track khi update (không phải create)
-#         try:
-#             old_instance = Booking.objects.get(pk=instance.pk)
-#             instance._old_status = old_instance.status
-#         except Booking.DoesNotExist:
-#             instance._old_status = None
-#     else:
-#         instance._old_status = None
+@receiver(pre_save, sender=Booking)
+def track_booking_status_change(sender, instance, **kwargs):
+    """Track xem status có thay đổi không"""
+    if instance.pk:  # Chỉ track khi update (không phải create)
+        try:
+            old_instance = Booking.objects.get(pk=instance.pk)
+            instance._old_status = old_instance.status
+        except Booking.DoesNotExist:
+            instance._old_status = None
+    else:
+        instance._old_status = None
 @receiver(post_save, sender=Booking)
 def update_status_room_book(sender, instance, **kwargs):
     print(">>> SIGNAL RUNNING <<<")

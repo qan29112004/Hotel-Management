@@ -162,14 +162,14 @@ class Utils:
             raise e
         
     @staticmethod
-    def get_offer_multiplier(hotel, date:None, number_of_day:int=None, min_price:float = None, start_day=None, end_day=None) -> float:
+    def get_offer_multiplier(hotel, date:None, number_of_day:int=0, min_price:float = 0, start_day=None, end_day=None) -> float:
         from hotel_management_be.models.offer import Offer, PriceRule
         from hotel_management_be.models.booking import Booking, BookingRoom
         from hotel_management_be.models.hotel import Room
         
 
         from django.db.models import Q
-        percentage:float = 0
+        percentage:float = 1
         today = timezone.now().date()
         overlap_booking = hotel.hotel_booking.filter(~Q(status__in=['Cancelled', 'Rejected']), Q(check_in__gte=date)& Q(check_out__lte=date),)
         booked_room_uuids = BookingRoom.objects.filter(
@@ -178,19 +178,19 @@ class Utils:
         all_room_hotel = Room.objects.filter(room_type_id__hotel_id = hotel)
         if booked_room_uuids and all_room_hotel:
             per =len(booked_room_uuids)/len(all_room_hotel)
-            print("ckech Per:", per >= 0.5)
             if per >= 0.5:
                 price_rule = PriceRule.objects.get(rule_type = 'Occupancy')
-                percentage += price_rule.multiplier
+                percentage *= price_rule.multiplier
                 print("check per value: ",percentage)
         offers = hotel.offers_hotel.filter(is_active=True)
         for offer in offers:
             if(offer.amount_days and offer.amount_days < number_of_day):
-                percentage += offer.discount_percentage
+                percentage *= offer.discount_percentage
             if(offer.min_price and offer.min_price < min_price):
-                percentage += offer.discount_percentage
-            if((offer.start_date and offer.end_date) and (offer.start_date <= start_day and offer.end_date >= end_day)):
-                percentage += offer.discount_percentage
+                percentage *= offer.discount_percentage
+            if((offer.start_date and offer.end_date) and (offer.start_date <= date and offer.end_date >= date)):
+                percentage *= offer.discount_percentage
+        print("Check discoint: ", percentage)
         return percentage
     
     @staticmethod
@@ -222,8 +222,10 @@ class Utils:
         for i in range((last_day - first_day).days + 1):
             d = first_day + timedelta(days=i)
             final_price = base_price * Decimal(total_guest) * Decimal(len(list_total_room)) * Decimal((0.9 * amount_children)) if amount_children > 0 else base_price * Decimal(total_guest) * Decimal(len(list_total_room))
-            if Utils.get_offer_multiplier(hotel=hotel,date=d) != 0:
-                final_price *= Utils.get_offer_multiplier(hotel=hotel, date=d)
+            print("Check price before pass to func: ", final_price)
+            multiplier = Utils.get_offer_multiplier(hotel=hotel,date=d, min_price=final_price)
+            if multiplier != 0:
+                final_price *= multiplier
             
             is_has_available_room = Utils.check_availavle_room_in_a_date(d, hotel, list_total_room)
             if d.weekday() >=5:
@@ -259,9 +261,9 @@ class Utils:
         holiday_mul = Decimal(next((r.multiplier for r in rules if r.rule_type == "Holiday"), 1))
         result = []
         final_price = base_price * Decimal(total_guest) * Decimal(len(list_total_room)) * Decimal((0.9 * amount_children)) if amount_children > 0 else base_price * Decimal(total_guest) * Decimal(len(list_total_room))
-        if Utils.get_offer_multiplier(hotel=hotel,date=selected_date) != 0:
-            final_price *= Utils.get_offer_multiplier(hotel=hotel, date=selected_date)
-        
+        multiplier = Utils.get_offer_multiplier(hotel=hotel,date=selected_date, min_price=final_price)
+        if multiplier != 0:
+            final_price *= multiplier
         if selected_date.weekday() >=5:
             final_price *= weekend_mul
         if Utils.is_holiday(selected_date):
@@ -281,7 +283,7 @@ class Utils:
         holiday_mul = Decimal(next((r.multiplier for r in rules if r.rule_type == "Holiday"), 1))
         # Tính multiplier sẵn cho từng ngày
         date_multipliers = {}
-        total_days = (check_out - check_in).days +1
+        total_days = (check_out - check_in).days
         for offset in range(total_days):
             day = check_in + timedelta(days=offset)
             mul = Decimal(1)
@@ -298,6 +300,19 @@ class Utils:
         room_type_data = {rt.uuid: RoomTypeSerializer(rt).data for rt in room_types}
 
         print("check room type:",room_type_data )
+        raw_prices = []  # dùng để tìm min_price
+
+        for rt in room_types:
+            base_price = Decimal(rt.base_price or 0)
+
+            for rp in rate_plan:
+                rp_modified = rp.price_modifier
+
+                for day, mul in date_multipliers.items():
+                    raw_price = base_price * mul * rp_modified * total_guest
+                    raw_prices.append(raw_price)
+
+        min_price = min(raw_prices) if raw_prices else Decimal(0)
         # Cache offer multiplier
         offer_mul_cache = {}
         for offset in range(total_days):
@@ -306,7 +321,7 @@ class Utils:
                 hotel=hotel,
                 date=day,
                 number_of_day=total_days,
-                min_price=None,
+                min_price=min_price,
             )
             offer_mul_cache[day] = Decimal(offer_mul or 1)
         # offer_mul_cache = {}
@@ -380,14 +395,12 @@ class Utils:
             ~Q(status__in=['Cancelled', 'Rejected']),
             hotel_id = hotel
         )
-        print('check booking overlap check avail: ', overlapping_bookings)
         
         booked_room_uuids = BookingRoom.objects.filter(
             booking_id__in=overlapping_bookings
         ).exclude(
             status='Release'
         ).values_list('room_id', flat=True)
-        print('check room booking overlap check avail: ', booked_room_uuids)
         
         available_rooms = []
 
@@ -401,7 +414,6 @@ class Utils:
                         "room": room,
                         "capacity": rt.max_occupancy
                     })
-        print('check available room overlap: ', available_rooms, len(room_requirements))
         if len(available_rooms) < len(room_requirements):
             return False
     
@@ -412,7 +424,6 @@ class Utils:
 
             for i, room_info in enumerate(available_rooms):
                 if room_info["capacity"] >= required_capacity:
-                    print("check capacity: ",room_info["capacity"], required_capacity, room_info["capacity"] >= required_capacity )
                     # Chọn phòng này, xoá khỏi list
                     available_rooms.pop(i)
                     found = True

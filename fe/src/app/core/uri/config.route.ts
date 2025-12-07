@@ -104,5 +104,7 @@ export const routeConfig = {
     PRICE_RULE:"price-rule",
     DEAL:"deal",
     MY_CLUB:"my-club",
-    PAYMENT:'payment'
+    PAYMENT:'payment',
+    RESERVATION:"reservation",
+    OFFER_EXCLUSIVE: 'offer-exclusive'
 };

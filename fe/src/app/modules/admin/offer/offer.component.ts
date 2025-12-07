@@ -111,7 +111,7 @@ export class OfferComponent implements OnInit {
     {
         name: 'startDate',
         labelKey: 'offer.start_date',
-        type: 'text',
+        type: 'date',
         placeholderKey: 'offer.enterStartDate',
         
         
@@ -119,9 +119,16 @@ export class OfferComponent implements OnInit {
     {
         name: 'endDate',
         labelKey: 'offer.end_date',
-        type: 'text',
+        type: 'date',
         placeholderKey: 'offer.enterEndDate',
         
+        
+    },
+    {
+        name: 'minPrice',
+        labelKey: 'offer.min_price',
+        type: 'number',
+        placeholderKey: 'offer.entermin_price',
         
     },
     {
@@ -188,12 +195,13 @@ export class OfferComponent implements OnInit {
         type: 'number',
         placeholderKey: 'offer.enterdiscount_percentage',
         required: true,
+        helpText:"Tính từ 0 đến 2"
         
     },
     {
         name: 'startDate',
         labelKey: 'offer.start_date',
-        type: 'text',
+        type: 'date',
         placeholderKey: 'offer.enterStartDate',
         
         
@@ -201,9 +209,16 @@ export class OfferComponent implements OnInit {
     {
         name: 'endDate',
         labelKey: 'offer.end_date',
-        type: 'text',
+        type: 'date',
         placeholderKey: 'offer.enterEndDate',
         
+        
+    },
+    {
+        name: 'minPrice',
+        labelKey: 'offer.min_price',
+        type: 'number',
+        placeholderKey: 'offer.entermin_price',
         
     },
     {
@@ -214,7 +229,7 @@ export class OfferComponent implements OnInit {
           {id:true, name:"True"},
           {id:false, name:"False"}
         ],
-        placeholderKey: 'offer.enterEndDate',
+        placeholderKey: 'offer.is_active',
     },
     {
         name: 'amountDays',
@@ -241,12 +256,15 @@ export class OfferComponent implements OnInit {
 
   filterFields: FieldFilterConfig[] = [
       {
-          name: 'title',
-          labelKey: 'offer.title',
-          type: 'text',
-          placeholderKey: 'offer.enterTitle',
-          autocompleteOptions: [], // Sẽ được cập nhật động
-      },
+        name: 'is_active',
+        labelKey: 'offer.is_active',
+        type: 'select',
+        options:[
+          {id:true, name:"True"},
+          {id:false, name:"False"}
+        ],
+        placeholderKey: 'offer.is_active',
+    },
       {
           name: 'created_at',
           labelKey: 'user_management.created_at',
@@ -273,7 +291,7 @@ export class OfferComponent implements OnInit {
   user:User
   selectedDes:Offer = null;
   selectedIds: string[] = [];
-  optionsHotel:any[];
+  optionsSelect:any={};
   offers: Offer[] = [];
   hasSelectedOffer:boolean= false;
   displayedColumns: string[] = ['name', 'description', 'actions'];
@@ -357,8 +375,8 @@ export class OfferComponent implements OnInit {
           }
           )
       ).subscribe(hotels=>{
-        this.optionsHotel = hotels;
-        console.log("optionHotel", this.optionsHotel)
+        this.optionsSelect['hotel'] = hotels;
+        console.log("optionHotel", this.optionsSelect)
       })
     }else{
       this.hotelService.getAllHotels({"page_size":0}).pipe(
@@ -374,8 +392,8 @@ export class OfferComponent implements OnInit {
           }
           )
       ).subscribe(res=>{
-        this.optionsHotel = res;
-        console.log("optionHotel", this.optionsHotel)
+        this.optionsSelect['hotel'] = res;
+        console.log("optionHotel", this.optionsSelect)
       })
     }
   }
@@ -570,7 +588,7 @@ export class OfferComponent implements OnInit {
         instance.entityData = this.selectedDes;
         instance.saveHandler = this.saveHandler.bind(this);
         instance.loadData = this.loadOffer.bind(this);
-        instance.optionDestination = this.optionsHotel;
+        instance.optionDestination = this.optionsSelect;
 
         // ✅ Lắng nghe sự kiện Output
         instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());

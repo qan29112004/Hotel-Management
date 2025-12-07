@@ -339,16 +339,16 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
         // alert(" Thanh toán thành công! Mã giao dịch: " + result.transactionId);
         // localStorage.removeItem('session_id')
         const queryParams: { [key: string]: any } = {};
-        queryParams.transaction_id = result.transactionId;
-        queryParams.amount = result.amount;
-        queryParams.response_code = result.responseCode;
-        queryParams.booking_id = result.bookingId;
-        // this.router.navigate(['booking/success'], {queryParams})
+        queryParams.transaction_id = result.data.transactionId;
+        queryParams.amount = result.data.amount;
+        queryParams.response_code = result.data.responseCode;
+        queryParams.booking_id = result.data.bookingId;
+        this.router.navigate(['booking/success'], {queryParams})
         console.log("check querypram: ", queryParams)
       },
 
       onCancel: (data: any) => {
-        alert(" Bạn đã hủy thanh toán.");
+        console.log("check data when cancle payment: ", data)
       },
 
       onError: (err: any) => {

@@ -57,6 +57,7 @@ import { SelectCountryComponent } from '../select-country/select-country.compone
     templateUrl: './generic-edit.component.html',
 })
 export class GenericEditComponent implements OnInit {
+    today = new Date();
     @Input() showDrawer: boolean = false;
     @Input() titleKey: string = 'common.edit';
     @Input() fields: FieldConfig[] = [];

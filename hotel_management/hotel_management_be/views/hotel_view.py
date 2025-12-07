@@ -14,6 +14,9 @@ from rest_framework.decorators import api_view
 from constants.success_codes import SuccessCodes
 from configuration.jwt_config import JwtConfig
 from hotel_management_be.serializers.hotel_serializer import *
+from hotel_management_be.models.booking import Booking
+from datetime import date
+
 from django.contrib.auth import authenticate
 from constants.error_codes import ErrorCodes
 from django.contrib.auth.models import update_last_login
@@ -104,6 +107,21 @@ def hotel_detail(request, uuid):
             return AppResponse.error(ErrorCodes.UPDATE_DESTINATION_FAIL, serializer.errors)
 
         elif request.method == 'DELETE':
+            # Check for active bookings
+            today = date.today()
+            active_bookings = Booking.objects.filter(
+                hotel_id=hotel,
+                check_out__gte=today,
+                status__in=['Pending', 'Confirm', 'Check In']
+            ).exists()
+            
+            if active_bookings:
+                 return AppResponse.error(
+                    ErrorCodes.VALIDATION_ERROR, 
+                    "Cannot delete hotel. There are active bookings associated with this hotel."
+                )
+
+
             hotel_images = HotelImage.objects.filter(hotel=hotel)
             print("hotel_images", hotel_images)
             for img in hotel_images:
@@ -195,7 +213,7 @@ def explore_hotels(request):
             total_price = 0
             # Lấy tất cả room types của hotel
             if check_in and check_out:
-                for i in range((check_out_date - check_in_date).days + 1):
+                for i in range((check_out_date - check_in_date).days):
                     date = check_in_date + timedelta(days=i)
                     total_price += Utils.compute_price_explore_hotel(hotel.uuid, date, sum(room_requirements), room_requirements, count_children)
             room_types = hotel.RoomType.all()

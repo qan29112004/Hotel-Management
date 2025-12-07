@@ -346,8 +346,10 @@ class RedisUtils:
             dates.append(cur.isoformat())
             cur = cur + timedelta(days=1)
         keys = [RedisUtils.inventory_key(hotel_id, room_type_id, d) for d in dates]
+        print(f"DEBUG: atomic_increment keys: {keys}, quantity: {quantity}")
         
-        RedisUtils.atomic_multi_incr(keys=keys, args=[str(quantity)])
+        res = RedisUtils.atomic_multi_incr(keys=keys, args=[str(quantity)])
+        print(f"DEBUG: atomic_increment result: {res}")
         return True
 
     # Utility to init inventory from DB if missing for given date (optional)

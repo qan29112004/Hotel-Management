@@ -100,7 +100,7 @@ export class HotelComponent implements OnInit {
   showFilterModal: boolean = false;
   showDeleteDialog: boolean = false;
 
-  optionsDestination: any = [];
+  optionsSelect: any = [];
   checkboxOption: any = {};
 
   fields: FieldConfig[] = [
@@ -115,28 +115,28 @@ export class HotelComponent implements OnInit {
         name: 'name',
         labelKey: 'hotel.name',
         type: 'text',
-        placeholderKey: 'destination.enterFullName',
+        placeholderKey: 'hotel.enterFullName',
         required: true,
     },
     {
         name: 'description',
         labelKey: 'hotel.description',
         type: 'textarea',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'hotel.enterdDescription',
         required: true,
     },
     {
         name: 'phone',
         labelKey: 'hotel.enterPhone',
         type: 'text',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'hotel.enterphone',
         required: true,
     },
     {
         name: 'address',
         labelKey: 'hotel.enterAddress',
         type: 'text',
-        placeholderKey: 'destination.enterAddress',
+        placeholderKey: 'hotel.enterAddress',
         required: true,
     },
     {
@@ -147,41 +147,43 @@ export class HotelComponent implements OnInit {
             { id: 'Active', name: 'Active' },
             { id: 'Inactive', name: 'Inactive' }
         ],
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'hotel.enterstatus',
     },
     {
         name: 'thumbnail',
         labelKey: 'hotel.thumbnail',
         type: 'file',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'hotel.enterthumbnail',
         accept: 'image/*',
     },
     {
         name: 'images',
         labelKey: 'hotel.images',
         type: 'files',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'hotel.enterimages',
         accept: 'image/*',
     },
     {
         name: 'destination',
-        labelKey: 'destination.name',
+        labelKey: 'hotel.destination',
         type: 'select',
-        placeholderKey: 'destination.enterFullName',
+        placeholderKey: 'hotel.enterdestination',
         asyncOptionsKey: true,
         isForeignKey: true
     },
     {
         name: 'latitude',
-        labelKey: 'destination.description',
+        labelKey: 'hotel.latitude',
         type: 'number',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'hotel.enterlatitude',
+        required:true
     },
     {
         name: 'longitude',
-        labelKey: 'destination.description',
+        labelKey: 'hotel.longitude',
         type: 'number',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'hotel.enterlongitude',
+        required:true
     },
     {
         name: 'service',
@@ -202,41 +204,34 @@ export class HotelComponent implements OnInit {
   ];
 
   addFields: FieldConfig[] = [
+    
+    
     {
         name: 'name',
         labelKey: 'hotel.name',
         type: 'text',
-        placeholderKey: 'destination.enterFullName',
+        placeholderKey: 'hotel.enterFullName',
         required: true,
-        errorMessages: {
-            required: 'hotel.requiredName',
-        }
     },
     {
         name: 'description',
         labelKey: 'hotel.description',
         type: 'textarea',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'hotel.enterdDescription',
         required: true,
-        errorMessages: {
-            required: 'hotel.requiredDescription',
-        }
     },
     {
         name: 'phone',
         labelKey: 'hotel.enterPhone',
         type: 'text',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'hotel.enterphone',
         required: true,
-        errorMessages: {
-            required: 'hotel.requiredPhone',
-        }
     },
     {
         name: 'address',
         labelKey: 'hotel.enterAddress',
         type: 'text',
-        placeholderKey: 'destination.enterAddress',
+        placeholderKey: 'hotel.enterAddress',
         required: true,
     },
     {
@@ -244,44 +239,46 @@ export class HotelComponent implements OnInit {
         labelKey: 'hotel.status',
         type: 'select',
         options: [
-          { id: 'Active', name: 'Active' },
-          { id: 'Inactive', name: 'Inactive' }
+            { id: 'Active', name: 'Active' },
+            { id: 'Inactive', name: 'Inactive' }
         ],
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'hotel.enterstatus',
     },
     {
         name: 'thumbnail',
         labelKey: 'hotel.thumbnail',
         type: 'file',
-        placeholderKey: 'hotel.chooseThumbnail',
+        placeholderKey: 'hotel.enterthumbnail',
         accept: 'image/*',
     },
     {
         name: 'images',
         labelKey: 'hotel.images',
         type: 'files',
-        placeholderKey: 'hotel.chooseImages',
+        placeholderKey: 'hotel.enterimages',
         accept: 'image/*',
     },
     {
         name: 'destination',
-        labelKey: 'destination.name',
+        labelKey: 'hotel.destination',
         type: 'select',
-        placeholderKey: 'destination.enterFullName',
+        placeholderKey: 'hotel.enterdestination',
         asyncOptionsKey: true,
         isForeignKey: true
     },
     {
         name: 'latitude',
-        labelKey: 'destination.description',
+        labelKey: 'hotel.latitude',
         type: 'number',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'hotel.enterlatitude',
+        required:true
     },
     {
         name: 'longitude',
-        labelKey: 'destination.description',
+        labelKey: 'hotel.longitude',
         type: 'number',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'hotel.enterlongitude',
+        required:true
     },
     {
         name: 'service',
@@ -321,9 +318,9 @@ export class HotelComponent implements OnInit {
     },
     {
         name: 'destination',
-        labelKey: 'destination.description',
+        labelKey: 'hotel.description',
         type: 'select',
-        placeholderKey: 'destination.enterdDescription',
+        placeholderKey: 'hotel.enterDescription',
         asyncOptionsKey: true,
         isForeingKey: true
     },
@@ -339,7 +336,7 @@ export class HotelComponent implements OnInit {
       name: 'facilities',
       labelKey: 'hotel.facilities',
       type: 'checkbox',
-      placeholderKey: 'hotel.enterService',
+      placeholderKey: 'hotel.enterfacilities',
       relatedName: "hotel_facilities__facilities__uuid",
       asyncOptionsKey: true,
   },
@@ -373,8 +370,8 @@ export class HotelComponent implements OnInit {
         return []; 
       })
     ).subscribe((options) => {
-      this.optionsDestination = options;
-      console.log("destination options:", this.optionsDestination);
+      this.optionsSelect['destination'] = options;
+      console.log("destination options:", this.optionsSelect);
     });
     this.userService.user$.subscribe((user) => {
       this.user = user;
@@ -574,7 +571,7 @@ export class HotelComponent implements OnInit {
         instance.entityData = this.selectedHotel;
         instance.saveHandler = this.saveHandler.bind(this);
         instance.loadData = this.loadHotels.bind(this);
-        instance.optionDestination = this.optionsDestination;
+        instance.optionDestination = this.optionsSelect;
         instance.checkboxOptions = this.checkboxOption;
 
         instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());

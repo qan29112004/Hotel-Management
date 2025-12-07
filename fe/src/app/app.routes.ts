@@ -70,6 +70,13 @@ export const appRoutes: Route[] = [
                     import('app/modules/auth/sign-in/sign-in.routes'),
             },
             {
+                path: routeConfig.RESERVATION,
+                data: { title: 'reservation.title' },
+                loadChildren: () =>
+                    import('app/modules/landing/reservation/reservation.route'),
+            },
+            
+            {
                 path: routeConfig.AUTH_CREATE_ACC,
                 data: { title: 'create_account.title' },
                 loadChildren: () =>
@@ -112,29 +119,7 @@ export const appRoutes: Route[] = [
                     ),
             },
             
-            {
-                path: routeConfig.NEWS_FEED,
-                data: { title: 'news-feed.title' },
-                loadChildren: () =>
-                    import('app/modules/auth/news-feed/news-feed.routes'),
-            },
-            {
-                path: routeConfig.LIST_APP,
-                data: { title: 'list-app.title' },
-                loadChildren: () =>
-                    import('app/modules/auth/list-app/list-app.routes'),
-            },
-            {
-                path: routeConfig.MARKETPLACE,
-                data: { title: 'marketplace.title' },
-                loadChildren: () => import('app/modules/auth/marketplace/marketplace.routes'),
-                
-            },
-            {
-                path: routeConfig.USER_FEEDBACK,
-                data: {title: 'FeedBack'},
-                loadChildren: () => import('app/modules/auth/feedback/feedback.routers'),
-            },
+            
             {
                 path: routeConfig.MY_BOOKING,
                 data: {title: 'My Booking'},
@@ -215,14 +200,7 @@ export const appRoutes: Route[] = [
                         loadChildren: () =>
                             import('app/modules/admin/dashboard/dashboard.routes'),
                     },
-                    {
-                        path: routeConfig.APP_TYPE,
-                        data: { title: 'app_type.title' },
-                        loadChildren: () =>
-                            import(
-                                'app/modules/admin/app-type/app-type.routes'
-                            ),
-                    },
+                    
                     {
                         path: routeConfig.USER_MANAGEMENT,
                         data: { title: 'user_management.title' },
@@ -231,52 +209,7 @@ export const appRoutes: Route[] = [
                                 'app/modules/admin/user-management/user-management.route'
                             ),
                     },
-                    {
-                        path: routeConfig.PERSONAL_CUSTOMER,
-                        data: { title: 'personal_customer.title' },
-                        loadChildren: () =>
-                            import(
-                                'app/modules/admin/personal-customer/personal-customer.route'
-                            ),
-                    },
-                    {
-                        path: routeConfig.EDIT_FORM_TEMPLATE,
-                        data: { title: 'edit_form.title' },
-                        loadChildren: () =>
-                            import(
-                                'app/modules/admin/personal-customer/edit-form-template/edit-form-template.route'
-                            ),
-                    },
-                    {
-                        path: routeConfig.NEWS,
-                        data: { title: 'news.title' },
-                        loadChildren: () =>
-                            import('app/modules/admin/news/news.routes'),
-                    },
-                    {
-                        path: routeConfig.ADD_NEWS,
-                        data: { title: 'news.add_news' },
-                        loadChildren: () =>
-                            import(
-                                'app/modules/admin/add-news/add-news.routes'
-                            ),
-                    },
-                    {
-                        path: routeConfig.EDIT_NEWS,
-                        data: { title: 'news.edit_news' },
-                        loadChildren: () =>
-                            import(
-                                'app/modules/admin/edit-news/edit-news.routes'
-                            ),
-                    },
-                    {
-                        path: routeConfig.NEWS_DETAIL,
-                        data: { title: 'news_detail.title' },
-                        loadChildren: () =>
-                            import(
-                                'app/modules/admin/news-detail/news-detail.routes'
-                            ),
-                    },
+                    
                     {
                         path: routeConfig.CONTENT,
                         data: { title: 'Training Content' },
@@ -354,21 +287,7 @@ export const appRoutes: Route[] = [
                         loadChildren: () =>
                             import('app/modules/admin/payment/payment.route'),
                     },
-                    {
-                        path: routeConfig.ADMIN_FEEDBACK,
-                        data: { title: 'FeedBack' },
-                        loadChildren: () =>
-                            import('app/modules/admin/feedback/feedback.routers'),
-                    },
-
-                    {
-                        path: routeConfig.NEWS_CATEGORY,
-                        data: { title: 'news_category.title' },
-                        loadChildren: () =>
-                            import(
-                                'app/modules/admin/news-category/news-category.routes'
-                            ),
-                    },
+                    
                     {
                         path: routeConfig.VOUCHER,
                         data: { title: 'voucher.title' },
@@ -386,28 +305,7 @@ export const appRoutes: Route[] = [
                             ),
                     },
                     
-                    {
-                        path: routeConfig.MARKET_MANAGEMENT,
-                        children: [
-                            {
-                                path: routeConfig.CATEGORY_MANAGEMENT,
-                                data: { title: '' },
-                                loadChildren: () =>
-                                    import(
-                                        'app/modules/admin/market/product-category/product-category.routes'
-                                    ),
-                            },
-                            {
-                                path: routeConfig.PRODUCT_MANAGEMENT,
-                                data: { title: '' },
-                                loadChildren: () =>
-                                    import(
-                                        'app/modules/admin/market/product-management/product-management.routes'
-                                    ),
-                            },
-                        ],
-                        
-                    },
+                    
                     
                 ],
             },
@@ -482,7 +380,7 @@ export const appRoutes: Route[] = [
             {
                 path: 'booking',
                 canActivate: [QueryParamGuard] ,
-                data: { title: 'home-page.title' },
+                data: { title: 'booking.title' },
                 loadChildren: () =>
                     import('app/modules/landing/booking/booking.routes'),
             },
@@ -501,6 +399,7 @@ export const appRoutes: Route[] = [
                 loadChildren: () =>
                     import('app/modules/landing/hotel-particular/hotel-particular.routes'),
             },
+            
             {
                 path: 'booking/success',
                 data: { title: 'home-page.title' },
@@ -512,6 +411,12 @@ export const appRoutes: Route[] = [
                 data: { title: 'offer.title' },
                 loadChildren: () =>
                     import('app/modules/landing/offer-detail/offer-detail.route'),
+            },
+            {
+                path: routeConfig.OFFER_EXCLUSIVE,
+                data: { title: 'offer_exclusive.title' },
+                loadChildren: () =>
+                    import('app/modules/landing/offer-exclusive/offer-exclusive.route'),
             },
             {
                 path: routeConfig.DEAL,

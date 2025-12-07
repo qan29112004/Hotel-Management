@@ -139,28 +139,28 @@
         
 
         <div class="w-full text-center font-clearface text-[35px] mt-[60px] mb-[10px]">Khám phá các ưu đãi thông qua Luskibeck Hotel</div>
-        <div class="grid grid-cols-2 w-full !h-[750px] px-16 gap-[20px] max-w-[1440px] mb-[45px]">
-            <div class="w-full h-full grid grid-cols-2 gap-[20px]">
-                <div class="relative bg-center bg-no-repeat bg-cover flex flex-col justify-center items-center col-span-2" [style.background-image]="'url('+ ('assets/images/home-page/offer_4.jpg')+ ')'">
-                    <div class="absolute w-full h-full bg-black/20 z-[0]"></div>
-                    <span class="z-[1] font-clearface text-white text-[30px]">Save 20% off</span>
-                    <span class="z-[1] font-avenir text-white text-[20px] underline">View offer</span>
+        <div class="grid grid-cols-12 gap-4 auto-rows-[200px]">
+            <div
+            *ngFor="let item of offers; let i = index"
+            class="relative overflow-hidden group cursor-pointer"
+            [ngClass]="getGridClass(i)"
+            (click)="openOfferPopup(item, item.images)"
+            >
+            
+            <img
+                [src]="baseUrl + item.images"
+                class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+            />
+            <div class="absolute p-[10px] top-0 w-full h-full bg-black/20  drop-shadow-xl">
+                <div class="group-hover:border group-hover:border-white transition-all duration-200 p-5 w-full h-full">
+
+                <div class="flex flex-col justify-end  text-white w-full h-full" >
+
+                    <h3 class="text-[30px] font-clearface font-semibold leading-9">{{ item.title }} (CODE: {{item.code}})</h3>
+                    <p class="text-sm font-avenir underline underline-offset-2 leading-9">VIEW OFFER</p>
                 </div>
-                <div class="relative bg-center bg-no-repeat bg-cover flex flex-col justify-center items-center" [style.background-image]="'url('+ ('assets/images/home-page/offer_2.jpg')+ ')'">
-                    <div class="absolute w-full h-full bg-black/20 z-[0]"></div>
-                    <span class="z-[1] font-clearface text-white text-[30px]">Stay longer</span>
-                    <span class="z-[1] font-avenir text-white text-[20px] underline">View offer</span>
-                </div>
-                <div class="relative bg-center bg-no-repeat bg-cover flex flex-col justify-center items-center" [style.background-image]="'url('+ ('assets/images/home-page/offer_3.jpg')+ ')'">
-                    <div class="absolute w-full h-full bg-black/20 z-[0]"></div>
-                    <span class="z-[1] font-clearface text-white text-[30px]">Honeymoon</span>
-                    <span class="z-[1] font-avenir text-white text-[20px] underline">View offer</span>
-                </div>
+                </div> 
             </div>
-            <div class="relative bg-center bg-no-repeat bg-cover flex flex-col justify-center items-center w-full h-full" [style.background-image]="'url('+ ('assets/images/home-page/offer_1.jpg')+ ')'">
-                <div class="absolute w-full h-full bg-black/20 z-[0]"></div>
-                <span class="z-[1] font-clearface text-white text-[30px]">Save 30% off</span>
-                    <span class="z-[1] font-avenir text-white text-[20px] underline">View offer</span>
             </div>
         </div>
         <div class="flex flex-col items-center justify-center w-full">
@@ -180,37 +180,37 @@
                 <span class="text-[60px] font-classy text-[#9e693d] mb-[35px]">Pioneers in Boutique Luxury</span>
                 <div class="relative flex items-center justify-center w-full h-auto max-md:justify-start ">
                     <div class="absolute bg-[#f7f0ea] w-full max-w-[1920px] self-center h-[144px]"></div>
-                    <div class="grid grid-cols-3 gap-2 max-w-[80%] max-md:min-w-[900px] z-10 items-stretch">
+                    <div class="grid grid-cols-3 gap-5 max-w-[80%] max-md:min-w-[900px] z-10 items-stretch">
                         <div class="p-2 bg-gray-50">
                             <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
                                 <img class="object-cover w-full h-48" src="assets/images/home-page/curated_hotels.jpg" alt="curated_hotels" />
-                                <span class="text-black ext-2xl font-lexend_deca">{{translocoService.translate('home-page.pioneers.curated_hotels')}}</span>
+                                <span class="text-black text-[24px] font-semibold font-lexend_deca">{{translocoService.translate('home-page.pioneers.curated_hotels')}}</span>
                                 <p class="text-xl text-black font-avenir">{{translocoService.translate('home-page.pioneers.curated_hotels_content')}}</p>
                                 <div class="flex flex-grow items-end">
 
-                                    <a href="#" class="bottom-0 text-base font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Explore Hotels </a>
+                                    <a href="explore-hotels" class="bottom-0  font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Explore Hotels </a>
                                 </div>
                             </div>
                         </div>
                         <div class="p-2 bg-gray-50">
                             <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
                                 <img class="object-cover w-full h-48" src="assets/images/home-page/perfectly_matched.jpg" alt="curated_hotels" />
-                                <span class="text-black ext-2xl font-lexend_deca">{{translocoService.translate('home-page.pioneers.perfectly_matched')}}</span>
+                                <span class="text-black text-[24px] font-semibold font-lexend_deca">{{translocoService.translate('home-page.pioneers.perfectly_matched')}}</span>
                                 <p class="text-xl text-black font-avenir">{{translocoService.translate('home-page.pioneers.perfectly_matched_content')}}</p>
                                 <div class="flex flex-grow items-end">
 
-                                    <a href="#" class="bottom-0 text-base font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Discover Destinations </a>
+                                    <a href="destination" class="bottom-0 font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Discover Destinations </a>
                                 </div>
                             </div>
                         </div>
                         <div class="p-2 bg-gray-50">
                             <div class="flex flex-col items-center justify-start flex-grow h-full gap-4 pb-6 text-center bg-white">
                                 <img class="object-cover w-full h-48" src="assets/images/home-page/balloon.jpg" alt="curated_hotels" />
-                                <span class="text-black ext-2xl font-lexend_deca">{{translocoService.translate('home-page.pioneers.emotional_connections')}}</span>
+                                <span class="text-black text-[24px] font-semibold font-lexend_deca">{{translocoService.translate('home-page.pioneers.emotional_connections')}}</span>
                                 <p class="text-xl text-black font-avenir">{{translocoService.translate('home-page.pioneers.emotional_connections_content')}}</p>
                                 <div class="flex flex-grow items-end">
 
-                                    <a href="#" class="bottom-0 text-base font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Explore Hotels </a>
+                                    <a href="#" class="bottom-0  font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Explore Hotels </a>
                                 </div>
                             </div>
                         </div>
@@ -219,4 +219,11 @@
             </div>
         </div>
     </div>
+    
+    <app-offer-popup 
+        *ngIf="selectedOffer" 
+        [offer]="selectedOffer" 
+        [image]="selectedOfferImage" 
+        (close)="closeOfferPopup()">
+    </app-offer-popup>
 </div>

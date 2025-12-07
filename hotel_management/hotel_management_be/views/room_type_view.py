@@ -16,6 +16,9 @@ from constants.success_codes import SuccessCodes
 from configuration.jwt_config import JwtConfig
 from hotel_management_be.serializers.hotel_serializer import *
 from hotel_management_be.serializers.room_serializer import *
+from hotel_management_be.models.booking import BookingRoom, Booking
+from datetime import date
+
 from django.contrib.auth import authenticate
 from constants.error_codes import ErrorCodes
 from django.contrib.auth.models import update_last_login
@@ -98,6 +101,20 @@ def room_detail(request, uuid):
         room = Room.objects.get(uuid__icontains=uuid)
 
         if request.method == 'PATCH':
+            # Check for active bookings if changing room_type
+            if 'room_type_id' in request.data or 'room_type' in request.data:
+                today = date.today()
+                active_bookings = BookingRoom.objects.filter(
+                    room_id=room,
+                    booking_id__check_out__gte=today,
+                    booking_id__status__in=['Pending', 'Confirm', 'Check In']
+                ).exists()
+                if active_bookings:
+                     return AppResponse.error(
+                        ErrorCodes.VALIDATION_ERROR, 
+                        "Cannot change Room Type. This room has active bookings."
+                    )
+
 
             # Xử lý xóa images
             deleted_images = request.data.getlist('deleted_images[]')
@@ -114,6 +131,20 @@ def room_detail(request, uuid):
             return AppResponse.error(ErrorCodes.UPDATE_AMENITY_FAIL, serializer.errors)
 
         elif request.method == 'DELETE':
+            # Check for active bookings
+            today = date.today()
+            active_bookings = BookingRoom.objects.filter(
+                room_id=room,
+                booking_id__check_out__gte=today,
+                booking_id__status__in=['Pending', 'Confirm', 'Check In']
+            ).exists()
+            if active_bookings:
+                 return AppResponse.error(
+                    ErrorCodes.VALIDATION_ERROR, 
+                    "Cannot delete room. This room has active bookings."
+                )
+
+
             room_images = RoomImage.objects.filter(room=room)
             for img in room_images:
                 if img.image_url:
@@ -164,6 +195,21 @@ def room_type_detail(request, uuid):
             return AppResponse.error(ErrorCodes.UPDATE_AMENITY_FAIL, serializer.errors)
 
         elif request.method == 'DELETE':
+            # Check if any room of this type has active bookings
+            today = date.today()
+            active_bookings = BookingRoom.objects.filter(
+                room_id__room_type_id=room,
+                booking_id__check_out__gte=today,
+                booking_id__status__in=['Pending', 'Confirm', 'Check In']
+            ).exists()
+            
+            if active_bookings:
+                 return AppResponse.error(
+                    ErrorCodes.VALIDATION_ERROR, 
+                    "Cannot delete Room Type. There are rooms of this type with active bookings."
+                )
+
+
             room_images = RoomTypeImage.objects.filter(room_type=room)
             print("room_images", room_images)
             for img in room_images:

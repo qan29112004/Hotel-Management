@@ -64,7 +64,7 @@
                 <!-- Khi có asyncOptionsKey -->
                 <div *ngIf="field.asyncOptionsKey; else staticCheckbox">
                 <mat-checkbox
-                    *ngFor="let option of optionRadio"
+                    *ngFor="let option of optionRadio[field.name]"
                     [checked]="selectedRadioValues[field.name]?.includes(option.id)"
                     (change)="onCheckboxChange($event.checked, field.name, option.id, option)"
                     class="mr-4"
@@ -87,10 +87,10 @@
 
                 <!-- Preview grid for radio -->
                 <div *ngIf="selectedRadioValues[field.name]?.length > 0" class="grid grid-cols-3 gap-2 mt-4">
-                    <div *ngFor="let value of displayCheckbox | keyvalue; let i = index" class="relative">
+                    <div *ngFor="let value of displayCheckbox[field.name]; let i = index" class="relative">
                         <div class="flex items-center justify-center w-full h-12 text-black border border-black rounded">
                             <!-- {{ field.options.find(opt => opt.id === value)?.name || value }} -->
-                              <img [src]="baseUrl + value.value" class="w-8 mr-1"/> {{value.key}}
+                              <img [src]="baseUrl + value.icon" class="w-8 mr-1"/> {{value.name}}
                         </div>
                         <button
                             class="absolute w-[16px] h-[16px] text-[11px] top-0 right-0 text-red-500 bg-white rounded-full"

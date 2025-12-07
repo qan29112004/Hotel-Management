@@ -18,12 +18,13 @@ import { Router } from '@angular/router';
 import { BookingService as PaymentService } from 'app/core/booking/booking.service';
 import { TranslocoService } from '@ngneat/transloco';
 import { AlertService } from 'app/core/alert/alert.service';
+import { TranslocoModule } from '@ngneat/transloco';
 declare var paypal: any;
 
 @Component({
   selector: 'app-my-booking',
   standalone: true,
-  imports: [CommonModule, SharedModule, RatingComponent, FormsModule,MatDatepickerModule],
+  imports: [CommonModule, SharedModule, RatingComponent, FormsModule,MatDatepickerModule, TranslocoModule],
   templateUrl: './my-booking.component.html',
   styles: `
     /* Custom scrollbar for the hotel dropdown */
@@ -481,10 +482,17 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
           }),
         });
         const result = await captureRes.json();
-        this.router.navigate(['booking/success'], { queryParams: { transaction_id: result.transactionId } });
+        const queryParams: { [key: string]: any } = {};
+        queryParams.transaction_id = result.data.transactionId;
+        queryParams.amount = result.data.amount;
+        queryParams.response_code = result.data.responseCode;
+        queryParams.booking_id = result.data.bookingId;
+        this.router.navigate(['booking/success'], {queryParams})
       },
   
-      onCancel: (data: any) => alert("Bạn đã hủy thanh toán."),
+      onCancel: (data: any) => {
+        console.log("check data when cancle payment: ", data)
+      },
       onError: (err: any) => console.error("PayPal error:", err)
     }).render(`#${containerId}`);
   }

@@ -142,6 +142,7 @@
                             <mat-label>{{ t(field.labelKey) }} {{field.helpText?'(' + field.helpText +')' : ''}}</mat-label>
                             <input
                                 matInput
+                                [min]="today"
                                 [matDatepicker]="picker"
                                 [formControlName]="field.name"
                             />

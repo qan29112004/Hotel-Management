@@ -18,11 +18,11 @@ from hotel_management_be.kafka.kafka_producer import publish_kafka_event
 def handle_room_hold_released(event):
     payload = event["payload"]
     hold_id = payload["hold_id"]
-    print(f"[Kafka] 🟠 Hold released: {hold_id}")
+    logger.info(f"[Kafka] 🟠 Hold released: {hold_id}")
 
     # DB update
-    HoldRecord.objects.filter(uuid=hold_id).delete()
-    HoldRecordService.objects.filter(hold__uuid=hold_id).delete()
+    # HoldRecord.objects.filter(uuid=hold_id).delete()
+    # HoldRecordService.objects.filter(hold__uuid=hold_id).delete()
     # Xoá Redis nếu còn
     RedisUtils.delete_hold_in_redis(hold_id)
 
@@ -89,6 +89,12 @@ def reconcile_expired_holds():
 
     for hr in expired:
         try:
+            # print("check data:",hr.session.hotel_id,
+            #     hr.room_type_id,
+            #     hr.checkin.isoformat(),
+            #     hr.checkout.isoformat(),
+            #     hr.quantity)
+            logger.info(f"Check data: roomtype id = {hr.room_type_id}, checkin={hr.checkin.isoformat()}, checkout={hr.checkout.isoformat()}, quantity= {hr.quantity}, session_id={hr.session.hotel_id}")
             RedisUtils.atomic_increment_inventory_for_range(
                 hr.session.hotel_id,
                 hr.room_type_id,
@@ -225,6 +231,7 @@ def set_booking_room(session_id, booking_id):
                 hold.quantity
             )
             hold.delete()
+            continue
         # Lấy danh sách room thuộc roomtype này, đang available
         available_rooms = list(Room.objects.filter(
             room_type_id=hold.room_type, status="Available", is_lock=False

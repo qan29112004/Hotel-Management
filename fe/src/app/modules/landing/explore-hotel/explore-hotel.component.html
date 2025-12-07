@@ -7,7 +7,7 @@
             [class.hidden]="isSmallScreen && !showSecondDiv"
         >
             <div class="flex justify-end">
-                <button (click)="toggleToDiv1()" class="px-2 py-1 text-center text-black bg-yellow-500 text-[14px] font-avenir font-black uppercase">hotel.edit</button>
+                <button (click)="toggleToDiv1()" class="px-2 py-1 text-center text-black bg-yellow-500 text-[14px] font-avenir font-black uppercase">{{translocoService.translate('hotel.edit')}}</button>
             </div>
             <div class="flex justify-between">
                 <span class="font-avenir text-[16px] font-normal" *ngIf="checkInDate && checkOutDate">{{formatDateRange(checkInDate, checkOutDate)}}</span>

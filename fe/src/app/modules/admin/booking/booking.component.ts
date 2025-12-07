@@ -143,7 +143,8 @@ export class BookingComponent implements OnInit {
           {id:"Confirm", name:"Confirm"},
           {id:"Cancelled", name:"Cancelled"},
           {id:"Check In", name:"Check In"},
-          {id:"Check Out", name:"Check Out"}
+          {id:"Check Out", name:"Check Out"},
+          {id:"Expired", name:"Expired"}
         ],
         placeholderKey: 'booking.enterImages'
     },
@@ -235,7 +236,8 @@ export class BookingComponent implements OnInit {
           {id:"Confirm", name:"Confirm"},
           {id:"Cancelled", name:"Cancelled"},
           {id:"Check In", name:"Check In"},
-          {id:"Check Out", name:"Check Out"}
+          {id:"Check Out", name:"Check Out"},
+          {id:"Expired", name:"Expired"}
         ],
         placeholderKey: 'booking.enterImages',
         disabled:true
