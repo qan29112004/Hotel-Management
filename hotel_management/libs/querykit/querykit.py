@@ -209,7 +209,18 @@ class SearchItem:
 
         # For JSONField only, for example: "data__customer_name"
         for index, field in enumerate(self.fields):
-            if re.fullmatch(r".+__.+", field):
+            is_json_field = False
+            if "__" in field:
+                parts = str(field).split("__", 1)
+                first_part = parts[0]
+                try:
+                    field_info = queryset.model._meta.get_field(first_part)
+                    if isinstance(field_info, models.JSONField):
+                        is_json_field = True
+                except Exception:
+                    pass
+
+            if is_json_field:
                 json_result_value = f"json_result_value_{index}"
                 json_field, json_to_find = str(field).split("__", 1)
 

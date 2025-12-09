@@ -22,7 +22,7 @@ import { GenericAddComponent } from 'app/shared/components/generic-components';
 import { GenericFilterComponent, FieldFilterConfig } from 'app/shared/components/generic-components';
 import { GenericDeleteComponent } from 'app/shared/components/generic-components';
 import { FieldConfig } from 'app/core/admin/destination/destination.type';
-import { Observable } from 'rxjs';
+import { debounceTime, Observable, Subject, takeUntil } from 'rxjs';
 import { UserService } from 'app/core/profile/user/user.service';
 import { User } from 'app/core/profile/user/user.types';
 import { environment } from 'environments/environment.fullstack';
@@ -176,6 +176,9 @@ export class FacilitiesComponent implements OnInit {
   showFilter: boolean = false;
   showDeleteDialog:boolean = false; 
 
+  private debounceSearch = new Subject<string>();
+  private destroy$ = new Subject<any>();
+
   constructor(
     public translocoService: TranslocoService,
     private _alertService: AlertService,
@@ -188,6 +191,7 @@ export class FacilitiesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadFacilitiess();
+    this.debounceSearchFunc();
     this.userService.user$.subscribe((user)=>{
       this.user = user;
     })
@@ -215,6 +219,14 @@ export class FacilitiesComponent implements OnInit {
       }
     });
   }
+  debounceSearchFunc(){
+      this.debounceSearch.pipe(
+        debounceTime(500),
+        takeUntil(this.destroy$)
+      ).subscribe(value=>{
+        this.loadFacilitiess();
+      })
+    }
 
   loadAutocompleteOptions(): void {
       // Cập nhật autocomplete options cho trường name
@@ -262,7 +274,7 @@ export class FacilitiesComponent implements OnInit {
 
   onSearch(): void {
     this.currentPage = 1;
-    this.loadFacilitiess();
+    this.debounceSearch.next(this.searchTerm);
   }
 
   clearSearch(): void {

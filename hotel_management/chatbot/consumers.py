@@ -1,6 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from asgiref.sync import sync_to_async
+from channels.db import database_sync_to_async
 import asyncio
 
 
@@ -59,11 +60,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_discard(group_name, self.channel_name)
 
     async def receive(self, text_data):
+        from chatbot.utils import Utils
         from chatbot.models import GroupMember, GroupChat, ReceptionistJoinedGroup, Message
         from chatbot.views.chatbot import chat_bot_test_socket
         data = json.loads(text_data)
-        print("CHECK TEXT DATA:",type(data))
-        print("CHECK USER:",self.user.role)
         # Gửi lại message user
         
         if(data.get('action') =='send_message'):
@@ -135,7 +135,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "type": "send_requirement",
                     "uuid": str(group.uuid),
                     'name':group.name,
-                    "action": 'send_requirement',
+                    "action": 'send_requirement_to_recept',
                     'status':group.status,
                     'user':{
                         "id":self.user.id,
@@ -151,14 +151,29 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'group':group.uuid
             }))
             
+        if(data.get('action')=="delete_session"):
+            session_id = data.get('session_id', '')
+            booking_id = data.get('booking_id', '')
+            ok = await database_sync_to_async(Utils.delete_all_sesstion_and_hold)(session_id, booking_id)
+            await self.send(text_data=json.dumps({
+                "action":'delete_session',
+                'status':ok,
+                'booking_id':booking_id,
+                'session_id':session_id
+            }))
+
         if(data.get('action')=="join_group"):
             await self.channel_layer.group_add(data.get('group_name'), self.channel_name)
             group_chat = await sync_to_async(GroupChat.objects.get)(uuid = data.get('group_name'))
             group_chat.status = 'In progress'
             await sync_to_async(group_chat.save)()
             member,_=await sync_to_async(GroupMember.objects.get_or_create)(user=self.user, group=group_chat)
-            check = await sync_to_async(ReceptionistJoinedGroup.objects.create)(receptionist=self.user, group = group_chat)
-            group_uuid = await sync_to_async(lambda obj: str(obj.group.uuid))(check)
+            check_obj, created = await sync_to_async(ReceptionistJoinedGroup.objects.get_or_create)(receptionist=self.user, group = group_chat)
+            # Cập nhật status nếu vừa tạo mới hoặc status chưa đúng
+            if created or check_obj.status != 'In progress':
+                check_obj.status = 'In progress'
+                await sync_to_async(check_obj.save)()
+            group_uuid = str(group_chat.uuid)
             await self.channel_layer.group_send(
                 data.get('group_name'),
                 {
@@ -175,7 +190,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "group": group_uuid,
                     'group_status':group_chat.status,
                     "action": 'join_group',
-                    'status':'success' if check and check.status =='In progress' else 'error'
+                    'status':'success' if check_obj and check_obj.status =='In progress' else 'error'
                 }
             )
             
@@ -186,10 +201,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await sync_to_async(group_chat.save)()
             member = await sync_to_async(GroupMember.objects.get)(user=self.user, group__uuid=data.get('group_name'))
             await sync_to_async(member.delete)()
-            check = await sync_to_async(ReceptionistJoinedGroup.objects.get)(receptionist=self.user, group=group_chat, status='In progress')
+            check = await sync_to_async(
+                    lambda: ReceptionistJoinedGroup.objects.filter(
+                        receptionist=self.user,
+                        group=group_chat,
+                        status='In progress'
+                    ).first()
+                )()
             check.status = "Solved"
-            group_uuid = await sync_to_async(lambda obj: str(obj.group.uuid))(check)
-            await sync_to_async(check.save)()
+            if check:
+                group_uuid = await sync_to_async(lambda obj: str(obj.group.uuid))(check)
+                await sync_to_async(check.save)()
             await self.channel_layer.group_send(
                 data.get('group_name'),
                 {
@@ -209,6 +231,48 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'status':'success' if check and check.status =='Solved' else 'error'
                 }
             )
+
+        if data.get('action') == 'promote_voucher':
+            from hotel_management_be.models.voucher import Voucher
+            voucher_id = data.get('voucher_id')
+            try:
+                voucher = await sync_to_async(Voucher.objects.get)(uuid=voucher_id)
+                
+                # Get the first hotel applying this voucher
+                hotels = await sync_to_async(list)(voucher.hotels.all())
+                
+                hotel_data = None
+                if hotels:
+                    hotel = hotels[0]
+                    hotel_data = {
+                        "uuid": hotel.uuid,
+                        "name": hotel.name,
+                        "slug": hotel.slug,
+                        "thumbnail": hotel.thumbnail
+                    }
+                
+                payload = {
+                    "voucher": {
+                        "name": voucher.name,
+                        "description": voucher.description,
+                        "code": voucher.code,
+                        "discountType": voucher.discount_type,
+                        "discountPercent": float(voucher.discount_percent) if voucher.discount_percent else 0,
+                        "discountValue": float(voucher.discount_value) if voucher.discount_value else 0,
+                    },
+                    "hotel": hotel_data
+                }
+                
+                await self.channel_layer.group_send(
+                    "notification",
+                    {
+                        "type": "voucher_promoted",
+                        "action": "voucher_promoted",
+                        "data": payload
+                    }
+                )
+            except Exception as e:
+                print(f"Error promoting voucher: {e}")
 
         # Gửi lại message AI
         # if(data.get('action')=='send_message_ai'):
@@ -296,9 +360,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'group_status':event['group_status'],
             'group':event['group']
         }))
+        
     async def noti_join_group_to_user(self, event):
         await self.send(text_data=json.dumps({
             'action':'noti_join_group',
             'group_status':event['group_status'],
             'group':event['group']
+        }))
+
+    async def voucher_promoted(self, event):
+        await self.send(text_data=json.dumps({
+            'action': event['action'],
+            'data': event['data']
         }))

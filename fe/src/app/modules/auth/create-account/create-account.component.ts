@@ -191,26 +191,16 @@ export class CreateAccountComponent implements OnInit {
                 // Navigate to the redirect url
                 this._router.navigate([`/${routeConfig.AUTH_SIGN_IN}`]);
             },
-            error: (err) => {
+            error: (error) => {
                 // Re-enable the form
                 this.createForm.enable();
+                const errorList = error?.error?.errors;
                 this.alert = {
                     type: 'error',
-                    code: [],
+                    code: Array.isArray(errorList)
+                        ? errorList.map(e => e.field ? `${e.message}` : e.message)
+                        : [error?.error?.message || error?.error?.code || 'Đã xảy ra lỗi'],
                 };
-
-                if (
-                    err?.error?.code === 'VALIDATION_ERROR' &&
-                    Array.isArray(err.error.errors)
-                ) {
-                    this.alert.code = err.error.errors.map((e: any) => {
-                        return `errors.fields.${e.field}`;
-                    });
-                } else {
-                    this.alert.code = [
-                        `errors.${err?.error?.code}` || 'errors.default',
-                    ];
-                }
 
                 // Show the alert
                 this.showAlert = true;

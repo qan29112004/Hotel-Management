@@ -2,6 +2,7 @@ from rest_framework import serializers
 from constants.error_codes import ErrorCodes
 from constants.querying_option_choices import  SearchOptionChoices, SortOptionChoices
 from django.db.models import Model
+from django.core.exceptions import FieldError
 
 
 class SearchItemSerializer(serializers.Serializer):
@@ -27,8 +28,36 @@ class SearchItemSerializer(serializers.Serializer):
         value = data.get('value')
 
         if self.model and fields is not None and len(fields) > 0 and option is not None and value is not None:
-            valid_fields = [f.name for f in self.model._meta.get_fields()]
-            not_exist_fields = list(field for field in fields if field not in valid_fields)
+            not_exist_fields = []
+            
+            for field in fields:
+                field_valid = True
+                try:
+                    current_model = self.model
+                    parts = field.split('__')
+                    for part in parts:
+                        try:
+                            field_info = current_model._meta.get_field(part)
+                            if field_info.is_relation:
+                                current_model = field_info.related_model
+                        except FieldError:
+                            # Check reverse relation related_name
+                            found_reverse = False
+                            for f in current_model._meta.get_fields():
+                                if f.is_relation and f.related_name == part:
+                                    current_model = f.related_model
+                                    found_reverse = True
+                                    break
+                            
+                            if not found_reverse:
+                                field_valid = False
+                                break
+                except Exception:
+                    field_valid = False
+                
+                if not field_valid:
+                    not_exist_fields.append(field)
+
             if not_exist_fields:
                 raise serializers.ValidationError(ErrorCodes.INVALID_FILTER_FIELD_CHOICE,
                                                   {'not_exist_fields': not_exist_fields})
@@ -54,8 +83,31 @@ class SortItemSerializer(serializers.Serializer):
         option = data.get('option')
 
         if self.model and field is not None and field.strip() != "" and option is not None:
-            valid_fields = [f.name for f in self.model._meta.get_fields()]
-            if field not in valid_fields:
+            field_valid = True
+            try:
+                current_model = self.model
+                parts = field.split('__')
+                for part in parts:
+                    try:
+                        field_info = current_model._meta.get_field(part)
+                        if field_info.is_relation:
+                            current_model = field_info.related_model
+                    except FieldError:
+                        # Check reverse relation related_name
+                        found_reverse = False
+                        for f in current_model._meta.get_fields():
+                            if f.is_relation and f.related_name == part:
+                                current_model = f.related_model
+                                found_reverse = True
+                                break
+                        
+                        if not found_reverse:
+                            field_valid = False
+                            break
+            except Exception:
+                field_valid = False
+            
+            if not field_valid:
                 raise serializers.ValidationError(ErrorCodes.INVALID_FILTER_FIELD_CHOICE,
                                                   {'field_not_exist': field})
             if option not in SortOptionChoices:

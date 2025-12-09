@@ -159,6 +159,38 @@ export class RateplanComponent implements OnInit {
       
     },
     {
+      name: 'isActive',
+      labelKey: 'Trạng thái hoạt động',
+      type: 'select',
+      options:[
+        {id:true, name:"True"},
+        {id:false,name:"False"}
+      ],
+      placeholderKey: 'Trạng thái hoạt động',
+      
+  },
+    {
+      name: 'refundFullDays',
+      labelKey: 'rateplan.refund_full_days',
+      type: 'number',
+      placeholderKey: 'rateplan.enterRefundFullDays',
+      
+    },
+    {
+      name: 'refundPartialDays',
+      labelKey: 'rateplan.refund_partial_days',
+      type: 'number',
+      placeholderKey: 'rateplan.enterCancellationPolicy',
+    
+    },
+    {
+      name: 'refundPartialPercentage',
+      labelKey: 'rateplan.refund_partial_percentage',
+      type: 'number',
+      placeholderKey: 'Nhập phần trăm giảm giá',
+      
+    },
+    {
         name: 'service',
         labelKey: 'rateplan.services',
         type: 'checkbox',
@@ -203,6 +235,17 @@ export class RateplanComponent implements OnInit {
         placeholderKey: 'rateplan.enterNeedLogin',
         
     },
+    {
+      name: 'is_active',
+      labelKey: 'Trạng thái hoạt động',
+      type: 'select',
+      options:[
+        {id:true, name:"True"},
+        {id:false,name:"False"}
+      ],
+      placeholderKey: 'Trạng thái hoạt động',
+      
+  },
     {
         name: 'refundable',
         labelKey: 'rateplan.refundable',
@@ -254,23 +297,20 @@ export class RateplanComponent implements OnInit {
       labelKey: 'rateplan.refund_full_days',
       type: 'number',
       placeholderKey: 'rateplan.enterRefundFullDays',
-      required: true,
       
     },
     {
       name: 'refund_partial_days',
       labelKey: 'rateplan.refund_partial_days',
-      type: 'textarea',
+      type: 'number',
       placeholderKey: 'rateplan.enterCancellationPolicy',
-      required: true,
     
     },
     {
-      name: 'cancellation_policy',
-      labelKey: 'rateplan.cancellation_policy',
-      type: 'textarea',
-      placeholderKey: 'rateplan.enterCancellationPolicy',
-      required: true,
+      name: 'refund_partial_percentage',
+      labelKey: 'rateplan.refund_partial_percentage',
+      type: 'number',
+      placeholderKey: 'Nhập phần trăm giảm giá',
       
     },
     {
@@ -283,6 +323,17 @@ export class RateplanComponent implements OnInit {
   ]
 
   filterFields: FieldFilterConfig[] = [
+    {
+      name: 'is_active',
+      labelKey: 'Trạng thái hoạt động',
+      type: 'select',
+      options:[
+        {id:true, name:"True"},
+        {id:false,name:"False"}
+      ],
+      placeholderKey: 'Trạng thái hoạt động',
+      
+  },
       {
           name: 'created_at',
           labelKey: 'user_management.created_at',
@@ -316,7 +367,7 @@ export class RateplanComponent implements OnInit {
   user:User
   selectedDes:RatePlan = null;
   selectedIds: string[] = [];
-  optionsHotel:any[];
+  optionsSelect:any = {};
   ratePlans: RatePlan[] = [];
   hasSelectedRateplan:boolean= false;
   displayedColumns: string[] = ['name', 'description', 'actions'];
@@ -351,7 +402,7 @@ export class RateplanComponent implements OnInit {
   };
   editingRateplan: RatePlan | null = null;
   showForm = false;
-  checkboxServiceOptions:any = [];
+  checkboxServiceOptions:any = {};
 
   constructor(
     public translocoService: TranslocoService,
@@ -376,35 +427,43 @@ export class RateplanComponent implements OnInit {
   }
 
   loadCheckboxService(){
+    const payload={
+      field:"type",
+      option:"contains",
+      value:"Include"
+    }
     if(this.serviceService.check.length>0){
       this.serviceService.service$.pipe(
+        
         map(service=>{
           if (service){
-            return service.map(sv=>({
-              id : sv.uuid,
-              name :sv.name
+            return service.filter(sv => sv.type === 'Include').map(sv=>({
+              id: sv.uuid,
+              name: sv.name,
+              icon: sv.image
             }))
           }
           return [];
         }),
         takeUntil(this._unsubscribeAll)
       ).subscribe(service=>{
-        this.checkboxServiceOptions = service;
+        this.checkboxServiceOptions['service'] = service;
       })
     }else{
-      this.serviceService.getAllService({page_size:0}).pipe(
+      this.serviceService.getAllService({page_size:0, filterRules:[payload]}).pipe(
         map(service=>{
           if (service){
             return service.data.map(sv=>({
-              id : sv.uuid,
-              name :sv.name
+              id: sv.uuid,
+              name: sv.name,
+              icon: sv.image
             }))
           }
           return [];
         }),
         takeUntil(this._unsubscribeAll)
       ).subscribe(service=>{
-        this.checkboxServiceOptions = service;
+        this.checkboxServiceOptions['service'] = service;
       })
     }
   }
@@ -424,8 +483,8 @@ export class RateplanComponent implements OnInit {
           }
           )
       ).subscribe(hotels=>{
-        this.optionsHotel = hotels;
-        console.log("optionHotel", this.optionsHotel)
+        this.optionsSelect['hotel'] = hotels;
+        console.log("optionHotel", this.optionsSelect)
       })
     }else{
       this.hotelService.getHotels({"page_size":0}).pipe(
@@ -441,8 +500,8 @@ export class RateplanComponent implements OnInit {
           }
           )
       ).subscribe(res=>{
-        this.optionsHotel = res;
-        console.log("optionHotel", this.optionsHotel)
+        this.optionsSelect['hotel'] = res;
+        console.log("optionHotel", this.optionsSelect)
       })
     }
   }
@@ -627,8 +686,8 @@ export class RateplanComponent implements OnInit {
         instance.entityData = this.selectedDes;
         instance.saveHandler = this.saveHandler.bind(this);
         instance.loadData = this.loadRateplan.bind(this);
-        instance.optionDestination = this.optionsHotel;
-        instance.optionRadio = this.checkboxServiceOptions;
+        instance.optionDestination = this.optionsSelect;
+        instance.checkboxOptions = this.checkboxServiceOptions;
 
         // ✅ Lắng nghe sự kiện Output
         instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());

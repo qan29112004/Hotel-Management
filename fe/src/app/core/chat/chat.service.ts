@@ -56,6 +56,9 @@ export class ChatService {
     lastChatRoom: Subject<ChatRoom> = new Subject();
     userChats: UserChatConfig[] = [];
 
+    private connectionSubject$ = new BehaviorSubject<boolean>(false);
+    connection$ = this.connectionSubject$.asObservable();
+
     private socket$: WebSocketSubject<any> | null = null;
     private messagesSubject$ = new Subject<any>();
     public messages$ = this.messagesSubject$.asObservable();
@@ -69,20 +72,27 @@ export class ChatService {
     /**
      * Kết nối đến WebSocket server
      */
-    connect(url?: string): void {
+    connect(url?: string): Observable<boolean> {
         const accessToken = localStorage.getItem('accessToken')
-        if (!this.socket$ || this.socket$.closed) {
+        // if (!this.socket$ || this.socket$.closed) {
+        if (this.socket$) {
+            try {
+                this.socket$.complete(); 
+            } catch {}
+        }
         this.socket$ = webSocket({
             url: uriConfig.WEBSOCKET_URL + `?token=${accessToken}`,
             openObserver: {
             next: () => {
                 console.log('WebSocket connected!');
+                this.connectionSubject$.next(true); 
                 this.reconnectAttempts = 0;
             }
             },
             closeObserver: {
             next: () => {
                 console.log('WebSocket disconnected!');
+                this.connectionSubject$.next(false); 
                 this.socket$ = null;
                 this.reconnect(url);
             }
@@ -92,12 +102,13 @@ export class ChatService {
         this.socket$.subscribe({
             next: (message) => this.messagesSubject$.next(message),
             error: (error) => {
+                this.connectionSubject$.next(false); 
             console.error('WebSocket error:', error);
             this.reconnect(url);
             }
         });
-        }
-        
+        // }
+        return this.connection$;
     }
 
     /**

@@ -19,7 +19,10 @@ class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = ['uuid', 'room_number', 'status', 'floor',"housekeeping_status","is_lock", 'room_type_id','images_upload']
-        
+    def validate_floor(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Tầng phải lớn hơn 0.")
+        return value
     def create(self, validated_data):
         images_upload = validated_data.pop('images_upload', [])
         room = super().create(validated_data)

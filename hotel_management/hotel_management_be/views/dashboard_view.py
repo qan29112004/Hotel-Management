@@ -13,6 +13,8 @@ from hotel_management_be.models.booking import Booking, BookingRoom, Payment, Re
 from hotel_management_be.models.hotel import Hotel, RoomType, Room
 from hotel_management_be.models.user import User
 from hotel_management_be.models.rating import ReviewRating
+from hotel_management_be.models.voucher import VoucherUsageLog
+from chatbot.models import ReceptionistJoinedGroup
 from constants.hotel_constants import HotelConstants
 
 
@@ -242,6 +244,54 @@ def dashboard_overview(request):
         # === 14. Tổng số booking đang chờ thanh toán (Pending) ===
         pending_bookings_count = Booking.objects.filter(status="Pending").count()
 
+        # === 15. Thống kê loại phòng được book nhiều nhất ===
+        # BookingRoom -> Room -> RoomType
+        # Chúng ta đếm số lần BookingRoom xuất hiện theo RoomType
+        top_room_types_qs = (
+            BookingRoom.objects
+            .values("room_id__room_type_id__name")
+            .annotate(count=Count("uuid"))
+            .order_by("-count")[:5]
+        )
+        top_room_types = [
+            {
+                "name": item["room_id__room_type_id__name"],
+                "count": item["count"]
+            }
+            for item in top_room_types_qs
+            if item["room_id__room_type_id__name"]
+        ]
+
+        # === 16. Thống kê sử dụng voucher ===
+        voucher_usage_qs = (
+            VoucherUsageLog.objects
+            .values("voucher__name")
+            .annotate(count=Count("uuid"))
+            .order_by("-count")[:5]
+        )
+        voucher_stats = [
+            {
+                "name": item["voucher__name"],
+                "count": item["count"]
+            }
+            for item in voucher_usage_qs
+            if item["voucher__name"]
+        ]
+
+        # === 17. Thống kê yêu cầu hỗ trợ (ReceptionistJoinedGroup) ===
+        support_stats_qs = (
+            ReceptionistJoinedGroup.objects
+            .values("status")
+            .annotate(count=Count("id"))
+        )
+        support_stats = [
+            {
+                "status": item["status"],
+                "count": item["count"]
+            }
+            for item in support_stats_qs
+        ]
+
         data = {
             "revenue": {
                 "monthly": monthly_revenue,
@@ -251,6 +301,9 @@ def dashboard_overview(request):
             "occupancy": occupancy_per_hotel,
             "users_monthly": users_monthly,
             "rating": rating_info,
+            "room_type_stats": top_room_types,
+            "voucher_stats": voucher_stats,
+            "support_stats": support_stats,
             "summary": {
                 "total_refund": total_refund_amount,
                 "total_rooms": total_rooms_count,

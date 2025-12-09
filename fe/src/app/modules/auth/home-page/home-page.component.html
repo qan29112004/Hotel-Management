@@ -157,12 +157,13 @@
                 <div class="flex flex-col justify-end  text-white w-full h-full" >
 
                     <h3 class="text-[30px] font-clearface font-semibold leading-9">{{ item.title }} (CODE: {{item.code}})</h3>
-                    <p class="text-sm font-avenir underline underline-offset-2 leading-9">VIEW OFFER</p>
+                    <p class="text-sm font-avenir underline underline-offset-2 leading-9">{{translocoService.translate('home-page.view_offer')}}</p>
                 </div>
                 </div> 
             </div>
             </div>
         </div>
+        <a href="offer-exclusive" class="text-center flex cursor-pointer justify-center bg-black text-white py-2 px-3 mt-[15px] text-[16px] mb-[60px]">{{translocoService.translate('home-page.view_all_offer')}}</a>
         <div class="flex flex-col items-center justify-center w-full">
             <div class="slider">
                 <div class="slide-track">
@@ -188,7 +189,7 @@
                                 <p class="text-xl text-black font-avenir">{{translocoService.translate('home-page.pioneers.curated_hotels_content')}}</p>
                                 <div class="flex flex-grow items-end">
 
-                                    <a href="explore-hotels" class="bottom-0  font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Explore Hotels </a>
+                                    <a href="explore-hotels" class="bottom-0  font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">{{translocoService.translate('home-page.explore_hotels')}} </a>
                                 </div>
                             </div>
                         </div>
@@ -199,7 +200,7 @@
                                 <p class="text-xl text-black font-avenir">{{translocoService.translate('home-page.pioneers.perfectly_matched_content')}}</p>
                                 <div class="flex flex-grow items-end">
 
-                                    <a href="destination" class="bottom-0 font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Discover Destinations </a>
+                                    <a href="destination" class="bottom-0 font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">{{translocoService.translate('home-page.explore_destinations')}} </a>
                                 </div>
                             </div>
                         </div>
@@ -210,7 +211,7 @@
                                 <p class="text-xl text-black font-avenir">{{translocoService.translate('home-page.pioneers.emotional_connections_content')}}</p>
                                 <div class="flex flex-grow items-end">
 
-                                    <a href="#" class="bottom-0  font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">Explore Hotels </a>
+                                    <a href="#" class="bottom-0  font-black text-black uppercase border-b cursor-pointer border-b-black font-avenir text-decoration-none w-max">{{translocoService.translate('home-page.explore_hotels')}} </a>
                                 </div>
                             </div>
                         </div>

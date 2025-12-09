@@ -159,13 +159,6 @@ export class RoomComponent {
         placeholderKey: 'room.housekeeping_status',
     },
     {
-        name: 'images',
-        labelKey: 'room.images',
-        type: 'files',
-        placeholderKey: 'room.enterdDescription',
-        accept: 'image/*',
-    },
-    {
         name: 'isLock',
         labelKey: 'room.is_lock',
         type: 'select',
@@ -173,14 +166,13 @@ export class RoomComponent {
           {id:true, name:"True"},
           {id: false, name:"False"}
         ],
-        placeholderKey: 'room.enterdDescription',
-        accept: 'image/*',
+        placeholderKey: 'room.enterIsLock'
     },
     {
         name: 'roomTypeId',
-        labelKey: 'room.name',
+        labelKey: 'room.room_type',
         type: 'select',
-        placeholderKey: 'room.enterFullName',
+        placeholderKey: 'room.enterRoomType',
         asyncOptionsKey: true,
         isForeignKey:true
     },
@@ -196,7 +188,7 @@ export class RoomComponent {
           { id: 'Booked', name: 'Booked' },
           { id: "Maintenance", name:"Maintenance"}
       ],
-        placeholderKey: 'room.status',
+        placeholderKey: 'room.enterStatus',
         
     },
     
@@ -209,13 +201,6 @@ export class RoomComponent {
         
     },
     {
-        name: 'images',
-        labelKey: 'room.images',
-        type: 'files',
-        placeholderKey: 'room.enterdDescription',
-        accept: 'image/*',
-    },
-    {
       name: 'is_lock',
       labelKey: 'room.is_lock',
       type: 'select',
@@ -223,14 +208,13 @@ export class RoomComponent {
         {id:true, name:"True"},
         {id: false, name:"False"}
       ],
-      placeholderKey: 'room.enterislock',
-      accept: 'image/*',
+      placeholderKey: 'room.enterIsLock',
   },
     {
         name: 'room_type_id',
-        labelKey: 'room.name',
+        labelKey: 'room.room_type',
         type: 'select',
-        placeholderKey: 'room.enterFullName',
+        placeholderKey: 'room.enterRoomType',
         asyncOptionsKey: true,
         isForeignKey:true
     },
@@ -262,7 +246,7 @@ export class RoomComponent {
         {id:true, name:"True"},
         {id: false, name:"False"}
       ],
-      placeholderKey: 'room.enterislock',
+      placeholderKey: 'room.enterIsLock',
   },
     {
         name: 'housekeeping_status',
@@ -276,24 +260,24 @@ export class RoomComponent {
         placeholderKey: 'room.housekeeping_status',
     },
     {
-        name: 'roomTypeId',
-        labelKey: 'room.name',
+        name: 'room_type_id',
+        labelKey: 'room.room_type',
         type: 'select',
         relatedName:'room_type_id',
-        placeholderKey: 'room.enterFullName',
+        placeholderKey: 'room.enterRoomType',
         asyncOptionsKey: true,
         isForeingKey:true
     },
     {
         name: 'status',
-        labelKey: 'room_type.status',
+        labelKey: 'room.status',
         type: 'select',
         options: [
             { id: 'Available', name: 'Available' },
             { id: 'Booked', name: 'Booked' },
             { id: "Maintenance", name:"Maintenance"}
         ],
-        placeholderKey: 'room_type.selectStatus',
+        placeholderKey: 'room.enterStatus',
     },
   ]
 
@@ -353,7 +337,7 @@ export class RoomComponent {
         ),
       takeUntil(this._unsubscribeAll)
       ).subscribe((options)=>{
-        this.optionsSelect['roomTypeId'] = options;
+        this.optionsSelect['room_type_id'] = options;
         console.log("check optionsSelect:", this.optionsSelect)
       });
       this.userService.user$.subscribe((user)=>{

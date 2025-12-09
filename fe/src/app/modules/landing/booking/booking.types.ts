@@ -2,7 +2,7 @@ export interface RoomSelection {
   adults: number;
   children: number;
   ratePlanName?: string;
-  selectedServices: number[];
+  selectedServices?: number[];
 }
 
 export interface BookingState {

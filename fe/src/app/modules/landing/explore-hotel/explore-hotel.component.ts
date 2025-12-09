@@ -21,6 +21,7 @@ import { Hotel } from 'app/core/admin/hotel/hotel.types';
 import { environment } from 'environments/environment.fullstack';
 import { formatDateRange, getCurrentDateString } from 'app/shared/utils/util';
 import { TranslocoModule } from '@ngneat/transloco';
+import { animate, style, transition, trigger } from '@angular/animations';
 @Component({
   selector: 'app-explore-hotel',
   standalone: true,
@@ -39,38 +40,50 @@ import { TranslocoModule } from '@ngneat/transloco';
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './explore-hotel.component.html',
-  styleUrls:['./explore-hotel.component.scss']
+  styleUrls: ['./explore-hotel.component.scss'],
+  animations: [
+    trigger('slideToggle', [
+      transition(':enter', [ // khi *ngIf thêm phần tử
+        style({ height: 0, opacity: 0, overflow: 'hidden' }),
+        animate('300ms ease-out', style({ height: '*', opacity: 1 }))
+      ]),
+      transition(':leave', [ // khi *ngIf xóa phần tử
+        style({ height: '*', opacity: 1, overflow: 'hidden' }),
+        animate('300ms ease-in', style({ height: 0, opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
-   limit:number = 2;
-   offset:number = 0;
-   total:number = 0;
-   next:string;
-   previous:string;
-  buttonNext:boolean = true;
-  sort:string;
-  formatDateRange=formatDateRange;
+  limit: number = 2;
+  offset: number = 0;
+  total: number = 0;
+  next: string;
+  previous: string;
+  buttonNext: boolean = true;
+  sort: string;
+  formatDateRange = formatDateRange;
   Math = Math;
   showCalendar = false; // Biến điều khiển hiển thị lịch
   selectedDateCheckin: Date | null = null; // Lưu ngày được chọn
   selectedDateCheckout: Date | null = null;
-  today:Date = new Date();
+  today: Date = new Date();
   displayDate: string | null = null;
   showGuestSelector = false;
-  adults:number = 1;
-  children:number = 0;
+  adults: number = 1;
+  children: number = 0;
   optionsDestinations: { id: string; name: string }[] = [];
-  hasOptionDestinationLoaded:boolean = false;
+  hasOptionDestinationLoaded: boolean = false;
   roomList = [
-      {adults:1, children:0}
+    { adults: 1, children: 0 }
   ];
-  searchData:any;
-  baseUrl:string = environment.baseUrl;
+  searchData: any;
+  baseUrl: string = environment.baseUrl;
   isSmallScreen = false;
   showSecondDiv = false;
-  listHotel:Hotel[] = [];
-  listExcludeHotel:Hotel[] = [];
-  crrImage:string = '';
+  listHotel: Hotel[] = [];
+  listExcludeHotel: Hotel[] = [];
+  crrImage: string = '';
   private intervalId: any;
   swipers: any[] = [];
   currentIndexes: number[] = [];
@@ -88,63 +101,64 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
   translocoService = inject(TranslocoService);
   hotelService = inject(HotelService);
   facilitiesService = inject(FacilitiesService);
-  isOpenFilter:boolean = false;
-  isHidden:boolean = false;
+  isOpenFilter: boolean = false;
+  isHidden: boolean = false;
   facilities: Facilities[] = [];
   selectedFacilities: string[] = []; // Array of facility UUIDs
-  listImageExploreHotel = 
+  listImageExploreHotel =
     ['assets/images/explore-hotel/images_1.jpg', 'assets/images/explore-hotel/images_2.jpg', 'assets/images/explore-hotel/images_3.jpg', 'assets/images/explore-hotel/images_4.jpg', 'assets/images/explore-hotel/images_5.jpg', 'assets/images/explore-hotel/images_6.jpg', 'assets/images/explore-hotel/images_7.jpg', 'assets/images/explore-hotel/images_8.jpg', 'assets/images/explore-hotel/images_9.jpg', 'assets/images/explore-hotel/images_10.jpg', 'assets/images/explore-hotel/images_11.jpg', 'assets/images/explore-hotel/images_12.jpg']
-  ;
-  constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone, private activeRoute: ActivatedRoute, private router: Router) {}
+    ;
+  constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone, private activeRoute: ActivatedRoute, private router: Router) { }
 
-  get checkInDate(){
+  get checkInDate() {
     return this.searchData?.check_in;
   }
 
-  set checkInDate(value:any){
+  set checkInDate(value: any) {
     console.log('chay get check in')
     this.searchData.check_in = getCurrentDateString(value);
   }
 
-  get checkOutDate(){
+  get checkOutDate() {
     return this.searchData?.check_out;
   }
 
-  set checkOutDate(value:any){
+  set checkOutDate(value: any) {
     this.searchData.check_out = getCurrentDateString(value);
   }
 
   ngOnInit(): void {
-    if(this.destinationService.check()?.data?.length > 0){
+    if (this.destinationService.check()?.data?.length > 0) {
       this.destinationService.destinations$.pipe(
         map(destinations => {
-              return destinations.data.map(dest => ({ id: dest.uuid, name: dest.name }));
-          })
-      ).subscribe(res =>{
+          return destinations.data.map(dest => ({ id: dest.uuid, name: dest.name }));
+        })
+      ).subscribe(res => {
         this.optionsDestinations = res;
       })
-    }else{
+    } else {
       this.destinationService.getDestinations().pipe(
-          map(destinations => {
-              return destinations.data.map(dest => ({ id: dest.uuid, name: dest.name }));
-          }
-      )
+        map(destinations => {
+          return destinations.data.map(dest => ({ id: dest.uuid, name: dest.name }));
+        }
+        )
       ).subscribe((res) => {
-          this.optionsDestinations = res;
-          console.log('Destinations options: ', res);
-      });}
-    
+        this.optionsDestinations = res;
+        console.log('Destinations options: ', res);
+      });
+    }
 
-    this.activeRoute.data.subscribe(data =>{
+
+    this.activeRoute.data.subscribe(data => {
       console.log("check param: ", data)
       this.listHotel = data['hotel']?.apiData?.data.data;
       this.searchData = data['hotel']?.searchData;
       this.total = data['hotel']?.apiData?.data.total;
       this.next = data['hotel']?.apiData?.data.next;
       this.previous = data['hotel']?.apiData?.data.previous;
-      this.roomList = data['hotel']?.searchData.rooms.length > 0 ? data['hotel']?.searchData.rooms: this.roomList;
+      this.roomList = data['hotel']?.searchData.rooms.length > 0 ? data['hotel']?.searchData.rooms : this.roomList;
       this.listExcludeHotel = data['hotel']?.apiData?.data.excludeHotel;
-      
+
       // Load selected facilities from query params or searchData
       const facilitiesParam = this.activeRoute.snapshot.queryParamMap.get('facilities');
       if (facilitiesParam) {
@@ -152,7 +166,7 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
       } else if (this.searchData?.facilities && Array.isArray(this.searchData?.facilities)) {
         this.selectedFacilities = [...this.searchData?.facilities];
       }
-      
+
       console.log("data['hotel']", data['hotel'])
       console.log("this.listExcludeHotel", this.listExcludeHotel)
       console.log("this listhotel: ", this.listHotel);
@@ -160,9 +174,9 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
       console.log("this.next", this.next)
       console.log("this.buttonNex", this.buttonNext)
       setTimeout(() => {
-          this.initializeSwipers(this.swiperElements,this.swipers, this.currentIndexes);
-          this.initializeSwipers(this.swiperElements2,this.swipers2, this.currentIndexes2);
-        }, 0);
+        this.initializeSwipers(this.swiperElements, this.swipers, this.currentIndexes);
+        this.initializeSwipers(this.swiperElements2, this.swipers2, this.currentIndexes2);
+      }, 0);
     })
     register();
     this.checkScreenSize();
@@ -172,7 +186,7 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
-      clearInterval(this.intervalId);
+    clearInterval(this.intervalId);
   }
   ngAfterViewInit() {
     console.log('ngAfterViewInit called');
@@ -183,9 +197,9 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
     this.updateHeaderHeight();
     this.checkMapVisibility();
 
-    
+
   }
-  initializeSwipers(swiperElements?: QueryList<ElementRef>, swipers?: any[] ,currentIndexes?: number[]) {
+  initializeSwipers(swiperElements?: QueryList<ElementRef>, swipers?: any[], currentIndexes?: number[]) {
     if (!swiperElements || !swiperElements.length) return;
     console.log('Initializing swipers...', swiperElements);
 
@@ -222,19 +236,19 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
 
-  prevSlide(index:number, swipers:any[]) {
+  prevSlide(index: number, swipers: any[]) {
     const swiper = swipers[index];
     if (swiper) swiper.slidePrev();
   }
 
-  nextSlide(index:number, swipers:any[]) {
+  nextSlide(index: number, swipers: any[]) {
     console.log('next')
     const swiper = swipers[index];
     if (swiper) swiper.slideNext();
   }
 
 
-  updateImageExplore(){
+  updateImageExplore() {
     this.crrImage = this.hotelService.getCurrentImageExplore()
   }
 
@@ -243,7 +257,7 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.selectedFacilities.length > 0) {
       this.searchData.facilities = this.selectedFacilities;
     }
-    console.log("seardata",this.searchData)
+    console.log("seardata", this.searchData)
     const queryParams: { [key: string]: any } = {};
     queryParams.dest = this.searchData.destination;
     queryParams.checkin = this.searchData.check_in;
@@ -253,11 +267,11 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
       queryParams.facilities = this.selectedFacilities.join(',');
     }
     this.roomList.forEach((room, i) => {
-        queryParams[`rooms[${i}][adults]`] = room.adults;
-        queryParams[`rooms[${i}][children]`] = room.children;
+      queryParams[`rooms[${i}][adults]`] = room.adults;
+      queryParams[`rooms[${i}][children]`] = room.children;
     });
     this.router.navigate(['/explore-hotels'], { queryParams });
-    this.hotelService.getExploreHotels(this.searchData).subscribe(res=>{
+    this.hotelService.getExploreHotels(this.searchData).subscribe(res => {
       this.listHotel = res.data.data;
       console.log('this list hotel load more', this.listHotel)
       this.next = res.data?.next;
@@ -267,67 +281,67 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
       this.buttonNext = !!(this.next && this.next.trim());
       console.log("this.buttonNex", this.buttonNext)
       setTimeout(() => {
-          this.initializeSwipers(this.swiperElements,this.swipers, this.currentIndexes);
-          this.initializeSwipers(this.swiperElements2,this.swipers2, this.currentIndexes2);
-        }, 0);
+        this.initializeSwipers(this.swiperElements, this.swipers, this.currentIndexes);
+        this.initializeSwipers(this.swiperElements2, this.swipers2, this.currentIndexes2);
+      }, 0);
     }
     )
   }
-  
+
   toggleCalendarCheckin() {
-      setTimeout(() => {
-          if (this.pickerCheckin) {
-              this.pickerCheckin.open();  // Gọi open() trên instance
-          }
-      });
-      
+    setTimeout(() => {
+      if (this.pickerCheckin) {
+        this.pickerCheckin.open();  // Gọi open() trên instance
+      }
+    });
+
   }
   toggleCalendarCheckout() {
-      setTimeout(() => {
-          if (this.pickerCheckout) {
-              this.pickerCheckout.open();  // Gọi open() trên instance
-          }
-      });
-      
+    setTimeout(() => {
+      if (this.pickerCheckout) {
+        this.pickerCheckout.open();  // Gọi open() trên instance
+      }
+    });
+
   }
 
   // Xử lý khi chọn ngày
   onDateChange(event: any) {
-      this.selectedDateCheckin = event.value;
+    this.selectedDateCheckin = event.value;
   }
 
   toggleGuestSelector() {
-      this.showGuestSelector = !this.showGuestSelector;
+    this.showGuestSelector = !this.showGuestSelector;
   }
 
   closeGuestSelector() {
     this.searchData.rooms = [...this.roomList]
-      this.showGuestSelector = false;
+    this.showGuestSelector = false;
   }
 
   get guestSummary() {
-      const totalAdults = this.roomList?.reduce((sum, r) => sum + r.adults, 0);
-      const totalChildren = this.roomList?.reduce((sum, r) => sum + r.children, 0);
-      const totalGuests = totalAdults + totalChildren;
-      return `${this.roomList?.length} room${this.roomList?.length > 1 ? 's' : ''}${totalGuests >= 1 ? ', ' + totalGuests + ' guests' : ''}`;
+    const totalAdults = this.roomList?.reduce((sum, r) => sum + r.adults, 0);
+    const totalChildren = this.roomList?.reduce((sum, r) => sum + r.children, 0);
+    const totalGuests = totalAdults + totalChildren;
+    return `${this.roomList?.length} room${this.roomList?.length > 1 ? 's' : ''}${totalGuests >= 1 ? ', ' + totalGuests + ' guests' : ''}`;
   }
 
   removeRoom() {
-      if (this.roomList.length > 1) {
-          this.roomList.pop();
-      }
+    if (this.roomList.length > 1) {
+      this.roomList.pop();
+    }
   }
   addRoom() {
-      if (this.roomList.length < 5) { 
-          this.roomList.push({ adults: 1, children: 0 });
-      }
+    if (this.roomList.length < 5) {
+      this.roomList.push({ adults: 1, children: 0 });
+    }
   }
   get minCheckoutDate(): Date | null {
-        if (!this.selectedDateCheckin) return null;
-        const date = new Date(this.selectedDateCheckin);
-        date.setDate(date.getDate() + 1);
-        return date;
-    }
+    if (!this.selectedDateCheckin) return null;
+    const date = new Date(this.selectedDateCheckin);
+    date.setDate(date.getDate() + 1);
+    return date;
+  }
   private updateHeaderHeight() {
     this.headerHeight = this.headerRef.nativeElement.offsetHeight;
     console.log(this.headerHeight)
@@ -379,17 +393,17 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  loadMoreHotes(){
+  loadMoreHotes() {
     this.searchData.offset = this.searchData.limit + this.searchData.offset;
     if (this.selectedFacilities.length > 0) {
       this.searchData.facilities = this.selectedFacilities;
     }
-    this.hotelService.getExploreHotels(this.searchData, this.next).subscribe(res=>{
-      this.listHotel = [...this.listHotel,...res.data.data];
+    this.hotelService.getExploreHotels(this.searchData, this.next).subscribe(res => {
+      this.listHotel = [...this.listHotel, ...res.data.data];
       console.log('this list hotel load more', this.listHotel)
       this.next = res.data?.next;
       this.previous = res.data?.previous;
-      this.listExcludeHotel = [...this.listExcludeHotel,...res.data?.excludeHotel];
+      this.listExcludeHotel = [...this.listExcludeHotel, ...res.data?.excludeHotel];
       this.buttonNext = !!(this.next && this.next.trim());
     }
     )
@@ -401,7 +415,7 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
       this.searchData.facilities = this.selectedFacilities;
     }
 
-    this.hotelService.getExploreHotels(this.searchData).subscribe(res=>{
+    this.hotelService.getExploreHotels(this.searchData).subscribe(res => {
       this.listHotel = res.data.data;
       console.log('this list hotel load more', this.listHotel)
       this.next = res.data?.next;
@@ -411,23 +425,23 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
       this.buttonNext = !!(this.next && this.next.trim());
       console.log("this.buttonNex", this.buttonNext)
       setTimeout(() => {
-          this.initializeSwipers(this.swiperElements,this.swipers, this.currentIndexes);
-          this.initializeSwipers(this.swiperElements2,this.swipers2, this.currentIndexes2);
-        }, 0);
+        this.initializeSwipers(this.swiperElements, this.swipers, this.currentIndexes);
+        this.initializeSwipers(this.swiperElements2, this.swipers2, this.currentIndexes2);
+      }, 0);
     }
     )  // 👈 gọi API với sort
   }
-  chooseHotel(slug:string, uuid:string){
+  chooseHotel(slug: string, uuid: string) {
     const queryParams: { [key: string]: any } = {};
     queryParams.hotel = uuid;
     queryParams.checkin = this.searchData.check_in;
     queryParams.checkout = this.searchData.check_out;
     queryParams.code = this.searchData.code;
     this.roomList.forEach((room, i) => {
-        queryParams[`rooms[${i}][adults]`] = room.adults;
-        queryParams[`rooms[${i}][children]`] = room.children;
+      queryParams[`rooms[${i}][adults]`] = room.adults;
+      queryParams[`rooms[${i}][children]`] = room.children;
     });
-    this.router.navigate([`hotel/${slug}`], {queryParams})
+    this.router.navigate([`hotel/${slug}`], { queryParams })
   }
 
   loadFacilities() {
@@ -472,22 +486,22 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.searchData) {
       this.searchData.facilities = this.selectedFacilities.length > 0 ? this.selectedFacilities : undefined;
       this.searchData.offset = 0;
-      
+
       // Update URL query params (preserve existing params)
       const currentParams = { ...this.activeRoute.snapshot.queryParams };
-      
+
       if (this.selectedFacilities.length > 0) {
         currentParams['facilities'] = this.selectedFacilities.join(',');
       } else {
         delete currentParams['facilities'];
       }
-      
+
       this.router.navigate([], {
         relativeTo: this.activeRoute,
         queryParams: currentParams,
         replaceUrl: true
       });
-      
+
       // Call API with facilities filter
       this.hotelService.getExploreHotels(this.searchData).subscribe(res => {
         this.listHotel = res.data.data;
@@ -522,5 +536,13 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
   getFacilityName(uuid: string) {
     return this.facilities.find(f => f.uuid === uuid)?.name;
   }
-  
+  trackByHotelUuid(index: number, hotel: any): string {
+    return hotel.slug;
+  }
+  onCheckInChange(date: Date | null) {
+    this.checkInDate = date;
+
+    // Nếu checkout < checkin hoặc đã có checkout → reset
+    this.checkOutDate = null;
+  }
 }

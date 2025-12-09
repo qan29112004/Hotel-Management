@@ -60,7 +60,7 @@ class RoomType(BaseModel):
     description = models.TextField(null=True,blank=True)
     base_price = models.CharField(null=True,blank=True , max_length=50)
     max_occupancy = models.IntegerField()
-    size = models.CharField(null=True, blank=True , max_length=50)
+    size = models.CharField(null=True, blank=True , max_length=50, default='0')
     status = models.CharField(choices=HotelConstants.ROOM_TYPE_STATUS, null=True,blank=True, max_length=50)
     thumbnail = models.CharField(null=True, blank=True, max_length=255)
     total_rooms = models.IntegerField(default=20)

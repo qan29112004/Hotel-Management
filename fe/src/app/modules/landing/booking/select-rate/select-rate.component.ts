@@ -8,10 +8,13 @@ import { formatDateToLong, calculateTotalAndAverage, convertVNDToUSD } from 'app
 import { BookingService } from 'app/core/booking/booking.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { TranslocoModule } from '@ngneat/transloco';
+import { DetailAmenityComponent } from '../detail-amenity/detail-amenity.component';
+import { UserService } from 'app/core/profile/user/user.service';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-select-rate',
   standalone: true,
-  imports: [CommonModule, SharedModule, TranslocoModule],
+  imports: [CommonModule, SharedModule, TranslocoModule, DetailAmenityComponent],
   templateUrl: './select-rate.component.html',
   styles: ``,
   animations: [
@@ -33,6 +36,7 @@ export class SelectRateComponent implements OnInit {
   @Input() roomIndex!: number;
   @Input() roomData: any;
   @Output() rateSelected = new EventEmitter<{ratePlanName:string, roomTypeName:string, totalPrice:number , guaranteePolicy:string, cancellationPolicy:string}>();
+  @Output() amenity = new EventEmitter<any>();
   selectedId:number = null;
   selectDetailRate: { id_rt: number; id_rate: number } | null = null;
   baseUrl:string = environment.baseUrl;
@@ -46,15 +50,20 @@ export class SelectRateComponent implements OnInit {
   ];
   swipers: any[] = [];
   currentIndexes: number[] = [];
+  isSoldOut:boolean = false;
+  crrUser:any;
 
-  constructor(private cdr: ChangeDetectorRef, private bookingService:BookingService) {
+  constructor(private cdr: ChangeDetectorRef, private bookingService:BookingService, private userService:UserService, private router:Router) {
     
   }
 
   ngOnInit(): void {
+    this.userService.user$.subscribe(user=>{
+      this.crrUser=user;
+    })
     setTimeout(()=>{
       console.log("check list_room_selected", this.list_room_selected)
-      if(this.list_room_selected.length)
+      if(this.list_room_selected?.length)
       this.cdr.detectChanges()
     },2000)
     setTimeout(() => {
@@ -132,25 +141,32 @@ export class SelectRateComponent implements OnInit {
     }
   } 
 
-  selectRateToBooking(roomtype_name:string, rate_name:string, total_price:number, guaranteePolicy:string, cancellationPolicy:string){
-    const payload = {
-        "session_id":localStorage.getItem('session_id'),
-        "room_type_name":roomtype_name,
-        "rate_plan_name":rate_name,
-        "user_email":"qan29112004@gmail.com",
-        "total_price":String(total_price),
-        "quantity":"1",
-        "room_index":this.roomIndex
+  selectRateToBooking(roomtype_name:string, rate_name:string, total_price:number, guaranteePolicy:string, cancellationPolicy:string, need_login:any){
+    if(!this.crrUser && need_login){
+      this.router.navigate(['/'])
     }
-    this.bookingService.createHoldRoom(payload).subscribe(
-      res=>{
-        if(res.ok){
-          this.selectRate(roomtype_name,rate_name, String(total_price), guaranteePolicy, cancellationPolicy)
-        }else{
-          alert(`${res.error}`)
-        }
+      const payload = {
+          "session_id":localStorage.getItem('session_id'),
+          "room_type_name":roomtype_name,
+          "rate_plan_name":rate_name,
+          "user_email":"qan29112004@gmail.com",
+          "total_price":String(total_price),
+          "quantity":"1",
+          "room_index":this.roomIndex
       }
-    )
+      this.bookingService.createHoldRoom(payload).subscribe(
+        res=>{
+          if(res.ok){
+            this.selectRate(roomtype_name,rate_name, String(total_price), guaranteePolicy, cancellationPolicy)
+          }else{
+            // alert(`${res.error}`)
+            this.isSoldOut = true;
+          }
+        }
+      )
+  }
+  closePopup(){
+    this.isSoldOut=false;
   }
 
   getFirstBedAmenity(rt: any) {
@@ -158,6 +174,10 @@ export class SelectRateComponent implements OnInit {
     return rt.amenity.find((a: any) =>
       a.amenityName?.toLowerCase().includes("bed")
     ) || null;
+  }
+
+  viewAmenity(rt:any){
+    this.amenity.emit(rt);
   }
   
 }

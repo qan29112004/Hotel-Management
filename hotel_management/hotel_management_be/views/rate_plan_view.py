@@ -30,13 +30,19 @@ from utils.utils import Utils
 @api_view(['POST'])
 def add_rate_plan(request):
     try:
-        
+        print("Request data:", request.data)
+        print("Service in request.data:", request.data.get('service'))
+        print("Type of service:", type(request.data.get('service')))
         serializers = RatePlanCreateSerializer(data=request.data, context={'request':request})
         if serializers.is_valid():
             new_rate_plan = serializers.save(created_by = request.user)
             return AppResponse.success(SuccessCodes.CREATE_AMENITY, data={"data":RatePlanSerializer(new_rate_plan).data})
+        print("Serializer errors:", serializers.errors)
         return AppResponse.error(ErrorCodes.CREATE_AMENITY_FAIL, serializers.errors)
     except Exception as e:
+        print(f"Exception in add_rate_plan: {e}")
+        import traceback
+        traceback.print_exc()
         return AppResponse.error(ErrorCodes.CREATE_AMENITY_FAIL, str(e))
     
 @auto_schema_patch(RatePlanSerializer)
@@ -49,12 +55,15 @@ def rate_plan_detail(request, uuid):
         rate_plan = RatePlan.objects.get(uuid__icontains=uuid)
 
         if request.method == 'PATCH':
-            
+            print("Request data update:", request.data)
+            print("Service in request.data update:", request.data.get('service'))
+            print("Type of service update:", type(request.data.get('service')))
             serializer = RatePlanCreateSerializer(rate_plan, data=request.data, partial=True)
             if serializer.is_valid():
                 with transaction.atomic():
                     updated = serializer.save(updated_by=request.user)
                 return AppResponse.success(SuccessCodes.UPDATE_AMENITY, data={"data": RatePlanSerializer(updated).data})
+            print("Serializer errors update:", serializer.errors)
             return AppResponse.error(ErrorCodes.UPDATE_AMENITY_FAIL, serializer.errors)
 
         elif request.method == 'DELETE':

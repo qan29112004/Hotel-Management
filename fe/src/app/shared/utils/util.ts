@@ -118,3 +118,13 @@ export function formatDate(date: any): string {
   const d = new Date(date);  // ép về Date object
   return d.toISOString().split('T')[0];
 }
+
+export function formatSecondToMinute(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+
+  const mm = m.toString().padStart(2, '0');
+  const ss = s.toString().padStart(2, '0');
+
+  return `${mm}:${ss}`;
+}

@@ -94,7 +94,7 @@ export class AmenityComponent implements OnInit {
         name: 'icon',
         labelKey: 'hotel.thumbnail',
         type: 'file',
-        placeholderKey: 'amenity.enterdDescription',
+        placeholderKey: 'amenity.enterthumbnail',
         accept: 'image/*',
     }
   ]
@@ -120,7 +120,7 @@ export class AmenityComponent implements OnInit {
         name: 'icon',
         labelKey: 'hotel.thumbnail',
         type: 'file',
-        placeholderKey: 'amenity.enterdDescription',
+        placeholderKey: 'amenity.enterthumbnail',
         accept: 'image/*',
     }
   ]

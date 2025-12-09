@@ -3,14 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { uriConfig } from '../../uri/config';
 import { Payment } from './payment.types';
 import {
-    catchError,
-    map,
-    Observable,
-    of,
-    ReplaySubject,
-    switchMap,
-    tap,
-    BehaviorSubject,
+  catchError,
+  map,
+  Observable,
+  of,
+  ReplaySubject,
+  switchMap,
+  tap,
+  BehaviorSubject,
 } from 'rxjs';
 @Injectable({
   providedIn: 'root'
@@ -19,13 +19,13 @@ export class PaymentService {
   private payment: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   payment$ = this.payment.asObservable();
 
-  constructor(private httpClient:HttpClient) { }
+  constructor(private httpClient: HttpClient) { }
 
-  check(){
+  check() {
     return this.payment.getValue();
   }
 
-  getAllPayment(params?: any): Observable<{data: Payment[], total: number, page: number, page_size: number}> {
+  getAllPayment(params?: any): Observable<{ data: Payment[], total: number, page: number, page_size: number }> {
     return this.httpClient.post<any>(uriConfig.API_PAYMENT_ALL, params || {}).pipe(
       map(res => ({
         data: res.data?.data || [],
@@ -33,7 +33,7 @@ export class PaymentService {
         page: res.data?.page,
         page_size: res.data?.page_size
       })),
-      tap(res=>{
+      tap(res => {
         this.payment.next(res.data?.data);
       }),
       catchError(error => {
@@ -43,7 +43,7 @@ export class PaymentService {
     );
   }
 
-  getPayment(params?: any): Observable<{data: Payment[], total: number, page: number, page_size: number}> {
+  getPayment(params?: any): Observable<{ data: Payment[], total: number, page: number, page_size: number }> {
     return this.httpClient.post<any>(uriConfig.API_PAYMENT_ALL, params || {}).pipe(
       map(res => ({
         data: res.data?.data || [],
@@ -60,7 +60,7 @@ export class PaymentService {
 
   createPayment(payment: Partial<Payment>): Observable<any> {
     return this.httpClient.post(uriConfig.API_PAYMENT_CREATE, payment).pipe(
-      
+
     );
   }
 

@@ -12,70 +12,50 @@
             </div>
 
             <!-- FILTERS & ACTIONS BAR -->
-            <div class="flex flex-col gap-4 p-4 bg-white border shadow-sm lg:flex-row lg:justify-between lg:items-end border-zinc-200">
+            <div
+                class="flex flex-col gap-4 p-4 bg-white border shadow-sm lg:flex-row lg:justify-between lg:items-end border-zinc-200">
                 <!-- Left: Search & Filters -->
                 <div class="flex flex-col items-end w-full gap-3 sm:flex-row">
                     <!-- Search -->
                     <div class="relative flex-1 w-full max-w-md sm:w-auto group">
                         <div class="relative flex items-center">
                             <mat-icon class="absolute text-zinc-400 left-3">search</mat-icon>
-                            <input
-                                type="text"
-                                [(ngModel)]="searchTerm"
-                                (ngModelChange)="onSearch()"
+                            <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearch()"
                                 placeholder="{{ t('room.search_placeholder') }}"
-                                class="w-full h-10 pl-10 pr-10 text-sm transition-all border rounded-none bg-zinc-50 border-zinc-300 text-zinc-900 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 placeholder:text-zinc-400"
-                            />
+                                class="w-full h-10 pl-10 pr-10 text-sm transition-all border rounded-none bg-zinc-50 border-zinc-300 text-zinc-900 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 placeholder:text-zinc-400" />
                             <!-- Filter Toggle Button inside input area -->
                             <button
                                 class="absolute top-0 right-0 flex items-center justify-center w-10 h-10 transition-colors border-l rounded-none bg-zinc-100 border-zinc-300 hover:bg-amber-400 hover:text-zinc-900 hover:border-amber-400 text-zinc-500"
-                                (click)="toggleEditFilterDrawer(); $event.stopPropagation()"
-                                type="button"
-                                matTooltip="Advanced Filters"
-                            >
+                                (click)="toggleEditFilterDrawer(); $event.stopPropagation()" type="button"
+                                matTooltip="Advanced Filters">
                                 <mat-icon [svgIcon]="'heroicons_outline:funnel'" class="icon-size-5"></mat-icon>
                             </button>
                         </div>
 
                         <!-- Advanced Filter Dropdown -->
-                        <app-generic-filter
-                            #filterPopup
-                            [mode]="'inline'"
-                            [showFilter]="showFilter"
-                            [titleKey]="'content.advanced_filters'"
-                            [fields]="filterFields"
-                            [optionDestination]="optionsSelect"
-                            [optionRadio]="radioAmenityOptions"
-                            (filter)="onApplyFilter($event)"
-                            (reset)="onResetFilter()"
-                            (close)="toggleFilterDrawer()"
+                        <app-generic-filter #filterPopup [mode]="'inline'" [showFilter]="showFilter"
+                            [titleKey]="'common.advanced_filters'" [fields]="filterFields"
+                            [optionDestination]="optionsSelect" [optionRadio]="radioAmenityOptions"
+                            (filter)="onApplyFilter($event)" (reset)="onResetFilter()" (close)="toggleFilterDrawer()"
                             (drawerOpenedChanged)="onFilterDrawerOpenedChanged($event)"
-                            class="absolute top-[70px] z-50 left-0 bg-white w-full sm:w-[400px] max-h-[500px] flex flex-col overflow-y-auto rounded-none"
-                        >
+                            class="absolute top-[70px] z-50 left-0 bg-white w-full sm:w-[400px] max-h-[500px] flex flex-col overflow-y-auto rounded-none">
                         </app-generic-filter>
                     </div>
 
                     <!-- Delete Button (Conditional) -->
-                    <button
-                        *ngIf="hasSelectedRoom"
-                        (click)="toggleDeleteDialog()"
-                        class="flex items-center h-10 gap-2 px-4 transition-colors border rounded-none bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200 animate-fade-in"
-                    >
+                    <button *ngIf="hasSelectedRoom && user.role === 1" (click)="toggleDeleteDialog()"
+                        class="flex items-center h-10 gap-2 px-4 transition-colors border rounded-none bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200 animate-fade-in">
                         <mat-icon class="icon-size-5">delete</mat-icon>
-                        <span class="text-sm font-bold uppercase">{{ t('content.delete') }} ({{selectedIds.length}})</span>
+                        <span class="text-sm font-bold uppercase">{{ t('common.delete') }}
+                            ({{selectedIds.length}})</span>
                     </button>
                 </div>
-            
+
                 <!-- Right: Create Button -->
-                <div class="flex w-full lg:w-auto">
-                    <button
-                        (click)="toggleAddUserDrawer()"
-                        class="flex items-center justify-center w-full h-10 gap-2 px-6 transition-all rounded-none sm:w-auto bg-zinc-900 text-white hover:bg-zinc-800 active:translate-y-0.5"
-                    >
-                        <mat-icon
-                            class="text-amber-400 icon-size-5"
-                            svgIcon="heroicons_outline:plus-circle"
-                        ></mat-icon>
+                <div *ngIf='user.role === 1' class="flex w-full lg:w-auto">
+                    <button (click)="toggleAddUserDrawer()"
+                        class="flex items-center justify-center w-full h-10 gap-2 px-6 transition-all rounded-none sm:w-auto bg-zinc-900 text-white hover:bg-zinc-800 active:translate-y-0.5">
+                        <mat-icon class="text-amber-400 icon-size-5" svgIcon="heroicons_outline:plus-circle"></mat-icon>
                         <span class="text-sm font-bold tracking-wide uppercase">{{ t("room.create") }}</span>
                     </button>
                 </div>
@@ -89,12 +69,9 @@
                         <thead class="text-xs font-bold tracking-wider text-white uppercase bg-zinc-900">
                             <tr>
                                 <th class="w-12 px-4 py-4 text-center border-b border-zinc-800">
-                                    <input
-                                        type="checkbox"
-                                        (change)="toggleAllRows($event)"
+                                    <input type="checkbox" (change)="toggleAllRows($event)"
                                         (click)="$event.stopPropagation()"
-                                        class="w-4 h-4 rounded-none border-zinc-600 bg-zinc-800 text-amber-500 focus:ring-amber-500 focus:ring-offset-zinc-900"
-                                    />
+                                        class="w-4 h-4 rounded-none border-zinc-600 bg-zinc-800 text-amber-500 focus:ring-amber-500 focus:ring-offset-zinc-900" />
                                 </th>
                                 <th class="w-16 px-4 py-4 text-center border-b border-zinc-800">
                                     {{ t("user_management.sequenceNumber") }}
@@ -103,66 +80,73 @@
                                     (click)="sortBy('room_number')">
                                     <div class="flex items-center gap-1">
                                         {{ t("room.room_number") }}
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'room_number' && sortOption === 'asc'">arrow_upward</mat-icon>
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'room_number' && sortOption === 'desc'">arrow_downward</mat-icon>
-                                        <mat-icon class="icon-size-4 text-zinc-600" *ngIf="sortField !== 'room_number'">unfold_more</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400"
+                                            *ngIf="sortField === 'room_number' && sortOption === 'asc'">arrow_upward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400"
+                                            *ngIf="sortField === 'room_number' && sortOption === 'desc'">arrow_downward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-zinc-600"
+                                            *ngIf="sortField !== 'room_number'">unfold_more</mat-icon>
                                     </div>
                                 </th>
                                 <th class="px-4 py-4 border-b border-zinc-800">{{ t("room.status") }}</th>
-                                <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800" (click)="sortBy('created_at')">
+                                <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800"
+                                    (click)="sortBy('created_at')">
                                     <div class="flex items-center gap-1">
                                         {{ t("user_management.created_at") }}
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'created_at' && sortOption === 'asc'">arrow_upward</mat-icon>
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'created_at' && sortOption === 'desc'">arrow_downward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400"
+                                            *ngIf="sortField === 'created_at' && sortOption === 'asc'">arrow_upward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400"
+                                            *ngIf="sortField === 'created_at' && sortOption === 'desc'">arrow_downward</mat-icon>
                                     </div>
                                 </th>
-                                <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800" (click)="sortBy('updated_at')">
+                                <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800"
+                                    (click)="sortBy('updated_at')">
                                     <div class="flex items-center gap-1">
                                         {{ t("user_management.updated_at") }}
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'updated_at' && sortOption === 'asc'">arrow_upward</mat-icon>
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'updated_at' && sortOption === 'desc'">arrow_downward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400"
+                                            *ngIf="sortField === 'updated_at' && sortOption === 'asc'">arrow_upward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400"
+                                            *ngIf="sortField === 'updated_at' && sortOption === 'desc'">arrow_downward</mat-icon>
                                     </div>
                                 </th>
-                                <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800" (click)="sortBy('floor')">
+                                <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800"
+                                    (click)="sortBy('floor')">
                                     <div class="flex items-center gap-1">
                                         {{ t("room.floor") }}
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'floor' && sortOption === 'asc'">arrow_upward</mat-icon>
-                                        <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'floor' && sortOption === 'desc'">arrow_downward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400"
+                                            *ngIf="sortField === 'floor' && sortOption === 'asc'">arrow_upward</mat-icon>
+                                        <mat-icon class="icon-size-4 text-amber-400"
+                                            *ngIf="sortField === 'floor' && sortOption === 'desc'">arrow_downward</mat-icon>
                                     </div>
                                 </th>
                                 <th class="px-4 py-4 border-b border-zinc-800">{{ t("room.housekeeping_status") }}</th>
                                 <th class="px-4 py-4 border-b border-zinc-800">{{ t("room.room_type") }}</th>
-                                <th class="px-4 py-4 text-center border-b border-zinc-800">{{ t("user_management.action") }}</th>
+                                <th class="px-4 py-4 text-center border-b border-zinc-800">{{
+                                    t("user_management.action") }}</th>
                             </tr>
                         </thead>
 
                         <!-- TBODY -->
                         <tbody class="divide-y divide-zinc-100">
-                            <tr
-                                *ngFor="let room of rooms; let i = index;"
+                            <tr *ngFor="let room of rooms; let i = index;"
                                 class="transition-colors duration-150 bg-white group hover:bg-amber-50/50"
-                                [class.bg-amber-50]="room.selected"
-                            >
+                                [class.bg-amber-50]="room.selected">
                                 <td class="px-4 py-3 text-center">
-                                    <input
-                                        type="checkbox"
-                                        [(ngModel)]="room.selected"
-                                        (ngModelChange)="toggleRow()"
+                                    <input type="checkbox" [(ngModel)]="room.selected" (ngModelChange)="toggleRow()"
                                         (click)="$event.stopPropagation()"
-                                        class="w-4 h-4 rounded-none cursor-pointer border-zinc-300 text-amber-500 focus:ring-amber-500"
-                                    />
+                                        class="w-4 h-4 rounded-none cursor-pointer border-zinc-300 text-amber-500 focus:ring-amber-500" />
                                 </td>
                                 <td class="px-4 py-3 font-mono text-center text-zinc-500">
                                     {{ (currentPage - 1) * pageSize + i + 1 }}
                                 </td>
                                 <td class="px-4 py-3" (click)="toggleEditUserDrawer(room)">
-                                    <div class="font-bold truncate transition-colors cursor-pointer text-zinc-900 group-hover:text-amber-600">
+                                    <div
+                                        class="font-bold truncate transition-colors cursor-pointer text-zinc-900 group-hover:text-amber-600">
                                         {{ room.roomNumber }}
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 text-zinc-600 max-w-xs truncate" [title]="room.status || ''">
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-none"
-                                        [ngClass]="{
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-none" [ngClass]="{
                                             'bg-emerald-100 text-emerald-800': room.status === 'Available',
                                             'bg-blue-100 text-blue-800': room.status === 'Booked',
                                             'bg-orange-100 text-orange-800': room.status === 'Maintenance'
@@ -174,10 +158,11 @@
                                     {{ formatDateTimeUnix(room.createdAt) }}
                                 </td>
                                 <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
-                                     <div class="flex flex-col">
+                                    <div class="flex flex-col">
                                         <span>{{ formatDateTimeUnix(room.updatedAt) || '---' }}</span>
-                                        <span class="text-[10px] text-zinc-400" *ngIf="room.updatedBy">by {{ room.updatedBy.username }}</span>
-                                     </div>
+                                        <span class="text-[10px] text-zinc-400" *ngIf="room.updatedBy">by {{
+                                            room.updatedBy.username }}</span>
+                                    </div>
                                 </td>
                                 <td class="px-4 py-3 text-zinc-600">
                                     {{ room.floor }}
@@ -189,21 +174,18 @@
                                     {{ room.roomTypeId?.name }}
                                 </td>
                                 <td class="px-4 py-3 text-center">
-                                    <div class="flex items-center justify-center gap-1 transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
-                                        <button
-                                            (click)="toggleEditUserDrawer(room); $event.stopPropagation()"
+                                    <div
+                                        class="flex items-center justify-center gap-1 transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
+                                        <button (click)="toggleEditUserDrawer(room); $event.stopPropagation()"
                                             class="flex items-center justify-center w-8 h-8 transition-colors rounded-none text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
-                                            matTooltip="Edit"
-                                        >
+                                            matTooltip="Edit">
                                             <mat-icon class="icon-size-5">edit</mat-icon>
                                         </button>
 
-                                        <button
-                                            *ngIf="user.role === 1"
+                                        <button *ngIf="user.role === 1"
                                             (click)="toggleDeleteDialog(room.uuid); $event.stopPropagation()"
                                             class="flex items-center justify-center w-8 h-8 transition-colors rounded-none text-zinc-500 hover:text-rose-600 hover:bg-rose-50"
-                                            matTooltip="Delete"
-                                        >
+                                            matTooltip="Delete">
                                             <mat-icon class="icon-size-5">delete</mat-icon>
                                         </button>
                                     </div>
@@ -213,29 +195,25 @@
                     </table>
 
                     <!-- Empty State -->
-                    <div *ngIf="rooms.length === 0 && !loading" class="flex flex-col items-center justify-center py-12 text-center border-t text-zinc-400 bg-zinc-50 border-zinc-100">
-                         <mat-icon class="mb-3 icon-size-12 text-zinc-300" [svgIcon]="'heroicons_outline:folder-open'"></mat-icon>
+                    <div *ngIf="rooms.length === 0 && !loading"
+                        class="flex flex-col items-center justify-center py-12 text-center border-t text-zinc-400 bg-zinc-50 border-zinc-100">
+                        <mat-icon class="mb-3 icon-size-12 text-zinc-300"
+                            [svgIcon]="'heroicons_outline:folder-open'"></mat-icon>
                         <p class="text-lg font-medium text-zinc-500">{{ t("room.no_matching_data") }}</p>
                         <p class="text-sm">Try adjusting your search or filters</p>
                     </div>
-                     <!-- Loading State -->
-                     <div *ngIf="loading" class="flex items-center justify-center py-12 border-t border-zinc-100">
+                    <!-- Loading State -->
+                    <div *ngIf="loading" class="flex items-center justify-center py-12 border-t border-zinc-100">
                         <mat-spinner diameter="32"></mat-spinner>
-                     </div>
+                    </div>
                 </div>
 
                 <!-- Footer / Pagination -->
                 <div class="p-2 border-t bg-zinc-50 border-zinc-200">
-                    <app-custom-pagination
-                        *ngIf="rooms.length > 0"
-                        [totalRecords]="totalRecords"
-                        [totalItems]="totalItems"
-                        [currentPage]="currentPage"
-                        [pageSize]="pageSize"
-                        (pageChange)="onPageChange($event)"
-                        (pageSizeChange)="onPageSizeChange($event)"
-                        class="block w-full"
-                    >
+                    <app-custom-pagination *ngIf="rooms.length > 0" [totalRecords]="totalRecords"
+                        [totalItems]="totalItems" [currentPage]="currentPage" [pageSize]="pageSize"
+                        (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)"
+                        class="block w-full">
                     </app-custom-pagination>
                 </div>
             </div>
@@ -245,25 +223,13 @@
 
 <ng-container #editContainer></ng-container>
 
-<app-generic-add
-    [showDrawer]="showAddRoom"
-    [titleKey]="'room.create'"
-    [fields]="addFields"
-    [saveHandler]="addSaveHandler.bind(this)"
-    [optionDestination]="optionsSelect"
-    [optionRadio]="radioAmenityOptions"
-    (toggleDrawer)="toggleAddUserDrawer()"
-    [loadData] = "loadRooms.bind(this)"
+<app-generic-add *ngIf="user.role === 1" [showDrawer]="showAddRoom" [titleKey]="'room.create'" [fields]="addFields"
+    [saveHandler]="addSaveHandler.bind(this)" [optionDestination]="optionsSelect" [optionRadio]="radioAmenityOptions"
+    (toggleDrawer)="toggleAddUserDrawer()" [loadData]="loadRooms.bind(this)"
     (drawerOpenedChanged)="onAddDrawerOpenedChanged($event)">
 </app-generic-add>
 
-<app-generic-delete
-    *ngIf="showDeleteDialog"
-    [entityIds]="selectedIds"
-    [titleKey]="'content.confirm_delete'"
-    [messageKey]="'customer.dialog.message'"
-    [warningKey]="'other.warning_text'"
-    [deleteHandler]="deleteHandler.bind(this)"
-    (close)="toggleDeleteDialog()"
-    (refresh)="loadRooms()"
-></app-generic-delete>
+<app-generic-delete *ngIf="showDeleteDialog && user.role === 1" [entityIds]="selectedIds"
+    [titleKey]="'content.confirm_delete'" [messageKey]="'customer.dialog.message'" [warningKey]="'other.warning_text'"
+    [deleteHandler]="deleteHandler.bind(this)" (close)="toggleDeleteDialog()"
+    (refresh)="loadRooms()"></app-generic-delete>

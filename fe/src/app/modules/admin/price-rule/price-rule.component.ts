@@ -141,15 +141,7 @@ export class PriceRuleComponent implements OnInit {
           labelKey: 'user_management.updated_at',
           type: 'date-range',
           rangeFields: { from: 'updated_from', to: 'updated_to' },
-      },
-      {
-        name: 'hotel',
-        labelKey: 'priceRule.hotel',
-        type: 'select',
-        placeholderKey: 'priceRule.enterHotel',
-        asyncOptionsKey: true,
-        isForeingKey:true
-    },
+      }
   ];
   @ViewChild('editContainer', { read: ViewContainerRef }) editContainer: ViewContainerRef;
   baseUrl = environment.baseUrl;

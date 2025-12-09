@@ -1,11 +1,11 @@
 <div class="flex flex-col items-center flex-auto w-full h-full bg-white max-w-[1920px]">
     <div class='bg-black h-[7rem] w-full'></div>
     <div class='flex flex-col items-center justify-center mt-5'>
-        <a href="destination" class="uppercase font-avenir text-[16px] font-bold">back to continents</a>
+        <a href="destination" class="uppercase font-avenir text-[16px] font-bold">{{'destination.back_to_continents'|transloco}}</a>
         <span class='text-[48px] font-lexend_deca'>{{destinationData.name}}</span>
-        <button type="button" class="px-6 py-3 mt-4 text-base font-semibold uppercase transition duration-300 bg-yellow-500 cursor-pointer font-avenir hover:scale-105">
-            List Hotels
-        </button>
+        <a [href]="'explore-hotels?dest=' + destinationData.uuid" class="px-6 py-3 mt-4 text-base font-semibold uppercase transition duration-300 bg-yellow-500 cursor-pointer font-avenir hover:scale-105">
+            {{'destination.list_hotels'|transloco}}
+        </a>
     </div>
     <app-map class='w-full h-[756px] z-0 mt-8 max-w-[1920px] px-16' [listData]="destinationData.totalHotels"></app-map>
     <span class="font-clearface text-[30px] mb-5 mt-5">List Hotels</span>
@@ -20,8 +20,8 @@
                     <div class="absolute top-0 left-0 w-full h-full bg-primary/50"></div>
                     <div class="z-10 flex flex-col items-center w-full gap-8">
                         <span class="font-avenir text-[30px]">{{hotel.name | capitalize}}</span>
-                        <a [href]="'hotel/' + hotel.slug + '?hotel=' + hotel.uuid" class="text-base uppercase border-b cursor-pointer border-b-white font-lexend_deca">destination.hotel_page</a>
-                        <button (click)="chooseHotel(hotel.uuid)">Quick view</button>
+                        <a [href]="'hotel/' + hotel.slug + '?hotel=' + hotel.uuid" class="text-base uppercase bg-yellow-500 text-black py-2 px-3 cursor-pointer font-lexend_deca">{{'destination.hotel_page'|transloco}}</a>
+                        <!-- <button (click)="chooseHotel(hotel.uuid)">Quick view</button> -->
                     </div>
                 </div>
                 <div class="h-full col-span-2 px-[10px] transition-all duration-500 ease-in-out"
@@ -41,58 +41,11 @@
             </div>
         </ng-container>
     </div>
-    <div class="flex flex-col items-center w-full gap-6 mt-16">
+    <div class="flex flex-col items-center w-full gap-6 mt-16 mb-[60px]">
         <div class="flex flex-col items-center w-full">
             <span class="font-clearface text-[30px] mb-5">{{'destination.introduce'|transloco}}</span>
-            <p class="w-[60%] text-center font-avenir text-[16px] mb-5">{{ 'destination.'+ destinationData.slug + '.introduce' | transloco }}</p>
+            <p class="w-[60%] text-center font-avenir text-[16px] mb-5">{{ destinationData.description}}</p>
         </div>
-        <div class="flex flex-col items-center w-full">
-            <span class="font-clearface text-[30px] mb-5">Highlights</span>
-            <div class="relative flex items-center justify-center w-full h-auto gap-10">
-                <div class="absolute w-full self-center bg-[#f7f0ea]" style="height: calc(100% - 140px);"></div>
-                <div class="max-w-[37%] z-10 h-full text-right">
-                    <img
-                        src="assets/images/Americas-City-Break-LR.jpg"
-                        class="flex-grow object-cover max-h-full pt-3 max-sm:hidden"
-                        alt="logo"
-                    />
-                    <span class="italic font-parisienne">test</span>
-                </div>
-                <div class="flex flex-col justify-center z-10 h-full max-w-[42%] gap-5">
-                    <span class="font-clearface text-[24px]">{{ 'destination.'+ destinationData.slug + '.paragraph_1.title' | transloco }}</span>        
-                    <p class="font-avenir text-[16px]">{{ 'destination.'+ destinationData.slug + '.paragraph_1.content' | transloco }}</p>            
-                </div>
-            </div>
-            <div class="relative flex items-center justify-center w-full h-auto gap-10">
-                <div class="absolute self-center w-[90%] border border-black" style="height: calc(100% - 140px);"></div>
-                <div class="flex flex-col justify-center z-10 h-full max-w-[42%] gap-5">
-                    <span class="font-clearface text-[24px]">{{ 'destination.'+ destinationData.slug + '.paragraph_2.title' | transloco }}</span>        
-                    <p class="font-avenir text-[16px]">{{ 'destination.'+ destinationData.slug + '.paragraph_2.content' | transloco }}</p>            
-                </div>
-                <div class="max-w-[37%] z-10 h-full text-right">
-                    <img
-                        src="assets/images/Americas-City-Break-LR.jpg"
-                        class="flex-grow object-cover max-h-full pt-3 max-sm:hidden"
-                        alt="logo"
-                    />
-                    <span class="inline-flex items-center italic font-parisienne">test <img src="assets/images/map/hotel-icon.png" class="w-[14px] h-4 align-middle"/></span>
-                </div>
-            </div>
-            <div class="relative flex items-center justify-center w-full h-auto gap-10">
-                <div class="absolute w-full self-center bg-[#f7f0ea]" style="height: calc(100% - 140px);"></div>
-                <div class="max-w-[37%] z-10 h-full text-right">
-                    <img
-                        src="assets/images/Americas-City-Break-LR.jpg"
-                        class="flex-grow object-cover max-h-full pt-3 max-sm:hidden"
-                        alt="logo"
-                    />
-                    <span class="italic font-parisienne">test</span>
-                </div>
-                <div class="flex flex-col justify-center z-10 h-full max-w-[42%] gap-5">
-                    <span class="font-clearface text-[24px]">{{ 'destination.'+ destinationData.slug + '.paragraph_3.title' | transloco }}</span>        
-                    <p class="font-avenir text-[16px]">{{ 'destination.'+ destinationData.slug + '.paragraph_3.content' | transloco }}</p>            
-                </div>
-            </div>
-        </div>
+        
     </div>
 </div>

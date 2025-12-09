@@ -82,7 +82,7 @@
                         >
                             <mat-label>{{ t(field.labelKey) }} {{field.helpText?'(' + field.helpText +')' : ''}}</mat-label>
                             <mat-select *ngIf="field.asyncOptionsKey; else staticSelect" [formControlName]="field.name">
-                                <mat-option *ngFor="let option of optionDestination[field.name]" [value]="option.id">
+                                <mat-option *ngFor="let option of optionDestination[camelToSnake(field.name)]" [value]="option.id">
                                     {{ option.name }}
                                 </mat-option>
                             </mat-select>

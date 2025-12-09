@@ -35,7 +35,7 @@ export interface FileUpload {
     url?: string;
 }
 
-type action = 'join_group'| 'out_group'| 'send_message'| 'send_requirement' | 'send_message_ai'
+type action = 'join_group'| 'out_group'| 'send_message'| 'send_requirement' | 'send_message_ai' | 'delete_session'
 
 export interface MessageSocket{
     action:action

@@ -89,7 +89,7 @@ export class DesinationComponent implements OnInit {
     {
         name: 'description',
         labelKey: 'destination.description',
-        type: 'text',
+        type: 'textarea',
         placeholderKey: 'destination.enterdDescription',
         required: true,
         
@@ -115,7 +115,7 @@ export class DesinationComponent implements OnInit {
     {
         name: 'description',
         labelKey: 'destination.description',
-        type: 'text',
+        type: 'textarea',
         placeholderKey: 'destination.enterdDescription',
         required: true,
         

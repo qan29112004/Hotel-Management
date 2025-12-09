@@ -102,7 +102,7 @@ export class RatingComponent implements OnInit {
     },
     {
         name: 'isActive',
-        labelKey: 'rating.is_active',
+        labelKey: 'rating.isActive',
         type: 'select',
         options:[
           {id:true, name:"True"},
@@ -120,16 +120,6 @@ export class RatingComponent implements OnInit {
         isForeignKey:true,
         disabled:true
         
-        
-    },
-    {
-        name: 'booking',
-        labelKey: 'rating.booking',
-        type: 'select',
-        placeholderKey: 'rating.enterbooking',
-        asyncOptionsKey: true,
-        isForeignKey:true,
-        disabled:true
         
     }
     
@@ -161,7 +151,7 @@ export class RatingComponent implements OnInit {
     },
     {
         name: 'isActive',
-        labelKey: 'rating.is_active',
+        labelKey: 'rating.isActive',
         type: 'select',
         options:[
           {id:true, name:"True"},
@@ -174,20 +164,9 @@ export class RatingComponent implements OnInit {
         name: 'hotel',
         labelKey: 'rating.hotel',
         type: 'select',
-        placeholderKey: 'rating.enterRefundable',
+        placeholderKey: 'rating.enterHotel',
         asyncOptionsKey: true,
-        isForeignKey:true,
-        disabled:true
-        
-    },
-    {
-        name: 'booking',
-        labelKey: 'rating.booking',
-        type: 'select',
-        placeholderKey: 'rating.enterbooking',
-        asyncOptionsKey: true,
-        isForeignKey:true,
-        disabled:true
+        isForeignKey:true
         
     }
   ]
@@ -205,6 +184,26 @@ export class RatingComponent implements OnInit {
           type: 'date-range',
           rangeFields: { from: 'updated_from', to: 'updated_to' },
       },
+      {
+        name: 'isActive',
+        labelKey: 'rating.isActive',
+        type: 'select',
+        options:[
+          {id:true, name:"True"},
+          {id:false,name:"False"}
+        ],
+        placeholderKey: 'rating.enterIsActive',
+        
+    },
+      {
+        name: 'hotel',
+        labelKey: 'rating.hotel',
+        type: 'select',
+        placeholderKey: 'rating.enterHotel',
+        asyncOptionsKey: true,
+        isForeingKey:true
+        
+    },
       
       {
         name: 'created_by_email',
@@ -228,7 +227,7 @@ export class RatingComponent implements OnInit {
   user:User
   selectedDes:Rating = null;
   selectedIds: string[] = [];
-  optionsHotel:any[];
+  optionsSelect:any={};
   optionsBooking:any[];
   ratings: Rating[] = [];
   hasSelectedRating:boolean= false;
@@ -294,8 +293,8 @@ export class RatingComponent implements OnInit {
         ),
       takeUntil(this._unsubscribeAll)
       ).subscribe((options)=>{
-        this.optionsHotel = options;
-        console.log("destination options:", this.optionsHotel)
+        this.optionsSelect['hotel'] = options;
+        console.log("destination options:", this.optionsSelect)
       });
     this.bookingService.getBooking({page_size:0}).pipe(
       map(bookings => {
@@ -499,7 +498,7 @@ export class RatingComponent implements OnInit {
         instance.entityData = this.selectedDes;
         instance.saveHandler = this.saveHandler.bind(this);
         instance.loadData = this.loadRating.bind(this);
-        instance.optionDestination = this.optionsHotel;
+        instance.optionDestination = this.optionsSelect;
 
         // ✅ Lắng nghe sự kiện Output
         instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());

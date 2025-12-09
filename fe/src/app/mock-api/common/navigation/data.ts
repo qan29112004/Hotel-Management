@@ -333,6 +333,20 @@ export const compactNavigation: FuseNavigationItem[] = [
         icon: 'assets/images/ui/menu/voucher.svg',
         link: `deal`
     },
+    {
+        id: 'booking',
+        title: 'Booking',
+        type: 'basic',
+        icon: 'assets/images/ui/menu/booking.svg',
+        link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.BOOKING}`,
+    },
+    {
+        id: 'room',
+        title: 'Room',
+        type: 'basic',
+        icon: 'assets/images/ui/menu/room.svg',
+        link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.ROOM}`,
+    },
     // {
     //     id: 'feedback',
     //     title: 'FeedBack',
@@ -453,6 +467,12 @@ export const compactNavigation: FuseNavigationItem[] = [
                 title: 'Price rule',
                 type: 'basic',
                 link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.PRICE_RULE}`,
+            },
+            {
+                id: 'admin.refund',
+                title: 'Refund',
+                type: 'basic',
+                link: `/${routeConfig.ROUTER_ADMIN}/${routeConfig.REFUND}`,
             }
         ]
     },

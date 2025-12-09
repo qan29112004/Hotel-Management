@@ -101,7 +101,8 @@ export class GenericAddComponent implements OnInit {
                     this.passwordTouched[field.name] = false;
                 }
                 if (field.type === 'checkbox') {
-                    this.selectedRadioValues[field.name] = []; // Khởi tạo mảng cho radio
+                    this.selectedRadioValues[field.name] = []; // Khởi tạo mảng cho checkbox
+                    this.displayCheckbox[field.name] = []; // Khởi tạo mảng cho display checkbox
                 }
                 return controls;
             }, {})
@@ -164,18 +165,33 @@ export class GenericAddComponent implements OnInit {
         Object.keys(this.addFormGroup.controls).forEach((key) => {
             const control = this.addFormGroup.get(key);
             const value = control?.value;
+            const field = this.fields.find((f) => f.name === key);
+            
+            // Xử lý checkbox riêng - không skip vì có thể là mảng rỗng
+            if (field?.type === 'checkbox') {
+                // Gửi danh sách giá trị checkbox từ selectedRadioValues
+                const checkboxValues = this.selectedRadioValues[field.name];
+                console.log("check checkbox values: ", checkboxValues, "for field:", field.name);
+                if (checkboxValues && Array.isArray(checkboxValues) && checkboxValues.length > 0) {
+                    checkboxValues.forEach((val) => {
+                        formData.append(`${field.name}`, val);
+                        console.log("Appended checkbox value:", val, "to field:", field.name);
+                    });
+                }
+                // Nếu không có giá trị nào được chọn, vẫn append mảng rỗng để backend biết
+                // (hoặc không append gì cả nếu backend xử lý được)
+                return; // Skip các xử lý khác cho checkbox
+            }
+            
+            // Skip các giá trị rỗng cho các field khác
             if (value === null || value === undefined || value === '') {
                 return;
             }
-            const field = this.fields.find((f) => f.name === key);
-            console.log("check type:", field.type)
+            
+            console.log("check type:", field?.type)
             if (field?.type === 'date') {
                 const rawDate = this.addFormGroup.get(key)?.value;
                 formData.append(key, rawDate ? new Date(rawDate).toISOString().split('T')[0] : '');
-            }else if (field?.type === 'checkbox') {
-                // Gửi danh sách giá trị radio
-                console.log("check checkbox: ", this.selectedRadioValues[field.name])
-                this.selectedRadioValues[field.name].forEach((val) => formData.append(`${field.name}`, val));
             } 
             else if (field?.type !== 'file' && field?.type !== 'files') {
                 formData.append(key, this.addFormGroup.value[key]);
@@ -222,7 +238,7 @@ export class GenericAddComponent implements OnInit {
                 this.alert = {
                     type: 'error',
                     code: Array.isArray(errorList)
-                        ? errorList.map(e => e.field ? `${e.field}: ${e.message}` : e.message)
+                        ? errorList.map(e => e.field ? `${e.message}` : e.message)
                         : [err?.error?.message || err?.error?.code || 'Đã xảy ra lỗi'],
                 };
                 this.showAlert = true;
@@ -239,6 +255,11 @@ export class GenericAddComponent implements OnInit {
             }
             if (field.type === 'radio') {
                 this.selectedRadioValues[field.name] = []; // Reset danh sách radio
+                this.addFormGroup.get(field.name)?.patchValue([]);
+            }
+            if (field.type === 'checkbox') {
+                this.selectedRadioValues[field.name] = []; // Reset danh sách checkbox
+                this.displayCheckbox[field.name] = []; // Reset display checkbox
                 this.addFormGroup.get(field.name)?.patchValue([]);
             }
             if (field.type === 'password') {
@@ -342,22 +363,32 @@ export class GenericAddComponent implements OnInit {
         if (!this.selectedRadioValues[fieldName]) {
             this.selectedRadioValues[fieldName] = [];
         }
+        
+        if (!this.displayCheckbox[fieldName]) {
+            this.displayCheckbox[fieldName] = [];
+        }
 
         if (checked) {
             if (!this.selectedRadioValues[fieldName].includes(value)) {
-            this.selectedRadioValues[fieldName].push(value);
-            console.log("checkbox:", this.selectedRadioValues)
-            this.displayCheckbox[fieldName].push({
-                id: value,
-                name: option.name,
-                icon: option.icon
-            })
+                this.selectedRadioValues[fieldName].push(value);
+                console.log("checkbox:", this.selectedRadioValues)
+                if (option) {
+                    this.displayCheckbox[fieldName].push({
+                        id: value,
+                        name: option.name,
+                        icon: option.icon
+                    });
+                }
             }
         } else {
             const index = this.selectedRadioValues[fieldName].indexOf(value);
             if (index > -1) {
                 this.selectedRadioValues[fieldName].splice(index, 1);
-                this.displayCheckbox[fieldName].splice(index, 1);
+                // Tìm và xóa item tương ứng trong displayCheckbox
+                const displayIndex = this.displayCheckbox[fieldName].findIndex(item => item.id === value);
+                if (displayIndex > -1) {
+                    this.displayCheckbox[fieldName].splice(displayIndex, 1);
+                }
             }
         }
         this.addFormGroup.get(fieldName)?.setValue(this.selectedRadioValues[fieldName]);

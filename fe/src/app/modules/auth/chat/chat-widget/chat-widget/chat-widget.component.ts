@@ -119,9 +119,9 @@ export class ChatWidgetComponent implements OnInit, OnDestroy
                     this.groupStatus = msg.group_status
                     this.memberCount = 1
                     this.alertService.showAlert({
-                        title:"test",
-                        message:"test",
-                        type:'success'
+                        title:"Thông báo",
+                        message:"Đã kết thúc phiên chat",
+                        type:'info'
                     })
                 }
                 else if(msg.action === 'noti_join_group'){

@@ -22,8 +22,20 @@ class DestinationSerializer(serializers.ModelSerializer):
         return {
             'username':obj.updated_by.username if obj.updated_by else None
         }
+    def validate_name(self, value):
+        qs = Destination.objects.filter(name=value)
+
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise serializers.ValidationError("Tên khách sạn đã tồn tại.")
+
+        return value
     def create(self, validated_data):
-        
+        name = validated_data.get('name')
+        old_des = Destination.objects.filter(name=name)
+        if(old_des.exists()):raise ValueError("Địa điểm đã tồn tại")
         return super().create(validated_data)
     
 class DestinationDetailSerializer(serializers.ModelSerializer):

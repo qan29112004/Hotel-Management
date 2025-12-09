@@ -25,6 +25,7 @@ export class SelectServiceComponent implements OnInit, OnChanges {
   @Input() roomIndex!: number;
   @Input() hotelName:string;
   @Input() selectedService:any[];
+  @Input() roomData: { adults: number; children: number } | null = null;
   @Output() servicesSelected = new EventEmitter<any[]>();
   @Output() servicesRemove = new EventEmitter<any>();
 
@@ -104,29 +105,58 @@ export class SelectServiceComponent implements OnInit, OnChanges {
   }
 
   selectService(service:any){
+    const maxQuantity = this.getMaxQuantity();
+    const quantity = Math.min(service.quantity || 1, maxQuantity);
     const selectService = {
       uuid:service.uuid,
       name:service.name,
-      quantity:service.quantity,
-      price:String(Number(service.price) * service.quantity)
+      quantity: quantity,
+      price:String(Number(service.price) * quantity)
     }
     console.log("check service:", selectService)
     this.listSelectService = [
       ...this.listSelectService.filter(item => !this.isSameService(item, selectService)),
       selectService
     ];
+    // Cập nhật quantity trong services signal để đồng bộ
+    this.services.update(list => {
+      return list.map(sv => {
+        if (this.isSameService(sv, service)) {
+          return { ...sv, quantity: quantity };
+        }
+        return sv;
+      });
+    });
     this.persistSelectionToParent();
   }
   increase(index: number) {
     console.log("chay increase", index)
     console.log("check services", this.services())
+    const maxQuantity = this.getMaxQuantity();
     this.services.update(list => {
       const newList = [...list];
-      newList[index] = { ...newList[index], quantity: newList[index].quantity + 1 };
-      this.updateSelectedQuantityFromCatalog(newList[index]);
+      const currentQuantity = newList[index].quantity;
+      if (currentQuantity < maxQuantity) {
+        newList[index] = { ...newList[index], quantity: currentQuantity + 1 };
+        this.updateSelectedQuantityFromCatalog(newList[index]);
+      }
       return newList;
     });
     console.log("check services after", this.services())
+  }
+
+  getMaxQuantity(): number {
+    if (this.roomData) {
+      return this.roomData.adults + this.roomData.children;
+    }
+    // Fallback nếu không có roomData
+    return 999; // Không giới hạn nếu không có thông tin phòng
+  }
+
+  canIncrease(service: any): boolean {
+    const currentQuantity = this.reAttachQuantity(service) || service.quantity || 1;
+    const maxQuantity = this.getMaxQuantity();
+    return currentQuantity < maxQuantity;
   }
 
   decrease(index: number) {
@@ -217,7 +247,12 @@ export class SelectServiceComponent implements OnInit, OnChanges {
     console.log("check room", room)
     const persisted = room?.services ?? [];
     console.log("check persisted", persisted)
-    this.listSelectService = persisted.map(service => ({ ...service }));
+    const maxQuantity = this.getMaxQuantity();
+    // Đảm bảo quantity không vượt quá max khi restore
+    this.listSelectService = persisted.map(service => ({
+      ...service,
+      quantity: Math.min(service.quantity || 1, maxQuantity)
+    }));
     console.log("check list select service", this.listSelectService)
     if (!persisted.length) {
       this.services.update(list =>
@@ -228,9 +263,11 @@ export class SelectServiceComponent implements OnInit, OnChanges {
     this.services.update(list =>
       list.map(service => {
         const matched = persisted.find(sv => this.isSameService(sv, service));
-        return matched
-          ? { ...service, quantity: matched.quantity ?? service.quantity ?? 1 }
-          : service;
+        if (matched) {
+          const quantity = Math.min(matched.quantity ?? service.quantity ?? 1, maxQuantity);
+          return { ...service, quantity: quantity };
+        }
+        return service;
       })
     );
     console.log("check services after hydrate", this.services())

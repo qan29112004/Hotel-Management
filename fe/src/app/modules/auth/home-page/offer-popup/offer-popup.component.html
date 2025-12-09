@@ -21,11 +21,11 @@
                 <span class="text-sm font-lexend_deca text-gray-500 uppercase tracking-wider">Offer Code</span>
                 <p class="text-xl font-bold font-lexend_deca text-black mt-1 mb-4">{{ offer.code }}</p>
                 <a [href]="'explore-hotels?code='+offer?.code" class="mt-4 py-2 px-3 bg-yellow-500 text-black font-lexend_deca">
-                    offer.explore_hotels
+                    {{'offer.explore_hotels'|transloco}}
                 </a>
             </div>
             
-             <p *ngIf="!offer?.description && !offer?.content" class="text-gray-500 italic mt-4">No description available for this offer.</p>
+             <p *ngIf="!offer?.description && !offer?.content" class="text-gray-500 italic mt-4"> {{'offer.no_description'|transloco}}</p>
              
         </div>
     </div>

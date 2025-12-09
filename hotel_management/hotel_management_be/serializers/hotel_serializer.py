@@ -174,6 +174,58 @@ class HotelCreateSerializer(serializers.ModelSerializer):
             'views', 'features', 'tags', 'thumbnail', 'destination', 'check_in_time',
             'check_out_time', 'latitude', 'longitude', 'service','facilities','images_upload'
         ]
+    def validate_name(self, value):
+        if value is None or value.strip() == "":
+            raise serializers.ValidationError("Tên khách sạn không được để trống.")
+
+        qs = Hotel.objects.filter(name=value)
+
+        # Khi update: bỏ qua chính nó
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise serializers.ValidationError("Tên khách sạn đã tồn tại.")
+
+        return value
+
+    # --- Validate phone ---
+    def validate_phone(self, value):
+        if value is None or value.strip() == "":
+            raise serializers.ValidationError("Số điện thoại không được để trống.")
+
+        if not value.isdigit():
+            raise serializers.ValidationError("Số điện thoại chỉ được chứa số.")
+
+        if len(value) < 9 or len(value) > 10:
+            raise serializers.ValidationError("Số điện thoại phải có 9–10 số.")
+
+        qs = Hotel.objects.filter(phone=value)
+
+        # Khi update
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise serializers.ValidationError("Số điện thoại đã được sử dụng cho khách sạn khác.")
+
+        return value
+
+    # --- Validate latitude ---
+    def validate_latitude(self, value):
+        if value is None:
+            return value
+        if value <= 0:
+            raise serializers.ValidationError("Latitude phải lớn hơn 0.")
+        return value
+
+    # --- Validate longitude ---
+    def validate_longitude(self, value):
+        if value is None:
+            return value
+        if value <= 0:
+            raise serializers.ValidationError("Longitude phải lớn hơn 0.")
+        return value
     def update(self, instance, validated_data):
         images_upload = validated_data.pop('images_upload', [])
         if 'service' in validated_data:
@@ -269,7 +321,7 @@ class RoomTypeSerializer(serializers.ModelSerializer):
         }    
     class Meta:
         model = RoomType
-        fields=['uuid','hotel_id','name','size','max_occupancy', 'base_price', 'description','total_rooms', 'thumbnail', 'amenity','images', 'created_by', 'updated_by','created_at','updated_at']
+        fields=['uuid','hotel_id','name','size','max_occupancy', 'base_price', 'description','status','total_rooms', 'thumbnail', 'amenity','images', 'created_by', 'updated_by','created_at','updated_at']
     
 class RoomTypeCreateSerializer(serializers.ModelSerializer):
     hotel_id = serializers.PrimaryKeyRelatedField(
@@ -280,8 +332,47 @@ class RoomTypeCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RoomType
-        fields=['uuid','hotel_id','name','size','max_occupancy', 'base_price','total_rooms', 'description', 'amenity', 'thumbnail', 'images_upload']
-    
+        fields=['uuid','hotel_id','name','size','status','max_occupancy', 'base_price','total_rooms', 'description', 'amenity', 'thumbnail', 'images_upload']
+    # def validate_name(self, value):
+    #     """
+    #     Tên không được trùng *trong cùng 1 khách sạn*.
+    #     """
+    #     hotel_id = self.initial_data.get("hotel_id")
+
+    #     if RoomType.objects.filter(name=value, hotel_id=hotel_id).exists():
+    #         raise serializers.ValidationError("Tên loại phòng đã tồn tại trong khách sạn này.")
+
+    #     return value
+    def validate_name(self, value):
+        if not value or value.strip() == "":
+            raise serializers.ValidationError("Tên loại phòng không được để trống.")
+
+        qs = RoomType.objects.filter(name=value)
+
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise serializers.ValidationError("Tên loại phòng đã tồn tại.")
+
+        return value
+    def validate_max_occupancy(self, value):
+        """
+        Số người tối đa phải > 0
+        """
+        if value <= 0:
+            raise serializers.ValidationError("Số lượng khách tối đa phải lớn hơn 0.")
+
+        return value
+
+    def validate_total_rooms(self, value):
+        """
+        Tổng số phòng phải > 0
+        """
+        if value <= 0:
+            raise serializers.ValidationError("Tổng số phòng phải lớn hơn 0.")
+
+        return value
     def validate_base_price(self, value):
         try:
             # Chuyển giá trị sang số (int hoặc float)

@@ -42,7 +42,7 @@
                             #filterPopup
                             [mode]="'inline'"
                             [showFilter]="showFilter"
-                            [titleKey]="'content.advanced_filters'"
+                            [titleKey]="'common.advanced_filters'"
                             [fields]="filterFields"
                             [optionDestination]="optionsSelect"
                             (filter)="onApplyFilter($event)"
@@ -61,7 +61,7 @@
                         class="flex items-center h-10 gap-2 px-4 transition-colors border rounded-none bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200 animate-fade-in"
                     >
                         <mat-icon class="icon-size-5">delete</mat-icon>
-                        <span class="text-sm font-bold uppercase">{{ t('content.delete') }} ({{selectedIds.length}})</span>
+                        <span class="text-sm font-bold uppercase">{{ t('common.delete') }} ({{selectedIds.length}})</span>
                     </button>
                 </div>
             

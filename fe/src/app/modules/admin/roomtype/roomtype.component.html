@@ -42,9 +42,9 @@
                             #filterPopup
                             [mode]="'inline'"
                             [showFilter]="showFilter"
-                            [titleKey]="'content.advanced_filters'"
+                            [titleKey]="'common.advanced_filters'"
                             [fields]="filterFields"
-                            [optionDestination]="optionsHotel"
+                            [optionDestination]="optionsSelect"
                             [checkboxOptions]="checkboxOptions"
                             (filter)="onApplyFilter($event)"
                             (reset)="onResetFilter()"
@@ -62,7 +62,7 @@
                         class="flex items-center h-10 gap-2 px-4 transition-colors border rounded-none bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200 animate-fade-in"
                     >
                         <mat-icon class="icon-size-5">delete</mat-icon>
-                        <span class="text-sm font-bold uppercase">{{ t('content.delete') }} ({{selectedIds.length}})</span>
+                        <span class="text-sm font-bold uppercase">{{ t('common.delete') }} ({{selectedIds.length}})</span>
                     </button>
                 </div>
             
@@ -158,7 +158,7 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <img *ngIf="room_type.thumbnail" class="object-cover w-16 h-12 border shadow-sm rounded-none border-zinc-200" [src]="baseUrl + room_type.thumbnail" alt="thumbnail" />
-                                    <span *ngIf="!room_type.thumbnail" class="text-zinc-400 italic text-xs">No image</span>
+                                    <span *ngIf="!room_type.thumbnail" class="text-zinc-400 italic text-xs">{{t('room_type.no_image')}}</span>
                                 </td>
                                 <td class="px-4 py-3 text-zinc-700 font-semibold">
                                     {{ room_type.basePrice }}
@@ -166,7 +166,7 @@
                                 <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
                                      <div class="flex flex-col">
                                         <span>{{ formatDateTimeUnix(room_type.updatedAt) || '---' }}</span>
-                                        <span class="text-[10px] text-zinc-400" *ngIf="room_type.updatedBy">by {{ room_type.updatedBy.username }}</span>
+                                        <span class="text-[10px] text-zinc-400" *ngIf="room_type.updatedBy">t('room_type.updated_by') {{ room_type.updatedBy.username }}</span>
                                      </div>
                                 </td>
                                 <td class="px-4 py-3 text-center">
@@ -197,7 +197,7 @@
                     <div *ngIf="room_types.length === 0 && !loading" class="flex flex-col items-center justify-center py-12 text-center border-t text-zinc-400 bg-zinc-50 border-zinc-100">
                          <mat-icon class="mb-3 icon-size-12 text-zinc-300" [svgIcon]="'heroicons_outline:folder-open'"></mat-icon>
                         <p class="text-lg font-medium text-zinc-500">{{ t("room_type.no_matching_data") }}</p>
-                        <p class="text-sm">Try adjusting your search or filters</p>
+                        <p class="text-sm">t('room_type.try_adjust_filters')</p>
                     </div>
                      <!-- Loading State -->
                      <div *ngIf="loading" class="flex items-center justify-center py-12 border-t border-zinc-100">
@@ -231,7 +231,7 @@
     [titleKey]="'room_type.create'"
     [fields]="addFields"
     [saveHandler]="addSaveHandler.bind(this)"
-    [optionDestination]="optionsHotel"
+    [optionDestination]="optionsSelect"
     [checkboxOptions]="checkboxOptions"
     (toggleDrawer)="toggleAddUserDrawer()"
     [loadData] = "loadRoomTypes.bind(this)"

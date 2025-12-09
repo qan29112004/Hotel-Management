@@ -17,14 +17,51 @@ class OfferSerializer(serializers.ModelSerializer):
     class Meta:
         model = Offer
         fields = ['uuid', 'title', 'description', 'images', 'code', 'amount_days','is_active','min_price','end_date','start_date','discount_percentage','hotel', 'created_by', 'updated_by','created_at','updated_at']
-    def validate_discount_percentage(self, value):
-        if value < 0 or value > 2:
-            raise ValueError("Phần trăm phải nằm trong khoảng 0 đến 2")
+    def validate_title(self, value):
+        if not value or value.strip() == "":
+            raise serializers.ValidationError("Tiêu đề không được để trống.")
+
+        qs = Offer.objects.filter(title=value)
+
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise serializers.ValidationError("Tiêu đề ưu đãi đã tồn tại.")
+
+        return value
+
+    def validate_code(self, value):
+        if not value or value.strip() == "":
+            raise serializers.ValidationError("Mã ưu đãi không được để trống.")
+
+        qs = Offer.objects.filter(code=value)
+
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise serializers.ValidationError("Mã ưu đãi đã tồn tại.")
+
+        return value
+
+    def validate_min_price(self, value):
+        if value is None:
+            return value
+        if value <= 0:
+            raise serializers.ValidationError("Giá tối thiểu phải lớn hơn 0.")
         return value
 
     def validate_amount_days(self, value):
-        if value < 0:
-            raise ValueError("Sô ngày phải lớn hơn 0")
+        if value <= 0:
+            raise serializers.ValidationError("Số ngày áp dụng phải lớn hơn 0.")
+        return value
+
+    def validate_discount_percentage(self, value):
+        if value is None:
+            return value
+        if value < 0 or value > 2:
+            raise serializers.ValidationError("Phần trăm giảm giá phải từ 0 đến 2.")
         return value
     
 

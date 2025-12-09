@@ -57,6 +57,7 @@ import { SelectCountryComponent } from '../select-country/select-country.compone
     templateUrl: './generic-edit.component.html',
 })
 export class GenericEditComponent implements OnInit {
+    camelToSnake=camelToSnake
     today = new Date();
     @Input() showDrawer: boolean = false;
     @Input() titleKey: string = 'common.edit';
@@ -383,11 +384,12 @@ formData.forEach((value, key) => {
                 this.loadData();
             },
             error: (err) => {
+                console.log("check er:", err)
                 const errorList = err?.error?.errors;
                 this.alert = {
                     type: 'error',
                     code: Array.isArray(errorList)
-                        ? errorList.map(e => e.field ? `${e.field}: ${e.message}` : e.message)
+                        ? errorList.map(e => e.field ? `${e.message}` : e.message)
                         : [err?.error?.message || err?.error?.code || 'Đã xảy ra lỗi'],
                 };
                 console.log("alert code: ", this.alert.code )

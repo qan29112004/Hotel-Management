@@ -21,8 +21,8 @@ def handle_room_hold_released(event):
     logger.info(f"[Kafka] 🟠 Hold released: {hold_id}")
 
     # DB update
-    # HoldRecord.objects.filter(uuid=hold_id).delete()
-    # HoldRecordService.objects.filter(hold__uuid=hold_id).delete()
+    HoldRecord.objects.filter(uuid=hold_id).delete()
+    HoldRecordService.objects.filter(hold__uuid=hold_id).delete()
     # Xoá Redis nếu còn
     RedisUtils.delete_hold_in_redis(hold_id)
 
@@ -94,9 +94,12 @@ def reconcile_expired_holds():
             #     hr.checkin.isoformat(),
             #     hr.checkout.isoformat(),
             #     hr.quantity)
-            logger.info(f"Check data: roomtype id = {hr.room_type_id}, checkin={hr.checkin.isoformat()}, checkout={hr.checkout.isoformat()}, quantity= {hr.quantity}, session_id={hr.session.hotel_id}")
+            logger.info(f"Check data: roomtype id = {hr.room_type_id}, checkin={hr.checkin.isoformat()}, checkout={hr.checkout.isoformat()}, quantity= {hr.quantity}")
+            
+            hotel_uuid = hr.room_type.hotel_id.uuid
+
             RedisUtils.atomic_increment_inventory_for_range(
-                hr.session.hotel_id,
+                hotel_uuid,
                 hr.room_type_id,
                 hr.checkin.isoformat(),
                 hr.checkout.isoformat(),
@@ -110,10 +113,10 @@ def reconcile_expired_holds():
 
         try:
             handle_room_hold_released({
-                "hold_id": str(hr.hold_id),
-                "session_id": str(hr.session.session_id),
-                "hotel_id": hr.session.hotel_id,
-                "room_type_id": hr.room_type_id,
+                "hold_id": str(hr.uuid),
+                "session_id": str(hr.session.uuid) if hr.session else "None", # Handle None session
+                "hotel_id": hr.room_type.hotel_id.uuid,
+                "room_type_id": hr.room_type_id.uuid if hasattr(hr.room_type_id, 'uuid') else str(hr.room_type_id), # Handle object vs id
                 "quantity": hr.quantity,
                 "released_at": now.isoformat()
             })

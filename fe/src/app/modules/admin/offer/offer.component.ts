@@ -190,7 +190,7 @@ export class OfferComponent implements OnInit {
         
     },
     {
-        name: 'discountPercentage',
+        name: 'discount_percentage',
         labelKey: 'offer.discount_percentage',
         type: 'number',
         placeholderKey: 'offer.enterdiscount_percentage',
@@ -199,7 +199,7 @@ export class OfferComponent implements OnInit {
         
     },
     {
-        name: 'startDate',
+        name: 'start_date',
         labelKey: 'offer.start_date',
         type: 'date',
         placeholderKey: 'offer.enterStartDate',
@@ -207,7 +207,7 @@ export class OfferComponent implements OnInit {
         
     },
     {
-        name: 'endDate',
+        name: 'end_date',
         labelKey: 'offer.end_date',
         type: 'date',
         placeholderKey: 'offer.enterEndDate',
@@ -215,14 +215,14 @@ export class OfferComponent implements OnInit {
         
     },
     {
-        name: 'minPrice',
+        name: 'min_price',
         labelKey: 'offer.min_price',
         type: 'number',
         placeholderKey: 'offer.entermin_price',
         
     },
     {
-        name: 'isActive',
+        name: 'is_active',
         labelKey: 'offer.is_active',
         type: 'select',
         options:[
@@ -232,7 +232,7 @@ export class OfferComponent implements OnInit {
         placeholderKey: 'offer.is_active',
     },
     {
-        name: 'amountDays',
+        name: 'amount_days',
         labelKey: 'offer.amount_days',
         type: 'number',
         placeholderKey: 'offer.enterEndDate',

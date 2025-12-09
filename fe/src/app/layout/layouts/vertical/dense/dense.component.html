@@ -2,46 +2,29 @@
 <fuse-loading-bar></fuse-loading-bar>
 
 <!-- Navigation -->
-<fuse-vertical-navigation
-    class="dark bg-primary print:hidden"
-    [appearance]="navigationAppearance"
-    [mode]="isScreenSmall ? 'over' : 'side'"
-    [name]="'mainNavigation'"
-    [navigation]="navigation.compact"
-    [opened]="!isScreenSmall"
->
+<fuse-vertical-navigation class="dark bg-primary print:hidden" [appearance]="navigationAppearance"
+    [mode]="isScreenSmall ? 'over' : 'side'" [name]="'mainNavigation'" [navigation]="navigation.compact"
+    [opened]="!isScreenSmall">
     <!-- Navigation header hook -->
     <ng-container fuseVerticalNavigationContentHeader>
         <!-- Logo -->
         <div class="flex flex-col items-center justify-center h-20 gap-1">
-            <img
-                src="assets/images/logo/logo_icon_hotel.svg"
-                class="object-cover min-w-full min-h-full scale-110 invert brightness-200"
-                alt="logo"
-            />
+            <img src="assets/images/logo/logo_icon_hotel.svg"
+                class="object-cover min-w-full min-h-full scale-110 invert brightness-200" alt="logo" />
         </div>
     </ng-container>
 </fuse-vertical-navigation>
 
 <!-- Wrapper -->
 <div class="relative flex flex-col items-center flex-auto w-full min-w-0">
-    
+
     <!-- Header -->
-    <div
-        class="top-0 flex items-end justify-between w-full overflow-hidden transition-colors duration-100 ease-in-out px-4shadow flex-0 md:px-6 z-20 dark:shadow-none dark:border-b bg-card print:hidden h-28 max-w-[1920px]"
-        [ngClass]="{'fixed':!isAdminPage, 'sticky bg-black':isAdminPage,'bg-transparent':!isScrollDown && !isAdminPage, 'bg-black':isScrollDown}"
-    >
+    <div class="top-0 flex items-end justify-between w-full overflow-hidden transition-colors duration-100 ease-in-out px-4shadow flex-0 md:px-6 z-20 dark:shadow-none dark:border-b bg-card print:hidden h-28 max-w-[1920px]"
+        [ngClass]="{'fixed':!isAdminPage, 'sticky bg-black':isAdminPage,'bg-transparent':!isScrollDown && !isAdminPage, 'bg-black':isScrollDown}">
         <div class="flex items-center h-full pr-2 space-x-2">
             <!-- Navigation toggle button -->
-            <button
-                class='!w-full !h-full'
-                
-                (click)="toggleNavigation('mainNavigation')"
-            >
-                <mat-icon
-                    class="!text-2xl !w-20 !h-20 text-white"
-                    [svgIcon]="'heroicons_outline:bars-3'"
-                ></mat-icon>
+            <button class='!w-full !h-full' (click)="toggleNavigation('mainNavigation')">
+                <mat-icon class="!text-2xl !w-20 !h-20 text-white" [svgIcon]="'heroicons_outline:bars-3'"></mat-icon>
             </button>
             <!-- Navigation appearance toggle button -->
             <!-- <button
@@ -54,11 +37,8 @@
                 ></mat-icon>
             </button> -->
         </div>
-        <img
-            src="assets/images/logo/logo_icon_hotel.svg"
-            class="object-contain pt-3 scale-150 w-30 h-30 invert brightness-200 max-sm:hidden"
-            alt="logo"
-        />
+        <img src="assets/images/logo/logo_icon_hotel.svg"
+            class="object-contain pt-3 scale-150 w-30 h-30 invert brightness-200 max-sm:hidden" alt="logo" />
         <!-- Components -->
         <div class="flex items-center h-full">
             <languages class="scale-120"></languages>
@@ -77,8 +57,10 @@
             </button> -->
             <user *ngIf="crrUser " class="scale-120"></user>
             <ng-container *ngIf="!crrUser">
-                <button matTooltip="Sign In" class="flex items-center text-center text-white" (click)="navigateToSignIn()">
-                    <mat-icon class="text-white w-[50px] h-[50px]" [svgIcon]="'heroicons_outline:user-circle'"></mat-icon>
+                <button matTooltip="Sign In" class="flex items-center text-center text-white"
+                    (click)="navigateToSignIn()">
+                    <mat-icon class="text-white w-[50px] h-[50px]"
+                        [svgIcon]="'heroicons_outline:user-circle'"></mat-icon>
                 </button>
             </ng-container>
         </div>
@@ -86,27 +68,33 @@
 
     <!-- Content -->
     <div class="relative flex flex-col items-center flex-auto w-full h-full bg-white max-w-[1920px]">
-        <div *ngIf="isFisrtLogin" class="fixed z-50 flex items-center justify-center w-full h-full bg-black/60">
-            <div class="p-6 mb-6 bg-gray-100 rounded-lg shadow-md w-[50%]">
-                <div class="flex flex-col overflow-hidden bg-white rounded-lg shadow-lg md:flex-row">
-                    <img src="assets/images/home-page/notification_club.jpg" class="object-cover w-full h-48 md:w-60 md:h-auto" />
+        <div *ngIf="isFisrtLogin" class="fixed z-50 flex items-center justify-center w-full h-full bg-black/60" (click)="closePromotionOverlay()">
+            <div class="p-6 mb-6 bg-gray-100 shadow-md w-[50%]">
+                <div class="flex flex-col overflow-hidden bg-white shadow-lg md:flex-row">
+                    <img src="assets/images/home-page/notification_club.jpg"
+                        class="object-cover w-full h-48 md:w-60 md:h-auto" />
                     <div class="flex flex-col justify-between p-6 ml-0 md:ml-6">
                         <div class="flex items-center gap-4">
                             <img src="assets/images/home-page/icons-voucher.png" class="object-contain w-14 h-14" />
-                            <span class="text-lg font-semibold text-gray-800">
+                            <span class="text-lg font-semibold text-black">
                                 Chúc mừng bạn đã đăng ký thành công và nhận được voucher dành cho người dùng mới!
                             </span>
                         </div>
-                        <p class="mt-6 text-base leading-relaxed text-gray-700">
-                            Chào mừng bạn đến với cộng đồng của chúng tôi! Chúng tôi rất vui khi bạn đã trở thành thành viên mới. 
-                            Với tư cách là người dùng mới, bạn sẽ nhận được những ưu đãi đặc biệt, voucher độc quyền và cơ hội trải nghiệm 
-                            các tính năng hấp dẫn mà chúng tôi cung cấp. Hãy khám phá ngay các dịch vụ, tham gia các hoạt động thú vị 
-                            và tận hưởng những trải nghiệm tuyệt vời mà chúng tôi đã chuẩn bị riêng cho bạn. 
-                            Đừng quên kiểm tra thường xuyên mục <span class="font-semibold">Voucher</span> để không bỏ lỡ bất kỳ ưu đãi nào dành riêng cho thành viên mới!
+                        <p class="mt-6 text-base leading-relaxed text-black">
+                            Chào mừng bạn đến với cộng đồng của chúng tôi! Chúng tôi rất vui khi bạn đã trở thành thành
+                            viên mới.
+                            Với tư cách là người dùng mới, bạn sẽ nhận được những ưu đãi đặc biệt, voucher độc quyền và
+                            cơ hội trải nghiệm
+                            các tính năng hấp dẫn mà chúng tôi cung cấp. Hãy khám phá ngay các dịch vụ, tham gia các
+                            hoạt động thú vị
+                            và tận hưởng những trải nghiệm tuyệt vời mà chúng tôi đã chuẩn bị riêng cho bạn.
+                            Đừng quên kiểm tra thường xuyên mục <span class="font-semibold">Voucher</span> để không bỏ
+                            lỡ bất kỳ ưu đãi nào dành riêng cho thành viên mới!
                         </p>
-                        <span class="mt-4 text-gray-600">
-                            Hiện tại bạn đang ở <span class="font-semibold text-[#dd781e] font-clearface">CLUB 1</span>. 
-                            Hãy kiểm tra voucher trong mục <span class="font-semibold">Voucher</span> để biết thêm chi tiết.
+                        <span class="mt-4 text-black">
+                            Hiện tại bạn đang ở <span class="font-semibold text-[#dd781e] font-clearface">CLUB 1</span>.
+                            Hãy kiểm tra voucher trong mục <span class="font-semibold">Voucher</span> để biết thêm chi
+                            tiết.
                         </span>
                     </div>
                 </div>
@@ -114,6 +102,57 @@
 
 
         </div>
+        <div *ngIf="showPromotionOverlay && (!crrUser || (crrUser && crrUser.role !== 1))" class="fixed z-50 flex items-center justify-center w-full h-full bg-black/60"
+            (click)="closePromotionOverlay()">
+            <div class="p-6 mb-6 bg-gray-100 shadow-md w-[50%]" (click)="$event.stopPropagation()">
+                <div class="flex flex-col overflow-hidden bg-white shadow-lg md:flex-row relative">
+                    <img [src]="promotionData.hotel?.thumbnail ? baseUrl + promotionData.hotel?.thumbnail : 'assets/images/home-page/notification_club.jpg'"
+                        class="object-cover w-full h-48 md:w-60 md:h-auto" />
+                    <div class="flex flex-col justify-between p-6 ml-0 md:ml-6 flex-1">
+                        <div class="flex items-center gap-4">
+                            <img src="assets/images/home-page/icons-voucher.png" class="object-contain w-14 h-14" />
+                            <div class="flex flex-col">
+                                <span class="text-lg font-bold font-clearface text-black uppercase">
+                                    ƯU ĐÃI TỪ {{promotionData.hotel?.name}}
+                                </span>
+                                <span class="text-md font-semibold text-[#dd781e]">
+                                    {{promotionData.voucher?.name}}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-base leading-relaxed text-black">
+                            <p>
+                                Trải nghiệm kỳ nghỉ đẳng cấp tại <strong>{{promotionData.hotel?.name}}</strong> với ưu
+                                đãi cực hấp dẫn!
+                                Sử dụng mã <span
+                                    class="inline-block px-2 py-1 bg-red-100 text-red-600 font-bold border border-red-200 rounded mx-1 select-all cursor-pointer"
+                                    matTooltip="Click để copy">{{promotionData.voucher?.code}}</span>
+                                để được giảm ngay <span class="font-bold text-red-600">{{
+                                    promotionData.voucher?.discountType === 'PERCENT' ?
+                                    promotionData.voucher?.discountPercent + '%' : (promotionData.voucher?.discountValue
+                                    | currency:'VND') }}</span>.
+                            </p>
+                            <p class="mt-2 text-sm text-vlack italic">
+                                "{{promotionData.voucher?.description}}"
+                            </p>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between border-t pt-4 border-gray-100">
+                            <div class="flex flex-col">
+                                <span class="text-xs text-black">Số lượng có hạn</span>
+                                <span class="text-sm font-semibold text-black">Đặt ngay kẻo lỡ!</span>
+                            </div>
+                            <a *ngIf="crrUser" [href]="'/hotel/'+ promotionData.hotel?.slug + '?hotel='+promotionData.hotel?.uuid" class="bg-yellow-500 !text-black font-semibold px-6 py-3" (click)="closePromotionOverlay()">
+                                Nhận mã ngay
+                            </a>
+                            <a *ngIf="!crrUser" [href]="'sign-in'" class="bg-yellow-500 !text-black font-semibold px-6 py-3" (click)="closePromotionOverlay()">
+                                Đăng nhập
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Main -->
         <!-- CONTENT GOES HERE -->
         <!-- <div class="relative w-full bg-white"> -->
@@ -127,7 +166,8 @@
     <!-- <div class="relative flex items-center justify-start w-full px-4 border-t flex-0 h-14 md:px-6 z-49 bg-card dark:bg-transparent print:hidden">
         <span class="font-medium text-secondary">Fuse &copy; {{currentYear}}</span>
     </div> -->
-    <div *ngIf="!isAdminPage" class="flex flex-col items-center justify-center w-full bg-white border-t border-t-[#d4d4d4] max-w-[1920px] px-16">
+    <div *ngIf="!isAdminPage"
+        class="flex flex-col items-center justify-center w-full bg-white border-t border-t-[#d4d4d4] max-w-[1920px] px-16">
         <div class="flex relative flex-col items-center justify-center text-center max-w-[1440px] w-full py-9">
             <div class="absolute top-0 left-0 flex flex-col items-center self-start justify-center gap-2">
                 <div class="flex">
@@ -147,16 +187,15 @@
             <div class="grid items-start w-full grid-cols-4 max-md:grid-cols-1 max-md:gap-[15px]">
                 <div class="flex flex-col w-full max-md:hidden">
                     <div class="flex h-[130px] w-full justify-center items-center">
-                        
-                        <img
-                            src="assets/images/logo/logo_icon_hotel.svg"
-                            class="object-cover w-[200px] h-[200px] mx-auto"
-                            alt="logo"
-                        />
+
+                        <img src="assets/images/logo/logo_icon_hotel.svg"
+                            class="object-cover w-[200px] h-[200px] mx-auto" alt="logo" />
                     </div>
-                    <span class="text-black font-lexend_deca font-bold text-center mt-[-10px] text-[20px]">Luskibeck Hotel</span>
+                    <span class="text-black font-lexend_deca font-bold text-center mt-[-10px] text-[20px]">Luskibeck
+                        Hotel</span>
                 </div>
-                <div class="grid grid-cols-2 gap-[10px] w-full h-full px-[7px] md:border-x border-[#d4d4d4] max-md:border-t">
+                <div
+                    class="grid grid-cols-2 gap-[10px] w-full h-full px-[7px] md:border-x border-[#d4d4d4] max-md:border-t">
                     <span class="font-avenir text-[14px] text-[#282828]">Contact us</span>
                     <span class="font-avenir text-[14px] text-[#282828]">About Luskibeck</span>
                     <span class="font-avenir text-[14px] text-[#282828]">Privacy Policy</span>
@@ -171,7 +210,7 @@
                     <span class="font-avenir text-[14px] text-[#282828]"></span>
                     <span class="font-avenir text-[14px] text-[#282828]"></span>
                     <span class="font-avenir text-[14px] text-[#282828]"></span>
-                    
+
                 </div>
                 <div class="flex flex-col gap-4 px-3 max-md:border-t max-md:border-[#d4d4d4]">
                     <div class="flex items-start justify-between">
@@ -179,10 +218,11 @@
                         <img class="object-contain w-[50%]" src="assets/images/home-page/app_store.svg" />
                     </div>
                     <div class="border-[3px] border-[#f4f4f4]">
-                        <img src="assets/images/home-page/footer.jpg"  class="object-contain"/>
+                        <img src="assets/images/home-page/footer.jpg" class="object-contain" />
                     </div>
                 </div>
-                <div class="flex flex-col px-[7px] md:border-l border-[#d4d4d4] h-full max-md:border-t max-md:items-center">
+                <div
+                    class="flex flex-col px-[7px] md:border-l border-[#d4d4d4] h-full max-md:border-t max-md:items-center">
                     <span class="font-clearface text-black text-[24px]">Follow Us</span>
                     <div class="flex gap-[6px]">
                         <a><img class="object-contain" src="assets/images/ui/icons8-facebook-logo.svg" /></a>
@@ -202,77 +242,50 @@
         </div>
     </div>
     <ng-container *ngIf="isAccessChat && isJoinChat">
-        <div
-            #bubbleChatBot
+        <div #bubbleChatBot
             class="fixed max-sm:hidden flex flex-col w-[28rem] h-[32rem] xl:w-[32rem] xl:h-[36rem] xl:top-[12rem] bg-white shadow-2xl rounded-xl z-[49] origin-bottom-right transition-[transform,opacity] duration-300"
-            [class.scale-100]="isOpenChatBot"
-            [class.scale-0]="!isOpenChatBot"
-            [class.opacity-100]="isOpenChatBot"
-            [class.opacity-0]="!isOpenChatBot"
-            [class.pointer-events-auto]="isOpenChatBot"
-            [class.pointer-events-none]="!isOpenChatBot"
-            [style.left.px]="
+            [class.scale-100]="isOpenChatBot" [class.scale-0]="!isOpenChatBot" [class.opacity-100]="isOpenChatBot"
+            [class.opacity-0]="!isOpenChatBot" [class.pointer-events-auto]="isOpenChatBot"
+            [class.pointer-events-none]="!isOpenChatBot" [style.left.px]="
                 window.innerHeight <= 700
                     ? position.x - 460
                     : position.x - 400
-            "
-            [style.top.px]="
+            " [style.top.px]="
                 window.innerHeight <= 700
                     ? position.y - 470
                     : position.y -450
-            "
-        >
-            <app-chat-widget
-                class="w-full h-full"
-                [class.hidden]="!isOpenChatBot"
-                [isOpenChatBot]="isOpenChatBot"
-                (closeChat)="closeChat()"
-            >
+            ">
+            <app-chat-widget class="w-full h-full" [class.hidden]="!isOpenChatBot" [isOpenChatBot]="isOpenChatBot"
+                (closeChat)="closeChat()">
             </app-chat-widget>
         </div>
     </ng-container>
     <ng-container *ngIf="isBtnOpenChat; else notBtnOpenChat">
         <ng-container *ngIf="isJoinChat">
-            <div
-                
-                #btnOpenChat
-                [class.hidden]="!crrUser || crrUser.role === 1"
-                [style.left.px]="position.x"
+            <div #btnOpenChat [class.hidden]="!crrUser || crrUser.role === 1" [style.left.px]="position.x"
                 [style.top.px]="position.y"
-                class="fixed z-[20] max-sm:hidden w-48 flex items-center justify-center p-0 bg-transparent border-none shadow-none"
-            >
-                <button
-                    type="button"
-                    (click)="TurnOffBtnOpenChat()"
-                    class="absolute z-10 flex items-center justify-center w-6 h-6 transition-all duration-300 bg-black rounded-full cursor-pointer top-2 right-5 group hover:scale-110"
-                >
+                class="fixed z-[20] max-sm:hidden w-48 flex items-center justify-center p-0 bg-transparent border-none shadow-none">
+                <button type="button" (click)="TurnOffBtnOpenChat()"
+                    class="absolute z-10 flex items-center justify-center w-6 h-6 transition-all duration-300 bg-black rounded-full cursor-pointer top-2 right-5 group hover:scale-110">
                     <mat-icon class="text-white">close</mat-icon>
                 </button>
-                <button
-                    (click)="handleChatClick($event)"
-                    type="button"
-                    class="flex items-center justify-center w-full h-full shake"
-                >
-                    <img
-                        [src]="
+                <button (click)="handleChatClick($event)" type="button"
+                    class="flex items-center justify-center w-full h-full shake">
+                    <img [src]="
                             'assets/images/chatbot/AI-3.png'
-                        "
-                        class="h-full w-30"
-                        alt="Logo"
-                    />
+                        " class="h-full w-30" alt="Logo" />
                 </button>
             </div>
         </ng-container>
     </ng-container>
     <ng-template #notBtnOpenChat>
-        <button
-            type="button"
-            (click)="TurnOnBtnOpenChat()"
-            class="fixed bottom-20 right-0 z-[1001] w-8 h-8 hover:scale-110 flex items-center justify-center p-0 text-white border-none shadow-none rounded-tl-xl rounded-bl-xl"
-        >
+        <button type="button" (click)="TurnOnBtnOpenChat()"
+            class="fixed bottom-20 right-0 z-[1001] w-8 h-8 hover:scale-110 flex items-center justify-center p-0 text-white border-none shadow-none rounded-tl-xl rounded-bl-xl">
             <span class="relative flex w-full h-full size-3">
-                <span class="absolute inline-flex w-full h-full bg-yellow-300 rounded-full opacity-75 animate-ping"></span>
-                <span class="relative inline-flex size-3 rounded-full bg-yellow-500 w-full h-full justify-center items-center text-black text-[11px]">+</span>
+                <span
+                    class="absolute inline-flex w-full h-full bg-yellow-300 rounded-full opacity-75 animate-ping"></span>
+                <span
+                    class="relative inline-flex size-3 rounded-full bg-yellow-500 w-full h-full justify-center items-center text-black text-[11px]">+</span>
             </span>
         </button>
     </ng-template>

@@ -174,6 +174,15 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
     })
   }
 
+  resetIfSelected(type: string) {
+    if (type === 'checkin' && this.filterCheckIn) {
+      this.filterCheckIn = null;
+    }
+    if (type === 'checkout' && this.filterCheckOut) {
+      this.filterCheckOut = null;
+    }
+  }
+
   loadAllHotel(){
     if(this.hotelService.getHotelData.length >0){
       this.hotelService.hotel$.pipe(

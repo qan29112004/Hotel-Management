@@ -36,6 +36,9 @@ export class DashboardKpiComponent {
     @ViewChild('bookingStatusChart') bookingStatusChart?: ChartComponent;
     @ViewChild('occupancyChart') occupancyChart?: ChartComponent;
     @ViewChild('userChart') userChart?: ChartComponent;
+    @ViewChild('roomTypeChart') roomTypeChart?: ChartComponent;
+    @ViewChild('voucherChart') voucherChart?: ChartComponent;
+    @ViewChild('supportChart') supportChart?: ChartComponent;
 
     data: any;
     currentView: 'month' | 'week' = 'month';
@@ -76,7 +79,7 @@ export class DashboardKpiComponent {
         grid: {
             borderColor: '#000',
             strokeDashArray: 0, // Solid grid lines
-            xaxis: { lines: { show: true } }   
+            xaxis: { lines: { show: true } }
         },
         xaxis: {
             labels: { style: { colors: '#000', fontWeight: 'bold' } },
@@ -99,7 +102,7 @@ export class DashboardKpiComponent {
             itemMargin: { horizontal: 10, vertical: 5 }
         },
         // Vibrant colors + Black/Gray for contrast
-        colors: ['#FBBF24', '#22c55e', '#ef4444', '#3b82f6', '#000000', '#9ca3af'], 
+        colors: ['#FBBF24', '#22c55e', '#ef4444', '#3b82f6', '#000000', '#9ca3af'],
         dataLabels: {
             enabled: true,
             formatter: (val: number) => `${val.toFixed(0)}%`,
@@ -128,7 +131,7 @@ export class DashboardKpiComponent {
                 }
             }
         },
-        
+
     };
 
     occupancyChartOptions: ApexOptions = {
@@ -194,7 +197,7 @@ export class DashboardKpiComponent {
             fontFamily: 'monospace'
         },
         stroke: {
-             // Step line for brutalist feel
+            // Step line for brutalist feel
             width: 3,
         },
         xaxis: {
@@ -220,6 +223,113 @@ export class DashboardKpiComponent {
         }
     };
 
+    roomTypeChartOptions: ApexOptions = {
+        chart: {
+            type: 'bar',
+            height: 320,
+            toolbar: { show: false },
+            fontFamily: 'monospace'
+        },
+        plotOptions: {
+            bar: {
+                horizontal: true,
+                barHeight: '60%',
+                distributed: true,
+                borderRadius: 0,
+                dataLabels: { position: 'bottom' } // Adjusted for horizontal
+            },
+        },
+        dataLabels: {
+            enabled: true,
+            textAnchor: 'start',
+            style: { colors: ['#000'], fontWeight: 'bold' },
+            formatter: function (val, opt) {
+                return opt.w.globals.labels[opt.dataPointIndex] + ":  " + val
+            },
+            offsetX: 0,
+        },
+        yaxis: {
+            labels: { show: false } // Labels inside bar via dataLabels formatter or separate
+        },
+        xaxis: {
+            labels: { style: { colors: '#000', fontWeight: 'bold' } },
+            axisBorder: { show: true, color: '#000' }
+        },
+        colors: ['#3b82f6', '#22c55e', '#f97316', '#a855f7', '#e11d48'],
+        grid: { show: false }
+    };
+
+    voucherChartOptions: ApexOptions = {
+        chart: {
+            type: 'bar',
+            height: 320,
+            toolbar: { show: false },
+            fontFamily: 'monospace'
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '50%',
+                distributed: true,
+                borderRadius: 0
+            },
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        xaxis: {
+            labels: { style: { colors: '#000', fontWeight: 'bold' } },
+            axisBorder: { show: true, color: '#000' }
+        },
+        yaxis: {
+            labels: { style: { colors: '#000', fontWeight: 'bold' } }
+        },
+        colors: ['#000', '#FBBF24', '#22c55e', '#ef4444', '#3b82f6'],
+        grid: { show: false }
+    };
+
+    supportChartOptions: ApexOptions = {
+        chart: {
+            type: 'donut',
+            height: 350,
+            fontFamily: 'monospace'
+        },
+        legend: {
+            position: 'bottom',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            labels: { colors: '#000' }
+        },
+        colors: ['#22c55e', '#ef4444', '#FBBF24'], // Green, Red, Yellow
+        dataLabels: {
+            enabled: true,
+            style: {
+                fontSize: '14px',
+                fontFamily: 'monospace',
+                fontWeight: 'bold',
+                colors: ['#000']
+            },
+            dropShadow: { enabled: false }
+        },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '65%',
+                    labels: {
+                        show: true,
+                        total: {
+                            show: true,
+                            label: 'TOTAL',
+                            fontSize: '20px',
+                            fontWeight: 'bold',
+                            color: '#000'
+                        }
+                    }
+                }
+            }
+        },
+    };
+
     constructor(private splashScreen: FuseSplashScreenService, private dashboardService: DashBoardService) {
         this.splashScreen.hide();
         this.dashboardService.getDashboardOverview().subscribe(res => {
@@ -230,13 +340,13 @@ export class DashboardKpiComponent {
                 this.occupancyChartOptions = {
                     ...this.occupancyChartOptions,
                     series: [{ name: 'Tỷ lệ lấp phòng', data: this.data.occupancy.map((item: any) => item.occupancyRate || 0) }],
-                    xaxis: { 
+                    xaxis: {
                         ...this.occupancyChartOptions.xaxis,
-                        categories: this.data.occupancy.map((item: any) => item.hotelName || 'N/A') 
+                        categories: this.data.occupancy.map((item: any) => item.hotelName || 'N/A')
                     }
                 };
             }
-            
+
             if (this.data.bookingStatus && this.data.bookingStatus.length > 0) {
                 this.bookingStatusChartOptions = {
                     ...this.bookingStatusChartOptions,
@@ -244,15 +354,15 @@ export class DashboardKpiComponent {
                     labels: this.data.bookingStatus.map((item: any) => item.status)
                 };
             }
-            
+
             // Update user chart
             if (this.data.usersMonthly && this.data.usersMonthly.length > 0) {
-                const userMonths = Array.from({length: 12}, (_, i) => i + 1);
+                const userMonths = Array.from({ length: 12 }, (_, i) => i + 1);
                 const userData = new Array(12).fill(0);
                 this.data.usersMonthly.forEach((item: any) => {
                     userData[item.month - 1] = item.total;
                 });
-                
+
                 this.userChartOptions = {
                     ...this.userChartOptions,
                     series: [{ name: 'Người dùng mới', data: userData }],
@@ -260,6 +370,38 @@ export class DashboardKpiComponent {
                         ...this.userChartOptions.xaxis,
                         categories: userMonths.map(m => `T${m}`)
                     }
+                };
+            }
+
+
+            // Room Type Chart
+            if (this.data.roomTypeStats && this.data.roomTypeStats.length > 0) {
+                this.roomTypeChartOptions = {
+                    ...this.roomTypeChartOptions,
+                    series: [{ name: 'Lượt đặt', data: this.data.roomTypeStats.map((item: any) => item.count) }],
+                    xaxis: {
+                        categories: this.data.roomTypeStats.map((item: any) => item.name)
+                    }
+                };
+            }
+
+            // Voucher Chart
+            if (this.data.voucherStats && this.data.voucherStats.length > 0) {
+                this.voucherChartOptions = {
+                    ...this.voucherChartOptions,
+                    series: [{ name: 'Lượt dùng', data: this.data.voucherStats.map((item: any) => item.count) }],
+                    xaxis: {
+                        categories: this.data.voucherStats.map((item: any) => item.name)
+                    }
+                };
+            }
+
+            // Support Chart
+            if (this.data.supportStats && this.data.supportStats.length > 0) {
+                this.supportChartOptions = {
+                    ...this.supportChartOptions,
+                    series: this.data.supportStats.map((item: any) => item.count),
+                    labels: this.data.supportStats.map((item: any) => item.status)
                 };
             }
         })
@@ -296,7 +438,7 @@ export class DashboardKpiComponent {
         return this.data?.revenue.monthly.reduce((acc, curr) => acc + curr.total, 0);
     }
     get avrOccupancy() {
-        if(!this.data?.occupancy?.length) return 0;
+        if (!this.data?.occupancy?.length) return 0;
         return this.data?.occupancy.reduce((acc: number, curr: any) => acc + (curr.occupancyRate || 0) * 100, 0) / this.data.occupancy.length;
     }
 }

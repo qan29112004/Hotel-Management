@@ -82,6 +82,9 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
     this.userService.user$.pipe(takeUntil(this.destroy)).subscribe(user=>{
       this.crrUser = user;
       console.log("this crrUser: ", this.crrUser)
+      if(this.crrUser){
+        this.loadActiveVouchers();
+      }
     })
     this.bookingForm = this.fb.group({
       fullname:[this.crrUser?.fullName ?this.crrUser?.fullName:null, Validators.required],
@@ -96,7 +99,7 @@ export class CustomerInfoComponent implements OnInit, OnDestroy {
     if (this.crrUser?.email && this.crrUser?.email.length > 0 ) {
       this.bookingForm.get('email')?.disable();
     }
-    this.loadActiveVouchers();
+    
   }
 
   ngOnDestroy(): void {

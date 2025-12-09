@@ -46,7 +46,7 @@
                             #filterPopup
                             [mode]="'inline'"
                             [showFilter]="showFilter"
-                            [titleKey]="'content.advanced_filters'"
+                            [titleKey]="'common.advanced_filters'"
                             [fields]="filterFields"
                             [optionDestination]="optionsHotel"
                             (filter)="onApplyFilter($event)"
@@ -60,17 +60,17 @@
 
                     <!-- Delete Button (Conditional) -->
                     <button
-                        *ngIf="hasSelectedBooking"
+                        *ngIf="hasSelectedBooking && user.role === 1"
                         (click)="toggleDeleteDialog()"
                         class="flex items-center h-10 gap-2 px-4 transition-colors border rounded-none bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200 animate-fade-in"
                     >
                         <mat-icon class="icon-size-5">delete</mat-icon>
-                        <span class="text-sm font-bold uppercase">{{ t('content.delete') }} ({{selectedIds.length}})</span>
+                        <span class="text-sm font-bold uppercase">{{ t('common.delete') }} ({{selectedIds.length}})</span>
                     </button>
                 </div>
             
                 <!-- Right: Create Button -->
-                <div class="flex w-full lg:w-auto">
+                <!-- <div ngIf="user.role === 1" class="flex w-full lg:w-auto">
                     <button
                         (click)="toggleAddUserDrawer()"
                         class="h-10 w-full sm:w-auto px-6 flex items-center justify-center gap-2 bg-zinc-900 text-white hover:bg-zinc-800 active:translate-y-0.5 transition-all rounded-none"
@@ -81,7 +81,7 @@
                         ></mat-icon>
                         <span class="text-sm font-bold tracking-wide uppercase">{{ t("booking.create") }}</span>
                     </button>
-                </div>
+                </div> -->
             </div>
 
             <!-- TABLE CONTAINER -->
@@ -105,7 +105,7 @@
                                 <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800"
                                     (click)="sortBy('user_fullname')">
                                     <div class="flex items-center gap-1">
-                                        {{ t("booking.user_fullname") }}
+                                        {{ t("booking.userFullname") }}
                                         <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'user_fullname' && sortOption === 'asc'">arrow_upward</mat-icon>
                                         <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'user_fullname' && sortOption === 'desc'">arrow_downward</mat-icon>
                                         <mat-icon class="icon-size-4 text-zinc-600" *ngIf="sortField !== 'user_fullname'">unfold_more</mat-icon>
@@ -113,13 +113,13 @@
                                 </th>
                                 <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800" (click)="sortBy('user_country')">
                                     <div class="flex items-center gap-1">
-                                        {{ t("booking.user_country") }}
+                                        {{ t("booking.userCountry") }}
                                         <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'user_country' && sortOption === 'asc'">arrow_upward</mat-icon>
                                         <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'user_country' && sortOption === 'desc'">arrow_downward</mat-icon>
                                         <mat-icon class="icon-size-4 text-zinc-600" *ngIf="sortField !== 'user_country'">unfold_more</mat-icon>
                                     </div>
                                 </th>
-                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("booking.user_email") }}</th>
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("booking.userEmail") }}</th>
                                 <th class="px-4 py-4 transition-colors border-b cursor-pointer hover:bg-zinc-800 border-zinc-800" (click)="sortBy('created_at')">
                                     <div class="flex items-center gap-1">
                                         {{ t("user_management.created_at") }}
@@ -258,7 +258,7 @@
 </div>
 
 <ng-container #editContainer></ng-container>
-
+<!-- 
 <app-generic-add
     [showDrawer]="showAddBooking"
     [titleKey]="'booking.create'"
@@ -268,10 +268,10 @@
     (toggleDrawer)="toggleAddUserDrawer()"
     [loadData] = "loadBooking.bind(this)"
     (drawerOpenedChanged)="onAddDrawerOpenedChanged($event)">
-</app-generic-add>
+</app-generic-add> -->
 
 <app-generic-delete
-    *ngIf="showDeleteDialog"
+    *ngIf="showDeleteDialog && user.role === 1"
     [entityIds]="selectedIds"
     [titleKey]="'content.confirm_delete'"
     [warningKey]="'other.warning_text'"

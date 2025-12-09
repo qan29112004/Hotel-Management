@@ -16,6 +16,19 @@ class FacilitiesSerializer(serializers.ModelSerializer):
         return {
             'username':obj.updated_by.username if obj.updated_by else None
         }
+    def validate_name(self, value):
+        if not value or value.strip() == "":
+            raise serializers.ValidationError("Tên cơ sở vật chất không được để trống.")
+
+        qs = Facilities.objects.filter(name=value)
+
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise serializers.ValidationError("Tên cơ sở vật chất đã tồn tại.")
+
+        return value
     def create(self, validated_data):
         
         return super().create(validated_data)

@@ -17,6 +17,7 @@ from hotel_management_be.views.service_view import *
 from hotel_management_be.views.rating_view import *
 from hotel_management_be.views.voucher_view import *
 from hotel_management_be.views.facilities_view import *
+from hotel_management_be.views.refund_view import *
 
 from hotel_management_be.views.dashboard_view import dashboard_overview
 
@@ -138,6 +139,10 @@ urlpatterns = [
     path('voucher/redeem/', redeem_voucher),
     path('voucher/revert/', revert_voucher_usage),
     path('voucher/<str:uuid>/', voucher_detail),
+
+    # Refund
+    path('refund/list/', list_refund, name="list_refund"),
+    path('refund/<str:uuid>/', refund_detail, name="refund_detail"),
 
     # Dashboard KPI
     path('dashboard/overview/', dashboard_overview),

@@ -318,9 +318,9 @@ export class HotelComponent implements OnInit {
     },
     {
         name: 'destination',
-        labelKey: 'hotel.description',
+        labelKey: 'hotel.destination',
         type: 'select',
-        placeholderKey: 'hotel.enterDescription',
+        placeholderKey: 'hotel.enterdestination',
         asyncOptionsKey: true,
         isForeingKey: true
     },

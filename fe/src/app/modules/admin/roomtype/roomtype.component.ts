@@ -104,7 +104,7 @@ export class RoomTypeComponent {
   showFilterModal: boolean = false;
   showDeleteDialog:boolean = false; 
 
-  optionsHotel:any = [];
+  optionsSelect:any = {};
   checkboxOptions:any = {};
 
   fields: FieldConfig[] =[
@@ -176,6 +176,18 @@ export class RoomTypeComponent {
         type: 'text',
         placeholderKey: 'room_type.enterPrice',
         
+        
+    },
+    {
+        name: 'status',
+        labelKey: 'room_type.status',
+        type: 'select',
+        options:[
+          {id:'Active',name:'Active'},
+          {id:'Inactive',name:'Inactive'}
+        ],
+        placeholderKey: 'room_type.enterstatus',
+        required:true
         
     },
     {
@@ -253,11 +265,23 @@ export class RoomTypeComponent {
         isForeignKey:true
     },
     {
-        name: 'price',
+        name: 'base_price',
         labelKey: 'room_type.price',
         type: 'text',
         placeholderKey: 'room_type.enterPrice',
         
+        
+    },
+    {
+        name: 'status',
+        labelKey: 'room_type.status',
+        type: 'select',
+        options:[
+          {id:'Active',name:'Active'},
+          {id:'Inactive',name:'Inactive'}
+        ],
+        placeholderKey: 'room_type.enterstatus',
+        required:true
         
     },
     {
@@ -290,11 +314,13 @@ export class RoomTypeComponent {
         name: 'status',
         labelKey: 'room_type.status',
         type: 'select',
-        options: [
-            { id: 'Active', name: 'Active' },
-            { id: 'Inactive', name: 'Inactive' }
+        options:[
+          {id:'Active',name:'Active'},
+          {id:'Inactive',name:'Inactive'}
         ],
-        placeholderKey: 'room_type.selectStatus',
+        placeholderKey: 'room_type.enterstatus',
+        required:true
+        
     },
     {
         name: 'hotel_id',
@@ -380,8 +406,8 @@ export class RoomTypeComponent {
         ),
       takeUntil(this._unsubscribeAll)
       ).subscribe((options)=>{
-        this.optionsHotel = options;
-        console.log("destination options:", this.optionsHotel)
+        this.optionsSelect['hotel_id'] = options;
+        console.log("destination options:", this.optionsSelect)
       });
       this.userService.user$.subscribe((user)=>{
         this.user = user;
@@ -546,7 +572,7 @@ export class RoomTypeComponent {
           instance.entityData = this.selectedRoomType;
           instance.saveHandler = this.saveHandler.bind(this);
           instance.loadData = this.loadRoomTypes.bind(this);
-          instance.optionDestination = this.optionsHotel;
+          instance.optionDestination = this.optionsSelect;
           instance.checkboxOptions = this.checkboxOptions;
   
           // ✅ Lắng nghe sự kiện Output
@@ -598,7 +624,7 @@ export class RoomTypeComponent {
       return this.roomTypeService.deleteRoomType(id);
     }
   
-    toggleDeleteDialog(uuid?:string): void {
+    toggleDeleteDialog(uuid?:any): void {
         if (uuid) {
           this.selectedIds = [...this.selectedIds, uuid];
         }

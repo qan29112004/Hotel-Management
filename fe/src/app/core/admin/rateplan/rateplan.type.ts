@@ -11,5 +11,5 @@ export interface RatePlan{
     guaranteePolicy:string,
     cancellationPolicy:string,
     hotel:any,
-    services:any[]
+    service:any[]
 }

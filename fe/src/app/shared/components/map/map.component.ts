@@ -85,7 +85,7 @@ export class MapComponent implements AfterViewInit {
 
         console.log("check:", hotel.latitude, hotel.longitude)
         const marker = L.marker([parseFloat(hotel.latitude), parseFloat(hotel.longitude)], { icon: hotelIcon });
-        marker.bindPopup(`<b>${hotel.name}</b><br>${hotel.description}`);
+        marker.bindPopup(`<b>${hotel.name}</b>`);
         this.markers.addLayer(marker);
 
         // Thêm bản sao marker ở ±360°, ±720°, v.v.
@@ -94,7 +94,7 @@ export class MapComponent implements AfterViewInit {
           [-360, 360].forEach(direction => {
             const newLng = parseFloat(hotel.longitude) + direction * i;
             const copyMarker = L.marker([parseFloat(hotel.latitude), newLng], { icon: hotelIcon });
-            copyMarker.bindPopup(`<b>${hotel.name}</b><br>${hotel.description} (Copy)`);
+            copyMarker.bindPopup(`<b>${hotel.name}</b> (Copy)`);
             this.markers.addLayer(copyMarker);
           });
         }
@@ -191,7 +191,7 @@ export class MapComponent implements AfterViewInit {
       // Marker gốc
       console.log("Adding marker:", hotel.name, hotel.latitude, hotel.longitude);  // Debug từng hotel
       const marker = L.marker([parseFloat(hotel.latitude), parseFloat(hotel.longitude)], { icon: hotelIcon });
-      marker.bindPopup(`<b>${hotel.name}</b><br>${hotel.description || 'No description'}`);
+      marker.bindPopup(`<b>${hotel.name}</b>`);
       this.markers.addLayer(marker);
 
       // Thêm bản sao marker ở ±360°, ±720°, v.v. (giữ nguyên)
@@ -200,7 +200,7 @@ export class MapComponent implements AfterViewInit {
         [-360, 360].forEach(direction => {
           const newLng = parseFloat(hotel.longitude) + direction * i;
           const copyMarker = L.marker([parseFloat(hotel.latitude), newLng], { icon: hotelIcon });
-          copyMarker.bindPopup(`<b>${hotel.name}</b><br>${hotel.description || 'No description'} (Copy)`);
+          copyMarker.bindPopup(`<b>${hotel.name}</b> (Copy)`);
           this.markers.addLayer(copyMarker);
         });
       }

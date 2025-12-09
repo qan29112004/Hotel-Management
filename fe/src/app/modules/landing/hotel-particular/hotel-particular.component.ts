@@ -1,5 +1,6 @@
 import { Component, OnInit, AfterViewInit, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, ViewChild, Renderer2, ElementRef, HostListener, OnChanges, SimpleChanges, DoCheck } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { Title } from '@angular/platform-browser';
 import { Router, ActivatedRoute, Route } from '@angular/router';
 import { SharedModule } from 'app/shared/shared.module';
 import { MatCalendar, MatCalendarCellCssClasses, MatDatepicker } from '@angular/material/datepicker';
@@ -15,17 +16,32 @@ import { HotelService } from 'app/core/admin/hotel/hotel.service';
 import { MapComponent } from 'app/shared/components/map/map.component';
 import { environment } from 'environments/environment.fullstack';
 import { TranslocoModule } from '@ngneat/transloco';
+import { ChatService } from 'app/core/chat/chat.service';
+import { animate, style, transition } from '@angular/animations';
+import { trigger } from '@angular/animations';
 @Component({
   selector: 'app-hotel-particular',
   standalone: true,
   imports: [CommonModule, SharedModule, CalendarComponent, RatingComponent, MapComponent, TranslocoModule],
   templateUrl: './hotel-particular.component.html',
-  styleUrls:['./hotel-particular.component.scss'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  styleUrls: ['./hotel-particular.component.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  animations: [
+    trigger('slideToggle', [
+      transition(':enter', [ // khi *ngIf thêm phần tử
+        style({ height: 0, opacity: 0, overflow: 'hidden' }),
+        animate('300ms ease-out', style({ height: '*', opacity: 1 }))
+      ]),
+      transition(':leave', [ // khi *ngIf xóa phần tử
+        style({ height: '*', opacity: 1, overflow: 'hidden' }),
+        animate('300ms ease-in', style({ height: 0, opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class HotelParticularComponent implements OnDestroy, OnInit, OnChanges, DoCheck {
-  baseUrl:string = environment.baseUrl;
-  formatISODate=formatISODate;
+  baseUrl: string = environment.baseUrl;
+  formatISODate = formatISODate;
   parseDate = parseDate;
   timeDate = timeDate;
   title = "star-angular";
@@ -44,46 +60,47 @@ export class HotelParticularComponent implements OnDestroy, OnInit, OnChanges, D
   updateRating(i) {
     this.rating = i;
   }
-  @ViewChild('overview') overview:ElementRef;
-  @ViewChild('images') images:ElementRef;
-  @ViewChild('rooms') rooms:ElementRef;
-  @ViewChild('reviews') reviews:ElementRef;
-  @ViewChild('location') location:ElementRef;
+  @ViewChild('overview') overview: ElementRef;
+  @ViewChild('images') images: ElementRef;
+  @ViewChild('rooms') rooms: ElementRef;
+  @ViewChild('reviews') reviews: ElementRef;
+  @ViewChild('location') location: ElementRef;
 
-  hotel_data:any;
+  hotel_data: any;
+  isChangeOption: boolean;
 
-  isRatingOverlayOpen:boolean = false;
-  isFeatureAndServiceOverlayOpen:boolean = false;
+  isRatingOverlayOpen: boolean = false;
+  isFeatureAndServiceOverlayOpen: boolean = false;
 
-  showCloseButton:boolean = false;
+  showCloseButton: boolean = false;
 
-  crrHotel:string = 'fqrmuqqnqu' ;
-  date:Date = new Date();
+  crrHotel: string = 'fqrmuqqnqu';
+  date: Date = new Date();
   getCurrentDateString = getCurrentDateString;
   listImageExploreHotel = [
     'assets/images/explore-hotel/images_1.jpg', 'assets/images/explore-hotel/images_2.jpg', 'assets/images/explore-hotel/images_3.jpg'
   ];
 
-  isChangeRoomList:boolean;
+  isChangeRoomList: boolean;
 
-  isHiddenForm:boolean = false;
+  isHiddenForm: boolean = false;
   showCalendarCheckin = false; // Biến điều khiển hiển thị lịch
   showCalendarCheckout = false;
-  today:Date = new Date();
+  today: Date = new Date();
   displayDate: string | null = null;
   showGuestSelector = false;
-  adults:number = 1;
-  children:number = 0;
+  adults: number = 1;
+  children: number = 0;
   optionsDestinations: { id: string; name: string }[] = [];
-  hasOptionDestinationLoaded:boolean = false;
+  hasOptionDestinationLoaded: boolean = false;
   roomList = [
-      {adults:1, children:0}
+    { adults: 1, children: 0 }
   ];
-  searchData:any;
+  searchData: any;
   private calendarSub: any;
   private _prevRoomListState: string = '';
-  isAvailableRoom:boolean = true;
-  hotel:any;
+  isAvailableRoom: boolean = true;
+  hotel: any;
   private buttonListeners: (() => void)[] = [];
   @ViewChild('pickerCheckin') pickerCheckin!: MatDatepicker<Date>;
   @ViewChild('pickerCheckout') pickerCheckout!: MatDatepicker<Date>;
@@ -93,42 +110,45 @@ export class HotelParticularComponent implements OnDestroy, OnInit, OnChanges, D
     { day: '2025-11-03', value: 'b' },
     { day: '2025-11-15', value: 'c' },
   ];
-  
-  constructor(public translocoService: TranslocoService, private datePipe: DatePipe, private renderer: Renderer2,private el: ElementRef,private dateAdapter: DateAdapter<any>, private route: Router, private activeRouter: ActivatedRoute,
-    private hotelService:HotelService
-  ){}
+
+  constructor(public translocoService: TranslocoService, private datePipe: DatePipe, private renderer: Renderer2, private el: ElementRef, private dateAdapter: DateAdapter<any>, private route: Router, private activeRouter: ActivatedRoute,
+    private hotelService: HotelService, private chatService: ChatService, private titleService: Title
+  ) { }
   //truyen vao calendar
   checkInDateObj: Date | null = null;
   checkOutDateObj: Date | null = null;
   //hien thi tren component
-  get checkInDate(){
+  get checkInDate() {
     return this.searchData.checkin;
   }
 
-  set checkInDate(value:any){
+  set checkInDate(value: any) {
     console.log('chay get check in')
     this.searchData.checkin = getCurrentDateString(value);
   }
 
-  get checkOutDate(){
+  get checkOutDate() {
     return this.searchData.checkout;
   }
 
-  set checkOutDate(value:any){
+  set checkOutDate(value: any) {
     this.searchData.checkout = getCurrentDateString(value);
   }
 
   ngOnInit(): void {
-    this.activeRouter.queryParams.subscribe(param=>{
+    this.chatService.messages$.subscribe(msg => {
+
+    })
+    this.activeRouter.queryParams.subscribe(param => {
       console.log("parma:", param)
       this.searchData = { ...param };
-      if(this.searchData.checkin && this.searchData.checkout){
+      if (this.searchData.checkin && this.searchData.checkout) {
         this.date = parseDate(this.searchData.checkin)
         this.checkOutDateObj = parseDate(this.searchData.checkout)
       }
       this.crrHotel = param['hotel']
       let i = 0;
-      const rooms =[];
+      const rooms = [];
       while (true) {
         const adultsParam = param[`rooms[${i}][adults]`];
         const childrenParam = param[`rooms[${i}][children]`];
@@ -142,27 +162,30 @@ export class HotelParticularComponent implements OnDestroy, OnInit, OnChanges, D
         i++;
       }
       this.roomList = rooms.length > 0 ? rooms : this.roomList;
-      this.hotelService.getHotelById(this.crrHotel).subscribe(res=>{
+      this.hotelService.getHotelById(this.crrHotel).subscribe(res => {
         this.hotel_data = res.data;
-        const payload = {
-          checkin : this.searchData.checkin,
-          checkout : this.searchData.checkout,
-          hotel_id : this.hotel_data.uuid,
-          rooms : this.roomList
+        if (this.hotel_data?.name) {
+          this.titleService.setTitle(this.hotel_data.name);
         }
-        if(this.searchData.checkin && this.searchData.checkout){
+        const payload = {
+          checkin: this.searchData.checkin,
+          checkout: this.searchData.checkout,
+          hotel_id: this.hotel_data.uuid,
+          rooms: this.roomList
+        }
+        if (this.searchData.checkin && this.searchData.checkout) {
           this.hotelService.checkAvailableRoom(payload).subscribe(
             (res) => {
-                console.log("Availability:", res);
-                this.isAvailableRoom = res.status
+              console.log("Availability:", res);
+              this.isAvailableRoom = res.status
             },
             (err) => {
-                console.error("Error:", err);
+              console.error("Error:", err);
             }
-        );
-      }
+          );
+        }
       })
-      
+
     })
     register();
   }
@@ -171,6 +194,7 @@ export class HotelParticularComponent implements OnDestroy, OnInit, OnChanges, D
 
     if (currentState !== this._prevRoomListState) {
       this._prevRoomListState = currentState;
+      this.roomList = [...this.roomList];
       this.isChangeRoomList = true;
     }
   }
@@ -183,29 +207,29 @@ export class HotelParticularComponent implements OnDestroy, OnInit, OnChanges, D
 
   ngAfterViewInit() {
     const buttons = this.el.nativeElement
-   .querySelectorAll('.mat-calendar-previous-button, .mat-calendar-next-button');
-      
-   console.log("button: ", buttons)
+      .querySelectorAll('.mat-calendar-previous-button, .mat-calendar-next-button');
+
+    console.log("button: ", buttons)
     if (buttons) {
       Array.from(buttons).forEach(button => {
         this.renderer.listen(button, 'click', () => {
           alert('Arrow buttons clicked');
-            console.log("active: ",this.calendarCheckin.activeDate);
+          console.log("active: ", this.calendarCheckin.activeDate);
         });
       });
     }
     ;
   }
 
-  scrollTo(tag:string){
+  scrollTo(tag: string) {
     const tagNavigate = {
-      'overview':this.overview,
-      'rooms':this.rooms,
-      'location':this.location,
-      'reviews':this.reviews,
-      'images':this.images
+      'overview': this.overview,
+      'rooms': this.rooms,
+      'location': this.location,
+      'reviews': this.reviews,
+      'images': this.images
     }
-    tagNavigate[`${tag}`].nativeElement.scrollIntoView({behavior:'smooth', block:'center'})
+    tagNavigate[`${tag}`].nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
   getFirstBedAmenity(rt: any) {
@@ -247,16 +271,16 @@ export class HotelParticularComponent implements OnDestroy, OnInit, OnChanges, D
       this.isHiddenForm = true;
       this.showCloseButton = false;
     }
-    
+
   }
 
 
   getCalendarValue(date: Date): string {
-  const formatted = this.dateAdapter.format(date, 'yyyy-MM-dd');
-  const match = this.calendarData.find(d => d.day === formatted);
+    const formatted = this.dateAdapter.format(date, 'yyyy-MM-dd');
+    const match = this.calendarData.find(d => d.day === formatted);
     console.log(match)
-  return match ? match.value : '';
-}
+    return match ? match.value : '';
+  }
 
   getDateClass = (date: Date): MatCalendarCellCssClasses => {
     const formatted = this.dateAdapter.format(date, 'yyyy-MM-dd');
@@ -280,38 +304,57 @@ export class HotelParticularComponent implements OnDestroy, OnInit, OnChanges, D
     this.buttonListeners = [];
   }
   toggleGuestSelector() {
-      this.showGuestSelector = !this.showGuestSelector;
+    this.showGuestSelector = !this.showGuestSelector;
   }
   closeGuestSelector() {
-      this.showGuestSelector = false;
-      if(this.isChangeRoomList === true){
-        this.callAvailabilityAPI();
-        this.isChangeRoomList = false;
-      }
+    this.showGuestSelector = false;
+    if (this.isChangeRoomList === true) {
+      this.callAvailabilityAPI();
+      this.isChangeRoomList = false;
+    }
   }
   get guestSummary() {
-      const totalAdults = this.roomList.reduce((sum, r) => sum + r.adults, 0);
-      const totalChildren = this.roomList.reduce((sum, r) => sum + r.children, 0);
-      const totalGuests = totalAdults + totalChildren;
-      return `${this.roomList.length} room${this.roomList.length > 1 ? 's' : ''}${totalGuests >= 1 ? ', ' + totalGuests + ' guests' : ''}`;
+    const totalAdults = this.roomList.reduce((sum, r) => sum + r.adults, 0);
+    const totalChildren = this.roomList.reduce((sum, r) => sum + r.children, 0);
+    const totalGuests = totalAdults + totalChildren;
+    return `${this.roomList.length} room${this.roomList.length > 1 ? 's' : ''}${totalGuests >= 1 ? ', ' + totalGuests + ' guests' : ''}`;
+  }
+
+  changeAdults(index: number, delta: number) {
+    this.roomList = this.roomList.map((room, idx) =>
+      idx === index
+        ? { ...room, adults: Math.max(1, room.adults + delta) }  // Tạo object mới
+        : room
+    );
+  }
+
+  changeChildren(index: number, delta: number) {
+    this.roomList = this.roomList.map((room, idx) =>
+      idx === index
+        ? { ...room, children: Math.max(0, room.children + delta) }
+        : room
+    );
+    // this.isChangeRoomList = true;
   }
 
   removeRoom() {
-      if (this.roomList.length > 1) {
-          this.roomList.pop();
-      }
+    if (this.roomList.length > 1) {
+      // this.roomList.pop();
+      this.roomList = this.roomList.slice(0, -1);
+    }
   }
   addRoom() {
-      if (this.roomList.length < 5) { 
-          this.roomList.push({ adults: 1, children: 0 });
-      }
+    if (this.roomList.length < 5) {
+      // this.roomList.push({ adults: 1, children: 0 });
+      this.roomList = [...this.roomList, { adults: 1, children: 0 }];
+    }
   }
   toggleCalendarCheckin() {
-      this.showCalendarCheckin = !this.showCalendarCheckin;
-      
+    this.showCalendarCheckin = !this.showCalendarCheckin;
+
   }
   toggleCalendarCheckout() {
-      this.showCalendarCheckout = !this.showCalendarCheckout;    
+    this.showCalendarCheckout = !this.showCalendarCheckout;
   }
 
 
@@ -326,34 +369,34 @@ export class HotelParticularComponent implements OnDestroy, OnInit, OnChanges, D
     console.log('typeof:', typeof event);
 
     if (event instanceof Date) {
-        this.checkInDate = getCurrentDateString(event);
-        console.log("this.checkindate: ", this.checkInDate)
-        this.checkInDateObj =parseDate(this.checkInDate)
-        this.checkOutDate = null;
-        this.checkOutDateObj = this.checkInDateObj;
-        console.log('chekout date', this.checkInDateObj)
-        this.showCalendarCheckin = !this.showCalendarCheckin; 
-    }else{
+      this.checkInDate = getCurrentDateString(event);
+      console.log("this.checkindate: ", this.checkInDate)
+      this.checkInDateObj = parseDate(this.checkInDate)
+      this.checkOutDate = null;
+      this.checkOutDateObj = this.checkInDateObj;
+      console.log('chekout date', this.checkInDateObj)
+      this.showCalendarCheckin = !this.showCalendarCheckin;
+    } else {
       this.checkInDate = null;
       this.checkOutDate = null;
       this.checkInDateObj = null;
-        this.showCalendarCheckin = !this.showCalendarCheckin; 
+      this.showCalendarCheckin = !this.showCalendarCheckin;
     }
 
     console.log('checkInDate:', this.checkInDate);
-}
+  }
 
-  selectedCheckout(event:any){
+  selectedCheckout(event: any) {
     if (event instanceof Date) {
-        this.checkOutDate = getCurrentDateString(event);
-        this.showCalendarCheckout = !this.showCalendarCheckout; 
-        this.callAvailabilityAPI();
-    }else{
+      this.checkOutDate = getCurrentDateString(event);
+      this.showCalendarCheckout = !this.showCalendarCheckout;
+      this.callAvailabilityAPI();
+    } else {
       this.checkOutDate = null;
-        this.showCalendarCheckout = !this.showCalendarCheckout; 
+      this.showCalendarCheckout = !this.showCalendarCheckout;
     }
   }
-  
+
 
   displayForm() {
     this.isHiddenForm = false;
@@ -365,7 +408,17 @@ export class HotelParticularComponent implements OnDestroy, OnInit, OnChanges, D
     this.showCloseButton = false;
   }
 
-  booking(){
+  booking() {
+    if (localStorage.getItem('booking_id') && localStorage.getItem('session_id')) {
+
+      this.chatService.sendMessage(
+        {
+          action: 'delete_session',
+          session_id: localStorage.getItem('session_id'),
+          booking_id: localStorage.getItem('booking_id')
+        }
+      )
+    }
     const queryParams: { [key: string]: any } = {};
 
     queryParams.uuid = this.hotel_data?.uuid
@@ -378,38 +431,38 @@ export class HotelParticularComponent implements OnDestroy, OnInit, OnChanges, D
       queryParams[`rooms[${i}][adults]`] = room.adults;
       queryParams[`rooms[${i}][children]`] = room.children;
     });
-    this.route.navigate(['booking'], {queryParams})
+    this.route.navigate(['booking'], { queryParams })
   }
 
-  nextMonth(event:string){
-    
+  nextMonth(event: string) {
+
   }
-  prevMonth(event:string){
-    
+  prevMonth(event: string) {
+
   }
   callAvailabilityAPI() {
     if (!this.checkInDate || !this.checkOutDate || !this.hotel_data) return;
 
     const payload = {
-        checkin: this.checkInDate,
-        checkout: this.checkOutDate,
-        hotel_id: this.hotel_data?.uuid,
-        rooms: this.roomList.map(r => ({
-            adults: r.adults,
-            children: r.children
-        }))
+      checkin: this.checkInDate,
+      checkout: this.checkOutDate,
+      hotel_id: this.hotel_data?.uuid,
+      rooms: this.roomList.map(r => ({
+        adults: r.adults,
+        children: r.children
+      }))
     };
 
     console.log("CALL AVAIL API:", payload);
 
     this.hotelService.checkAvailableRoom(payload).subscribe(
-        (res) => {
-            console.log("Availability:", res);
-            this.isAvailableRoom = res.status
-        },
-        (err) => {
-            console.error("Error:", err);
-        }
+      (res) => {
+        console.log("Availability:", res);
+        this.isAvailableRoom = res.status
+      },
+      (err) => {
+        console.error("Error:", err);
+      }
     );
-}
+  }
 }

@@ -166,6 +166,9 @@ export class LanguagesComponent implements OnInit, OnDestroy {
                 key: 'menu.admin.marketManagement.productManagement',
             },
             { id:'chat', key:'menu.chat'},
+            { id:'deal', key:'menu.deal'},
+            { id:'room', key:'menu.room'},
+            { id:'booking', key:'menu.booking'},
             { id:'marketplace', key:'menu.marketplace'},
             { id:'admin.destination', key: 'menu.admin.destination'},
             { id:'destination', key: 'menu.admin.destination'},
@@ -183,7 +186,9 @@ export class LanguagesComponent implements OnInit, OnDestroy {
             { id:'admin.price_rule', key: 'menu.admin.price_rule'},
             { id:'admin.payment', key: 'menu.admin.payment'},
             { id:'admin.reservation', key: 'menu.admin.reservation'},
-            { id:'admin.offer_exclusive', key: 'menu.admin.offer_exclusive'}
+            { id:'admin.offer_exclusive', key: 'menu.admin.offer_exclusive'},
+            { id:'admin.payment', key: 'menu.admin.payment'},
+            { id:'admin.refund', key: 'menu.admin.refund'}
         ];
 
         navItemsToTranslate.forEach(({ id, key }) =>

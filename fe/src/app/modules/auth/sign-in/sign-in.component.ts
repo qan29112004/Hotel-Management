@@ -245,7 +245,7 @@ export class AuthSignInComponent implements OnInit {
                 this.alert = {
                     type: 'error',
                     code: Array.isArray(errorList)
-                        ? errorList.map(e => e.field ? `${e.field}: ${e.message}` : e.message)
+                        ? errorList.map(e => e.field ? `${e.message}` : e.message)
                         : [error?.error?.message || error?.error?.code || 'Đã xảy ra lỗi'],
                 };
                 console.log("alert code: ", this.alert.code )

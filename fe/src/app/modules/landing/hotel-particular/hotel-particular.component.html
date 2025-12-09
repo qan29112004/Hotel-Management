@@ -92,7 +92,7 @@
                     <div class="relative w-full h-full flex justify-center items-center">
                         <div class="bg-white/70 absolute w-full h-full"></div>
                         <div class="text-red-500 font-avenir text-[20] z-10 bg-white p-3">
-                            <span>Hiện tại khách sạn đã hết phòng. Vui lòng chọn khách sạn khác</span>
+                            <span>{{'hotel.fully_booked'|transloco}}</span>
                         </div>
                     </div>
                 </div>
@@ -150,17 +150,17 @@
                                         <div class="flex items-center justify-between p-2 text-black ">
                                             <span class="font-mono">{{translocoService.translate('home-page.adults')}}</span>
                                             <div class="flex items-center gap-2">
-                                                <button type="button" class="px-2" (click)="r.adults = Math.max(1, r.adults - 1)">-</button>
+                                                <button type="button" class="px-2" (click)="changeAdults(i, -1)">-</button>
                                                 <span class="font-mono">{{ r.adults }}</span>
-                                                <button [attr.disabled]="r.adults >= 10 ? true : null" type="button" class="px-2" (click)="r.adults = r.adults + 1">+</button>
+                                                <button [attr.disabled]="r.adults >= 10 ? true : null" type="button" class="px-2" (click)="changeAdults(i,1)">+</button>
                                             </div>
                                         </div>
                                         <div class="flex items-center justify-between p-2 text-black">
                                             <span class="font-mono">{{translocoService.translate('home-page.children')}}</span>
                                             <div class="flex items-center gap-2">
-                                                <button type="button" class="px-2" (click)="r.children = Math.max(0, r.children - 1)">-</button>
+                                                <button type="button" class="px-2" (click)="changeChildren(i, -1)">-</button>
                                                 <span class="font-mono">{{ r.children }}</span>
-                                                <button [attr.disabled]="r.children >= 6 ? true : null" type="button" class="px-2" (click)="r.children = r.children + 1">+</button>
+                                                <button [attr.disabled]="r.children >= 6 ? true : null" type="button" class="px-2" (click)="changeChildren(i, 1)">+</button>
                                             </div>
                                         </div>
                                     </div>
@@ -176,7 +176,7 @@
                         <input type="text" placeholder="" class="text-black placeholder:font-mono"/>
                     </div>
                 </div>
-                <div *ngIf="!isAvailableRoom" class="w-full p-3 text-red-500 font-avenir">Số phòng còn lại không đáp ứng đủ yêu cầu của bạn, vui lòng chỉnh sửa tùy chọn.</div>
+                <div *ngIf="!isAvailableRoom" class="w-full p-3 text-red-500 font-avenir">{{'hotel.not_enough_rooms'|transloco}}</div>
                 <button [disabled]="(!checkInDate || !checkOutDate) || !hotel_data?.isAvailableRoom ||!isAvailableRoom" type="submit" class="flex items-center justify-center gap-3 px-8 py-6 bg-yellow-500 disabled:opacity-75 disabled:cursor-not-allowed">
                     <mat-icon class="text-black" [svgIcon]="'heroicons_outline:magnifying-glass'"></mat-icon>
                     <span class="font-mono text-black">{{translocoService.translate('home-page.search')}}</span>
@@ -228,7 +228,7 @@
         </div>
         <div #images class="w-full flex flex-col items-center relative mt-[100px]">
 
-            <div class="flex flex-col items-center justify-center relative max-w-[67%]">
+            <div class="flex flex-col items-center justify-center relative max-w-[67%] mb-[60px]">
                 <span class="font-clearface font-normal text-[30px] mb-[20px]">{{'hotel.our_hotel'|transloco}}</span>
                 <swiper-container
                     #swiperE2
@@ -310,7 +310,7 @@
                 </div>
             </div>
         </div> -->
-        <div #rooms class="flex flex-col items-center w-full">
+        <div #rooms class="flex flex-col items-center w-full mb-[60px]">
             <span class="font-clearface text-[30px] mb-5">{{'hotel.our_room'|transloco}}</span>
             <div *ngFor="let rt of hotel_data?.roomTypes" class="relative flex items-center w-full h-auto mb-[25px]">
                 <swiper-container
@@ -339,13 +339,13 @@
                                 <span class="font-avenir text-[16px] font-normal"> {{ bed.amenityName }} </span>
                             </div>
                         </div>
-                        <span class="font-avenir text-[16px] font-normal">Please enter dates to check availability</span>
+                        <span class="font-avenir text-[16px] font-normal">{{'hotel.enter_dates_to_check'|transloco}}</span>
                     </div>
                 </div>
             </div>
         </div>
         <div #reviews class="flex flex-col items-center w-full mb-[100px]">
-            <span class="font-clearface text-[30px] mb-16">Rating & Reviews</span>
+            <span class="font-clearface text-[30px] mb-16">{{'hotel.rating_and_review'|transloco}}</span>
             <div *ngFor="let rating of hotel_data?.rating?.list.slice(0,4)" class="w-full py-8 border-t border-black mb-[30px]">
                 <div class="flex items-center gap-1 mb-[20px]">
                     <ng-container *ngFor="let star of stars">
@@ -358,14 +358,14 @@
                 <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">{{rating.subject}}</h3>
                 <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">{{rating.review}}</p>
                 <div class="flex gap-8">
-                    <span class="font-avenir text-[16px] font-normal">By <span class="font-bold font-lexend_deca">{{rating.createdBy.email}}</span></span>
-                    <span class="font-avenir text-[16px] font-normal">At <span class="font-bold font-lexend_deca">{{formatISODate(rating.createdAt)}}</span></span>
+                    <span class="font-avenir text-[16px] font-normal">{{'hotel.by'|transloco}} <span class="font-bold font-lexend_deca">{{rating.createdBy.email}}</span></span>
+                    <span class="font-avenir text-[16px] font-normal">{{'hotel.at'|transloco}} <span class="font-bold font-lexend_deca">{{formatISODate(rating.createdAt)}}</span></span>
                 </div>
             </div>
             <button (click)="openRatingOverlay()" type="button" class="text-black underline font-avenir text-[14px] uppercase">show all</button>
         </div>
         
-        <div class="flex flex-col items-center w-full">
+        <div class="flex flex-col items-center w-full mb-[60px]">
             <div class="flex bg-white py-14 gap-7">
                 <div class="block w-full text-center font-clearface text-[30px] text-black">{{'hotel.key_feature'| transloco}}</div>
             </div>

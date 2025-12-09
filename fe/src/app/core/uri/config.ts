@@ -125,7 +125,7 @@ export const uriConfig = {
     API_GET_DASHBOARD: baseUrl + '/api/dashboard/',
     API_GET_RECENT_REG: baseUrl + '/api/dashboard/recentlyregistered/',
     API_GET_NUMBER_OF_LIKE: baseUrl + '/api/dashboard/numberoflike/',
-    API_DASHBOARD_SSE :baseUrl + '/api/dashboard/sse/' ,
+    API_DASHBOARD_SSE: baseUrl + '/api/dashboard/sse/',
 
 
     //api chat
@@ -142,16 +142,16 @@ export const uriConfig = {
 
     //destination
     API_DESTINATION_ALL: baseUrl + '/api/destination/list/',
-    API_DESTINATION_UPDATE: (uuid:string) => baseUrl + `/api/destination/${uuid}/`,
-    API_DESTINATION_DELETE: (uuid:string) => baseUrl + `/api/destination/${uuid}/`,
-    API_DESTINATION_DETAIL: (slug:String) => baseUrl + `/api/destination/detail/${slug}/`,
+    API_DESTINATION_UPDATE: (uuid: string) => baseUrl + `/api/destination/${uuid}/`,
+    API_DESTINATION_DELETE: (uuid: string) => baseUrl + `/api/destination/${uuid}/`,
+    API_DESTINATION_DETAIL: (slug: String) => baseUrl + `/api/destination/detail/${slug}/`,
     API_DESTINATION_CREATE: baseUrl + '/api/destination/',
 
     //hotel
     API_HOTEL_ALL: baseUrl + '/api/hotel/list/',
-    API_HOTEL_UPDATE: (uuid:string) => baseUrl + `/api/hotel/${uuid}/`,
-    API_HOTEL_DELETE: (uuid:string) => baseUrl + `/api/hotel/${uuid}/`,
-    API_HOTEL_DETAIL: (uuid:string) => baseUrl + `/api/hotel/${uuid}/`,
+    API_HOTEL_UPDATE: (uuid: string) => baseUrl + `/api/hotel/${uuid}/`,
+    API_HOTEL_DELETE: (uuid: string) => baseUrl + `/api/hotel/${uuid}/`,
+    API_HOTEL_DETAIL: (uuid: string) => baseUrl + `/api/hotel/${uuid}/`,
     API_HOTEL_CREATE: baseUrl + '/api/hotel/',
     API_HOTEL_CALENDAR_PRICE: baseUrl + '/api/calendar-price/',
     API_EXPLORE_HOTELS: baseUrl + '/api/explore-hotels/',
@@ -159,88 +159,88 @@ export const uriConfig = {
 
     //room_type
     API_ROOM_TYPE_ALL: baseUrl + '/api/room_type/list/',
-    API_ROOM_TYPE_UPDATE: (uuid:string) => baseUrl + `/api/room_type/${uuid}/`,
-    API_ROOM_TYPE_DELETE: (uuid:string) => baseUrl + `/api/room_type/${uuid}/`,
+    API_ROOM_TYPE_UPDATE: (uuid: string) => baseUrl + `/api/room_type/${uuid}/`,
+    API_ROOM_TYPE_DELETE: (uuid: string) => baseUrl + `/api/room_type/${uuid}/`,
     API_ROOM_TYPE_CREATE: baseUrl + '/api/room_type/',
 
     //amenity
     API_AMENITY_ALL: baseUrl + '/api/amenity/list/',
-    API_AMENITY_UPDATE: (uuid:string) => baseUrl + `/api/amenity/${uuid}/`,
-    API_AMENITY_DELETE: (uuid:string) => baseUrl + `/api/amenity/${uuid}/`,
+    API_AMENITY_UPDATE: (uuid: string) => baseUrl + `/api/amenity/${uuid}/`,
+    API_AMENITY_DELETE: (uuid: string) => baseUrl + `/api/amenity/${uuid}/`,
     API_AMENITY_CREATE: baseUrl + '/api/amenity/',
 
     //facilities
     API_FACILITIES_ALL: baseUrl + '/api/facilities/list/',
-    API_FACILITIES_UPDATE: (uuid:string) => baseUrl + `/api/facilities/${uuid}/`,
-    API_FACILITIES_DELETE: (uuid:string) => baseUrl + `/api/facilities/${uuid}/`,
+    API_FACILITIES_UPDATE: (uuid: string) => baseUrl + `/api/facilities/${uuid}/`,
+    API_FACILITIES_DELETE: (uuid: string) => baseUrl + `/api/facilities/${uuid}/`,
     API_FACILITIES_CREATE: baseUrl + '/api/facilities/',
 
     //room
     API_ROOM_ALL: baseUrl + '/api/room/list/',
-    API_ROOM_UPDATE: (uuid:string) => baseUrl + `/api/room/${uuid}/`,
-    API_ROOM_DELETE: (uuid:string) => baseUrl + `/api/room/${uuid}/`,
+    API_ROOM_UPDATE: (uuid: string) => baseUrl + `/api/room/${uuid}/`,
+    API_ROOM_DELETE: (uuid: string) => baseUrl + `/api/room/${uuid}/`,
     API_ROOM_CREATE: baseUrl + '/api/room/',
 
     //booking
     API_LIST_ROOM_TYPE_RATE: baseUrl + '/api/price-per-day/',
     API_CREATE_PAYMENT: baseUrl + '/api/payment/create-payment/',
-    API_CREATE_SESSTION:baseUrl + '/api/booking/create-booking-session/',
-    API_CREATE_HOLE : baseUrl + '/api/booking/create-hold/',
-    API_LIST_HOLD_ROOM : baseUrl + '/api/booking/get-list-hold-room/',
+    API_CREATE_SESSTION: baseUrl + '/api/booking/create-booking-session/',
+    API_CREATE_HOLE: baseUrl + '/api/booking/create-hold/',
+    API_LIST_HOLD_ROOM: baseUrl + '/api/booking/get-list-hold-room/',
     API_CHECK_SESSION: baseUrl + '/api/booking/check-session/',
-    
+
     //sse
-    API_SSE : (session_id:string)=> baseUrl + `/api/sse/session/${session_id}/`,
+    API_SSE: (session_id: string) => baseUrl + `/api/sse/session/${session_id}/`,
 
     //websocket
-    WEBSOCKET_URL : 'ws://localhost:8000/ws/chat/',
+    WEBSOCKET_URL: 'ws://localhost:8000/ws/chat/',
 
     //offer
     API_OFFER_ALL: baseUrl + '/api/offer/list/',
-    API_OFFER_UPDATE: (uuid:string) => baseUrl + `/api/offer/${uuid}/`,
-    API_OFFER_DELETE: (uuid:string) => baseUrl + `/api/offer/${uuid}/`,
+    API_OFFER_UPDATE: (uuid: string) => baseUrl + `/api/offer/${uuid}/`,
+    API_OFFER_DELETE: (uuid: string) => baseUrl + `/api/offer/${uuid}/`,
     API_OFFER_CREATE: baseUrl + '/api/offer/',
-    
+
     //booking admin
     API_BOOKING_ALL: baseUrl + '/api/booking/list/',
-    API_BOOKING_UPDATE: (uuid:string) => baseUrl + `/api/booking/${uuid}/`,
-    API_BOOKING_DELETE: (uuid:string) => baseUrl + `/api/booking/${uuid}/`,
+    API_BOOKING_UPDATE: (uuid: string) => baseUrl + `/api/booking/${uuid}/`,
+    API_BOOKING_DELETE: (uuid: string) => baseUrl + `/api/booking/${uuid}/`,
     API_BOOKING_CREATE: baseUrl + '/api/booking/',
-    
+
     //service
     API_SERVICE_ALL: baseUrl + '/api/service/list/',
-    API_SERVICE_UPDATE: (uuid:string) => baseUrl + `/api/service/${uuid}/`,
-    API_SERVICE_DELETE: (uuid:string) => baseUrl + `/api/service/${uuid}/`,
+    API_SERVICE_UPDATE: (uuid: string) => baseUrl + `/api/service/${uuid}/`,
+    API_SERVICE_DELETE: (uuid: string) => baseUrl + `/api/service/${uuid}/`,
     API_ADD_UPDATE_SERVICE_BOOKING: baseUrl + '/api/booking/add-and-update-service-to-hold-record/',
     API_SERVICE_CREATE: baseUrl + '/api/service/',
 
     //rate plan
     API_RATE_PLAN_ALL: baseUrl + '/api/rate-plan/list/',
-    API_RATE_PLAN_UPDATE: (uuid:string) => baseUrl + `/api/rate-plan/${uuid}/`,
-    API_RATE_PLAN_DELETE: (uuid:string) => baseUrl + `/api/rate-plan/${uuid}/`,
+    API_RATE_PLAN_UPDATE: (uuid: string) => baseUrl + `/api/rate-plan/${uuid}/`,
+    API_RATE_PLAN_DELETE: (uuid: string) => baseUrl + `/api/rate-plan/${uuid}/`,
     API_RATE_PLAN_CREATE: baseUrl + '/api/rate-plan/',
 
     //price rule
     API_PRICE_RULE_ALL: baseUrl + '/api/price-rule/list/',
-    API_PRICE_RULE_UPDATE: (uuid:string) => baseUrl + `/api/price-rule/${uuid}/`,
-    API_PRICE_RULE_DELETE: (uuid:string) => baseUrl + `/api/price-rule/${uuid}/`,
+    API_PRICE_RULE_UPDATE: (uuid: string) => baseUrl + `/api/price-rule/${uuid}/`,
+    API_PRICE_RULE_DELETE: (uuid: string) => baseUrl + `/api/price-rule/${uuid}/`,
     API_PRICE_RULE_CREATE: baseUrl + '/api/price-rule/',
 
     //rating
     API_RATING_ALL: baseUrl + '/api/rating/list/',
-    API_RATING_UPDATE: (uuid:string) => baseUrl + `/api/rating/${uuid}/`,
-    API_RATING_DELETE: (uuid:string) => baseUrl + `/api/rating/${uuid}/`,
+    API_RATING_UPDATE: (uuid: string) => baseUrl + `/api/rating/${uuid}/`,
+    API_RATING_DELETE: (uuid: string) => baseUrl + `/api/rating/${uuid}/`,
     API_RATING_CREATE: baseUrl + '/api/rating/',
 
     //content
     API_KNOWN_LEGDE_ALL: baseUrl + '/api/chatbot/knowlegde-base/list/',
-    API_KNOWN_LEGDE_UPDATE: (uuid:string) => baseUrl + `/api/chatbot/knowlegde-base/${uuid}/`,
-    API_KNOWN_LEGDE_DELETE: (uuid:string) => baseUrl + `/api/chatbot/knowlegde-base/${uuid}/`,
+    API_KNOWN_LEGDE_UPDATE: (uuid: string) => baseUrl + `/api/chatbot/knowlegde-base/${uuid}/`,
+    API_KNOWN_LEGDE_DELETE: (uuid: string) => baseUrl + `/api/chatbot/knowlegde-base/${uuid}/`,
     API_KNOWN_LEGDE_CREATE: baseUrl + '/api/chatbot/knowlegde-base/',
 
     //my-booking
     API_MY_BOOKING: baseUrl + '/api/my-booking/list/',
-    
+
     //payment
     API_PAYMENT_REFUND: baseUrl + '/api/payment/refund/',
     API_PAYMENT_REFUND_INFO: (bookingId: string) => baseUrl + `/api/payment/refund-info/${bookingId}/`,
@@ -252,14 +252,14 @@ export const uriConfig = {
 
     //voucher
     API_VOUCHER_ALL: baseUrl + '/api/voucher/list/',
-    API_VOUCHER_UPDATE: (uuid:string) => baseUrl + `/api/voucher/${uuid}/`,
-    API_VOUCHER_DELETE: (uuid:string) => baseUrl + `/api/voucher/${uuid}/`,
+    API_VOUCHER_UPDATE: (uuid: string) => baseUrl + `/api/voucher/${uuid}/`,
+    API_VOUCHER_DELETE: (uuid: string) => baseUrl + `/api/voucher/${uuid}/`,
     API_VOUCHER_CREATE: baseUrl + '/api/voucher/',
     API_VOUCHER_CLAIM: baseUrl + '/api/voucher/claim/',
     API_VOUCHER_MY: baseUrl + '/api/voucher/my/',
-    API_VOUCHER_PREVIEW : baseUrl + '/api/voucher/preview/',
-    API_VOUCHER_REDEEM : baseUrl + '/api/voucher/redeem/',
-    API_VOUCHER_REVERT : baseUrl + '/api/voucher/revert/',
+    API_VOUCHER_PREVIEW: baseUrl + '/api/voucher/preview/',
+    API_VOUCHER_REDEEM: baseUrl + '/api/voucher/redeem/',
+    API_VOUCHER_REVERT: baseUrl + '/api/voucher/revert/',
     API_VOUCHER_APPLY: baseUrl + '/api/voucher/apply/',
 
     //dashboard
@@ -267,7 +267,12 @@ export const uriConfig = {
 
     //payment
     API_PAYMENT_ALL: baseUrl + '/api/payment/list/',
-    API_PAYMENT_UPDATE: (uuid:string) => baseUrl + `/api/payment/${uuid}/`,
-    API_PAYMENT_DELETE: (uuid:string) => baseUrl + `/api/payment/${uuid}/`,
+    API_PAYMENT_UPDATE: (uuid: string) => baseUrl + `/api/payment/${uuid}/`,
+    API_PAYMENT_DELETE: (uuid: string) => baseUrl + `/api/payment/${uuid}/`,
     API_PAYMENT_CREATE: baseUrl + '/api/payment/',
+
+    //refund
+    API_REFUND_ALL: baseUrl + '/api/refund/list/',
+    API_REFUND_UPDATE: (uuid: string) => baseUrl + `/api/refund/${uuid}/`,
+    API_REFUND_DELETE: (uuid: string) => baseUrl + `/api/refund/${uuid}/`,
 };

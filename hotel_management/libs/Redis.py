@@ -123,7 +123,9 @@ class RedisUtils:
     ATOMIC_MULTI_INCR = """
     local qty = tonumber(ARGV[1])
     for i=1,#KEYS do
-    redis.call('INCRBY', KEYS[i], qty)
+        if redis.call('EXISTS', KEYS[i]) == 1 then
+            redis.call('INCRBY', KEYS[i], qty)
+        end
     end
     return 1
     """
@@ -463,3 +465,36 @@ class RedisUtils:
         """
         key = RedisUtils.booking_success_key(booking_id)
         return RedisUtils.r.exists(key)
+
+    @staticmethod
+    def expire_session_and_holds_immediately(session_id: str, total_slots: Optional[int] = None):
+        """
+        Set TTL of session key and all related hold keys (slots, hold objects) to 0.
+        Does NOT touch inventory keys.
+        """
+        # 1. Get all hold IDs associated with this session
+        hold_ids = RedisUtils.get_session_holds(session_id, total_slots)
+        
+        # 2. Expire all hold objects hold:{uuid}
+        for hid in hold_ids:
+            RedisUtils.r.expire(RedisUtils.hold_key(str(hid)), 0)
+
+        # 3. Expire session holds slots or list
+        # Legacy list
+        RedisUtils.r.expire(RedisUtils.session_holds_key(session_id), 0)
+        
+        # Slots
+        if total_slots is not None:
+            for i in range(total_slots):
+                RedisUtils.r.expire(RedisUtils.session_hold_slot_key(session_id, i), 0)
+        else:
+            # Scan if total_slots unknown
+            prefix = f"session:{session_id}:holds:"
+            for k in RedisUtils.r.scan_iter(match=prefix + "*", count=500):
+                key = k.decode() if isinstance(k, bytes) else k
+                RedisUtils.r.expire(key, 0)
+
+        # 4. Expire main session key session:{uuid}
+        RedisUtils.r.expire(RedisUtils.session_key(session_id), 0)
+        
+        return True

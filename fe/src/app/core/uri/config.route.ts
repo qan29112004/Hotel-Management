@@ -106,5 +106,6 @@ export const routeConfig = {
     MY_CLUB:"my-club",
     PAYMENT:'payment',
     RESERVATION:"reservation",
-    OFFER_EXCLUSIVE: 'offer-exclusive'
+    OFFER_EXCLUSIVE: 'offer-exclusive',
+    REFUND:"refund"
 };

@@ -1,4 +1,4 @@
-import { NgIf, CommonModule  } from '@angular/common';
+import { NgIf, CommonModule } from '@angular/common';
 import {
     Component,
     Input,
@@ -58,6 +58,7 @@ import { ChatChatroomService } from 'app/core/chat/chat-chatroom/chat-chatroom.s
 import { SharedModule } from 'app/shared/shared.module';
 import { SseService } from 'app/core/sse/sse.service';
 import { BookingService } from 'app/core/booking/booking.service';
+import { environment } from 'environments/environment.fullstack';
 @Component({
     selector: 'dense-layout',
     templateUrl: './dense.component.html',
@@ -77,7 +78,7 @@ import { BookingService } from 'app/core/booking/booking.service';
         NotificationsComponent,
         UserComponent,
         NgIf,
-        CommonModule ,
+        CommonModule,
         RouterOutlet,
         GlobalAlertComponent,
         ChatWidgetComponent,
@@ -87,11 +88,12 @@ import { BookingService } from 'app/core/booking/booking.service';
 })
 export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
     isAccessChat: boolean = false;
+    baseUrl: string = environment.baseUrl;
     @ViewChild('bubbleChatBot') bubbleChatBot: ElementRef<HTMLDivElement>;
     @ViewChild('btnOpenChat') btnOpenChat: ElementRef<HTMLButtonElement>;
     @ViewChild(FuseVerticalNavigationComponent)
     nav: FuseVerticalNavigationComponent;
-    isScrollDown: boolean= false;
+    isScrollDown: boolean = false;
     isScreenSmall: boolean = true;
     isNavHovered = false;
     isBtnOpenChat: boolean = true;
@@ -108,14 +110,15 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
     private _chatService = inject(ChatService);
     private _isNavigate: boolean = false;
     private _destroy = new Subject();
-    isJoinChat:boolean = true;
+    isJoinChat: boolean = true;
     crrUser: any;
     isFeedbackOpen = false;
     innerWidth = window.innerWidth;
-    isAdminPage:boolean = false;
-    private messageSubscription: Subscription;
-    isFisrtLogin:boolean;
-    
+    isAdminPage: boolean = false;
+    isFisrtLogin: boolean;
+    showPromotionOverlay: boolean = false;
+    promotionData: any = null;
+
     /**
      * Constructor
      */
@@ -132,8 +135,8 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
         private _chatRoomService: ChatChatroomService,
         private sseService: SseService,
         private bookingService: BookingService,
-        private chatService:ChatService
-    ) {}
+        private chatService: ChatService
+    ) { }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Accessors
@@ -154,26 +157,58 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
      * On init
      */
     ngOnInit(): void {
-        // Add storage event listener
-        this.chatService.connect();
-        this.messageSubscription = this.chatService.messages$.subscribe(msg =>{
-            console.log("CHECK MSG FROM BE: ",msg)
-            if(msg.action ==='check'){
-                this.isJoinChat = msg.is_join;
-            }
-            if(msg.action === 'join_group'){
-                this.isJoinChat=true;
-            }
-            if(msg.action === 'out_group'){
-                console.log("outgrou check: ", msg)
-                this.isJoinChat=false;
-            }
-            
-        })
+        console.log("chay on init")
+        // this.chatService.connect();
+
+        // Use takeUntil to automatically unsubscribe when component is destroyed
+        this.chatService.messages$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe(msg => {
+                console.log("CHECK MSG FROM BE: ", msg)
+                if (msg.action === 'send_requirement_to_recept') {
+                    this._alertService.showAlert({
+                        title: 'Thông báo',
+                        message: "Có yêu cầu hỗ trợ",
+                        type: 'info'
+                    }, 7000)
+                }
+                if (msg.action === 'check') {
+                    console.log("check msg check: ", msg)
+                    this.isJoinChat = msg.is_join;
+                }
+                if (msg.action === 'join_group') {
+                    this.isJoinChat = true;
+                }
+                if (msg.action === 'out_group') {
+                    console.log("outgrou check: ", msg)
+                    this.isJoinChat = false;
+                }
+                if (msg.action === 'delete_session') {
+                    console.log("check message status: ", msg.status)
+                    if (msg.status === true) {
+                        const session_id = localStorage.getItem('session_id');
+                        const booking_id = localStorage.getItem("booking_id")
+                        if (session_id === msg.session_id && booking_id === msg.booking_id) {
+
+                            localStorage.removeItem('session_id')
+                            localStorage.removeItem('booking_id')
+                            window.dispatchEvent(new CustomEvent('session:delete', {
+                                detail: { message: 'Session expired from SSE', status: true }
+                            }));
+                        }
+                    }
+                }
+                if (msg.action === 'voucher_promoted') {
+                    console.log('Voucher Promotion Received:', msg);
+                    this.promotionData = msg.data;
+                    this.showPromotionOverlay = true;
+                }
+
+            })
         this.sseService.startWatching((data) => {
             console.log('[SSE] Received data:', data);
             this.bookingService.ttl.next(data);
-            if(!data.exist){
+            if (!data.exist) {
                 localStorage.removeItem('session_id');
                 localStorage.removeItem('booking_id');
                 window.dispatchEvent(new CustomEvent('session:expired', {
@@ -181,15 +216,15 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
                 }));
             }
             // Nếu backend báo session hết hạn
-            
+
         });
-        console.log("check init:" ,this.isAccessChat)
-        
-        this._userService.user$.subscribe((user)=>{
+        console.log("check init:", this.isAccessChat)
+
+        this._userService.user$.subscribe((user) => {
             this.crrUser = user;
             console.log("check user:", this.crrUser)
             this.isFisrtLogin = user.isFisrtLogin;
-            
+
         })
         this._router.events.pipe(
             filter((event) => {
@@ -197,87 +232,95 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
             }),
             takeUntil(this._unsubscribeAll)
         )
-        .subscribe(event => {
-            console.log('Router event:', event);
-            if (event instanceof Scroll) {
-            const routerEvent = event.routerEvent;
+            .subscribe(event => {
+                console.log('Router event:', event);
+                if (event instanceof Scroll) {
+                    const routerEvent = event.routerEvent;
 
-            if (routerEvent instanceof NavigationEnd) {
-                console.log('NavigationEnd (from Scroll):', routerEvent);
-                console.log('URL:', routerEvent.urlAfterRedirects);
-                const currentUrl = routerEvent.urlAfterRedirects;
-                this.isAdminPage = currentUrl.includes('/admin/');
-                console.log('isAdminPage:', this.isAdminPage);
-                this.updateIsAccessChat(currentUrl)
-            }
-        }});
-        this._navigationService.navigation$.subscribe((navigation)=>{
-        
-                let includeIds = ['home-page', 'news-feed', 'marketplace', 'list-app', 'destination','offer_exclusive', 'reservation'];
-                if (this.crrUser) {
-                    
-                    
-                    if (this.crrUser.role === 3) {
-                        includeIds = [
-                            'home-page',
-                            'feedback',
-                            'destination',
-                            'voucher',
-                            'deal',
-                            'offer_exclusive'
-                        ];
-                    } else {
-                        includeIds = ['home-page', 'chat', 'destination','deal'];
-                    }
-
-                    if (this.crrUser.role === 1) {
-                        // admin
-                        includeIds.push('admin');
-                        includeIds = [
-                            ...includeIds,
-                            ...pushItemNavigation(navigation, includeIds, 'admin', 'sticky'),
-                        ];
-                    } else if (this.crrUser.role === 2) {
-                        // recept
-                        includeIds.push('recept');
-                        includeIds = [
-                            ...includeIds,
-                            ...pushItemNavigation(navigation, includeIds, 'recept', 'sticky'),
-                        ];
-                    } else if (this.crrUser.role === 3) {
-                        // user
-                        includeIds.push('user');
-                        includeIds = [
-                            ...includeIds,
-                            ...pushItemNavigation(navigation, includeIds, 'user', 'sticky'),
-                        ];
+                    if (routerEvent instanceof NavigationEnd) {
+                        console.log('NavigationEnd (from Scroll):', routerEvent);
+                        console.log('URL:', routerEvent.urlAfterRedirects);
+                        const currentUrl = routerEvent.urlAfterRedirects;
+                        this.isAdminPage = currentUrl.includes('/admin/') || currentUrl.includes('/recept/');
+                        console.log('isAdminPage:', this.isAdminPage);
+                        this.updateIsAccessChat(currentUrl)
                     }
                 }
-                console.log('Include IDs for navigation:', includeIds);
+            });
+        this._navigationService.navigation$.subscribe((navigation) => {
 
-                // Filter theo danh sách được phép
-                this.navigation = {
-                    compact: navigation.compact.filter((item) =>
-                        includeIds.includes(item.id)
-                    ),
-                    default: navigation.default.filter((item) =>
-                        includeIds.includes(item.id)
-                    ),
-                    futuristic: navigation.futuristic.filter((item) =>
-                        includeIds.includes(item.id)
-                    ),
-                    horizontal: navigation.horizontal.filter((item) =>
-                        includeIds.includes(item.id)
-                    ),
-                };
-                console.log('MENU COMPACT: ', this.navigation.compact);
-                console.log('MENU DEFAULT: ', this.navigation.default);
-            })
+            let includeIds = ['home-page', 'news-feed', 'marketplace', 'list-app', 'destination', 'offer_exclusive', 'reservation'];
+            if (this.crrUser) {
+
+
+                if (this.crrUser.role === 3) {
+                    includeIds = [
+                        'home-page',
+                        'feedback',
+                        'destination',
+                        'voucher',
+                        'deal',
+                        'offer_exclusive'
+                    ];
+
+                } else if (this.crrUser.role === 2) {
+                    console.log("rêcptionist")
+                    includeIds = ['home-page', 'chat', 'destination', 'deal', 'booking', 'room'];
+                }
+
+                else {
+                    includeIds = ['home-page', 'chat', 'destination', 'deal'];
+                }
+
+                if (this.crrUser.role === 1) {
+                    // admin
+                    includeIds.push('admin');
+                    includeIds = [
+                        ...includeIds,
+                        ...pushItemNavigation(navigation, includeIds, 'admin', 'sticky'),
+                    ];
+
+                    // } else if (this.crrUser.role === 2) {
+                    //     // recept
+                    //     includeIds.push('recept');
+                    //     includeIds = [
+                    //         ...includeIds,
+                    //         ...pushItemNavigation(navigation, includeIds, 'recept', 'sticky'),
+                    //     ];
+                } else if (this.crrUser.role === 3) {
+                    // user
+                    includeIds.push('user');
+                    includeIds = [
+                        ...includeIds,
+                        ...pushItemNavigation(navigation, includeIds, 'user', 'sticky'),
+                    ];
+                }
+            }
+            console.log('Include IDs for navigation:', includeIds);
+
+            // Filter theo danh sách được phép
+            this.navigation = {
+                compact: navigation.compact.filter((item) =>
+                    includeIds.includes(item.id)
+                ),
+                default: navigation.default.filter((item) =>
+                    includeIds.includes(item.id)
+                ),
+                futuristic: navigation.futuristic.filter((item) =>
+                    includeIds.includes(item.id)
+                ),
+                horizontal: navigation.horizontal.filter((item) =>
+                    includeIds.includes(item.id)
+                ),
+            };
+            console.log('MENU COMPACT: ', this.navigation.compact);
+            console.log('MENU DEFAULT: ', this.navigation.default);
+        })
 
 
         window.addEventListener('open-feedback', this.openFeedback.bind(this));
 
-        
+
         // Khởi tạo vị trí button chat
         this.updateChatButtonPosition();
 
@@ -315,7 +358,7 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
      * On destroy
      */
     ngOnDestroy(): void {
-        this.chatService.disconnect();
+        // this.chatService.disconnect();
         this.sseService.stopWatching();
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
@@ -406,12 +449,12 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
 
-    
+
 
     handleChatClick(event: MouseEvent) {
-            this.openChatbot(event);
-            console.log("check init:" ,this.isAccessChat)
-        
+        this.openChatbot(event);
+        console.log("check init:", this.isAccessChat)
+
     }
 
     private updateIsAccessChat(url: string) {
@@ -472,5 +515,10 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
                 )
             );
         }
+    }
+    closePromotionOverlay(): void {
+        this.showPromotionOverlay = false;
+        this.promotionData = null;
+        this.isFisrtLogin = false
     }
 }

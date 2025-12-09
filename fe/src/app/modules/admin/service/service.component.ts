@@ -196,7 +196,7 @@ export class ServiceComponent implements OnInit {
           {id:"Paid", name:"Paid"},
           {id:"Add on", name:"Add on"}
         ],
-        placeholderKey: 'service.enterService'
+        placeholderKey: 'service.enterType'
     },
   ];
   @ViewChild('editContainer', { read: ViewContainerRef }) editContainer: ViewContainerRef;

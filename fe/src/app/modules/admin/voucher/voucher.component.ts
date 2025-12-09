@@ -29,6 +29,7 @@ import { environment } from 'environments/environment.fullstack';
 import { Voucher } from 'app/core/admin/voucher/voucher.type';
 import { VoucherService } from 'app/core/admin/voucher/voucher.service';
 import { HotelService } from 'app/core/admin/hotel/hotel.service';
+import { ChatService } from 'app/core/chat/chat.service';
 
 
 @Component({
@@ -68,360 +69,360 @@ import { HotelService } from 'app/core/admin/hotel/hotel.service';
   `]
 })
 export class VoucherComponent {
-  fields: FieldConfig[] =[
+  fields: FieldConfig[] = [
     {
-        name: 'uuid',
-        labelKey: 'uuid',
-        type: 'text',
-        required: true,
-        disabled: true,
+      name: 'uuid',
+      labelKey: 'uuid',
+      type: 'text',
+      required: true,
+      disabled: true,
     },
     {
-        name: 'code',
-        labelKey: 'voucher.code',
-        type: 'text',
-        placeholderKey: 'voucher.enterCode',
-        required: true,
-        
+      name: 'code',
+      labelKey: 'voucher.code',
+      type: 'text',
+      placeholderKey: 'voucher.enterCode',
+      required: true,
+
     },
     {
-        name: 'name',
-        labelKey: 'voucher.name',
-        type: 'text',
-        placeholderKey: 'voucher.entername',
-        required: true,
-        
+      name: 'name',
+      labelKey: 'voucher.name',
+      type: 'text',
+      placeholderKey: 'voucher.entername',
+      required: true,
+
     },
     {
-        name: 'description',
-        labelKey: 'voucher.description',
-        type: 'textarea',
-        placeholderKey: 'voucher.enterDescription',
-        required: true,
-        
+      name: 'description',
+      labelKey: 'voucher.description',
+      type: 'textarea',
+      placeholderKey: 'voucher.enterDescription',
+      required: true,
+
     },
     {
-        name: 'discountType',
-        labelKey: 'voucher.discount_type',
-        type: 'select',
-        options:[
-          {id:'FIXED', name:"Fixed amount"},
-          {id:'PERCENT', name:'Percentage'}
-        ],
-        placeholderKey: 'voucher.enterdiscount_type',
-        required: true,
-        
+      name: 'discountType',
+      labelKey: 'voucher.discount_type',
+      type: 'select',
+      options: [
+        { id: 'FIXED', name: "Fixed amount" },
+        { id: 'PERCENT', name: 'Percentage' }
+      ],
+      placeholderKey: 'voucher.enterdiscount_type',
+      required: true,
+
     },
     {
-        name: 'discountValue',
-        labelKey: 'voucher.discount_value',
-        type: 'number',
-        placeholderKey: 'voucher.enterdiscount_value',
-        
-        
+      name: 'discountValue',
+      labelKey: 'voucher.discount_value',
+      type: 'number',
+      placeholderKey: 'voucher.enterdiscount_value',
+
+
     },
     {
-        name: 'discountPercent',
-        labelKey: 'voucher.discount_percent',
-        type: 'number',
-        placeholderKey: 'voucher.enterdiscount_percent',
-        
-        
+      name: 'discountPercent',
+      labelKey: 'voucher.discount_percent',
+      type: 'number',
+      placeholderKey: 'voucher.enterdiscount_percent',
+
+
     },
     {
-        name: 'maxDiscountAmount',
-        labelKey: 'voucher.max_discount_amount',
-        type: 'number',
-        placeholderKey: 'voucher.entermax_discount_amount',
-        
-        
+      name: 'maxDiscountAmount',
+      labelKey: 'voucher.max_discount_amount',
+      type: 'number',
+      placeholderKey: 'voucher.entermax_discount_amount',
+
+
     },
     {
-        name: 'minOrderValue',
-        labelKey: 'voucher.min_order_value',
-        type: 'number',
-        placeholderKey: 'voucher.entermin_order_value',
-        
-        
+      name: 'minOrderValue',
+      labelKey: 'voucher.min_order_value',
+      type: 'number',
+      placeholderKey: 'voucher.entermin_order_value',
+
+
     },
     {
-        name: 'startAt',
-        labelKey: 'voucher.start_at',
-        type: 'date',
-        placeholderKey: 'voucher.enterstart_at',
+      name: 'startAt',
+      labelKey: 'voucher.start_at',
+      type: 'date',
+      placeholderKey: 'voucher.enterstart_at',
     },
     {
-        name: 'expireAt',
-        labelKey: 'voucher.expire_at',
-        type: 'date',
-        placeholderKey: 'voucher.enterexpire_at',
+      name: 'expireAt',
+      labelKey: 'voucher.expire_at',
+      type: 'date',
+      placeholderKey: 'voucher.enterexpire_at',
     },
     {
-        name: 'relativeExpiryHours',
-        labelKey: 'voucher.relative_expiry_hours',
-        type: 'number',
-        placeholderKey: 'voucher.enterrelative_expiry_hours'
+      name: 'relativeExpiryHours',
+      labelKey: 'voucher.relative_expiry_hours',
+      type: 'number',
+      placeholderKey: 'voucher.enterrelative_expiry_hours'
     },
     {
-        name: 'maxUsageGlobal',
-        labelKey: 'voucher.max_usage_global',
-        type: 'number',
-        placeholderKey: 'voucher.entermax_usage_global'
+      name: 'maxUsageGlobal',
+      labelKey: 'voucher.max_usage_global',
+      type: 'number',
+      placeholderKey: 'voucher.entermax_usage_global'
     },
     {
-        name: 'maxUsagePerUser',
-        labelKey: 'voucher.max_usage_per_user',
-        type: 'number',
-        placeholderKey: 'voucher.entermax_usage_per_user'
+      name: 'maxUsagePerUser',
+      labelKey: 'voucher.max_usage_per_user',
+      type: 'number',
+      placeholderKey: 'voucher.entermax_usage_per_user'
     },
     {
-        name: 'status',
-        labelKey: 'voucher.status',
-        type: 'select',
-        options:[
-          {id:'ACTIVE', name:"Active"},
-          {id:'PAUSED', name:'Paused'},
-          {id:'EXPIRED', name:'Expired'},
-          {id:'EXHAUSTED', name:'Exhausted'}
-        ],
-        placeholderKey: 'voucher.enterstatus'
+      name: 'status',
+      labelKey: 'voucher.status',
+      type: 'select',
+      options: [
+        { id: 'ACTIVE', name: "Active" },
+        { id: 'PAUSED', name: 'Paused' },
+        { id: 'EXPIRED', name: 'Expired' },
+        { id: 'EXHAUSTED', name: 'Exhausted' }
+      ],
+      placeholderKey: 'voucher.enterstatus'
     },
     {
-        name: 'requiresClaim',
-        labelKey: 'voucher.requires_claim',
-        type: 'select',
-        options:[
-          {id:true, name:'True'},
-          {id:false, name:'False'}
-        ],
-        placeholderKey: 'voucher.enterrequires_claim'
+      name: 'requiresClaim',
+      labelKey: 'voucher.requires_claim',
+      type: 'select',
+      options: [
+        { id: true, name: 'True' },
+        { id: false, name: 'False' }
+      ],
+      placeholderKey: 'voucher.enterrequires_claim'
     },
     {
-        name: 'stackable',
-        labelKey: 'voucher.stackable',
-        type: 'select',
-        options:[
-          {id:true, name:'True'},
-          {id:false, name:'False'}
-        ],
-        placeholderKey: 'voucher.enterstackable'
+      name: 'stackable',
+      labelKey: 'voucher.stackable',
+      type: 'select',
+      options: [
+        { id: true, name: 'True' },
+        { id: false, name: 'False' }
+      ],
+      placeholderKey: 'voucher.enterstackable'
     },
     {
-        name: 'totalClaimed',
-        labelKey: 'voucher.total_claimed',
-        type: 'number',
-        placeholderKey: 'voucher.entertotal_claimed',
-        disabled:true
+      name: 'totalClaimed',
+      labelKey: 'voucher.total_claimed',
+      type: 'number',
+      placeholderKey: 'voucher.entertotal_claimed',
+      disabled: true
     },
     {
-        name: 'totalUsed',
-        labelKey: 'voucher.total_used',
-        type: 'number',
-        placeholderKey: 'voucher.entertotal_used',
-        disabled:true
+      name: 'totalUsed',
+      labelKey: 'voucher.total_used',
+      type: 'number',
+      placeholderKey: 'voucher.entertotal_used',
+      disabled: true
     },
     {
-        name: 'hotels',
-        labelKey: 'voucher.hotel',
-        type: 'checkbox',
-        placeholderKey: 'voucher.enterHotel',
-        asyncOptionsKey: true
+      name: 'hotels',
+      labelKey: 'voucher.hotel',
+      type: 'checkbox',
+      placeholderKey: 'voucher.enterHotel',
+      asyncOptionsKey: true
     }
   ]
 
-  addFields: FieldConfig[] =[
+  addFields: FieldConfig[] = [
     {
-        name: 'code',
-        labelKey: 'voucher.code',
-        type: 'text',
-        placeholderKey: 'voucher.enterCode',
-        required: true,
-        
+      name: 'code',
+      labelKey: 'voucher.code',
+      type: 'text',
+      placeholderKey: 'voucher.enterCode',
+      required: true,
+
     },
     {
-        name: 'name',
-        labelKey: 'voucher.name',
-        type: 'text',
-        placeholderKey: 'voucher.entername',
-        required: true,
-        
+      name: 'name',
+      labelKey: 'voucher.name',
+      type: 'text',
+      placeholderKey: 'voucher.entername',
+      required: true,
+
     },
     {
-        name: 'description',
-        labelKey: 'voucher.description',
-        type: 'textarea',
-        placeholderKey: 'voucher.enterDescription',
-        required: true,
-        
+      name: 'description',
+      labelKey: 'voucher.description',
+      type: 'textarea',
+      placeholderKey: 'voucher.enterDescription',
+      required: true,
+
     },
     {
-        name: 'discount_type',
-        labelKey: 'voucher.discount_type',
-        type: 'select',
-        options:[
-          {id:'FIXED', name:"Fixed amount"},
-          {id:'PERCENT', name:'Percentage'}
-        ],
-        placeholderKey: 'voucher.enterdiscount_type',
-        required: true,
-        
+      name: 'discount_type',
+      labelKey: 'voucher.discount_type',
+      type: 'select',
+      options: [
+        { id: 'FIXED', name: "Fixed amount" },
+        { id: 'PERCENT', name: 'Percentage' }
+      ],
+      placeholderKey: 'voucher.enterdiscount_type',
+      required: true,
+
     },
     {
-        name: 'discount_value',
-        labelKey: 'voucher.discount_value',
-        type: 'number',
-        placeholderKey: 'voucher.enterdiscount_value',
-        
-        
+      name: 'discount_value',
+      labelKey: 'voucher.discount_value',
+      type: 'number',
+      placeholderKey: 'voucher.enterdiscount_value',
+
+
     },
     {
-        name: 'discount_percent',
-        labelKey: 'voucher.discount_percent',
-        type: 'number',
-        placeholderKey: 'voucher.enterdiscount_percent',
-        
-        
+      name: 'discount_percent',
+      labelKey: 'voucher.discount_percent',
+      type: 'number',
+      placeholderKey: 'voucher.enterdiscount_percent',
+
+
     },
     {
-        name: 'max_discount_amount',
-        labelKey: 'voucher.max_discount_amount',
-        type: 'number',
-        placeholderKey: 'voucher.entermax_discount_amount',
-        
-        
+      name: 'max_discount_amount',
+      labelKey: 'voucher.max_discount_amount',
+      type: 'number',
+      placeholderKey: 'voucher.entermax_discount_amount',
+
+
     },
     {
-        name: 'min_order_value',
-        labelKey: 'voucher.min_order_value',
-        type: 'number',
-        placeholderKey: 'voucher.entermin_order_value',
-        
-        
+      name: 'min_order_value',
+      labelKey: 'voucher.min_order_value',
+      type: 'number',
+      placeholderKey: 'voucher.entermin_order_value',
+
+
     },
     {
-        name: 'start_at',
-        labelKey: 'voucher.start_at',
-        type: 'date',
-        placeholderKey: 'voucher.enterstart_at',
+      name: 'start_at',
+      labelKey: 'voucher.start_at',
+      type: 'date',
+      placeholderKey: 'voucher.enterstart_at',
     },
     {
-        name: 'expire_at',
-        labelKey: 'voucher.expire_at',
-        type: 'date',
-        placeholderKey: 'voucher.enterexpire_at',
+      name: 'expire_at',
+      labelKey: 'voucher.expire_at',
+      type: 'date',
+      placeholderKey: 'voucher.enterexpire_at',
     },
     {
-        name: 'relative_expiry_hours',
-        labelKey: 'voucher.relative_expiry_hours',
-        type: 'number',
-        placeholderKey: 'voucher.enterrelative_expiry_hours'
+      name: 'relative_expiry_hours',
+      labelKey: 'voucher.relative_expiry_hours',
+      type: 'number',
+      placeholderKey: 'voucher.enterrelative_expiry_hours'
     },
     {
-        name: 'max_usage_global',
-        labelKey: 'voucher.max_usage_global',
-        type: 'number',
-        placeholderKey: 'voucher.entermax_usage_global'
+      name: 'max_usage_global',
+      labelKey: 'voucher.max_usage_global',
+      type: 'number',
+      placeholderKey: 'voucher.entermax_usage_global'
     },
     {
-        name: 'max_usage_per_user',
-        labelKey: 'voucher.max_usage_per_user',
-        type: 'number',
-        placeholderKey: 'voucher.entermax_usage_per_user'
+      name: 'max_usage_per_user',
+      labelKey: 'voucher.max_usage_per_user',
+      type: 'number',
+      placeholderKey: 'voucher.entermax_usage_per_user'
     },
     {
-        name: 'status',
-        labelKey: 'voucher.status',
-        type: 'select',
-        options:[
-          {id:'ACTIVE', name:"Active"},
-          {id:'PAUSED', name:'Paused'},
-          {id:'EXPIRED', name:'Expired'},
-          {id:'EXHAUSTED', name:'Exhausted'}
-        ],
-        placeholderKey: 'voucher.enterstatus'
+      name: 'status',
+      labelKey: 'voucher.status',
+      type: 'select',
+      options: [
+        { id: 'ACTIVE', name: "Active" },
+        { id: 'PAUSED', name: 'Paused' },
+        { id: 'EXPIRED', name: 'Expired' },
+        { id: 'EXHAUSTED', name: 'Exhausted' }
+      ],
+      placeholderKey: 'voucher.enterstatus'
     },
     {
-        name: 'requires_claim',
-        labelKey: 'voucher.requires_claim',
-        type: 'select',
-        options:[
-          {id:true, name:'True'},
-          {id:false, name:'False'}
-        ],
-        placeholderKey: 'voucher.enterrequires_claim'
+      name: 'requires_claim',
+      labelKey: 'voucher.requires_claim',
+      type: 'select',
+      options: [
+        { id: true, name: 'True' },
+        { id: false, name: 'False' }
+      ],
+      placeholderKey: 'voucher.enterrequires_claim'
     },
     {
-        name: 'stackable',
-        labelKey: 'voucher.stackable',
-        type: 'select',
-        options:[
-          {id:true, name:'True'},
-          {id:false, name:'False'}
-        ],
-        placeholderKey: 'voucher.enterstackable'
+      name: 'stackable',
+      labelKey: 'voucher.stackable',
+      type: 'select',
+      options: [
+        { id: true, name: 'True' },
+        { id: false, name: 'False' }
+      ],
+      placeholderKey: 'voucher.enterstackable'
     },
     {
-        name: 'hotels',
-        labelKey: 'voucher.hotel',
-        type: 'checkbox',
-        placeholderKey: 'voucher.enterHotel',
-        asyncOptionsKey: true,
-        isForeignKey:true
+      name: 'hotels',
+      labelKey: 'voucher.hotel',
+      type: 'checkbox',
+      placeholderKey: 'voucher.enterHotel',
+      asyncOptionsKey: true,
+      isForeignKey: true
     }
   ]
 
   filterFields: FieldFilterConfig[] = [
-      {
-          name: 'requires_claim',
-          labelKey: 'voucher.requires_claim',
-          type: 'select',
-          options:[
-            {id:true, name:'True'},
-            {id:false, name:'False'}
-          ],
-          placeholderKey: 'voucher.enterrequires_claim'
-      },
-      {
-          name: 'created_at',
-          labelKey: 'user_management.created_at',
-          type: 'date-range',
-          rangeFields: { from: 'created_from', to: 'created_to' },
-      },
-      {
-          name: 'updated_at',
-          labelKey: 'user_management.updated_at',
-          type: 'date-range',
-          rangeFields: { from: 'updated_from', to: 'updated_to' },
-      },
-      {
-          name: 'start_at',
-          labelKey: 'voucher.start_at',
-          type: 'date-range',
-          rangeFields: { from: 'start_from', to: 'start_to' },
-      },
-      {
-          name: 'expire_at',
-          labelKey: 'voucher.expire_at',
-          type: 'date-range',
-          rangeFields: { from: 'expire_from', to: 'expire_to' },
-      },
-      {
-        name: 'hotels',
-        labelKey: 'voucher.hotel',
-        type: 'select',
-        placeholderKey: 'voucher.enterHotel',
-        asyncOptionsKey: true,
-        isForeingKey:true
+    {
+      name: 'requires_claim',
+      labelKey: 'voucher.requires_claim',
+      type: 'select',
+      options: [
+        { id: true, name: 'True' },
+        { id: false, name: 'False' }
+      ],
+      placeholderKey: 'voucher.enterrequires_claim'
+    },
+    {
+      name: 'created_at',
+      labelKey: 'user_management.created_at',
+      type: 'date-range',
+      rangeFields: { from: 'created_from', to: 'created_to' },
+    },
+    {
+      name: 'updated_at',
+      labelKey: 'user_management.updated_at',
+      type: 'date-range',
+      rangeFields: { from: 'updated_from', to: 'updated_to' },
+    },
+    {
+      name: 'start_at',
+      labelKey: 'voucher.start_at',
+      type: 'date-range',
+      rangeFields: { from: 'start_from', to: 'start_to' },
+    },
+    {
+      name: 'expire_at',
+      labelKey: 'voucher.expire_at',
+      type: 'date-range',
+      rangeFields: { from: 'expire_from', to: 'expire_to' },
+    },
+    {
+      name: 'hotels',
+      labelKey: 'voucher.hotel',
+      type: 'select',
+      placeholderKey: 'voucher.enterHotel',
+      asyncOptionsKey: true,
+      isForeingKey: true
     },
   ];
   @ViewChild('editContainer', { read: ViewContainerRef }) editContainer: ViewContainerRef;
   baseUrl = environment.baseUrl;
-  user:User
-  selectedDes:Voucher = null;
+  user: User
+  selectedDes: Voucher = null;
   selectedIds: string[] = [];
-  checkboxOptions:any={};
+  checkboxOptions: any = {};
   vouchers: Voucher[] = [];
-  hasSelectedVoucher:boolean= false;
+  hasSelectedVoucher: boolean = false;
   displayedColumns: string[] = ['name', 'description', 'actions'];
   loading = false;
   currentPage = 1;
@@ -434,7 +435,7 @@ export class VoucherComponent {
   openFilterDropdowns = new Set<string>();
   externalFilters: any = {};
   filterToggleBtnRef!: ElementRef;
-  selectedCreateAt : string = '';
+  selectedCreateAt: string = '';
   // Sắp xếp
   sortField: string | null = null;
   sortOption: 'asc' | 'desc' | null = null;
@@ -446,7 +447,7 @@ export class VoucherComponent {
   showImport: boolean = false;
   showFilter: boolean = false;
   showFilterModal: boolean = false;
-  showDeleteDialog:boolean = false; 
+  showDeleteDialog: boolean = false;
   // Form data for create/edit
   voucherForm = {
     name: '',
@@ -466,62 +467,63 @@ export class VoucherComponent {
     private snackBar: MatSnackBar,
     private datePipe: DatePipe,
     private userService: UserService,
-    private hotelService:HotelService
-  ) {}
+    private hotelService: HotelService,
+    private chatService: ChatService
+  ) { }
 
   ngOnInit(): void {
     this.loadVoucher();
     this.loadSelectedHotel();
     this.debounceSearchFunc();
-    this.userService.user$.subscribe((user)=>{
+    this.userService.user$.subscribe((user) => {
       this.user = user;
     })
     console.log(this.showFilter)
   }
 
-  debounceSearchFunc(){
+  debounceSearchFunc() {
     this.debounceSearch.pipe(
       debounceTime(500),
       takeUntil(this.destroy$)
-    ).subscribe(value=>{
+    ).subscribe(value => {
       this.loadVoucher();
     })
   }
 
-  loadSelectedHotel(){
-    if(this.hotelService.getHotelData.length > 0){
+  loadSelectedHotel() {
+    if (this.hotelService.getHotelData.length > 0) {
       this.hotelService.hotel$.pipe(
         map(hotels => {
-          
-            if (hotels) {
-              return hotels.map(dest => ({
-                id: dest.uuid,
-                name: dest.name,
-                icon: dest.thumbnail
-              }));
-            }
-            return []; 
+
+          if (hotels) {
+            return hotels.map(dest => ({
+              id: dest.uuid,
+              name: dest.name,
+              icon: dest.thumbnail
+            }));
           }
-          )
-      ).subscribe(hotels=>{
+          return [];
+        }
+        )
+      ).subscribe(hotels => {
         this.checkboxOptions['hotels'] = hotels;
         console.log("optionHotel", this.checkboxOptions)
       })
-    }else{
-      this.hotelService.getAllHotels({"page_size":0}).pipe(
+    } else {
+      this.hotelService.getAllHotels({ "page_size": 0 }).pipe(
         map(hotels => {
-          
-            if (hotels) {
-              return hotels.data.map(dest => ({
-                id: dest.uuid,
-                name: dest.name,
-                icon: dest.thumbnail
-              }));
-            }
-            return []; 
+
+          if (hotels) {
+            return hotels.data.map(dest => ({
+              id: dest.uuid,
+              name: dest.name,
+              icon: dest.thumbnail
+            }));
           }
-          )
-      ).subscribe(res=>{
+          return [];
+        }
+        )
+      ).subscribe(res => {
         this.checkboxOptions['hotels'] = res;
         console.log("optionHotel", this.checkboxOptions)
       })
@@ -534,7 +536,7 @@ export class VoucherComponent {
 
     this.voucherService.getVoucher(payload).subscribe({
       next: (response) => {
-        console.log("voucher res:",response)
+        console.log("voucher res:", response)
         this.vouchers = response.data || [];
         this.totalItems = response.total || 0;
         this.loading = false;
@@ -552,27 +554,27 @@ export class VoucherComponent {
   }
 
   toggleFilterDrawer(): void {
-        this.showFilter = !this.showFilter;
-    }
-  
+    this.showFilter = !this.showFilter;
+  }
+
   toggleEditFilterDrawer(): void {
-      this.showFilter = !this.showFilter;
+    this.showFilter = !this.showFilter;
   }
 
   onFilterDrawerOpenedChanged(opened: boolean): void {
-      this.showFilter = opened;
+    this.showFilter = opened;
   }
 
   onApplyFilter(filterRules: any[]): void {
-      this.externalFilters = filterRules;
-      this.currentPage = 1;
-      this.loadVoucher();
+    this.externalFilters = filterRules;
+    this.currentPage = 1;
+    this.loadVoucher();
   }
 
   onResetFilter(): void {
-      this.externalFilters = {};
-      this.currentPage = 1;
-      this.loadVoucher();
+    this.externalFilters = {};
+    this.currentPage = 1;
+    this.loadVoucher();
   }
 
   onPageChange(page: number): void {
@@ -601,79 +603,79 @@ export class VoucherComponent {
   }
 
   sortBy(field: string) {
-      if (this.sortField === field) {
-          if (this.sortOption === 'asc') {
-              this.sortOption = 'desc';
-          } else if (this.sortOption === 'desc') {
-              this.sortField = null;
-              this.sortOption = null;
-          } else {
-              this.sortOption = 'asc';
-          }
+    if (this.sortField === field) {
+      if (this.sortOption === 'asc') {
+        this.sortOption = 'desc';
+      } else if (this.sortOption === 'desc') {
+        this.sortField = null;
+        this.sortOption = null;
       } else {
-          this.sortField = field;
-          this.sortOption = 'asc';
+        this.sortOption = 'asc';
       }
-      this.loadVoucher();
+    } else {
+      this.sortField = field;
+      this.sortOption = 'asc';
+    }
+    this.loadVoucher();
   }
   // Updated payload method to include filters
   getPayload() {
     const filterRules = this.getFilterRule();
     const payload: any = {
-        page_index: this.currentPage,
-        page_size: this.pageSize,
-        search_rule: this.getSearchRule(),
-        sort_rule: this.getSortRule(),
+      page_index: this.currentPage,
+      page_size: this.pageSize,
+      search_rule: this.getSearchRule(),
+      sort_rule: this.getSortRule(),
     };
 
     // Add filter rules
     if (Object.keys(filterRules).length > 0) {
-        payload.filterRules = filterRules;
+      payload.filterRules = filterRules;
     }
 
     return payload;
   }
   getSearchRule(): any {
     const defaultSearchFields = {
-        fields: ['name', 'uuid'],
-        option: 'contains',
-        value: this.searchTerm.trim(),
+      fields: ['name', 'uuid'],
+      option: 'contains',
+      value: this.searchTerm.trim(),
     };
     return this.searchTerm?.trim() ? defaultSearchFields : {};
   }
   getFilterRule(): any[] {
-        const filters: any[] = [];
+    const filters: any[] = [];
 
-        if (this.selectedStatusIds.length > 0) {
-            filters.push({
-                field: 'status',
-                option: 'in',
-                value: this.selectedStatusIds,
-            });
-        }
-
-        if (this.selectedRoleIds.length > 0) {
-            filters.push({
-                field: 'role',
-                option: 'in',
-                value: this.selectedRoleIds,
-            });
-        }
-
-        // filter từ bộ lọc
-        if (this.externalFilters && Array.isArray(this.externalFilters)) {
-    filters.push(...this.externalFilters);
-  }
-
-        return filters;
+    if (this.selectedStatusIds.length > 0) {
+      filters.push({
+        field: 'status',
+        option: 'in',
+        value: this.selectedStatusIds,
+      });
     }
+
+    if (this.selectedRoleIds.length > 0) {
+      filters.push({
+        field: 'role',
+        option: 'in',
+        value: this.selectedRoleIds,
+      });
+    }
+
+    // filter từ bộ lọc
+    if (this.externalFilters && Array.isArray(this.externalFilters)) {
+      filters.push(...this.externalFilters);
+    }
+
+    return filters;
+  }
   getSortRule(): any {
     if (!this.sortField || !this.sortOption) {
-        return {};
+      return {};
     }
     return {
-        field: this.sortField,
-        option: this.sortOption,
+      field: this.sortField,
+      option: this.sortOption,
     };
   }
 
@@ -687,58 +689,58 @@ export class VoucherComponent {
   }
 
   async toggleEditUserDrawer(voucher?: Voucher) {
-      if (voucher) {
-        this.selectedDes=voucher;
-        console.log("selected: ", this.selectedDes)
-      }
-      this.showEditUser = !this.showEditUser;
-      if (this.showEditUser) {
-        const componentRef = this.editContainer.createComponent(GenericEditComponent);
-        const instance = componentRef.instance as any;
+    if (voucher) {
+      this.selectedDes = voucher;
+      console.log("selected: ", this.selectedDes)
+    }
+    this.showEditUser = !this.showEditUser;
+    if (this.showEditUser) {
+      const componentRef = this.editContainer.createComponent(GenericEditComponent);
+      const instance = componentRef.instance as any;
 
-        // ✅ Truyền Input cho component
-        instance.showDrawer = true;
-        instance.titleKey = 'voucher.detail';
-        instance.fields = this.fields;
-        instance.entityData = this.selectedDes;
-        instance.saveHandler = this.saveHandler.bind(this);
-        instance.loadData = this.loadVoucher.bind(this);
-        instance.checkboxOptions = this.checkboxOptions;
+      // ✅ Truyền Input cho component
+      instance.showDrawer = true;
+      instance.titleKey = 'voucher.detail';
+      instance.fields = this.fields;
+      instance.entityData = this.selectedDes;
+      instance.saveHandler = this.saveHandler.bind(this);
+      instance.loadData = this.loadVoucher.bind(this);
+      instance.checkboxOptions = this.checkboxOptions;
 
-        // ✅ Lắng nghe sự kiện Output
-        instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
-        instance.drawerOpenedChanged.subscribe((opened: boolean) => {
-          this.showEditUser = opened;
-          if (!opened) {
-            this.editContainer.clear(); // clear component khi đóng
-          }
-        });
+      // ✅ Lắng nghe sự kiện Output
+      instance.toggleDrawer.subscribe(() => this.toggleEditUserDrawer());
+      instance.drawerOpenedChanged.subscribe((opened: boolean) => {
+        this.showEditUser = opened;
+        if (!opened) {
+          this.editContainer.clear(); // clear component khi đóng
+        }
+      });
 
-      } else {
-        // ✅ Khi đóng thì xóa component khỏi ViewContainer
-        this.editContainer.clear();
-      }
+    } else {
+      // ✅ Khi đóng thì xóa component khỏi ViewContainer
+      this.editContainer.clear();
+    }
   }
-  toggleAddUserDrawer(){
+  toggleAddUserDrawer() {
     this.showAddVoucher = !this.showAddVoucher
   }
 
   onPageSizeChange(size: number) {
-      this.pageSize = size;
-      this.loadVoucher();
+    this.pageSize = size;
+    this.loadVoucher();
   }
   formatDateTime(dateStr: string): string | null {
-        return this.datePipe.transform(dateStr, 'dd/MM/yyyy HH:mm', '+0700');
+    return this.datePipe.transform(dateStr, 'dd/MM/yyyy HH:mm', '+0700');
   }
   formatDateTimeUnix(timestamp: number): string | null {
-      const date = new Date(timestamp * 1000); // chuyển từ giây sang mili-giây
-      return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm', '+0700');
+    const date = new Date(timestamp * 1000); // chuyển từ giây sang mili-giây
+    return this.datePipe.transform(date, 'dd/MM/yyyy HH:mm', '+0700');
   }
-  
+
   onDrawerOpenedChanged(opened: boolean): void {
-      this.showEditUser = opened;
+    this.showEditUser = opened;
   }
-  onAddDrawerOpenedChanged(opened:boolean):void{
+  onAddDrawerOpenedChanged(opened: boolean): void {
     this.showAddVoucher = opened;
   }
   saveHandler(payload: any): Observable<any> {
@@ -749,30 +751,43 @@ export class VoucherComponent {
     return this.voucherService.createVoucher(payload);
   }
   deleteHandler(id: string): Observable<any> {
-    this.selectedIds=[]
+    this.selectedIds = []
     this.hasSelectedVoucher = false;
     return this.voucherService.deleteVoucher(id);
   }
 
-  toggleDeleteDialog(uuid?:string): void {
-      if (uuid) {
-        this.selectedIds = [...this.selectedIds, uuid];
-      }
-      this.showDeleteDialog = !this.showDeleteDialog;
-      console.log("OPEN DELETE DIALOG", this.showDeleteDialog)
+  toggleDeleteDialog(uuid?: string): void {
+    if (uuid) {
+      this.selectedIds = [...this.selectedIds, uuid];
+    }
+    this.showDeleteDialog = !this.showDeleteDialog;
+    console.log("OPEN DELETE DIALOG", this.showDeleteDialog)
   }
 
   toggleAllRows(event: Event): void {
-      const checked = (event.target as HTMLInputElement).checked;
-        this.vouchers.forEach((voucher) => (voucher.selected = checked));
-        this.toggleRow();
+    const checked = (event.target as HTMLInputElement).checked;
+    this.vouchers.forEach((voucher) => (voucher.selected = checked));
+    this.toggleRow();
   }
 
   toggleRow(): void {
     this.selectedIds = this.vouchers
-            .filter((user) => user.selected)
-            .map((user) => user.uuid);
+      .filter((user) => user.selected)
+      .map((user) => user.uuid);
     this.hasSelectedVoucher = this.selectedIds.length >= 1;
     console.log(this.hasSelectedVoucher)
+  }
+
+  promoteVoucher(voucher: Voucher): void {
+    const message = {
+      action: 'promote_voucher',
+      voucher_id: voucher.uuid
+    };
+    this.chatService.sendMessage(message);
+    this._alertService.showAlert({
+      title: 'Success',
+      message: 'Voucher promotion sent successfully!',
+      type: 'success'
+    });
   }
 }

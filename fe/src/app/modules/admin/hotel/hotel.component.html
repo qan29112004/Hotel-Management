@@ -42,10 +42,10 @@
                             #filterPopup
                             [mode]="'inline'"
                             [showFilter]="showFilter"
-                            [titleKey]="'content.advanced_filters'"
+                            [titleKey]="'common.advanced_filters'"
                             [fields]="filterFields"
                             [optionDestination]="optionsSelect"
-                            [optionRadio]="checkboxOption"
+                            [checkboxOptions]="checkboxOption"
                             (filter)="onApplyFilter($event)"
                             (reset)="onResetFilter()"
                             (close)="toggleFilterDrawer()"
@@ -62,7 +62,7 @@
                         class="flex items-center h-10 gap-2 px-4 transition-colors border rounded-none bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200 animate-fade-in"
                     >
                         <mat-icon class="icon-size-5">delete</mat-icon>
-                        <span class="text-sm font-bold uppercase">{{ t('content.delete') }} ({{selectedIds.length}})</span>
+                        <span class="text-sm font-bold uppercase">{{ t('common.delete') }} ({{selectedIds.length}})</span>
                     </button>
                 </div>
             
@@ -116,7 +116,7 @@
                                         <mat-icon class="icon-size-4 text-amber-400" *ngIf="sortField === 'created_at' && sortOption === 'desc'">arrow_downward</mat-icon>
                                     </div>
                                 </th>
-                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("hotel.views") }}</th>
+                                <th class="px-4 py-4 border-b border-zinc-800">{{ t("hotel.status") }}</th>
                                 <th class="px-4 py-4 border-b border-zinc-800">{{ t("hotel.thumbnail") }}</th>
                                 <th class="px-4 py-4 border-b border-zinc-800">{{ t("user_management.updated_at") }}</th>
                                 <th class="px-4 py-4 text-center border-b border-zinc-800">{{ t("user_management.action") }}</th>
@@ -153,17 +153,25 @@
                                 <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
                                     {{ formatDateTimeUnix(hotel.createdAt) }}
                                 </td>
-                                <td class="px-4 py-3 text-zinc-600">
-                                    {{ hotel.views }}
+                                <td class="px-4 py-3 text-zinc-600"
+                                >
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-none"
+                                        [ngClass]="{
+                                            'bg-emerald-100 text-emerald-800': hotel.status,
+                                            'bg-zinc-100 text-zinc-600': !hotel.status
+                                        }"
+                                    >
+                                        {{ hotel.status ? 'Active' : 'Inactive' }}
+                                    </span>
                                 </td>
                                 <td class="px-4 py-3">
                                     <img *ngIf="hotel.thumbnail" class="object-cover w-12 h-10 border shadow-sm rounded-none border-zinc-200" [src]="baseUrl + hotel.thumbnail" alt="thumbnail" />
-                                    <span *ngIf="!hotel.thumbnail" class="text-zinc-400 italic text-xs">No image</span>
+                                    <span *ngIf="!hotel.thumbnail" class="text-zinc-400 italic text-xs">{{t("hotel.no_image")}}</span>
                                 </td>
                                 <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
                                      <div class="flex flex-col">
                                         <span>{{ formatDateTimeUnix(hotel.updatedAt) || '---' }}</span>
-                                        <span class="text-[10px] text-zinc-400" *ngIf="hotel.updatedBy">by {{ hotel.updatedBy.username }}</span>
+                                        <span class="text-[10px] text-zinc-400" *ngIf="hotel.updatedBy">{{t("hotel.updated_by")}} {{ hotel.updatedBy.username }}</span>
                                      </div>
                                 </td>
                                 <td class="px-4 py-3 text-center">
@@ -194,7 +202,7 @@
                     <div *ngIf="hotels.length === 0 && !loading" class="flex flex-col items-center justify-center py-12 text-center border-t text-zinc-400 bg-zinc-50 border-zinc-100">
                          <mat-icon class="mb-3 icon-size-12 text-zinc-300" [svgIcon]="'heroicons_outline:folder-open'"></mat-icon>
                         <p class="text-lg font-medium text-zinc-500">{{ t("hotel.no_matching_data") }}</p>
-                        <p class="text-sm">Try adjusting your search or filters</p>
+                        <p class="text-sm">{{t("hotel.try_adjust_filters")}}</p>
                     </div>
                      <!-- Loading State -->
                      <div *ngIf="loading" class="flex items-center justify-center py-12 border-t border-zinc-100">

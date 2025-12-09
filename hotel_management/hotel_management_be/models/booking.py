@@ -100,7 +100,7 @@ class HoldRecord(BaseModel):
     Persistent audit record for holds (optional). We also rely on Redis for realtime holds.
     """
     uuid = ShortUUIDField(primary_key=True, unique=True, max_length=100, alphabet="abcdefghjklmnopqrstuvwxyz")
-    session = models.ForeignKey(BookingSession, on_delete=models.CASCADE, null=True, blank=True, related_name='holds')
+    session = models.ForeignKey(BookingSession, on_delete=models.SET_NULL, null=True, blank=True, related_name='holds')
     room_type = models.ForeignKey('hotel_management_be.RoomType', on_delete=models.PROTECT)
     rate_plan =  models.ForeignKey('hotel_management_be.RatePlan', on_delete=models.PROTECT, default='')
     quantity = models.PositiveIntegerField(default=1)

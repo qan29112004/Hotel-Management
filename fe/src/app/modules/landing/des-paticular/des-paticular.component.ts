@@ -5,6 +5,8 @@ import { MapComponent } from 'app/shared/components/map/map.component';
 import { SharedModule } from 'app/shared/shared.module';
 import { environment } from 'environments/environment.fullstack';
 import { TranslocoModule } from '@ngneat/transloco';
+import { Title } from '@angular/platform-browser';
+
 @Component({
   selector: 'app-des-paticular',
   standalone: true,
@@ -18,14 +20,19 @@ export class DesPaticularComponent implements OnInit {
   isChoose:string;
   destinationData:any;
   private route = inject(ActivatedRoute);
-  private router = inject(Router)
+  private router = inject(Router);
+  private titleService = inject(Title);
+
   ngOnInit() {
     console.log("chạy vao component")
     this.route.data.subscribe(data =>{
       console.log("detail: ",data)
       this.destinationData = data['destination'].data;
+      if (this.destinationData?.name) {
+        this.titleService.setTitle(this.destinationData.name);
+      }
     })
-    ;
+      ;
   }
   encodeFileUrl(thumbnail: string) {
     if(thumbnail){

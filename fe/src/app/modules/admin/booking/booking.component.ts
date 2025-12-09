@@ -22,7 +22,7 @@ import { GenericAddComponent } from 'app/shared/components/generic-components';
 import { GenericFilterComponent, FieldFilterConfig } from 'app/shared/components/generic-components';
 import { GenericDeleteComponent } from 'app/shared/components/generic-components';
 import { FieldConfig } from 'app/core/admin/destination/destination.type';
-import { map, Observable } from 'rxjs';
+import { debounceTime, map, Observable, Subject, takeUntil } from 'rxjs';
 import { UserService } from 'app/core/profile/user/user.service';
 import { User } from 'app/core/profile/user/user.types';
 import { environment } from 'environments/environment.fullstack';
@@ -100,7 +100,7 @@ export class BookingComponent implements OnInit {
     },
     {
         name: 'userCountry',
-        labelKey: 'booking.user_country',
+        labelKey: 'booking.userCountry',
         type: 'country',
         placeholderKey: 'booking.enterUserCountry',
         required: true,
@@ -191,7 +191,7 @@ export class BookingComponent implements OnInit {
     },
     {
         name: 'user_country',
-        labelKey: 'booking.user_country',
+        labelKey: 'booking.userCountry',
         type: 'country',
         placeholderKey: 'booking.enterUserCountry',
         required: true,
@@ -250,10 +250,11 @@ export class BookingComponent implements OnInit {
         disabled:true
     },
     {
-        name: 'hotel_id',
+        name: 'hotelId',
         labelKey: 'booking.hotel',
         type: 'select',
         placeholderKey: 'booking.enterHotel',
+        relatedName:'hotel_id',
         asyncOptionsKey: true,
         isForeignKey:true,
         disabled:true
@@ -270,13 +271,13 @@ export class BookingComponent implements OnInit {
       },
       {
           name: 'check_in',
-          labelKey: 'user_management.check_in',
+          labelKey: 'booking.check_in',
           type: 'date-range',
           rangeFields: { from: 'created_from', to: 'created_to' },
       },
       {
           name: 'check_out',
-          labelKey: 'user_management.check_out',
+          labelKey: 'booking.check_out',
           type: 'date-range',
           rangeFields: { from: 'updated_from', to: 'updated_to' },
       },
@@ -314,6 +315,8 @@ export class BookingComponent implements OnInit {
   sortField: string | null = null;
   sortOption: 'asc' | 'desc' | null = null;
 
+  private debounceSearch = new Subject<string>();
+  private destroy$ = new Subject<any>();
 
   // Show popup
   showEditUser: boolean = false;
@@ -344,6 +347,7 @@ export class BookingComponent implements OnInit {
   ngOnInit(): void {
     this.loadBooking();
     this.loadSelectedHotel();
+    this.debounceSearchFunc();
 
     this.userService.user$.subscribe((user)=>{
       this.user = user;
@@ -460,7 +464,7 @@ export class BookingComponent implements OnInit {
 
   onSearch(): void {
     this.currentPage = 1;
-    this.loadBooking();
+    this.debounceSearch.next(this.searchTerm);
   }
 
   clearSearch(): void {
@@ -468,6 +472,15 @@ export class BookingComponent implements OnInit {
     this.currentPage = 1;
     this.loadBooking();
   }
+
+  debounceSearchFunc(){
+      this.debounceSearch.pipe(
+        debounceTime(500),
+        takeUntil(this.destroy$)
+      ).subscribe(value=>{
+        this.loadBooking();
+      })
+    }
 
   showCreateForm(): void {
     this.editingBooking = null;

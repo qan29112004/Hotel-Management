@@ -62,7 +62,7 @@ export interface FieldFilterConfig {
 export class GenericFilterComponent {
     @Input() mode: 'inline' | 'modal' = 'inline';
     @Input() showFilter: boolean = false;
-    @Input() titleKey: string = 'content.advanced_filters';
+    @Input() titleKey: string = 'common.advanced_filters';
     @Input() fields: FieldFilterConfig[] = [];
     @Input() optionDestination: { [key: string]: { id: number; name: string }[] } = {};
     @Input() optionRadio: any[] = [];
@@ -102,7 +102,7 @@ export class GenericFilterComponent {
         }, {});
 
         this.filterForm = this._fb.group(controls);
-        console.log("check optionDestination: ", this.optionDestination)
+        console.log("check checkboxOptions: ", this.checkboxOptions)
     }
 
     onInputChange(fieldName: string): void {
@@ -139,8 +139,8 @@ export class GenericFilterComponent {
                     });
                 }
             } else if (formValues[field.name] !== null &&
-         formValues[field.name] !== undefined &&
-         formValues[field.name] !== "" && field.isForeingKey) {
+                formValues[field.name] !== undefined &&
+                formValues[field.name] !== "" && field.isForeingKey) {
                 console.log("value field: ", formValues[field.name])
                 filterRules.push({
                     field: field.relatedName || field.name,
@@ -155,9 +155,9 @@ export class GenericFilterComponent {
                 });
             }
             else if (formValues[field.name] !== null &&
-         formValues[field.name] !== undefined &&
-         formValues[field.name] !== "") {
-                console.log("check value field: ",field.name,formValues[field.name] )
+                formValues[field.name] !== undefined &&
+                formValues[field.name] !== "") {
+                console.log("check value field: ", field.name, formValues[field.name])
                 filterRules.push({
                     field: field.relatedName || field.name,
                     option: typeof formValues[field.name] === "string" ? 'contains' : 'exact',

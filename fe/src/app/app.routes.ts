@@ -10,6 +10,7 @@ import { hotelResolver } from './shared/utils/resolve/all_hotel.resolve';
 import { destinationDetailResolver } from './shared/utils/resolve/destination_detail.resolve';
 import { exploreHotelsResolver } from './shared/utils/resolve/explore_hotel.resolve';
 import { QueryParamGuard } from './core/auth/guards/query_param.guard';
+import { socketConnectionResolver } from './shared/utils/resolve/socket-connection.resolve';
 
 // @formatter:off
 /* eslint-disable max-len */
@@ -33,10 +34,10 @@ export const appRoutes: Route[] = [
         loadChildren: () =>
             import('app/modules/auth/news-detail/news-detail.routes'),
     },
-    
+
 
     // Auth routes for guests
-    
+
     {
         path: '',
         component: LayoutComponent,
@@ -75,7 +76,7 @@ export const appRoutes: Route[] = [
                 loadChildren: () =>
                     import('app/modules/landing/reservation/reservation.route'),
             },
-            
+
             {
                 path: routeConfig.AUTH_CREATE_ACC,
                 data: { title: 'create_account.title' },
@@ -96,7 +97,7 @@ export const appRoutes: Route[] = [
                         'app/modules/auth/otp-verification/otp-verification.routes'
                     ),
             },
-            
+
         ],
     },
 
@@ -108,6 +109,7 @@ export const appRoutes: Route[] = [
         component: LayoutComponent,
         resolve: {
             initialData: initialDataResolver,
+            socketConnection: socketConnectionResolver,
         },
         children: [
             {
@@ -118,11 +120,11 @@ export const appRoutes: Route[] = [
                         'app/modules/user/customer/user-infor/user-infor-edit/user-infor-edit.route'
                     ),
             },
-            
-            
+
+
             {
                 path: routeConfig.MY_BOOKING,
-                data: {title: 'My Booking'},
+                data: { title: 'My Booking' },
                 loadChildren: () => import('app/modules/auth/my-booking/my-booking.route'),
             },
             {
@@ -135,7 +137,7 @@ export const appRoutes: Route[] = [
             },
             {
                 path: routeConfig.MY_CLUB,
-                data: {title: 'My Club'},
+                data: { title: 'My Club' },
                 loadChildren: () => import('app/modules/auth/my-club/my-club.routes'),
             },
             {
@@ -189,6 +191,7 @@ export const appRoutes: Route[] = [
         component: LayoutComponent,
         resolve: {
             initialData: initialDataResolver,
+            socketConnection: socketConnectionResolver,
         },
         children: [
             {
@@ -200,7 +203,7 @@ export const appRoutes: Route[] = [
                         loadChildren: () =>
                             import('app/modules/admin/dashboard/dashboard.routes'),
                     },
-                    
+
                     {
                         path: routeConfig.USER_MANAGEMENT,
                         data: { title: 'user_management.title' },
@@ -209,7 +212,7 @@ export const appRoutes: Route[] = [
                                 'app/modules/admin/user-management/user-management.route'
                             ),
                     },
-                    
+
                     {
                         path: routeConfig.CONTENT,
                         data: { title: 'Training Content' },
@@ -263,7 +266,7 @@ export const appRoutes: Route[] = [
                         data: { title: 'booking.title' },
                         loadChildren: () =>
                             import('app/modules/admin/booking/booking.route'),
-                    },{
+                    }, {
                         path: routeConfig.SERVICE,
                         data: { title: 'service.title' },
                         loadChildren: () =>
@@ -287,7 +290,7 @@ export const appRoutes: Route[] = [
                         loadChildren: () =>
                             import('app/modules/admin/payment/payment.route'),
                     },
-                    
+
                     {
                         path: routeConfig.VOUCHER,
                         data: { title: 'voucher.title' },
@@ -304,11 +307,17 @@ export const appRoutes: Route[] = [
                                 'app/modules/admin/price-rule/price-rule.routes'
                             ),
                     },
-                    
-                    
-                    
+                    {
+                        path: routeConfig.REFUND,
+                        data: { title: 'payment.title' },
+                        loadChildren: () =>
+                            import('app/modules/admin/refund/refund.route'),
+                    },
+
+
                 ],
             },
+
             {
                 path: 'example',
                 loadChildren: () =>
@@ -329,6 +338,7 @@ export const appRoutes: Route[] = [
         component: LayoutComponent,
         resolve: {
             initialData: initialDataResolver,
+            socketConnection: socketConnectionResolver,
         },
         children: [
             {
@@ -339,7 +349,19 @@ export const appRoutes: Route[] = [
                         data: { title: 'chat.title' },
                         loadChildren: () =>
                             import('app/modules/auth/chat/chat.routes'),
-                    }
+                    },
+                    {
+                        path: routeConfig.ROOM,
+                        data: { title: 'room.title' },
+                        loadChildren: () =>
+                            import('app/modules/admin/room/room.routes'),
+                    },
+                    {
+                        path: routeConfig.BOOKING,
+                        data: { title: 'booking.title' },
+                        loadChildren: () =>
+                            import('app/modules/admin/booking/booking.route'),
+                    },
                 ],
             },
 
@@ -357,6 +379,7 @@ export const appRoutes: Route[] = [
         component: LayoutComponent,
         resolve: {
             initialData: initialDataResolver,
+            socketConnection: socketConnectionResolver,
         },
         children: [
             {
@@ -379,7 +402,7 @@ export const appRoutes: Route[] = [
             },
             {
                 path: 'booking',
-                canActivate: [QueryParamGuard] ,
+                canActivate: [QueryParamGuard],
                 data: { title: 'booking.title' },
                 loadChildren: () =>
                     import('app/modules/landing/booking/booking.routes'),
@@ -399,7 +422,7 @@ export const appRoutes: Route[] = [
                 loadChildren: () =>
                     import('app/modules/landing/hotel-particular/hotel-particular.routes'),
             },
-            
+
             {
                 path: 'booking/success',
                 data: { title: 'home-page.title' },
@@ -425,9 +448,9 @@ export const appRoutes: Route[] = [
                     import('app/modules/landing/deal/deal.route'),
             },
             {
-                path: ':slug',
+                path: routeConfig.DESTINATION + '/:slug',
                 data: { title: 'destination.title' },
-                resolve:{
+                resolve: {
                     destination: destinationDetailResolver
                 },
                 loadChildren: () =>
@@ -442,6 +465,7 @@ export const appRoutes: Route[] = [
         component: LayoutComponent,
         resolve: {
             initialData: initialDataResolver,
+            socketConnection: socketConnectionResolver,
         },
         children: [
             {
@@ -501,7 +525,7 @@ export const appRoutes: Route[] = [
                                 'app/modules/user/customer/news-detail/news-detail.routes'
                             ),
                     },
-                    
+
                 ],
             },
             {
@@ -542,5 +566,5 @@ export const appRoutes: Route[] = [
             { path: '**', redirectTo: routeConfig.ROUTER_NOT_FOUND },
         ],
     },
-    
+
 ];

@@ -2,10 +2,11 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { environment } from 'environments/environment.fullstack';
+import { TranslocoModule } from '@ngneat/transloco';
 @Component({
     selector: 'app-offer-popup',
     standalone: true,
-    imports: [CommonModule, MatIconModule],
+    imports: [CommonModule, MatIconModule, TranslocoModule],
     templateUrl: './offer-popup.component.html',
     styleUrls: ['./offer-popup.component.scss']
 })

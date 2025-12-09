@@ -53,7 +53,18 @@ export class ChatComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.chatService.getAllRequirementChat().subscribe(res=>{
       console.log("requirement:", res.data)
-      this.listRequirement = res.requirements;
+      // Loại bỏ duplicate dựa trên uuid
+      const uniqueRequirements = [];
+      const seenUuids = new Set();
+      if (res.requirements && Array.isArray(res.requirements)) {
+        res.requirements.forEach(item => {
+          if (item.uuid && !seenUuids.has(item.uuid)) {
+            seenUuids.add(item.uuid);
+            uniqueRequirements.push(item);
+          }
+        });
+      }
+      this.listRequirement = uniqueRequirements;
       // FIX: Changed == to = for correct assignment
       this.isJoin = res.isJoin; 
       console.log('check isJoin: ', this.isJoin)
@@ -62,20 +73,32 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.messageSubscription = this.chatService.messages$.subscribe(msg =>{
         console.log("CHECK MSG FROM BE: ",msg)
         if(msg.action === "join_group" && msg.status ==='success'){
-          this.listRequirement = this.listRequirement.map(item =>
-            item.uuid === msg.group ? { ...item, status: 'In progress' } : item
-          );
-        this.isJoin = true;
+          // Kiểm tra xem item đã được cập nhật chưa để tránh duplicate
+          const existingItem = this.listRequirement.find(item => item.uuid === msg.group);
+          if (existingItem && existingItem.status !== 'In progress') {
+            this.listRequirement = this.listRequirement.map(item =>
+              item.uuid === msg.group ? { ...item, status: 'In progress' } : item
+            );
+            this.isJoin = true;
+          }
       }
         if(msg.action === "out_group" && msg.status ==='success'){
-          this.listRequirement = this.listRequirement.map(item =>
-            item.uuid === msg.group ? { ...item, status: 'Normal' } : item
-          );
-        this.isJoin = false;
+          // Kiểm tra xem item đã được cập nhật chưa để tránh duplicate
+          const existingItem = this.listRequirement.find(item => item.uuid === msg.group);
+          if (existingItem && existingItem.status !== 'Normal') {
+            this.listRequirement = this.listRequirement.map(item =>
+              item.uuid === msg.group ? { ...item, status: 'Normal' } : item
+            );
+            this.isJoin = false;
+          }
       }
-        if(msg.action === "send_requirement"){
+        if(msg.action === "send_requirement_to_recept"){
           console.log("check require: ", msg.data)
-          this.listRequirement = [...this.listRequirement, msg.data];
+          // Kiểm tra xem requirement đã tồn tại chưa để tránh duplicate
+          const existingRequirement = this.listRequirement.find(item => item.uuid === msg.data.uuid);
+          if (!existingRequirement) {
+            this.listRequirement = [...this.listRequirement, msg.data];
+          }
         }
     })
     

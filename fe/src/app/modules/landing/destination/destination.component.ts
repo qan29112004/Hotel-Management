@@ -8,6 +8,7 @@ import { environment } from 'environments/environment.fullstack';
 import { DestinationService } from 'app/core/admin/destination/destination.service';
 import { CapitalizePipe } from 'app/shared/pipes/capital.pipe';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslocoModule } from '@ngneat/transloco';
 @Component({
   selector: 'app-destination',
   standalone: true,

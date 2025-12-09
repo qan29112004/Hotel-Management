@@ -17,7 +17,7 @@ export class GenericDeleteComponent {
     @Input() messageKey: string = 'common.delete_confirm_message';
     @Input() warningKey: string | null = null;
     @Input() deleteHandler: (id: string) => Observable<any> = () => of(null);
-    @Output() close = new EventEmitter<void>();
+    @Output() close = new EventEmitter<any>();
     @Output() refresh = new EventEmitter<void>();
 
     isDeleting = false;
@@ -49,13 +49,15 @@ export class GenericDeleteComponent {
                     this.close.emit();
                 }, 1000);
             },
-            error: () => {
+            error: (err) => {
+                console.log("check error: ", err)
                 this.alertService.showAlert({
                     type: 'error',
                     title: this.transloco.translate('errors.default'),
-                    message: this.transloco.translate('errors.default'),
+                    message: err.error?.errors?.[0].message,
                 });
                 this.isDeleting = false;
+                
             },
         });
     }

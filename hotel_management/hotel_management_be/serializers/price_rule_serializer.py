@@ -8,6 +8,7 @@ from hotel_management_be.models.hotel import Hotel
 from hotel_management_be.models.offer import PriceRule
 
 class PriceRuleSerializer(serializers.ModelSerializer):
+    updated_by = serializers.SerializerMethodField()
     class Meta:
         model = PriceRule
         fields=['uuid', 'rule_type','multiplier','updated_by','created_at','updated_at']

@@ -38,7 +38,7 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
   selectedDate:Date;
   // storing full name of all months in array
   months = ["January", "February", "March", "April", "May", "June", "July",
-                "August", "September", "October", "November", "December"];
+    "August", "September", "October", "November", "December"];
 
   @Input() crrHotel:string = '';
   @Input() isDisplayCalendar:boolean = false;
@@ -50,7 +50,7 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
   @Output() prevMonth:EventEmitter<string> = new EventEmitter<string>();
   priceList: CalendarPrice[] = [];
   constructor(private el: ElementRef, private renderer: Renderer2){}
-  
+
 
   renderCalendar() {
     if (!this.daysListElement || !this.currentDate) {
@@ -81,14 +81,14 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
     for (let i = 1; i <= lastDateofMonth; i++) {
       const dateObj = new Date(this.currYear, this.currMonth, i);
       const isToday = this.selectedDate
-                    ? (i === this.selectedDate.getDate() &&
-                      this.currMonth === this.selectedDate.getMonth() &&
-                      this.currYear === this.selectedDate.getFullYear())
-                    : (this.date &&
-                      i === this.date.getDate() &&
-                      this.currMonth === this.date.getMonth() &&
-                      this.currYear === this.date.getFullYear());
-       // Tìm giá từ list theo ngày
+        ? (i === this.selectedDate.getDate() &&
+          this.currMonth === this.selectedDate.getMonth() &&
+          this.currYear === this.selectedDate.getFullYear())
+        : (this.date &&
+          i === this.date.getDate() &&
+          this.currMonth === this.date.getMonth() &&
+          this.currYear === this.date.getFullYear());
+      // Tìm giá từ list theo ngày
       const priceData = this.priceList.find(item => {
         const itemDate = new Date(item.date);
         return (
@@ -129,17 +129,29 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
   // }
 
   ngOnChanges(changes: SimpleChanges) {
-    if ((changes['date'] && changes['date'].currentValue) || (changes['roomList'] && changes['roomList'].currentValue)) {
-      this.currYear = changes['date'].currentValue.getFullYear();
-      this.currMonth = changes['date'].currentValue.getMonth();
-      this.selectedDate = changes['date'].currentValue;
-      console.log("change")
-      console.log("check paylaod", {"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(changes['date'].currentValue), 'rooms':(changes['roomList'] && changes['roomList'].currentValue)? changes['roomList'].currentValue : this.roomList})
-      this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(changes['date'].currentValue), 'rooms':(changes['roomList'] && changes['roomList'].currentValue)? changes['roomList'].currentValue : this.roomList}).subscribe(res =>{
-        this.priceList = res.data;
-        console.log("this.priceList:" , this.priceList)
-        this.renderCalendar();
-      })
+    const dateChange = changes['date'];
+    const roomListChange = changes['roomList'];
+
+    if ((dateChange && dateChange.currentValue) || (roomListChange && roomListChange.currentValue)) {
+
+      const dateToUse = dateChange ? dateChange.currentValue : this.date;
+      const roomListToUse = roomListChange ? roomListChange.currentValue : this.roomList;
+
+      if (dateChange && dateChange.currentValue) {
+        this.currYear = dateChange.currentValue.getFullYear();
+        this.currMonth = dateChange.currentValue.getMonth();
+        this.selectedDate = dateChange.currentValue;
+      }
+
+      if (dateToUse) {
+        console.log("change")
+        console.log("check paylaod", { "hotel_id": this.crrHotel, "crr_date": getCurrentDateString(dateToUse), 'rooms': roomListToUse })
+        this.hotelService.getCalenderPrice({ "hotel_id": this.crrHotel, "crr_date": getCurrentDateString(dateToUse), 'rooms': roomListToUse }).subscribe(res => {
+          this.priceList = res.data;
+          console.log("this.priceList:" , this.priceList)
+          this.renderCalendar();
+        })
+      }
     }
   }
   ngOnInit(): void {
@@ -157,7 +169,7 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
   }
   ngAfterViewInit(): void {
     this.setupNavigationListeners();
-    
+
   }
   setupNavigationListeners() {
     this.renderer.listen(this.prevNextIcon.nativeElement, 'click', (event: any) => {
@@ -215,8 +227,8 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
 
   private isSameDay(d1: Date, d2: Date): boolean {
     return d1.getFullYear() === d2.getFullYear() &&
-           d1.getMonth() === d2.getMonth() &&
-           d1.getDate() === d2.getDate();
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate();
   }
   private isGreaterThan(d1: Date, d2: Date): boolean {
     return d1.getTime() > d2.getTime();
@@ -226,8 +238,8 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
     this.calendarDays = this.calendarDays.map(day => ({
       ...day,
       isToday: this.selectedDate ? this.isSameDay(day.date, this.selectedDate) : false,
-      
+
     }));
   }
-  
+
 }

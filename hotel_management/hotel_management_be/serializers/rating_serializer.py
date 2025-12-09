@@ -42,6 +42,10 @@ class RatingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model=ReviewRating
         fields=['uuid', 'review', 'rating', 'hotel', 'booking', 'subject', 'is_active','images_upload','created_by','created_at','updated_by','updated_at']
+    def validate_rating(self, value):
+        if value < 0 or value > 5:
+            raise serializers.ValidationError("Rating phải từ 0 đến 5.")
+        return value
     def create(self, validated_data):
         images_upload = validated_data.pop('images_upload', [])
         rating = super().create(validated_data)
