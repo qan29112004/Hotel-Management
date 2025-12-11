@@ -10,8 +10,8 @@ interface CalendarDay {
   date: Date;
   isCurrentMonth: boolean;
   formatted: string;
-  isToday?:boolean;
-  price?:string
+  isToday?: boolean;
+  price?: string
 }
 
 @Component({
@@ -19,37 +19,38 @@ interface CalendarDay {
   standalone: true,
   imports: [CommonModule, SharedModule],
   templateUrl: './calendar.component.html',
-  styleUrls:['./calendar.component.scss']
+  styleUrls: ['./calendar.component.scss']
 })
-export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
+export class CalendarComponent implements AfterViewInit, OnInit, OnChanges {
   @ViewChild('currentDate', { static: true }) currentDate!: ElementRef;
   @ViewChild('days', { static: true }) daysListElement!: ElementRef;
-  @ViewChild('icon_span', { static: true }) prevNextIcon!:ElementRef;
+  @ViewChild('icon_span', { static: true }) prevNextIcon!: ElementRef;
   private hotelService = inject(HotelService);
   // getting new date, current year and month
-  @Input() type:string;
-  @Input() date:Date = null;
-  @Input() checkin:Date = null
-  @Input() chooseDay:Date = null;
+  @Input() type: string;
+  @Input() date: Date = null;
+  @Input() checkin: Date = null
+  @Input() chooseDay: Date = null;
   calendarDays: CalendarDay[] = [];
   today: Date | null = new Date();
   currYear
   currMonth;
-  selectedDate:Date;
+  selectedDate: Date;
   // storing full name of all months in array
   months = ["January", "February", "March", "April", "May", "June", "July",
     "August", "September", "October", "November", "December"];
 
-  @Input() crrHotel:string = '';
-  @Input() isDisplayCalendar:boolean = false;
-  @Input() roomList:any[];
-  @Input() isCheckin:boolean;
-  @Input() isCheckout:boolean;
+  @Input() crrHotel: string = '';
+  @Input() isDisplayCalendar: boolean = false;
+  @Input() roomList: any[];
+  @Input() isCheckin: boolean;
+  @Input() isCheckout: boolean;
   @Output() selectedDayEmit: EventEmitter<Date> = new EventEmitter<Date>();
-  @Output() nextMonth:EventEmitter<string> = new EventEmitter<string>();
-  @Output() prevMonth:EventEmitter<string> = new EventEmitter<string>();
+  @Output() nextMonth: EventEmitter<string> = new EventEmitter<string>();
+  @Output() prevMonth: EventEmitter<string> = new EventEmitter<string>();
+  @Output() closeCalendarEmit: EventEmitter<void> = new EventEmitter<void>();
   priceList: CalendarPrice[] = [];
-  constructor(private el: ElementRef, private renderer: Renderer2){}
+  constructor(private el: ElementRef, private renderer: Renderer2) { }
 
 
   renderCalendar() {
@@ -99,14 +100,14 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
       });
       // console.log("check 1: ",new Date(this.currYear, this.currMonth, i) >= this.date || isToday)
       // console.log("check 2: ",(priceData && priceData.is_available_room) )
-      const compareDate = this.type === 'checkin' ? this.today :this.date;
+      const compareDate = this.type === 'checkin' ? this.today : this.date;
       // console.log("check compare: ", compareDate, this.type)
       days.push({
         date: new Date(this.currYear, this.currMonth, i),
         isCurrentMonth: (new Date(this.currYear, this.currMonth, i) >= compareDate || isToday) && (priceData && priceData.isAvailableRoom) ? true : false,
         formatted: i.toString(),
         isToday,
-        price: priceData && (new Date(this.currYear, this.currMonth, i) >= compareDate || isToday)? formatPrice(priceData.price) : null
+        price: priceData && (new Date(this.currYear, this.currMonth, i) >= compareDate || isToday) ? formatPrice(priceData.price) : null
       });
     }
 
@@ -148,7 +149,7 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
         console.log("check paylaod", { "hotel_id": this.crrHotel, "crr_date": getCurrentDateString(dateToUse), 'rooms': roomListToUse })
         this.hotelService.getCalenderPrice({ "hotel_id": this.crrHotel, "crr_date": getCurrentDateString(dateToUse), 'rooms': roomListToUse }).subscribe(res => {
           this.priceList = res.data;
-          console.log("this.priceList:" , this.priceList)
+          console.log("this.priceList:", this.priceList)
           this.renderCalendar();
         })
       }
@@ -187,9 +188,9 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
       this.currYear--;
     }
     console.log("prev")
-    this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(new Date(this.currYear, this.currMonth, 1)), 'rooms':this.roomList}).subscribe(res =>{
+    this.hotelService.getCalenderPrice({ "hotel_id": this.crrHotel, "crr_date": getCurrentDateString(new Date(this.currYear, this.currMonth, 1)), 'rooms': this.roomList }).subscribe(res => {
       this.priceList = res.data;
-      console.log("this.priceList:" , this.priceList)
+      console.log("this.priceList:", this.priceList)
       this.renderCalendar();
     })
   }
@@ -200,10 +201,10 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
     if (this.currMonth > 11) {
       this.currMonth = 0;
       this.currYear++;
-    }console.log("next")
-    this.hotelService.getCalenderPrice({"hotel_id":this.crrHotel, "crr_date":getCurrentDateString(new Date(this.currYear, this.currMonth, 1)),'rooms':this.roomList}).subscribe(res =>{
+    } console.log("next")
+    this.hotelService.getCalenderPrice({ "hotel_id": this.crrHotel, "crr_date": getCurrentDateString(new Date(this.currYear, this.currMonth, 1)), 'rooms': this.roomList }).subscribe(res => {
       this.priceList = res.data;
-      console.log("this.priceList:" , this.priceList)
+      console.log("this.priceList:", this.priceList)
       this.renderCalendar();
     })
   }
@@ -234,12 +235,16 @@ export class CalendarComponent implements  AfterViewInit, OnInit, OnChanges {
     return d1.getTime() > d2.getTime();
   }
 
-  private updateSelectedHighlight(date?:Date) {
+  private updateSelectedHighlight(date?: Date) {
     this.calendarDays = this.calendarDays.map(day => ({
       ...day,
       isToday: this.selectedDate ? this.isSameDay(day.date, this.selectedDate) : false,
 
     }));
+  }
+
+  closeCalendar() {
+    this.closeCalendarEmit.emit();
   }
 
 }

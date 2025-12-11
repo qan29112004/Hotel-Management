@@ -77,12 +77,57 @@ def hotel_detail(request, uuid):
             
         
         if request.method == 'PATCH':
-            # name = request.data.get('name', None)
-            # try:
-            #     Validator.validate_name_hotel(name)
-            # except Exception as e:
-            #     return AppResponse.error(ErrorCodes.VALIDATION_ERROR, str(e))
-            # Xử lý xóa thumbnail
+            # Check for active bookings only if changing critical fields
+            data = request.data.copy()
+
+            # Danh sách field được phép update ngay cả khi có booking
+            # Bao gồm cả các field không phải model fields (deleted_*, images, etc.)
+            allowed_fields = ['name', 'description', 'thumbnail', 'deleted_thumbnail', 
+                            'deleted_images[]', 'status','facilities','service', 'images', 'updated_by']
+
+            # Lấy dữ liệu cũ của hotel để so sánh
+            old_data = HotelSerializer(hotel).data
+
+            # Kiểm tra xem có field quan trọng nào thay đổi không
+            has_critical_changes = False
+            changed_fields = []
+            
+            for key, new_value in data.items():
+                # Bỏ qua allowed fields
+                if key in allowed_fields:
+                    continue
+                
+                # Chỉ kiểm tra các field có trong serializer data
+                if key not in old_data:
+                    continue
+                    
+                old_value = old_data.get(key)
+
+                # Xử lý None values
+                old_value_str = str(old_value) if old_value is not None else ''
+                new_value_str = str(new_value) if new_value is not None else ''
+                
+                # So sánh
+                if old_value_str != new_value_str:
+                    has_critical_changes = True
+                    changed_fields.append(key)
+                    print(f"Critical field changed: {key}, old: {old_value_str}, new: {new_value_str}")
+
+            # Nếu có thay đổi critical fields → check active bookings
+            if has_critical_changes:
+                today = date.today()
+                active_bookings = Booking.objects.filter(
+                    hotel_id=hotel,
+                    check_out__gte=today,
+                    status__in=['Pending', 'Confirm', 'Check In']
+                )
+                
+                if active_bookings.exists():
+                    furthest_checkout = Utils.get_furthest_checkout_date(active_bookings)
+                    return AppResponse.error(
+                        ErrorCodes.VALIDATION_ERROR, 
+                        f"Không thể cập nhật do đã có phòng được book trong tương lai. Bạn chỉ có thể thực hiện thao tác này sau ngày {furthest_checkout.strftime('%d/%m/%Y')}"
+                    )
             if 'thumbnail' in request.data:
                 thumbnail = Utils.upload_thumnail(request, 'thumbnail')
                 print("thumnail", thumbnail)
@@ -113,12 +158,13 @@ def hotel_detail(request, uuid):
                 hotel_id=hotel,
                 check_out__gte=today,
                 status__in=['Pending', 'Confirm', 'Check In']
-            ).exists()
+            )
             
-            if active_bookings:
-                 return AppResponse.error(
+            if active_bookings.exists():
+                furthest_checkout = Utils.get_furthest_checkout_date(active_bookings)
+                return AppResponse.error(
                     ErrorCodes.VALIDATION_ERROR, 
-                    "Cannot delete hotel. There are active bookings associated with this hotel."
+                    f"Không thể xóa khách sạn do đã có phòng được booking trong tương lai. Bạn chỉ có thể thực hiện thao tác này sau ngày {furthest_checkout.strftime('%d/%m/%Y')}"
                 )
 
 

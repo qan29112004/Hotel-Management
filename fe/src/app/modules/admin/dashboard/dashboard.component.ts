@@ -331,7 +331,7 @@ export class DashboardKpiComponent {
     };
 
     constructor(private splashScreen: FuseSplashScreenService, private dashboardService: DashBoardService) {
-        this.splashScreen.hide();
+        // this.splashScreen.hide();
         this.dashboardService.getDashboardOverview().subscribe(res => {
             console.log("check res dashboard: ", res.data)
             this.data = res.data;

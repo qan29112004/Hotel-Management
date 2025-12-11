@@ -79,11 +79,6 @@ class RedisUtils:
     REDIS_URL = getattr(settings, "REDIS_URL", "redis://localhost:6379/1")
     r = redis.Redis.from_url(REDIS_URL, decode_responses=True)  
     
-    # Key patterns:
-    # inventory:{hotel_id}:{room_type_id}:{date} -> integer (available)
-    # hold:{hold_id} -> hash/json with TTL
-    # session:{session_id} -> hash: minimal info
-    # session:{session_id}:holds -> list of hold ids
     @staticmethod
     def inventory_key(hotel_id, room_type_id, date_str):
         return f"inventory:{hotel_id}:{room_type_id}:{date_str}"
@@ -103,19 +98,19 @@ class RedisUtils:
     def session_hold_slot_key(session_id: str, room_index: int) -> str:
         return f"session:{session_id}:holds:{room_index}"
 
-    # ---------- Lua script for multi-key check-and-decr ----------
-    # This script checks all KEYS have value >= ARGV[1] (quantity) and if so decrements each by quantity atomically.
-    # Usage: atomic_decrement_multi([key1,key2,...], quantity)
+   
     ATOMIC_MULTI_DECR = """
     local qty = tonumber(ARGV[1])
+    -- PHASE 1: Check ALL keys first
     for i=1,#KEYS do
-    local v = tonumber(redis.call('GET', KEYS[i]) or '-1')
-    if v == -1 or v < qty then
-        return 0
+        local v = tonumber(redis.call('GET', KEYS[i]) or '-1')
+        if v == -1 or v < qty then
+            return 0
+        end
     end
-    end
+    -- PHASE 2: All checks passed, now decrement ALL keys
     for i=1,#KEYS do
-    redis.call('DECRBY', KEYS[i], qty)
+        redis.call("DECRBY", KEYS[i], qty)
     end
     return 1
     """
@@ -133,7 +128,7 @@ class RedisUtils:
     atomic_multi_decr = r.register_script(ATOMIC_MULTI_DECR)
     atomic_multi_incr = r.register_script(ATOMIC_MULTI_INCR)
 
-    # ---------- helpers ----------
+   
     
     @staticmethod
     def set_hold_for_room(session_id: str, room_index: int, hold_id: str, ttl_seconds: int = None):
@@ -354,12 +349,51 @@ class RedisUtils:
         print(f"DEBUG: atomic_increment result: {res}")
         return True
 
-    # Utility to init inventory from DB if missing for given date (optional)
     @staticmethod
-    def ensure_inventory_key_initialized(hotel_id, room_type_id, date_str, default):
-        key = RedisUtils.inventory_key(hotel_id, room_type_id, date_str)
-        # set only if not exist
-        RedisUtils.r.setnx(key, int(default))
+    def atomic_decrement_all_existing_inventory(hotel_id, room_type_id, quantity=1):
+        r = RedisUtils.r
+        pattern = f"inventory:{hotel_id}:{room_type_id}:*"
+
+        # scan để lấy tất cả key (an toàn hơn KEYS *)
+        cursor = 0
+        keys = []
+        while True:
+            cursor, batch = r.scan(cursor=cursor, match=pattern, count=500)
+            keys.extend(batch)
+            if cursor == 0:
+                break
+
+        if not keys:
+            print("No inventory keys exist for this room type — nothing to increment.")
+            return False
+
+        res = RedisUtils.atomic_multi_decr(keys=keys, args=[str(quantity)])
+        print(f"DEBUG: atomic_increment result: {res}")
+        return True
+    
+    @staticmethod
+    def atomic_increment_all_existing_inventory(hotel_id, room_type_id, quantity=1):
+        r = RedisUtils.r
+        pattern = f"inventory:{hotel_id}:{room_type_id}:*"
+
+        # scan để lấy tất cả key (an toàn hơn KEYS *)
+        cursor = 0
+        keys = []
+        while True:
+            cursor, batch = r.scan(cursor=cursor, match=pattern, count=500)
+            keys.extend(batch)
+            if cursor == 0:
+                break
+
+        if not keys:
+            print("No inventory keys exist for this room type — nothing to increment.")
+            return False
+
+        res = RedisUtils.atomic_multi_incr(keys=keys, args=[str(quantity)])
+        print(f"DEBUG: atomic_increment result: {res}")
+        return True
+
+    
         
     @staticmethod  
     def finalize_booking_success(session_id, booking_id=None):

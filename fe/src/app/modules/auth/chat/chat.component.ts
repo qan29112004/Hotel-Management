@@ -24,6 +24,7 @@ import { TranslocoModule } from '@ngneat/transloco';
 import { environment } from 'environments/environment.fullstack';
 import { MessageSocket } from '../../../core/chat/chat.types';
 import { DenseLayoutComponent } from 'app/layout/layouts/vertical/dense/dense.component';
+import { FuseSplashScreenService } from '@fuse/services/splash-screen';
 
 @Component({
   selector: 'app-chat',
@@ -46,13 +47,17 @@ export class ChatComponent implements OnInit, OnDestroy {
   private _idDeleteChat;
   isJoin:boolean;
 
-  constructor(private denseLayout:DenseLayoutComponent) {
-    
+  constructor(private denseLayout:DenseLayoutComponent, private splashScreen: FuseSplashScreenService) {
+      
   }
 
   ngOnInit() {
+    this.splashScreen.show();
+    setTimeout(()=>{
+      this.splashScreen.hide();
+    }, 4000)
     this.chatService.getAllRequirementChat().subscribe(res=>{
-      console.log("requirement:", res.data)
+      console.log("requirement:", res.requirements)
       // Loại bỏ duplicate dựa trên uuid
       const uniqueRequirements = [];
       const seenUuids = new Set();
@@ -79,6 +84,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             this.listRequirement = this.listRequirement.map(item =>
               item.uuid === msg.group ? { ...item, status: 'In progress' } : item
             );
+            console.log("requirement:", this.listRequirement)
             this.isJoin = true;
           }
       }
@@ -86,18 +92,20 @@ export class ChatComponent implements OnInit, OnDestroy {
           // Kiểm tra xem item đã được cập nhật chưa để tránh duplicate
           const existingItem = this.listRequirement.find(item => item.uuid === msg.group);
           if (existingItem && existingItem.status !== 'Normal') {
-            this.listRequirement = this.listRequirement.map(item =>
-              item.uuid === msg.group ? { ...item, status: 'Normal' } : item
-            );
+            this.listRequirement = this.listRequirement.filter(item => item.uuid !== msg.group);
+            console.log("requirement:", this.listRequirement)
             this.isJoin = false;
           }
       }
+      console.log("check xem co chay dén day khong")
+      console.log("check xem co chay dén day khong: ", msg.action)
         if(msg.action === "send_requirement_to_recept"){
           console.log("check require: ", msg.data)
           // Kiểm tra xem requirement đã tồn tại chưa để tránh duplicate
           const existingRequirement = this.listRequirement.find(item => item.uuid === msg.data.uuid);
           if (!existingRequirement) {
             this.listRequirement = [...this.listRequirement, msg.data];
+            
           }
         }
     })

@@ -175,7 +175,7 @@ export class RoomTypeComponent {
         labelKey: 'room_type.price',
         type: 'text',
         placeholderKey: 'room_type.enterPrice',
-        
+        required:true
         
     },
     {
@@ -195,7 +195,7 @@ export class RoomTypeComponent {
         labelKey: 'room_type.size',
         type: 'text',
         placeholderKey: 'room_type.enterSize',
-        
+        required:true
         
     },
     {
@@ -262,14 +262,15 @@ export class RoomTypeComponent {
         type: 'select',
         placeholderKey: 'room_type.enterHotel',
         asyncOptionsKey: true,
-        isForeignKey:true
+        isForeignKey:true,
+        required:true
     },
     {
         name: 'base_price',
         labelKey: 'room_type.price',
         type: 'text',
         placeholderKey: 'room_type.enterPrice',
-        
+        required:true
         
     },
     {
@@ -289,7 +290,7 @@ export class RoomTypeComponent {
         labelKey: 'room_type.size',
         type: 'text',
         placeholderKey: 'room_type.enterSize',
-        
+        required:true
         
     },
     {
@@ -324,9 +325,9 @@ export class RoomTypeComponent {
     },
     {
         name: 'hotel_id',
-        labelKey: 'room_type.name',
+        labelKey: 'room_type.hotel',
         type: 'select',
-        placeholderKey: 'room_type.enterFullName',
+        placeholderKey: 'room_type.enterHotel',
         asyncOptionsKey: true,
         isForeingKey:true
     },

@@ -38,7 +38,7 @@ def add_knowlegde_base(request):
         serializers = KnowlegdeBaseSerializer(data=request.data, context={'request':request})
         if serializers.is_valid():
             new_knowlegde_base = serializers.save(created_by = request.user)
-            embed_pending_data.delay()
+            embed_pending_data.delay(new_knowlegde_base.uuid)
             return AppResponse.success(SuccessCodes.CREATE_AMENITY, data={"data":KnowlegdeBaseSerializer(new_knowlegde_base).data})
         return AppResponse.error(ErrorCodes.CREATE_DATASET, serializers.errors)
     except Exception as e:
@@ -59,7 +59,7 @@ def knowlegde_base_detail(request, uuid):
             if serializer.is_valid():
                 with transaction.atomic():
                     updated = serializer.save(updated_by=request.user)
-                    embed_pending_data.delay()
+                    embed_pending_data.delay(updated.uuid)
                 return AppResponse.success(SuccessCodes.UPDATE_DATASET, data={"data": KnowlegdeBaseSerializer(updated).data})
             return AppResponse.error(ErrorCodes.UPDATE_DATASET_FAIL, serializer.errors)
 

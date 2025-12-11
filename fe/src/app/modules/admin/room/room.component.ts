@@ -205,8 +205,8 @@ export class RoomComponent {
       labelKey: 'room.is_lock',
       type: 'select',
       options:[
-        {id:true, name:"True"},
-        {id: false, name:"False"}
+        {id: false, name:"False"},
+        {id:true, name:"True"}
       ],
       placeholderKey: 'room.enterIsLock',
   },

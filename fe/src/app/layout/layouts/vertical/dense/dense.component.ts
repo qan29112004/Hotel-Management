@@ -280,13 +280,13 @@ export class DenseLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
                         ...pushItemNavigation(navigation, includeIds, 'admin', 'sticky'),
                     ];
 
-                    // } else if (this.crrUser.role === 2) {
-                    //     // recept
-                    //     includeIds.push('recept');
-                    //     includeIds = [
-                    //         ...includeIds,
-                    //         ...pushItemNavigation(navigation, includeIds, 'recept', 'sticky'),
-                    //     ];
+                    } else if (this.crrUser.role === 2) {
+                        // recept
+                        includeIds.push('recept');
+                        includeIds = [
+                            ...includeIds,
+                            ...pushItemNavigation(navigation, includeIds, 'recept', 'sticky'),
+                        ];
                 } else if (this.crrUser.role === 3) {
                     // user
                     includeIds.push('user');

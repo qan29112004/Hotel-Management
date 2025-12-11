@@ -781,3 +781,18 @@ class Utils:
         except Exception as e:
             return {"success": False, "error": str(e), "refund_id": booking.uuid}
     
+    @staticmethod
+    def get_furthest_checkout_date(bookings_queryset):
+        """
+        Get the furthest checkout date from a queryset of bookings.
+        Returns the date or None if no bookings exist.
+        
+        Args:
+            bookings_queryset: QuerySet of Booking objects
+            
+        Returns:
+            date: The furthest checkout date, or None if no bookings
+        """
+        furthest_booking = bookings_queryset.order_by('-check_out').first()
+        return furthest_booking.check_out if furthest_booking else None
+    

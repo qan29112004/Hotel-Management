@@ -152,13 +152,13 @@
           agree to SLH Terms & Conditions and Privacy Policy</small></mat-checkbox>
 
       <div class="grid items-stretch w-full grid-cols-1 lg:grid-cols-2 mt-6 sm:mt-[30px] gap-3 sm:gap-4">
-        <button type="button" class="relative w-full hover:-translate-y-[2px] sm:hover:-translate-y-[4px] transition-all duration-300 min-h-[60px] sm:min-h-auto"
+        <button type="button" class="relative w-full hover:-translate-y-[2px] sm:hover:-translate-y-[4px] transition-all duration-300 "
           [ngClass]="{ 'opacity-50 pointer-events-none': bookingForm.invalid || !isChecked, 'cursor-not-allowed': bookingForm.invalid || !isChecked }"
           [matTooltip]="bookingForm.invalid || !isChecked?'Hãy hoàn thiện thông tin trước khi thanh toán':''">
           <div id="paypal-button-container" class="w-full"></div>
         </button>
         <button (click)="onSubmit('vnpay')" type="button"
-          class="flex items-center justify-center w-full h-[60px] sm:h-auto bg-red-400 hover:-translate-y-[2px] sm:hover:-translate-y-[4px] transition-all duration-300 min-h-[60px]"><img
+          class="flex items-center justify-center w-full h-[45px] bg-red-400 hover:-translate-y-[2px] sm:hover:-translate-y-[4px] transition-all duration-300 min-h-[45px]"><img
             src="assets/images/booking/logo_vnpay.svg"
             class="object-contain w-[80px] sm:w-[100px] h-[35px] sm:h-[45px]" /></button>
       </div>

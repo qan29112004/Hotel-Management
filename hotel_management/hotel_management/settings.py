@@ -291,7 +291,10 @@ GOOGLE_CLIENT_ID = '601097463713-msqb22gt741bck3n9fr0ci5mo8u4msne.apps.googleuse
 
 #AI
 CHROMA_PATH = './chroma_db'
+CHROMA_SERVER_HOST = 'chroma_server'
+CHROMA_SERVER_PORT = 8000
 GROQ_API_KEY = os.getenv('API_KEY_GROQ')
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
 
 LOGGING = {
     'version': 1,

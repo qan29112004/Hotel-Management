@@ -217,8 +217,8 @@ def create_hold(request):
     hotel_id = session.hotel.uuid
     checkin = session.checkin.isoformat()
     checkout = session.checkout.isoformat()
-    room_type = RoomType.objects.get(name = room_type_name)
-    rate_plan = RatePlan.objects.get(name = rate_plan_name)
+    room_type = RoomType.objects.get(name = room_type_name, status='Active')
+    rate_plan = RatePlan.objects.get(name = rate_plan_name, is_active=True)
     room_type_id = room_type.uuid
 
     # ensure inventory keys exist

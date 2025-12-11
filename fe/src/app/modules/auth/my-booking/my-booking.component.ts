@@ -24,7 +24,7 @@ declare var paypal: any;
 @Component({
   selector: 'app-my-booking',
   standalone: true,
-  imports: [CommonModule, SharedModule, RatingComponent, FormsModule,MatDatepickerModule, TranslocoModule],
+  imports: [CommonModule, SharedModule, RatingComponent, FormsModule, MatDatepickerModule, TranslocoModule],
   templateUrl: './my-booking.component.html',
   styles: `
     /* Custom scrollbar for the hotel dropdown */
@@ -42,53 +42,54 @@ declare var paypal: any;
     }
   `,
   animations: [
-        trigger('slideToggle', [
-          transition(':enter', [ // khi *ngIf thêm phần tử
-            style({ height: 0, opacity: 0, overflow: 'hidden' }),
-            animate('300ms ease-out', style({ height: '*', opacity: 1 }))
-          ]),
-          transition(':leave', [ // khi *ngIf xóa phần tử
-            style({ height: '*', opacity: 1, overflow: 'hidden' }),
-            animate('300ms ease-in', style({ height: 0, opacity: 0 }))
-          ])
-        ])
-      ]
+    trigger('slideToggle', [
+      transition(':enter', [ // khi *ngIf thêm phần tử
+        style({ height: 0, opacity: 0, overflow: 'hidden' }),
+        animate('300ms ease-out', style({ height: '*', opacity: 1 }))
+      ]),
+      transition(':leave', [ // khi *ngIf xóa phần tử
+        style({ height: '*', opacity: 1, overflow: 'hidden' }),
+        animate('300ms ease-in', style({ height: 0, opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class MyBookingComponent implements OnInit, AfterViewInit {
-  formatISODate=formatISODate;
+  formatISODate = formatISODate;
   title = "star-angular";
   stars = [1, 2, 3, 4, 5];
   rating = 0;
+  bookingRatings: { [bookingId: string]: number } = {}; // Rating riêng cho từng booking
   hoverState = 0;
   today = new Date();
   private $destroy = new Subject();
-  bookingId:string;
-  bookingRefund:any;
-  isOpenPopup:boolean = false;
+  bookingId: string;
+  bookingRefund: any;
+  isOpenPopup: boolean = false;
 
   @ViewChild('pickerCheckin') pickerCheckin!: MatDatepicker<Date>;
   @ViewChild('pickerCheckout') pickerCheckout!: MatDatepicker<Date>;
   toggleCalendarCheckin() {
     setTimeout(() => {
-        if (this.pickerCheckin) {
-            this.pickerCheckin.open();  // Gọi open() trên instance
-        }
+      if (this.pickerCheckin) {
+        this.pickerCheckin.open();  // Gọi open() trên instance
+      }
     });
-      
+
   }
   toggleCalendarCheckout() {
-      setTimeout(() => {
-          if (this.pickerCheckout) {
-              this.pickerCheckout.open();  // Gọi open() trên instance
-          }
-      });
-      
+    setTimeout(() => {
+      if (this.pickerCheckout) {
+        this.pickerCheckout.open();  // Gọi open() trên instance
+      }
+    });
+
   }
   // Filter & Sort State
   filterCheckIn: Date;
   filterCheckOut: Date;
   filterHotelName: string = '';
-  filterStatus:string = '';
+  filterStatus: string = '';
   hotelSearchQuery: string = '';
   showHotelDropdown: boolean = false;
   sortPrice: 'asc' | 'desc' | '' = '';
@@ -111,65 +112,71 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
     this.hoverState = 0;
   }
 
-  updateRating(i) {
-    this.rating = i;
-    this.ratingForm.get('rating').setValue(this.rating)
+  updateRating(i, bookingId?: string) {
+    if (bookingId) {
+      // Cập nhật rating cho booking cụ thể
+      this.bookingRatings[bookingId] = i;
+      this.ratingForm.get('rating').setValue(i);
+    } else {
+      // Fallback cho trường hợp xem rating đã tồn tại
+      this.rating = i;
+    }
   }
-  payload:any={
-    review:"rating 1",
-    rating:5,
-    hotel:"fqrmuqqnqu",
-    booking:"fwgypxnxhl",
-    subject:"subject"
+  payload: any = {
+    review: "rating 1",
+    rating: 5,
+    hotel: "fqrmuqqnqu",
+    booking: "fwgypxnxhl",
+    subject: "subject"
   }
   lastFilters = {
     checkIn: null,
     checkOut: null,
     hotelName: '',
     sortPrice: null,
-    status:''
+    status: ''
   };
 
   selectDetailRoom: { id_bk: number; id_room: number } | null = null;
-  crrUser:any;
-  filter:any[]=[];
-  baseUrl:string = environment.baseUrl; 
-  myBooking:any[] = [];
-  ratingForm:FormGroup;
+  crrUser: any;
+  filter: any[] = [];
+  baseUrl: string = environment.baseUrl;
+  myBooking: any[] = [];
+  ratingForm: FormGroup;
   refundInfo: { [key: string]: any } = {};
   refundLoading: { [key: string]: boolean } = {};
   retryLoading: { [key: string]: boolean } = {};
-  
-  constructor(private fb: FormBuilder,private ratingService:RatingService, private bookingService:BookingService, private userService:UserService, private hotelService: HotelService, private router:Router, private paymentService: PaymentService, private alertService: AlertService,
-    private translocoService:TranslocoService
+
+  constructor(private fb: FormBuilder, private ratingService: RatingService, private bookingService: BookingService, private userService: UserService, private hotelService: HotelService, private router: Router, private paymentService: PaymentService, private alertService: AlertService,
+    private translocoService: TranslocoService
   ) {
-    
+
   }
 
   ngOnInit(): void {
-    this.userService.user$.subscribe(user=>{
-      this.crrUser=user;
-      if(user?.email) {
+    this.userService.user$.subscribe(user => {
+      this.crrUser = user;
+      if (user?.email) {
         this.getMyBooking(user.email)
       }
     })
     this.loadAllHotel();
     this.ratingForm = this.fb.group({
-        subject:['', Validators.required],
-        review:['', Validators.required],
-        rating:[0, Validators.required]
-      })
+      subject: ['', Validators.required],
+      review: ['', Validators.required],
+      rating: [0, Validators.required]
+    })
   }
 
-  getMyBooking(email:string){
+  getMyBooking(email: string) {
     this.filter = []; // Reset filter base
     this.filter.push({
-      field:'user_email',
-      option:'contains',
-      value:email
+      field: 'user_email',
+      option: 'contains',
+      value: email
     })
-    this.bookingService.getMyBooking({page_size:0, filterRules:this.filter}).subscribe(bookings=>{
-      console.log('mybooking:',bookings)
+    this.bookingService.getMyBooking({ page_size: 0, filterRules: this.filter }).subscribe(bookings => {
+      console.log('mybooking:', bookings)
       this.myBooking = bookings.data;
     })
   }
@@ -183,23 +190,23 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
     }
   }
 
-  loadAllHotel(){
-    if(this.hotelService.getHotelData.length >0){
+  loadAllHotel() {
+    if (this.hotelService.getHotelData.length > 0) {
       this.hotelService.hotel$.pipe(
-        map(res=>{
-          this.availableHotels = res.map(item=>({
-            id:item.uuid,
-            name:item.name
+        map(res => {
+          this.availableHotels = res.map(item => ({
+            id: item.uuid,
+            name: item.name
           }))
         }),
         takeUntil(this.$destroy)
       ).subscribe()
-    }else{
-      this.hotelService.getAllHotels({page_size:0}).pipe(
-        map(res=>{
-          this.availableHotels = res.data.map(item=>({
-            id:item.uuid,
-            name:item.name
+    } else {
+      this.hotelService.getAllHotels({ page_size: 0 }).pipe(
+        map(res => {
+          this.availableHotels = res.data.map(item => ({
+            id: item.uuid,
+            name: item.name
           }))
         }),
         takeUntil(this.$destroy)
@@ -209,11 +216,11 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
   // --- Filtering & Sorting Logic ---
 
   get filteredHotels() {
-    return this.availableHotels.filter(h => 
+    return this.availableHotels.filter(h =>
       h.name.toLowerCase().includes(this.hotelSearchQuery.toLowerCase())
     );
   }
-  openPopup(booking:any){
+  openPopup(booking: any) {
     this.bookingRefund = booking;
     this.isOpenPopup = true
   }
@@ -233,16 +240,16 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
     return result;
   }
 
-  filterHotel(){
+  filterHotel() {
     console.log("check ngmodel: ", this.filterStatus)
     console.log("compare", this.filterStatus === this.lastFilters.status, "..", this.lastFilters.status)
     const noChange =
-    this.filterCheckIn === this.lastFilters.checkIn &&
-    this.filterCheckOut === this.lastFilters.checkOut &&
-    this.filterHotelName === this.lastFilters.hotelName &&
-    this.sortPrice === this.lastFilters.sortPrice &&
-    this.filterStatus === this.lastFilters.status
-    
+      this.filterCheckIn === this.lastFilters.checkIn &&
+      this.filterCheckOut === this.lastFilters.checkOut &&
+      this.filterHotelName === this.lastFilters.hotelName &&
+      this.sortPrice === this.lastFilters.sortPrice &&
+      this.filterStatus === this.lastFilters.status
+
     console.log("check nocahnge: ", noChange)
     if (noChange) {
       console.log("⚠ Không có thay đổi → Không gọi API");
@@ -295,16 +302,16 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
     // --- 5) Tạo sortRule (chỉ thêm nếu có sortPrice) ---
     const sortRule = this.sortPrice
       ? {
-          field: "total_price",
-          option: this.sortPrice
-        }
+        field: "total_price",
+        option: this.sortPrice
+      }
       : null;
 
 
     // --- 7) Gọi API ---
     this.bookingService
       .getMyBooking({
-        filterRules: [...rules,...this.filter],
+        filterRules: [...rules, ...this.filter],
         sortRule: sortRule
       })
       .subscribe((res) => {
@@ -319,26 +326,26 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
   closeHotelDropdown() {
     // Small delay to allow click event to register on items
     setTimeout(() => {
-        this.showHotelDropdown = false;
+      this.showHotelDropdown = false;
     }, 200);
   }
 
   // --- End Filtering Logic ---
 
-  createRating(bookingId:string, hotelId:string){
-    if(this.ratingForm.invalid)return;
+  createRating(bookingId: string, hotelId: string) {
+    if (this.ratingForm.invalid) return;
     this.payload.review = this.ratingForm.get('review').value;
     this.payload.rating = this.ratingForm.get('rating').value;
     this.payload.hotel = hotelId;
     this.payload.booking = bookingId;
     this.ratingService.createRating(this.payload).subscribe(
-      res =>{
+      res => {
         console.log("rating", res.data)
         this.getMyBooking(this.crrUser.email);
       }
     )
   }
-  toggleDetailRoom(id_bk:number, id_room:number){
+  toggleDetailRoom(id_bk: number, id_room: number) {
     if (this.selectDetailRoom?.id_bk === id_bk && this.selectDetailRoom?.id_room === id_room) {
       this.selectDetailRoom = null; // bấm lại thì ẩn đi
     } else {
@@ -353,10 +360,10 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
     }
     // Check if updated within 3 hours (180 minutes)
     if (booking?.updatedAt) {
-      const updatedTime = booking.updatedAt *1000;
+      const updatedTime = booking.updatedAt * 1000;
       const now = Date.now();
       const threeHours = 3 * 60 * 60 * 1000; // 3 hours in milliseconds
-      console.log("check time re turn: ",(now - updatedTime) < threeHours)
+      console.log("check time re turn: ", (now - updatedTime) < threeHours)
       return (now - updatedTime) < threeHours;
     }
     return false;
@@ -382,19 +389,19 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
     });
   }
 
-  acceptRefund(action:string){
-    if(action === 'Hủy'){
+  acceptRefund(action: string) {
+    if (action === 'Hủy') {
       this.isOpenPopup = false;
-      this.bookingRefund=null;
-    }else{
-      this.isOpenPopup= false;
+      this.bookingRefund = null;
+    } else {
+      this.isOpenPopup = false;
       this.processRefund(this.bookingRefund)
     }
   }
 
   // Process refund
   processRefund(booking: any): void {
-    
+
     this.refundLoading[booking.uuid] = true;
     this.bookingService.processRefund(booking.uuid).subscribe({
       next: (res) => {
@@ -416,30 +423,30 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
       }
     });
   }
-  getClassStatus(status:string){
-    if(status === 'Cancelled'){
+  getClassStatus(status: string) {
+    if (status === 'Cancelled') {
       return 'bg-red-400 text-red-900'
     }
-    if(status === 'Pending'){
+    if (status === 'Pending') {
       return 'bg-amber-400 text-amber-900'
     }
-    if(status === 'Check In'){
+    if (status === 'Check In') {
       return 'bg-emerald-400 text-emerald-900'
     }
-    if(status === 'Check Out'){
+    if (status === 'Check Out') {
       return 'bg-slate-400 text-slate-900'
     }
-    if(status === 'Cancelled'){
+    if (status === 'Cancelled') {
       return 'bg-rose-400 text-rose-900'
     }
-    return 'bg-gray-400 text-grat-900'
+    return 'bg-green-400 text-green-900'
   }
   // Retry payment
   // retryPayment(booking: any): void {
   //   if(booking.currency === 'VND'){
   //     this.handleVNPay()
   //   }else{
-      
+
   //   }
   // }
 
@@ -453,8 +460,8 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.myBooking
-    .filter(b => b.status === 'Pending' && b.currency === 'USD')
-    .forEach(booking => this.renderPaypalButton(booking));
+      .filter(b => b.status === 'Pending' && b.currency === 'USD')
+      .forEach(booking => this.renderPaypalButton(booking));
   }
 
   renderPaypalButton(booking: any) {
@@ -464,23 +471,23 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
         const body = {
           method: "paypal",
           action: 'Repayment',
-          booking_id: booking.uuid, 
+          booking_id: booking.uuid,
           currency: 'USD',
           session_id: booking.session_id
         };
-  
+
         const res = await fetch("https://.../create-payment/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
-  
+
         const dataRes = await res.json();
         booking.paypalBookingId = dataRes.data.bookingId; // lưu tạm trong booking object
-  
+
         return dataRes.data.paypalOrder.id;
       },
-  
+
       onApprove: async (data: any, actions: any) => {
         const captureRes = await fetch("https://.../paypal-capture/", {
           method: "POST",
@@ -496,9 +503,9 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
         queryParams.amount = result.data.amount;
         queryParams.response_code = result.data.responseCode;
         queryParams.booking_id = result.data.bookingId;
-        this.router.navigate(['booking/success'], {queryParams})
+        this.router.navigate(['booking/success'], { queryParams })
       },
-  
+
       onCancel: (data: any) => {
         console.log("check data when cancle payment: ", data)
       },
@@ -506,17 +513,17 @@ export class MyBookingComponent implements OnInit, AfterViewInit {
     }).render(`#${containerId}`);
   }
 
-  handleVNPay(booking:any){
+  handleVNPay(booking: any) {
     const payload = {
       method: "vnpay",
       currency: 'VND',
-      action:"Repayment",
-      booking_id : booking.uuid,
+      action: "Repayment",
+      booking_id: booking.uuid,
       session_id: booking.session_id
     };
     this.paymentService.createBooking(payload).pipe(
-      map(res=>res.data.redirectUrl)
-    ).subscribe(url=>{
+      map(res => res.data.redirectUrl)
+    ).subscribe(url => {
       window.location.href = url;
       // localStorage.removeItem('session_id')
       console.log(url)

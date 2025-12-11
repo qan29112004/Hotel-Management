@@ -132,9 +132,10 @@
             "payment":"Chi trả",
             "refund":"Hoàn tiền"
         },
-        "mod": {
+        "recept": {
             "app_type": "Ứng dụng",
-            "news": "Tin tức"
+            "news": "Tin tức",
+            "management": "Quản lý"
         },
         "user": {
             "individual_customer": "Khách hàng cá nhân",
@@ -948,7 +949,9 @@
         "select_creator": "Chọn người tạo",
         "select_updater": "Chọn người cập nhật",
         "title_placeholder": "Nhập tiêu đề",
-        "content_placeholder": "Nhập nội dung"
+        "content_placeholder": "Nhập nội dung",
+        "enterdContent":"Nhập nội dung",
+        "enterTitle":"Nhập tiêu đề"
     },
     "feedback": {
         "page_title": "Quản Lý Phản Hồi",
@@ -1817,5 +1820,14 @@
         "enterMethod": "Chọn phương thức hoàn tiền",
         "enterStatus": "Chọn trạng thái",
         "enterCurrency": "Nhập loại tiền tệ"
+    },
+    "my-club":{
+        "futureBookings": "Các đặt chỗ trong tương lai",
+        "seeYourUpcomingAdventures": "Xem những chuyến phiêu lưu sắp tới của bạn",
+        "viewAll": "Xem tất cả",
+        "exclusiveOffers": "Ưu đãi độc quyền",
+        "seeYourSLHClubOffers": "Xem các ưu đãi SLH Club của bạn",
+        "rewards": "Phần thưởng",
+        "redeemYourVouchers": "Đổi phiếu ưu đãi của bạn"
     }
 }

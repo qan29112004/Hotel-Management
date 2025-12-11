@@ -29,6 +29,13 @@ class MyPagination(LimitOffsetPagination):
 
         return super().get_offset(request)
 
+    def get_count(self, queryset):
+        """
+        Override to handle both QuerySet and list
+        """
+        if isinstance(queryset, list):
+            return len(queryset)
+        return super().get_count(queryset)
     
     def paginate_queryset(self, queryset, request, scale=1, view=None):
         self.request = request
@@ -54,5 +61,6 @@ class MyPagination(LimitOffsetPagination):
         }
     def get_paginated_exclude_response(self, data):
         return {
+            
             'exclude_hotel': data
         }

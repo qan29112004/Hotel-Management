@@ -369,6 +369,12 @@ class RoomTypeCreateSerializer(serializers.ModelSerializer):
         """
         Tổng số phòng phải > 0
         """
+        # Chỉ kiểm tra số lượng phòng hiện có khi update (self.instance tồn tại)
+        if self.instance:
+            current_rooms_count = self.instance.room.all().count()
+            if value < current_rooms_count:
+                raise serializers.ValidationError(f"Tổng số phòng phải lớn hơn hoặc bằng số phòng hiện có ({current_rooms_count}).")
+        
         if value <= 0:
             raise serializers.ValidationError("Tổng số phòng phải lớn hơn 0.")
 

@@ -87,7 +87,6 @@ def rating_detail(request, uuid):
     
 @auto_schema_post(RatingCreateSerializer)
 @api_view(["POST"])
-@permission_classes([IsAdminUser])
 def add_rating(request):
     try:
         serializers = RatingCreateSerializer(data=request.data)

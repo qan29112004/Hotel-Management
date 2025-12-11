@@ -92,7 +92,7 @@ def list_payment(request):
         list_payment = Payment.objects.all()
         paginated_payment, total = Querykit.apply_filter_paginate_search_sort(request=request, queryset=list_payment).values()
         serializers = PaymentSerializer(paginated_payment, many=True)
-        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data})
+        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data, 'total':total})
     except Exception as e:
         return AppResponse.error(ErrorCodes.LIST_AMENITY_FAIL, str(e))
     

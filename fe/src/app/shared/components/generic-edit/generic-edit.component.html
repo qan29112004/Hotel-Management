@@ -176,7 +176,7 @@
                         <!-- checkbox Input -->
                         <div
                             *ngIf="field.type === 'checkbox'"
-                            class="flex flex-col w-full fuse-mat-dense"
+                            class="flex flex-col w-full fuse-mat-dense max-h-[150px] overflow-y-auto"
                         >
                             <mat-label>{{ t(field.labelKey) }} {{field.helpText?'(' + field.helpText +')': ''}}</mat-label>
                             <!-- Khi có asyncOptionsKey -->

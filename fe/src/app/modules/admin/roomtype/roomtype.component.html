@@ -166,7 +166,7 @@
                                 <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">
                                      <div class="flex flex-col">
                                         <span>{{ formatDateTimeUnix(room_type.updatedAt) || '---' }}</span>
-                                        <span class="text-[10px] text-zinc-400" *ngIf="room_type.updatedBy">t('room_type.updated_by') {{ room_type.updatedBy.username }}</span>
+                                        <span class="text-[10px] text-zinc-400" *ngIf="room_type.updatedBy">{{t('room_type.updated_by')}} {{ room_type.updatedBy.username }}</span>
                                      </div>
                                 </td>
                                 <td class="px-4 py-3 text-center">

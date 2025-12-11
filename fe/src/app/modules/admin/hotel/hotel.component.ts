@@ -412,6 +412,7 @@ export class HotelComponent implements OnInit {
         }),
       ).subscribe(option => {
         this.checkboxOption['service'] = option;
+        console.log("check services: ", this.checkboxOption['service'])
       });
   }
 

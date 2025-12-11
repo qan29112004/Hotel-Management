@@ -18,6 +18,8 @@ from django.contrib.auth import authenticate
 from constants.error_codes import ErrorCodes
 from django.contrib.auth.models import update_last_login
 from libs.Redis import RedisWrapper
+from hotel_management_be.models.booking import Booking
+from datetime import date
 from libs.querykit.querykit_serializer import (
     QuerykitSerializer,
 )
@@ -54,6 +56,21 @@ def destination_detail(request, uuid):
         destination = Destination.objects.get(uuid__icontains=uuid)
 
         if request.method == 'PATCH':
+            # Check for active bookings in hotels within this destination
+            today = date.today()
+            active_bookings = Booking.objects.filter(
+                hotel_id__destination=destination,
+                check_out__gte=today,
+                status__in=['Pending', 'Confirm', 'Check In']
+            )
+            
+            if active_bookings.exists():
+                furthest_checkout = Utils.get_furthest_checkout_date(active_bookings)
+                return AppResponse.error(
+                    ErrorCodes.VALIDATION_ERROR,
+                    f"Không thể cập nhật điểm đến do có khách sạn đang có phòng được book trong tương lai. Bạn chỉ có thể thực hiện thao tác này sau ngày {furthest_checkout.strftime('%d/%m/%Y') if furthest_checkout else 'N/A'}"
+                )
+            
             name = request.data.get('name', None)
             description = request.data.get('description', None)
             try:
@@ -78,6 +95,21 @@ def destination_detail(request, uuid):
             return AppResponse.error(ErrorCodes.UPDATE_DESTINATION_FAIL, serializer.errors)
 
         elif request.method == 'DELETE':
+            # Check for active bookings in hotels within this destination
+            today = date.today()
+            active_bookings = Booking.objects.filter(
+                hotel_id__destination=destination,
+                check_out__gte=today,
+                status__in=['Pending', 'Confirm', 'Check In']
+            )
+            
+            if active_bookings.exists():
+                furthest_checkout = Utils.get_furthest_checkout_date(active_bookings)
+                return AppResponse.error(
+                    ErrorCodes.VALIDATION_ERROR,
+                    f"Không thể xóa điểm đến do có khách sạn đang có phòng được book trong tương lai. Bạn chỉ có thể thực hiện thao tác này sau ngày {furthest_checkout.strftime('%d/%m/%Y') if furthest_checkout else 'N/A'}"
+                )
+            
             if destination.thumbnail not in [None, '']:
                 print("delete thumbnail", destination.thumbnail)
                 default_storage.delete(destination.thumbnail.replace('/media/', ''))

@@ -8,7 +8,7 @@ services:
       MYSQL_USER: ${DEV_DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
@@ -83,6 +83,22 @@ services:
       timeout: 5s
       retries: 5
       start_period: 60s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+  
+  chroma:
+    image: chromadb/chroma:0.5.20
+    container_name: chroma_server
+    volumes:
+      - chromadb_data:/chroma/chroma
+    ports:
+      - "8001:8000"
+    networks:
+      - hotel-network
     restart: unless-stopped
     logging:
       driver: "json-file"
@@ -210,6 +226,7 @@ volumes:
   mysql-data:
   redis_data_file_dev:
   kafka-data:
+  chromadb_data:
 
 networks:
   hotel-network:

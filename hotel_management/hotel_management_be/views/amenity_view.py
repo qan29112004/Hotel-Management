@@ -84,7 +84,7 @@ def list_amenity(request):
         list_amenity = Amenity.objects.all()
         paginated_amenity, total = Querykit.apply_filter_paginate_search_sort(request=request, queryset=list_amenity).values()
         serializers = AmenitySerializer(paginated_amenity, many=True)
-        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data})
+        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data, 'total':total})
     except Exception as e:
         return AppResponse.error(ErrorCodes.LIST_AMENITY_FAIL, str(e))
     

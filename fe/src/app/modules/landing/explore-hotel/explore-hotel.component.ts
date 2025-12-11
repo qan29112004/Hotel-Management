@@ -204,34 +204,50 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
     console.log('Initializing swipers...', swiperElements);
 
     swiperElements.forEach((swiperElRef, index) => {
-      const swiperEl = swiperElRef.nativeElement;
+      try {
+        const swiperEl = swiperElRef.nativeElement;
 
-      // Reset index đầu
-      currentIndexes[index] = 0;
-
-      // Add event listeners
-      swiperEl.addEventListener('swiperslidechange', (event: any) => {
-        const swiperInstance = event.detail?.[0] || swiperEl.swiper;
-        if (swiperInstance) {
-          currentIndexes[index] = swiperInstance.realIndex;
-          this.cdr.detectChanges();
+        // Check if element is valid and not destroyed
+        if (!swiperEl || !swiperEl.parentElement) {
+          console.warn(`Swiper element at index ${index} is destroyed or invalid`);
+          return;
         }
-      });
 
-      swiperEl.addEventListener('swiperinit', (e) => {
-        swipers[index] = e.detail?.[0] || swiperEl.swiper;
-        this.cdr.detectChanges();
-        console.log(`Swiper ${index} initialized`, swipers[index]);
-      });
+        // Skip if already initialized
+        if (swiperEl.swiper && swiperEl.initialized) {
+          console.log(`Swiper ${index} already initialized, skipping`);
+          return;
+        }
 
-      // Cấu hình
-      Object.assign(swiperEl, {
-        slidesPerView: 1,
-        loop: true,
-        speed: 300
-      });
+        // Reset index đầu
+        currentIndexes[index] = 0;
 
-      swiperEl.initialize();
+        // Add event listeners
+        swiperEl.addEventListener('swiperslidechange', (event: any) => {
+          const swiperInstance = event.detail?.[0] || swiperEl.swiper;
+          if (swiperInstance) {
+            currentIndexes[index] = swiperInstance.realIndex;
+            this.cdr.detectChanges();
+          }
+        });
+
+        swiperEl.addEventListener('swiperinit', (e) => {
+          swipers[index] = e.detail?.[0] || swiperEl.swiper;
+          this.cdr.detectChanges();
+          console.log(`Swiper ${index} initialized`, swipers[index]);
+        });
+
+        // Cấu hình
+        Object.assign(swiperEl, {
+          slidesPerView: 1,
+          loop: true,
+          speed: 300
+        });
+
+        swiperEl.initialize();
+      } catch (error) {
+        console.error(`Error initializing swiper at index ${index}:`, error);
+      }
     });
   }
 
@@ -405,6 +421,10 @@ export class ExploreHotelComponent implements OnInit, OnDestroy, AfterViewInit {
       this.previous = res.data?.previous;
       this.listExcludeHotel = [...this.listExcludeHotel, ...res.data?.excludeHotel];
       this.buttonNext = !!(this.next && this.next.trim());
+      setTimeout(() => {
+          this.initializeSwipers(this.swiperElements, this.swipers, this.currentIndexes);
+          this.initializeSwipers(this.swiperElements2, this.swipers2, this.currentIndexes2);
+        }, 0);
     }
     )
   }

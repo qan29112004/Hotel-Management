@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -6,6 +7,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { VoucherService } from 'app/core/admin/voucher/voucher.service';
 import { FuseLoadingBarComponent } from '@fuse/components/loading-bar';
 import { FuseLoadingService } from '@fuse/services/loading';
+import { AlertService } from 'app/core/alert/alert.service';
 import { DetailVoucherComponent } from './detail-voucher/detail-voucher.component';
 interface VoucherClaim {
   uuid: string;
@@ -37,36 +39,38 @@ interface VoucherClaim {
 @Component({
   selector: 'app-voucher',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, FuseLoadingBarComponent,DetailVoucherComponent],
+  imports: [CommonModule, RouterModule, FormsModule, FuseLoadingBarComponent, DetailVoucherComponent, MatSnackBarModule],
   templateUrl: './voucher.component.html',
   styleUrls: ['./voucher.component.scss']
 })
 export class VoucherComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  claimChoose:any;
+  claimChoose: any;
   // View state
   isHistoryView = false;
   currentTab = 'all';
-  
+
   // Data
   activeClaims: VoucherClaim[] = [];
   expiredClaimsButVoucherValid: VoucherClaim[] = [];
   expiredVouchers: VoucherClaim[] = [];
   usedVouchers: VoucherClaim[] = [];
-  
+
   // Loading states
   loading = false;
   reclaiming: { [key: string]: boolean } = {};
-  
+
   // Voucher input
   voucherCode = '';
-  
+
   constructor(
     private voucherService: VoucherService,
     private route: ActivatedRoute,
     private router: Router,
-    private loadingService: FuseLoadingService
-  ) {}
+    private loadingService: FuseLoadingService,
+    private snackBar: MatSnackBar,
+    private alertService: AlertService
+  ) { }
 
   ngOnInit(): void {
     // Check query params for history view
@@ -176,26 +180,40 @@ export class VoucherComponent implements OnInit, OnDestroy {
 
   reclaimVoucher(claim: VoucherClaim): void {
     if (this.reclaiming[claim.uuid]) return;
-    
+
     this.reclaiming[claim.uuid] = true;
     this.voucherService.claimVoucher({ code: claim.voucher.code })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.reclaiming[claim.uuid] = false;
+          this.alertService.showAlert({
+            title:"Thành công",
+            message:"Claim thành công",
+            type:'success'
+          })
           this.loadMyVouchers();
         },
         error: (error) => {
           console.error('Error reclaiming voucher:', error);
           this.reclaiming[claim.uuid] = false;
-          alert('Không thể claim lại voucher. Vui lòng thử lại.');
+          // this.reclaiming[claim.uuid] = false;
+          this.alertService.showAlert({
+            title:"Thất bại",
+            message:"Claim thất bại",
+            type:'error'
+          })
         }
       });
   }
 
   saveVoucherCode(): void {
     if (!this.voucherCode.trim()) {
-      alert('Vui lòng nhập mã voucher');
+      this.snackBar.open('Vui lòng nhập mã voucher', 'Đóng', {
+        duration: 3000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top'
+      });
       return;
     }
 
@@ -205,12 +223,20 @@ export class VoucherComponent implements OnInit, OnDestroy {
         next: () => {
           this.voucherCode = '';
           this.loadMyVouchers();
-          alert('Claim voucher thành công!');
+          this.alertService.showAlert({
+            title:"Thành công",
+            message:"Claim thành công",
+            type:'success'
+          })
         },
         error: (error) => {
           console.error('Error claiming voucher:', error);
           const errorMsg = error?.error?.message || 'Không thể claim voucher. Vui lòng thử lại.';
-          alert(errorMsg);
+          this.alertService.showAlert({
+            title:"Thất bại",
+            message:"Claim thất bại",
+            type:'error'
+          })
         }
       });
   }
@@ -219,7 +245,7 @@ export class VoucherComponent implements OnInit, OnDestroy {
     if (voucher.discountType === 'FIXED') {
       return `Giảm ${this.formatCurrency(voucher.discountValue)}`;
     } else {
-      const maxDiscount = voucher.maxDiscountAmount 
+      const maxDiscount = voucher.maxDiscountAmount
         ? `Giảm tối đa ${this.formatCurrency(voucher.maxDiscountAmount)}`
         : '';
       return `Giảm ${voucher.discountPercent}% ${maxDiscount}`.trim();
@@ -227,7 +253,7 @@ export class VoucherComponent implements OnInit, OnDestroy {
   }
 
   formatCurrency(amount: number): string {
-    if(!amount){amount=0;}
+    if (!amount) { amount = 0; }
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
@@ -266,7 +292,7 @@ export class VoucherComponent implements OnInit, OnDestroy {
     // Determine voucher type based on name or code
     const name = (voucher.name || '').toLowerCase();
     const code = (voucher.code || '').toLowerCase();
-    
+
     if (name.includes('ship') || name.includes('freeship') || code.includes('ship')) {
       return 'free-ship';
     }
@@ -284,11 +310,11 @@ export class VoucherComponent implements OnInit, OnDestroy {
     return this.expiredClaimsButVoucherValid.length;
   }
 
-  detailClaim(claim:any){
+  detailClaim(claim: any) {
     this.claimChoose = claim
   }
-  closeDetail(close:string){
-    if(close === 'close'){
+  closeDetail(close: string) {
+    if (close === 'close') {
       this.claimChoose = undefined;
     }
   }

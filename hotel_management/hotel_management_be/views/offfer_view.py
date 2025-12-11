@@ -84,7 +84,7 @@ def list_offer(request):
         list_offer = Offer.objects.all()
         paginated_offer, total = Querykit.apply_filter_paginate_search_sort(request=request, queryset=list_offer).values()
         serializers = OfferSerializer(paginated_offer, many=True)
-        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data})
+        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data, 'total':total})
     except Exception as e:
         return AppResponse.error(ErrorCodes.LIST_AMENITY_FAIL, str(e))
     

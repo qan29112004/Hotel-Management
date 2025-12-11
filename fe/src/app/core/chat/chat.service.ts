@@ -18,7 +18,7 @@ import {
     concat,
     reduce,
     BehaviorSubject,
-    interval 
+    interval
 } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { UserChatConfig } from 'app/shared/components/user-card-chat/user-card-chat.types';
@@ -67,44 +67,47 @@ export class ChatService {
     private reconnectAttempts = 0;
     private maxReconnectAttempts = 10;
 
-    constructor(private http:HttpClient) {}
+    constructor(private http: HttpClient) { }
 
     /**
      * Kết nối đến WebSocket server
      */
     connect(url?: string): Observable<boolean> {
         const accessToken = localStorage.getItem('accessToken')
+        // Reset connection status to ensure observers wait for the new connection
+        this.connectionSubject$.next(false); // <--- FIX: Reset state
+
         // if (!this.socket$ || this.socket$.closed) {
         if (this.socket$) {
             try {
-                this.socket$.complete(); 
-            } catch {}
+                this.socket$.complete();
+            } catch { }
         }
         this.socket$ = webSocket({
             url: uriConfig.WEBSOCKET_URL + `?token=${accessToken}`,
             openObserver: {
-            next: () => {
-                console.log('WebSocket connected!');
-                this.connectionSubject$.next(true); 
-                this.reconnectAttempts = 0;
-            }
+                next: () => {
+                    console.log('WebSocket connected!');
+                    this.connectionSubject$.next(true);
+                    this.reconnectAttempts = 0;
+                }
             },
             closeObserver: {
-            next: () => {
-                console.log('WebSocket disconnected!');
-                this.connectionSubject$.next(false); 
-                this.socket$ = null;
-                this.reconnect(url);
-            }
+                next: () => {
+                    console.log('WebSocket disconnected!');
+                    this.connectionSubject$.next(false);
+                    this.socket$ = null;
+                    this.reconnect(url);
+                }
             }
         });
 
         this.socket$.subscribe({
             next: (message) => this.messagesSubject$.next(message),
             error: (error) => {
-                this.connectionSubject$.next(false); 
-            console.error('WebSocket error:', error);
-            this.reconnect(url);
+                this.connectionSubject$.next(false);
+                console.error('WebSocket error:', error);
+                this.reconnect(url);
             }
         });
         // }
@@ -116,14 +119,14 @@ export class ChatService {
      */
     private reconnect(url: string): void {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
-        this.reconnectAttempts++;
-        console.log(`Reconnecting... Attempt ${this.reconnectAttempts}`);
-        
-        setTimeout(() => {
-            this.connect(url);
-        }, this.reconnectInterval);
+            this.reconnectAttempts++;
+            console.log(`Reconnecting... Attempt ${this.reconnectAttempts}`);
+
+            setTimeout(() => {
+                this.connect(url);
+            }, this.reconnectInterval);
         } else {
-        console.error('Max reconnection attempts reached');
+            console.error('Max reconnection attempts reached');
         }
     }
 
@@ -133,9 +136,9 @@ export class ChatService {
      */
     sendMessage(message: any): void {
         if (this.socket$) {
-        this.socket$.next(message);
+            this.socket$.next(message);
         } else {
-        console.error('WebSocket is not connected');
+            console.error('WebSocket is not connected');
         }
     }
 
@@ -144,8 +147,8 @@ export class ChatService {
      */
     disconnect(): void {
         if (this.socket$) {
-        this.socket$.complete();
-        this.socket$ = null;
+            this.socket$.complete();
+            this.socket$ = null;
         }
     }
 
@@ -156,21 +159,21 @@ export class ChatService {
         return this.socket$ !== null && !this.socket$.closed;
     }
 
-    getAllMessage(payload:any):Observable<any>{
-        return this.http.post<any>(uriConfig.API_GET_MESSAGE,payload).pipe(
-            map(res=>({
-                group:res.data.group,
-                messages:res.data.messages,
-                groupStatus:res.data.groupStatus,
-                memberCount:res.data.memberCount
+    getAllMessage(payload: any): Observable<any> {
+        return this.http.post<any>(uriConfig.API_GET_MESSAGE, payload).pipe(
+            map(res => ({
+                group: res.data.group,
+                messages: res.data.messages,
+                groupStatus: res.data.groupStatus,
+                memberCount: res.data.memberCount
             }))
         )
     }
-    getAllRequirementChat():Observable<any>{
+    getAllRequirementChat(): Observable<any> {
         return this.http.get<any>(uriConfig.API_GET_REQUIREMENT_SUPPORT_CHAT).pipe(
-            map(res=>({
+            map(res => ({
                 requirements: res.data.requirements,
-                isJoin:res.data.isJoin
+                isJoin: res.data.isJoin
             }))
         )
     }

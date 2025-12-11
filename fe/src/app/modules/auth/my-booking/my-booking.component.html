@@ -1,28 +1,29 @@
 <div class="flex flex-col items-center w-full min-h-full bg-white">
     <div *ngIf="isOpenPopup" class="fixed inset-0 bg-black/50 flex justify-center items-center z-[30]">
         <div class="bg-white w-[320px] p-4 border border-gray-300 flex flex-col gap-4">
-    
+
             <div class="flex justify-end">
                 <mat-icon class="text-black cursor-pointer">close</mat-icon>
             </div>
             <div class="text-center text-base font-medium text-gray-800">
                 {{'my_booking.confirm_cancel'|transloco}}
             </div>
-    
+
             <!-- Actions -->
             <div class="flex justify-end gap-3">
-                <button (click)="acceptRefund('Hủy')" type="button" class="py-2 px-4 bg-red-500 text-white font-semibold">
+                <button (click)="acceptRefund('Hủy')" type="button"
+                    class="py-2 px-4 bg-red-500 text-white font-semibold">
                     {{'my_booking.cancel'|transloco}}
                 </button>
-    
+
                 <button (click)="acceptRefund('Ok')" type="button" class="py-2 px-4 bg-black text-white font-semibold">
                     {{'my_booking.ok'|transloco}}
                 </button>
             </div>
-    
+
         </div>
     </div>
-    
+
     <div class="bg-black h-28 w-full">
 
     </div>
@@ -36,9 +37,11 @@
         <div class="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <!-- Check In -->
             <div class="flex flex-col gap-2">
-                <label class="font-lexend_deca text-xs uppercase tracking-[0.2em] text-gray-400">{{'my_booking.check_in'|transloco}}</label>
-                <button type="button" (click)="toggleCalendarCheckin()">    
-                    <input (click)="resetIfSelected('checkin')" readonly [min]="today" [matDatepicker]="pickerCheckin" name="pickerCheckin" [(ngModel)]="filterCheckIn" 
+                <label
+                    class="font-lexend_deca text-xs uppercase tracking-[0.2em] text-gray-400">{{'my_booking.check_in'|transloco}}</label>
+                <button type="button" (click)="toggleCalendarCheckin()">
+                    <input (click)="resetIfSelected('checkin')" readonly [min]="today" [matDatepicker]="pickerCheckin"
+                        name="pickerCheckin" [(ngModel)]="filterCheckIn"
                         class="w-full bg-black border-b border-white text-white font-lexend_deca py-2 focus:outline-none focus:border-yellow-500 transition-colors rounded-none placeholder-gray-500">
                     <mat-datepicker #pickerCheckin></mat-datepicker>
                 </button>
@@ -46,10 +49,12 @@
 
             <!-- Check Out -->
             <div class="flex flex-col gap-2">
-                <label class="font-lexend_deca text-xs uppercase tracking-[0.2em] text-gray-400">{{'my_booking.check_out'|transloco}}</label>
+                <label
+                    class="font-lexend_deca text-xs uppercase tracking-[0.2em] text-gray-400">{{'my_booking.check_out'|transloco}}</label>
                 <button type="button" (click)="toggleCalendarCheckout()">
 
-                    <input (click)="resetIfSelected('checkout')" readonly [min]="filterCheckIn" [matDatepicker]="pickerCheckout" name="pickerCheckout" [(ngModel)]="filterCheckOut" 
+                    <input (click)="resetIfSelected('checkout')" readonly [min]="filterCheckIn"
+                        [matDatepicker]="pickerCheckout" name="pickerCheckout" [(ngModel)]="filterCheckOut"
                         class="w-full bg-black border-b border-white text-white font-lexend_deca py-2 focus:outline-none focus:border-yellow-500 transition-colors rounded-none">
                     <mat-datepicker #pickerCheckout></mat-datepicker>
                 </button>
@@ -59,26 +64,22 @@
             <div class="flex flex-col gap-2 relative">
                 <label class="font-lexend_deca text-xs uppercase tracking-[0.2em] text-gray-400">Hotel</label>
                 <div class="relative">
-                    <input type="text" 
-                           [(ngModel)]="hotelSearchQuery" 
-                           (focus)="showHotelDropdown = true"
-                           (input)="showHotelDropdown = true"
-                           placeholder="{{'booking.select_hotel'|transloco}}"
-                           class="w-full bg-black border-b border-white text-white font-lexend_deca py-2 focus:outline-none focus:border-yellow-500 transition-colors rounded-none truncate pr-8 cursor-pointer">
-                    
-                    <mat-icon class="absolute right-0 top-2 text-white pointer-events-none text-sm">expand_more</mat-icon>
-                    
+                    <input type="text" [(ngModel)]="hotelSearchQuery" (focus)="showHotelDropdown = true"
+                        (input)="showHotelDropdown = true" placeholder="{{'booking.select_hotel'|transloco}}"
+                        class="w-full bg-black border-b border-white text-white font-lexend_deca py-2 focus:outline-none focus:border-yellow-500 transition-colors rounded-none truncate pr-8 cursor-pointer">
+
+                    <mat-icon
+                        class="absolute right-0 top-2 text-white pointer-events-none text-sm">expand_more</mat-icon>
+
                     <!-- Dropdown Menu -->
-                    <div *ngIf="showHotelDropdown" 
-                         class="absolute z-50 top-full left-0 w-full bg-white text-black border border-black shadow-2xl max-h-60 overflow-y-auto mt-1 hotel-dropdown">
-                         <div 
-                             (click)="selectHotel('')"
-                             class="p-3 hover:bg-yellow-100 cursor-pointer font-lexend_deca text-sm border-b border-gray-100 last:border-0 transition-colors">
+                    <div *ngIf="showHotelDropdown"
+                        class="absolute z-50 top-full left-0 w-full bg-white text-black border border-black shadow-2xl max-h-60 overflow-y-auto mt-1 hotel-dropdown">
+                        <div (click)="selectHotel('')"
+                            class="p-3 hover:bg-yellow-100 cursor-pointer font-lexend_deca text-sm border-b border-gray-100 last:border-0 transition-colors">
                             {{'booking.default'|transloco}}
                         </div>
-                        <div *ngFor="let h of filteredHotels" 
-                             (click)="selectHotel(h.name)"
-                             class="p-3 hover:bg-yellow-100 cursor-pointer font-lexend_deca text-sm border-b border-gray-100 last:border-0 transition-colors">
+                        <div *ngFor="let h of filteredHotels" (click)="selectHotel(h.name)"
+                            class="p-3 hover:bg-yellow-100 cursor-pointer font-lexend_deca text-sm border-b border-gray-100 last:border-0 transition-colors">
                             {{h.name}}
                         </div>
                         <div *ngIf="filteredHotels.length === 0" class="p-3 text-gray-500 text-sm italic">
@@ -87,23 +88,26 @@
                     </div>
                 </div>
                 <!-- Overlay to close dropdown -->
-                <div *ngIf="showHotelDropdown" class="fixed inset-0 z-40 bg-transparent" (click)="showHotelDropdown = false"></div>
+                <div *ngIf="showHotelDropdown" class="fixed inset-0 z-40 bg-transparent"
+                    (click)="showHotelDropdown = false"></div>
             </div>
 
             <!-- Sort By Price -->
             <div class="flex flex-col gap-2">
-                <label class="font-lexend_deca text-xs uppercase tracking-[0.2em] text-gray-400">{{'booking.sort_by_price'|transloco}}</label>
-                <select [(ngModel)]="sortPrice" 
-                        class="w-full bg-black border-b border-white text-white font-lexend_deca py-2 focus:outline-none focus:border-yellow-500 transition-colors rounded-none cursor-pointer appearance-none">
+                <label
+                    class="font-lexend_deca text-xs uppercase tracking-[0.2em] text-gray-400">{{'booking.sort_by_price'|transloco}}</label>
+                <select [(ngModel)]="sortPrice"
+                    class="w-full bg-black border-b border-white text-white font-lexend_deca py-2 focus:outline-none focus:border-yellow-500 transition-colors rounded-none cursor-pointer appearance-none">
                     <option value="" class="text-gray-400">{{'booking.default'|transloco}}</option>
                     <option value="asc">{{'booking.low_to_high'|transloco}}</option>
                     <option value="desc">{{'booking.high_to_low'|transloco}}</option>
                 </select>
             </div>
             <div class="flex flex-col gap-2">
-                <label class="font-lexend_deca text-xs uppercase tracking-[0.2em] text-gray-400">{{'booking.sort_by_status'|transloco}}</label>
-                <select [(ngModel)]="filterStatus" 
-                        class="w-full bg-black border-b border-white text-white font-lexend_deca py-2 focus:outline-none focus:border-yellow-500 transition-colors rounded-none cursor-pointer appearance-none">
+                <label
+                    class="font-lexend_deca text-xs uppercase tracking-[0.2em] text-gray-400">{{'booking.sort_by_status'|transloco}}</label>
+                <select [(ngModel)]="filterStatus"
+                    class="w-full bg-black border-b border-white text-white font-lexend_deca py-2 focus:outline-none focus:border-yellow-500 transition-colors rounded-none cursor-pointer appearance-none">
                     <option value="" class="text-gray-400">{{'booking.default'|transloco}}</option>
                     <option value="Pending">Pending</option>
                     <option value="Confirm">Confirm</option>
@@ -113,7 +117,8 @@
 
                 </select>
             </div>
-            <button (click)="filterHotel()" type="button" class="bg-yellow-500 px-3 py-2 flex justify-center items-center text-black font-lexend_deca md:col-span-4">
+            <button (click)="filterHotel()" type="button"
+                class="bg-yellow-500 px-3 py-2 flex justify-center items-center text-black font-lexend_deca md:col-span-4">
                 {{'booking.search'|transloco}}
             </button>
         </div>
@@ -128,21 +133,26 @@
     </pre>
     <!-- Bookings List -->
     <div class="max-w-6xl w-full px-4 md:px-0 flex flex-col gap-10 mb-20">
-        
+
         <div *ngIf="filteredBookings?.length <= 0" class="text-center py-20 border border-black">
-            <span class="font-lexend_deca text-xl font-light text-gray-500 uppercase tracking-widest">{{'booking.no_bookings_found'|transloco}}</span>
+            <span
+                class="font-lexend_deca text-xl font-light text-gray-500 uppercase tracking-widest">{{'booking.no_bookings_found'|transloco}}</span>
         </div>
 
         <ng-container *ngIf="filteredBookings?.length > 0">
-            <div *ngFor="let booking of filteredBookings; let i = index" class="group w-full bg-white border border-black transition-all duration-500">
-                
+            <div *ngFor="let booking of filteredBookings; let i = index"
+                class="group w-full bg-white border border-black transition-all duration-500">
+
                 <!-- Main Card Content -->
                 <div class="flex flex-col md:flex-row">
                     <!-- Image Section -->
-                    <div class="w-full md:w-[350px] h-[250px] md:h-auto overflow-hidden relative border-b md:border-b-0 md:border-r border-black">
-                        <img [src]="baseUrl + booking.hotel.thumbnail" class="object-cover w-full h-full transform transition-transform duration-700 group-hover:scale-110" />
+                    <div
+                        class="w-full md:w-[350px] h-[250px] md:h-auto overflow-hidden relative border-b md:border-b-0 md:border-r border-black">
+                        <img [src]="baseUrl + booking.hotel.thumbnail"
+                            class="object-cover w-full h-full transform transition-transform duration-700 group-hover:scale-110" />
                         <!-- Status Badge Overlay -->
-                        <div [ngClass]="getClassStatus(booking?.status)" class="absolute top-0 left-0 px-4 py-2 font-lexend_deca text-xs uppercase font-bold tracking-widest z-10">
+                        <div [ngClass]="getClassStatus(booking?.status)"
+                            class="absolute top-0 left-0 px-4 py-2 font-lexend_deca text-xs uppercase font-bold tracking-widest z-10">
                             {{booking?.status}}
                         </div>
                     </div>
@@ -152,25 +162,32 @@
                         <!-- Top Info -->
                         <div>
                             <div class="flex justify-between items-start mb-4">
-                                <h3 class="text-3xl font-clearface text-black group-hover:text-yellow-600 transition-colors duration-300">
+                                <h3
+                                    class="text-3xl font-clearface text-black group-hover:text-yellow-600 transition-colors duration-300">
                                     {{booking?.hotel.name}}
                                 </h3>
                                 <span class="font-lexend_deca font-bold text-lg">
-                                    {{booking?.priceInVnd| currency:'VND':'symbol':'1.0-0'}} ~{{ booking?.priceInVnd/25000 | currency:'USD':'symbol-narrow':'1.0-2'}}
+                                    {{booking?.priceInVnd| currency:'VND':'symbol':'1.0-0'}} ~{{
+                                    booking?.priceInVnd/25000 | currency:'USD':'symbol-narrow':'1.0-2'}}
                                 </span>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 mb-6">
                                 <div>
-                                    <p class="font-lexend_deca text-[10px] uppercase tracking-widest text-gray-500 mb-1">{{'booking.location'|transloco}}</p>
+                                    <p
+                                        class="font-lexend_deca text-[10px] uppercase tracking-widest text-gray-500 mb-1">
+                                        {{'booking.location'|transloco}}</p>
                                     <p class="font-lexend_deca text-sm text-black border-l-2 border-yellow-500 pl-3">
                                         {{booking?.hotel.address}}, {{booking?.userCountry}}
                                     </p>
                                 </div>
                                 <div>
-                                    <p class="font-lexend_deca text-[10px] uppercase tracking-widest text-gray-500 mb-1">{{'booking.date'|transloco}}</p>
+                                    <p
+                                        class="font-lexend_deca text-[10px] uppercase tracking-widest text-gray-500 mb-1">
+                                        {{'booking.date'|transloco}}</p>
                                     <p class="font-lexend_deca text-sm text-black">
-                                        {{booking?.checkIn}} <span class="mx-2 text-yellow-500">&rarr;</span> {{booking?.checkOut}}
+                                        {{booking?.checkIn}} <span class="mx-2 text-yellow-500">&rarr;</span>
+                                        {{booking?.checkOut}}
                                     </p>
                                 </div>
                             </div>
@@ -179,11 +196,11 @@
                         <!-- Actions Bar -->
                         <div class="flex flex-wrap items-center gap-4 mt-4 pt-6 border-t border-gray-100">
                             <!-- Detail Toggle -->
-                            <button *ngIf="booking?.bookingRoom" 
-                                    (click)="booking.showDetails = !booking.showDetails"
-                                    class="flex items-center gap-2 font-lexend_deca text-xs font-bold uppercase tracking-widest hover:text-yellow-600 transition-colors">
+                            <button *ngIf="booking?.bookingRoom" (click)="booking.showDetails = !booking.showDetails"
+                                class="flex items-center gap-2 font-lexend_deca text-xs font-bold uppercase tracking-widest hover:text-yellow-600 transition-colors">
                                 <span>{{'booking.detail'|transloco}}</span>
-                                <mat-icon class="text-sm transition-transform duration-300" [class.rotate-180]="booking.showDetails">expand_more</mat-icon>
+                                <mat-icon class="text-sm transition-transform duration-300"
+                                    [class.rotate-180]="booking.showDetails">expand_more</mat-icon>
                             </button>
 
                             <div class="flex-grow"></div>
@@ -195,17 +212,19 @@
                                         class="px-6 py-3 bg-black text-white font-lexend_deca text-xs font-bold uppercase tracking-widest hover:bg-yellow-500 hover:text-black transition-all duration-300 disabled:opacity-50">
                                     {{retryLoading[booking.uuid] ? 'Processing...' : 'Retry Payment'}}
                                 </button> -->
-                                <button *ngIf="booking.currency === 'USD'" type="button" class="relative w-full hover:-translate-y-[4px] transition-all duration-300"
-                                    
-                                    >
+                                <button *ngIf="booking.currency === 'USD'" type="button"
+                                    class="relative w-full hover:-translate-y-[4px] transition-all duration-300">
                                     <div id="paypal-button-container-{{booking.uuid}}" class="w-full"></div>
-                                    </button>
-                                    <button *ngIf="booking.currency === 'VND'" (click)="handleVNPay(booking)" type="button" class="flex items-start justify-center w-full h-max bg-red-400 hover:-translate-y-[4px] transition-all duration-300"><img src="assets/images/booking/logo_vnpay.svg" class="object-contain w-[100px] h-[45px]"/></button>
+                                </button>
+                                <button *ngIf="booking.currency === 'VND'" (click)="handleVNPay(booking)" type="button"
+                                    class="flex items-start justify-center w-full h-max bg-red-400 hover:-translate-y-[4px] transition-all duration-300"><img
+                                        src="assets/images/booking/logo_vnpay.svg"
+                                        class="object-contain w-[100px] h-[45px]" /></button>
                             </ng-container>
 
                             <ng-container *ngIf="canRefund(booking)">
                                 <button (click)="loadRefundInfo(booking); booking.showRefund = !booking.showRefund"
-                                        class="px-6 py-3 border border-black text-black bg-transparent font-lexend_deca text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300">
+                                    class="px-6 py-3 border border-black text-black bg-transparent font-lexend_deca text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300">
                                     {{'booking.refund_options'|transloco}}
                                 </button>
                             </ng-container>
@@ -214,60 +233,79 @@
                 </div>
 
                 <!-- Refund Panel (Collapsible) -->
-                <div *ngIf="booking.showRefund && refundInfo[booking.uuid]" @slideToggle class="bg-gray-50 border-t border-black p-6">
+                <div *ngIf="booking.showRefund && refundInfo[booking.uuid]" @slideToggle
+                    class="bg-gray-50 border-t border-black p-6">
                     <div class="flex flex-col md:flex-row items-center justify-between gap-4">
                         <div class="text-sm font-lexend_deca">
                             <p *ngIf="refundInfo[booking.uuid].refundable">
-                                <span class="font-bold text-black">{{'booking.refund_amount'|transloco}}:</span> 
-                                <span class="text-green-600 font-bold text-lg ml-2">{{refundInfo[booking.uuid].refundAmount | currency:'VND':'symbol':'1.0-0'}} ~ {{refundInfo[booking.uuid].refundAmount / 25000 | currency:'USD':'symbol-narrow':'1.0-2'}}</span>
-                                <span class="text-gray-500 text-xs ml-1">({{refundInfo[booking.uuid].refundPercentage}}%)</span>
+                                <span class="font-bold text-black">{{'booking.refund_amount'|transloco}}:</span>
+                                <span
+                                    class="text-green-600 font-bold text-lg ml-2">{{refundInfo[booking.uuid].refundAmount
+                                    | currency:'VND':'symbol':'1.0-0'}} ~ {{refundInfo[booking.uuid].refundAmount /
+                                    25000 | currency:'USD':'symbol-narrow':'1.0-2'}}</span>
+                                <span
+                                    class="text-gray-500 text-xs ml-1">({{refundInfo[booking.uuid].refundPercentage}}%)</span>
                             </p>
-                            <p *ngIf="!refundInfo[booking.uuid].refundable" class="text-red-600 font-bold uppercase tracking-wide text-xs">
+                            <p *ngIf="!refundInfo[booking.uuid].refundable"
+                                class="text-red-600 font-bold uppercase tracking-wide text-xs">
                                 {{refundInfo[booking.uuid].message}}
                             </p>
                         </div>
-                        <button *ngIf="refundInfo[booking.uuid].refundable"
-                                (click)="openPopup(booking)"
-                                [disabled]="refundLoading[booking.uuid]"
-                                class="px-6 py-2 bg-red-600 text-white font-lexend_deca text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-colors rounded-none">
-                             {{refundLoading[booking.uuid] ? ('booking.processing'|transloco) : ('booking.confirm_cancellation'|transloco)}}
+                        <button *ngIf="refundInfo[booking.uuid].refundable" (click)="openPopup(booking)"
+                            [disabled]="refundLoading[booking.uuid]"
+                            class="px-6 py-2 bg-red-600 text-white font-lexend_deca text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-colors rounded-none">
+                            {{refundLoading[booking.uuid] ? ('booking.processing'|transloco) :
+                            ('booking.confirm_cancellation'|transloco)}}
                         </button>
                     </div>
                 </div>
 
                 <!-- Room Details Panel (Collapsible) -->
-                <div *ngIf="booking.showDetails || booking?.bookingRoom && selectDetailRoom?.id_bk === i" @slideToggle class="bg-white border-t border-black">
+                <div *ngIf="booking.showDetails || booking?.bookingRoom && selectDetailRoom?.id_bk === i" @slideToggle
+                    class="bg-white border-t border-black">
                     <div class="p-6 md:p-8 grid grid-cols-1 gap-6">
-                        <div *ngFor="let room of booking?.bookingRoom; let j = index" class="border border-gray-200 p-4 hover:border-black transition-colors duration-300">
-                            <div class="flex justify-between items-center mb-4 cursor-pointer" (click)="toggleDetailRoom(i,j)">
-                                <h4 class="font-lexend_deca font-bold text-sm uppercase tracking-wider text-black">{{'booking.room'|transloco}} {{j+1}} - {{room.roomTypeName}}</h4>
+                        <div *ngFor="let room of booking?.bookingRoom; let j = index"
+                            class="border border-gray-200 p-4 hover:border-black transition-colors duration-300">
+                            <div class="flex justify-between items-center mb-4 cursor-pointer"
+                                (click)="toggleDetailRoom(i,j)">
+                                <h4 class="font-lexend_deca font-bold text-sm uppercase tracking-wider text-black">
+                                    {{'booking.room'|transloco}} {{j+1}} - {{room.roomTypeName}}</h4>
                                 <mat-icon class="text-gray-400">add</mat-icon>
                             </div>
-                            
+
                             <!-- Detailed Room Info -->
                             <div *ngIf="selectDetailRoom?.id_bk === i && selectDetailRoom?.id_room === j" @slideToggle>
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm font-lexend_deca text-gray-600">
+                                <div
+                                    class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm font-lexend_deca text-gray-600">
                                     <div>
-                                        <span class="block text-[10px] uppercase text-gray-400 mb-1">{{'booking.number'|transloco}}</span>
+                                        <span
+                                            class="block text-[10px] uppercase text-gray-400 mb-1">{{'booking.number'|transloco}}</span>
                                         <span class="text-black font-medium">{{room.numberRoom}}</span>
                                     </div>
                                     <div>
-                                        <span class="block text-[10px] uppercase text-gray-400 mb-1">{{'booking.rate'|transloco}}</span>
+                                        <span
+                                            class="block text-[10px] uppercase text-gray-400 mb-1">{{'booking.rate'|transloco}}</span>
                                         <span class="text-black font-medium">{{room.rateName}}</span>
                                     </div>
                                     <div>
-                                        <span class="block text-[10px] uppercase text-gray-400 mb-1">{{'booking.price'|transloco}}</span>
-                                        <span class="text-black font-bold">{{room.price | currency:'VND':'symbol':'1.0-0'}}</span>
+                                        <span
+                                            class="block text-[10px] uppercase text-gray-400 mb-1">{{'booking.price'|transloco}}</span>
+                                        <span class="text-black font-bold">{{room.price |
+                                            currency:'VND':'symbol':'1.0-0'}}</span>
                                     </div>
                                 </div>
 
                                 <!-- Services -->
-                                <div *ngIf="room.services && room.services.length > 0" class="mt-4 pt-4 border-t border-dashed border-gray-300">
-                                    <span class="text-[10px] uppercase tracking-widest text-gray-400 block mb-2">Services</span>
+                                <div *ngIf="room.services && room.services.length > 0"
+                                    class="mt-4 pt-4 border-t border-dashed border-gray-300">
+                                    <span
+                                        class="text-[10px] uppercase tracking-widest text-gray-400 block mb-2">Services</span>
                                     <div class="space-y-2">
-                                        <div *ngFor="let service of room.services" class="flex justify-between text-sm font-lexend_deca">
+                                        <div *ngFor="let service of room.services"
+                                            class="flex justify-between text-sm font-lexend_deca">
                                             <span class="text-black">{{service.name}} (x{{service.quantity}})</span>
-                                            <span class="text-black font-medium">{{service.price | currency:'VND':'symbol':'1.0-0'}}</span>
+                                            <span class="text-black font-medium">{{service.price |
+                                                currency:'VND':'symbol':'1.0-0'}}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -277,41 +315,52 @@
                 </div>
 
                 <!-- Review Section -->
-                <div class="border-t border-black bg-white p-6 md:p-8" *ngIf="booking?.rating || booking?.status === 'Check Out'">
-                     <!-- Existing Rating -->
+                <div class="border-t border-black bg-white p-6 md:p-8"
+                    *ngIf="booking?.rating || booking?.status === 'Check Out'">
+                    <!-- Existing Rating -->
                     <div *ngIf="booking?.rating" class="w-full py-8 border-t border-black mb-[30px]">
                         <div class="flex items-center gap-1 mb-[20px]">
                             <ng-container *ngFor="let star of stars">
-                                <app-rating [starId]="star" [rating]="booking?.rating.rating" (enter)="enter($event)" (leave)="leave($event)"
-                                    (bigClick)="updateRating(star)">
+                                <app-rating [starId]="star" [rating]="booking?.rating.rating" (enter)="enter($event)"
+                                    (leave)="leave($event)" (bigClick)="updateRating(star)">
                                 </app-rating>
                             </ng-container>
                             <span class="text-black font-clearface text-[30px]">{{booking?.rating.rating}}</span>
                         </div>
-                        <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">{{booking?.rating.subject}}</h3>
-                        <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">{{booking?.rating.review}}</p>
+                        <h3 class="font-clearface text-[24px] text-black font-normal mb-[30px]">
+                            {{booking?.rating.subject}}</h3>
+                        <p class="w-full truncate font-avenir text-[16px] font-normal mb-[30px]">
+                            {{booking?.rating.review}}</p>
                         <div class="flex gap-8">
-                            <span class="font-avenir text-[16px] font-normal">By <span class="font-bold font-lexend_deca">{{booking?.rating.createdBy.email}}</span></span>
-                            <span class="font-avenir text-[16px] font-normal">At <span class="font-bold font-lexend_deca">{{formatISODate(booking?.rating.createdAt)}}</span></span>
+                            <span class="font-avenir text-[16px] font-normal">By <span
+                                    class="font-bold font-lexend_deca">{{booking?.rating.createdBy.email}}</span></span>
+                            <span class="font-avenir text-[16px] font-normal">At <span
+                                    class="font-bold font-lexend_deca">{{formatISODate(booking?.rating.createdAt)}}</span></span>
                         </div>
                     </div>
 
                     <!-- Create Rating Form -->
-                    <form *ngIf="!booking?.rating && booking?.status === 'Check Out'" [formGroup]="ratingForm" (ngSubmit)="createRating(booking.uuid, booking.hotel.uuid)">
-                        <h4 class="font-lexend_deca text-sm font-bold uppercase tracking-widest mb-4">{{'booking.write_a_review'|transloco}}</h4>
+                    <form *ngIf="!booking?.rating && booking?.status === 'Check Out'" [formGroup]="ratingForm"
+                        (ngSubmit)="createRating(booking.uuid, booking.hotel.uuid)">
+                        <h4 class="font-lexend_deca text-sm font-bold uppercase tracking-widest mb-4">
+                            {{'booking.write_a_review'|transloco}}</h4>
                         <div class="flex items-center gap-2 mb-6">
-                            <app-rating [starId]="star" [rating]="rating" (enter)="enter($event)" (leave)="leave($event)"
-                                        (bigClick)="updateRating(star)" *ngFor="let star of stars">
+                            <app-rating [starId]="star" [rating]="bookingRatings[booking.uuid] || 0"
+                                (enter)="enter($event)" (leave)="leave($event)"
+                                (bigClick)="updateRating(star, booking.uuid)" *ngFor="let star of stars">
                             </app-rating>
                         </div>
                         <div class="grid grid-cols-1 gap-4 mb-4">
-                            <input type="text" formControlName="subject" placeholder="{{'booking.subject_headline'|transloco}}" 
-                                   class="w-full bg-white border border-black p-3 font-clearface text-lg focus:outline-none focus:bg-yellow-100 rounded-none placeholder-gray-400">
-                            <textarea formControlName="review" placeholder="{{'booking.share_your_experience'|transloco}}" rows="3"
-                                      class="w-full bg-white border border-black p-3 font-lexend_deca text-sm focus:outline-none focus:bg-yellow-100 rounded-none placeholder-gray-400"></textarea>
+                            <input type="text" formControlName="subject"
+                                placeholder="{{'booking.subject_headline'|transloco}}"
+                                class="w-full bg-white border border-black p-3 font-clearface text-lg focus:outline-none focus:bg-yellow-100 rounded-none placeholder-gray-400">
+                            <textarea formControlName="review"
+                                placeholder="{{'booking.share_your_experience'|transloco}}" rows="3"
+                                class="w-full bg-white border border-black p-3 font-lexend_deca text-sm focus:outline-none focus:bg-yellow-100 rounded-none placeholder-gray-400"></textarea>
                         </div>
                         <div class="flex justify-end">
-                            <button type="submit" class="px-8 py-3 bg-black text-white font-lexend_deca text-xs font-bold uppercase tracking-widest hover:bg-yellow-500 hover:text-black transition-all duration-300 rounded-none">
+                            <button type="submit"
+                                class="px-8 py-3 bg-black text-white font-lexend_deca text-xs font-bold uppercase tracking-widest hover:bg-yellow-500 hover:text-black transition-all duration-300 rounded-none">
                                 {{'booking.write_a_review'|transloco}}
                             </button>
                         </div>

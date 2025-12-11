@@ -115,8 +115,10 @@ export function formatISODate(isoString: string): string {
 }
 
 export function formatDate(date: any): string {
-  const d = new Date(date);  // ép về Date object
-  return d.toISOString().split('T')[0];
+  if(date){
+    const d = new Date(date);  // ép về Date object
+    return d.toISOString().split('T')[0];
+  }
 }
 
 export function formatSecondToMinute(seconds: number): string {

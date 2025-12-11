@@ -124,4 +124,7 @@ export class UserComponent implements OnInit, OnDestroy {
     navigateToMyBooking(){
         this._router.navigateByUrl(`${routeConfig.MY_BOOKING}`)
     }
+    navigateToMyClub(){
+        this._router.navigateByUrl(`${routeConfig.MY_CLUB}`)
+    }
 }

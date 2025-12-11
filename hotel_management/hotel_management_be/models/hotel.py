@@ -80,16 +80,22 @@ class Room(BaseModel):
             last_obj = Room.objects.order_by('-auto_increment_id').first()
             self.auto_increment_id = (last_obj.auto_increment_id + 1) if last_obj else 1
 
-        # Sinh room_numbper theo tầng
+        # Sinh room_number theo tầng VÀ KHÁCH SẠN
         if not self.room_number:
-            # Lấy các phòng hiện có ở tầng này
-            existing_rooms = Room.objects.filter(floor=self.floor).order_by('room_number')
+            # Lấy hotel từ room_type
+            hotel = self.room_type_id.hotel_id
+            
+            # Lấy các phòng hiện có ở tầng này TRONG KHÁCH SẠN NÀY
+            existing_rooms = Room.objects.filter(
+                room_type_id__hotel_id=hotel,
+                floor=self.floor
+            ).order_by('room_number')
 
             # Đếm số phòng đã có
             room_count = existing_rooms.count()
 
             if room_count >= 20:
-                raise ValueError(f"Tầng {self.floor} đã đạt số lượng phòng tối đa (20).")
+                raise ValueError(f"Tầng {self.floor} của khách sạn {hotel.name} đã đạt số lượng phòng tối đa (20).")
 
             # Tạo mã phòng theo số lượng hiện có
             next_room_index = room_count + 1

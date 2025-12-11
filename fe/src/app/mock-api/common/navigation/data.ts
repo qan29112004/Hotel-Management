@@ -298,13 +298,13 @@ export const compactNavigation: FuseNavigationItem[] = [
         icon: 'heroicons_outline:map',
         link: routeConfig.DESTINATION
     },
-    {
-        id: 'chat',
-        title:'Messenger',
-        type: 'basic',
-        icon: 'assets/images/ui/menu/chat.svg',
-        link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.CHAT}`
-    },
+    // {
+    //     id: 'chat',
+    //     title:'Messenger',
+    //     type: 'basic',
+    //     icon: 'assets/images/ui/menu/chat.svg',
+    //     link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.CHAT}`
+    // },
     {
         id: 'voucher',
         title:'Voucher',
@@ -333,20 +333,20 @@ export const compactNavigation: FuseNavigationItem[] = [
         icon: 'assets/images/ui/menu/voucher.svg',
         link: `deal`
     },
-    {
-        id: 'booking',
-        title: 'Booking',
-        type: 'basic',
-        icon: 'assets/images/ui/menu/booking.svg',
-        link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.BOOKING}`,
-    },
-    {
-        id: 'room',
-        title: 'Room',
-        type: 'basic',
-        icon: 'assets/images/ui/menu/room.svg',
-        link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.ROOM}`,
-    },
+    // {
+    //     id: 'booking',
+    //     title: 'Booking',
+    //     type: 'basic',
+    //     icon: 'assets/images/ui/menu/booking.svg',
+    //     link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.BOOKING}`,
+    // },
+    // {
+    //     id: 'room',
+    //     title: 'Room',
+    //     type: 'basic',
+    //     icon: 'assets/images/ui/menu/room.svg',
+    //     link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.ROOM}`,
+    // },
     // {
     //     id: 'feedback',
     //     title: 'FeedBack',
@@ -358,6 +358,36 @@ export const compactNavigation: FuseNavigationItem[] = [
     //       window.dispatchEvent(event);
     //     }
     // },
+    {
+        id: 'recept.management',
+        title: 'Quản lý',
+        type: 'aside',
+        icon: 'assets/images/ui/menu/management.svg',
+        code:'recept',
+        children: [
+            {
+                id: 'booking',
+                title: 'Booking',
+                type: 'basic',
+                icon: 'assets/images/ui/menu/booking.svg',
+                link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.BOOKING}`,
+            },
+            {
+                id: 'room',
+                title: 'Room',
+                type: 'basic',
+                icon: 'assets/images/ui/menu/room.svg',
+                link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.ROOM}`,
+            },
+            {
+                id: 'chat',
+                title:'Messenger',
+                type: 'basic',
+                icon: 'assets/images/ui/menu/chat.svg',
+                link: `/${routeConfig.ROUTER_RECEPT}/${routeConfig.CHAT}`
+            },
+        ]
+    },
     {
         id: 'admin.management',
         title: 'Quản lý',

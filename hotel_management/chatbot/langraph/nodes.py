@@ -66,10 +66,16 @@ def sanitize_input(state:dict):
 
 def retrieve(state:dict):
     state['check']= "chay vao retrieve"
+    
+    # Refresh collection để lấy dữ liệu mới nhất từ ChromaDB
+    # Điều này đảm bảo data mới được embed bởi Celery sẽ được thấy ngay
+    # vectorstore.refresh_collection()
+    
     #chỉ search câu hỏi của user truỳne vao
     search_query = state.get('original_question', state['after_sanitize_input'])
     docs = vectorstore.search(search_query, 3)
     state['retrieve_data'] = docs
+    print('check data retrieve', state['retrieve_data'])
     return state
 
 def response(state:dict):

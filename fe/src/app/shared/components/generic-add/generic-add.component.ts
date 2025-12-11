@@ -182,7 +182,13 @@ export class GenericAddComponent implements OnInit {
                 // (hoặc không append gì cả nếu backend xử lý được)
                 return; // Skip các xử lý khác cho checkbox
             }
-            
+            if (field?.type === 'number') {
+                if (value === null || value === undefined || value === '') {
+                    formData.append(key, ''); // Gửi empty string
+                } else {
+                    formData.append(key, value.toString());
+                }
+            }
             // Skip các giá trị rỗng cho các field khác
             if (value === null || value === undefined || value === '') {
                 return;

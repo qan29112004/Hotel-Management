@@ -66,7 +66,7 @@ export class BookingComponent implements OnInit, OnChanges {
     currentRoomIndex: 0,
     currentStep: 'rate',
   };
-  isOpenLayout:boolean = false;
+  isOpenLayout: boolean = false;
   popupViewAmenity: boolean = false;
   chooseRoomType: any;
   selectedId: number = null;
@@ -143,7 +143,7 @@ export class BookingComponent implements OnInit, OnChanges {
     this.bookingState.currentRoomIndex = index
   }
 
-  toggleLayout(){
+  toggleLayout() {
     this.isOpenLayout = !this.isOpenLayout;
   }
   normalizeRooms(rooms) {
@@ -178,6 +178,7 @@ export class BookingComponent implements OnInit, OnChanges {
       console.log("check params: ", params);
       this.searchData = { ...params };
       this.crrHotel = params['uuid']
+      this.date = parseDate(this.searchData.checkin)
       this.checkOutDateObj = parseDate(this.searchData.checkout)
       // Lưu giá trị ban đầu của check-in và check-out
       this.originalCheckIn = params['checkin'];
@@ -463,12 +464,12 @@ export class BookingComponent implements OnInit, OnChanges {
     const normalized1 = this.normalizeRooms(this.roomList);
     const normalized2 = this.normalizeRooms(this.bookingState.rooms);
     const isSameRoom = JSON.stringify(normalized1) === JSON.stringify(normalized2);
-    
+
     // Kiểm tra xem check-in và check-out có thay đổi hay không
     const isCheckInChanged = this.originalCheckIn !== this.checkInDate;
     const isCheckOutChanged = this.originalCheckOut !== this.checkOutDate;
     const isDateChanged = isCheckInChanged || isCheckOutChanged;
-    
+
     if (session_id && booking_id && (!isSameRoom || isDateChanged)) {
       console.log("chay vao day - Room changed:", !isSameRoom, "Date changed:", isDateChanged)
       this.chatService.sendMessage(
@@ -478,7 +479,7 @@ export class BookingComponent implements OnInit, OnChanges {
           booking_id: localStorage.getItem('booking_id')
         }
       )
-    }else{
+    } else {
       this.reloadPage();
     }
     this.sessionExpiredSub = fromEvent<CustomEvent>(window, 'session:delete')
@@ -491,7 +492,7 @@ export class BookingComponent implements OnInit, OnChanges {
       });
   }
 
-  reloadPage(){
+  reloadPage() {
     const queryParams: { [key: string]: any } = {};
 
     queryParams.uuid = this.payload?.hotel_id
@@ -499,6 +500,14 @@ export class BookingComponent implements OnInit, OnChanges {
     queryParams.checkin = this.checkInDate;
     queryParams.checkout = this.checkOutDate;
     queryParams.code = '';
+
+    // DEBUG: Log để kiểm tra giá trị
+    console.log('🔍 DEBUG reloadPage:');
+    console.log('  this.checkInDate:', this.checkInDate);
+    console.log('  this.checkOutDate:', this.checkOutDate);
+    console.log('  this.searchData.checkin:', this.searchData.checkin);
+    console.log('  this.searchData.checkout:', this.searchData.checkout);
+    console.log('  queryParams:', queryParams);
 
     this.bookingState.rooms.forEach((room, i) => {
       queryParams[`rooms[${i}][adults]`] = room.adults;

@@ -24,6 +24,11 @@ class RoomSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Tầng phải lớn hơn 0.")
         return value
     def create(self, validated_data):
+        print('check : ', validated_data)
+        rt = validated_data.get('room_type_id')
+        total_room = Room.objects.filter(room_type_id=rt).count()
+        if(total_room >= rt.total_rooms):
+            raise ValueError("Loại phòng đã đầy phòng không thể thêm phòng mới.")
         images_upload = validated_data.pop('images_upload', [])
         room = super().create(validated_data)
         for file in images_upload:

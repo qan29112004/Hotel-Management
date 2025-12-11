@@ -84,7 +84,7 @@ def list_facilities(request):
         list_facilities = Facilities.objects.all()
         paginated_facilities, total = Querykit.apply_filter_paginate_search_sort(request=request, queryset=list_facilities).values()
         serializers = FacilitiesSerializer(paginated_facilities, many=True)
-        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data})
+        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data, 'total':total})
     except Exception as e:
         return AppResponse.error(ErrorCodes.LIST_AMENITY_FAIL, str(e))
     

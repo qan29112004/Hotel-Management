@@ -85,14 +85,14 @@ export class KnowlegdeBaseComponent implements OnInit {
     {
         name: 'content',
         labelKey: 'knowlegdeBase.content',
-        type: 'text',
+        type: 'textarea',
         placeholderKey: 'knowlegdeBase.enterdContent',
         required: true,
         
     },
     {
         name: 'is_embedded',
-        labelKey: 'hotel.is_embedded',
+        labelKey: 'knowlegdeBase.is_embedded',
         type: 'select',
         options:[
             {id:true, name:"True"},
@@ -115,21 +115,10 @@ export class KnowlegdeBaseComponent implements OnInit {
     {
         name: 'content',
         labelKey: 'knowlegdeBase.content',
-        type: 'text',
+        type: 'textarea',
         placeholderKey: 'knowlegdeBase.enterdContent',
         required: true,
         
-    },
-    {
-        name: 'is_embedded',
-        labelKey: 'hotel.is_embedded',
-        type: 'select',
-        options:[
-            {id:true, name:"True"},
-            {id:false, name:"False"}
-        ],
-        placeholderKey: 'knowlegdeBase.enterdIsEmbedded',
-        disabled:true
     }
   ]
 
@@ -142,15 +131,8 @@ export class KnowlegdeBaseComponent implements OnInit {
         
     },
     {
-        name: 'content',
-        labelKey: 'knowlegdeBase.content',
-        type: 'text',
-        placeholderKey: 'knowlegdeBase.enterdContent'
-        
-    },
-    {
         name: 'is_embedded',
-        labelKey: 'hotel.is_embedded',
+        labelKey: 'knowlegdeBase.is_embedded',
         type: 'select',
         options:[
             {id:true, name:"True"},
@@ -318,7 +300,7 @@ export class KnowlegdeBaseComponent implements OnInit {
   }
   getSearchRule(): any {
     const defaultSearchFields = {
-        fields: ['name', 'uuid'],
+        fields: ['title', 'uuid'],
         option: 'contains',
         value: this.searchTerm.trim(),
     };

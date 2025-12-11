@@ -71,7 +71,12 @@ export class SuccessBookingComponent implements OnInit {
       this.amount = params['vnp_Amount']?params['vnp_Amount']:params['amount'] || 0;
       this.errorMessage = this.VNPAY_ERROR_CODES[params['vnp_ResponseCode']] || this.VNPAY_ERROR_CODES[params['response_code']];
       this.errorCode = (params['vnp_ResponseCode']?params['vnp_ResponseCode']:params['response_code']) || '';
-      if(localStorage.getItem('session_id')){localStorage.removeItem("session_id")}
+      if(localStorage.getItem('session_id')){
+        localStorage.removeItem("session_id")
+      //   window.dispatchEvent(new CustomEvent('session:expired', {
+      //     detail: { message: 'Session expired from SSE', status: true }
+      // }));}
+      }
       if(localStorage.getItem('booking_id')){localStorage.removeItem("booking_id")}
       
       // Fetch booking details if we have bookingId

@@ -187,11 +187,11 @@ export class GenericEditComponent implements OnInit {
                 this.selectedRadioValues[field.name] = this.entityData[field.name].map((a: any) => a[`${field.name}Id`]);
                 console.log("selectedRadioValues", this.selectedRadioValues)
                 // Nếu bạn có displayCheckbox để hiển thị preview
-                this.displayCheckbox = {};
+                
                 this.displayCheckbox[`${field.name}`] = this.entityData[field.name].map((f: any) => ({
                     id:  f[`${field.name}Id`],
                     name:  f[`${field.name}Name`] || 'Unknown',
-                    icon: f[`${field.name}Icon`] || null
+                    icon: f[`${field.name}Icon`] || f[`${field.name}Image`]
                 }));
                 console.log("check display checkbox: ", this.displayCheckbox)
             }
@@ -315,10 +315,17 @@ export class GenericEditComponent implements OnInit {
         Object.keys(this.editFormGroup.controls).forEach((key) => {
             const control = this.editFormGroup.get(key);
             const value = control?.value;
+            const field = this.fields.find((f) => f.name === key);
+            if (field?.type === 'number') {
+                if (value === null || value === undefined || value === '') {
+                    formData.append(camelToSnake(key), ''); // Gửi empty string
+                } else {
+                    formData.append(camelToSnake(key), value.toString());
+                }
+            }
             if (value === null || value === undefined || value === '') {
                 return;
             }
-            const field = this.fields.find((f) => f.name === key);
             if (field?.type === 'date') {
                 const rawDate = this.editFormGroup.get(key)?.value;
                 formData.append(camelToSnake(key), rawDate ? new Date(rawDate).toISOString().split('T')[0] : '');

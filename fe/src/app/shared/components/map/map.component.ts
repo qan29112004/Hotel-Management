@@ -17,8 +17,8 @@ export class MapComponent implements AfterViewInit {
     { name: 'Khách sạn B', lat: 21.0305, lng: 105.8510, description: 'Khách sạn gần trung tâm' },
     { name: 'Khách sạn C', lat: 21.0350, lng: 105.8450, description: 'Khách sạn view hồ đẹp' }
   ];
-  @Input() listData:any[] = [];
-  @Input() zoom:number =6;
+  @Input() listData: any[] = [];
+  @Input() zoom: number = 6;
 
   constructor() {
     // Khắc phục lỗi icon mặc định của Leaflet
@@ -36,7 +36,7 @@ export class MapComponent implements AfterViewInit {
       center: this.listData && this.listData.length === 1
         ? [this.listData[0].latitude, this.listData[0].longitude]
         : [16.0, 108.0], // trung tâm Việt Nam
-      zoom: this.zoom, 
+      zoom: this.zoom,
       minZoom: 2,
       maxZoom: 18,
       zoomControl: true,
@@ -154,6 +154,31 @@ export class MapComponent implements AfterViewInit {
       const marker = event.layer;
       this.map.setView(marker.getLatLng(), 13, { animate: true });
     });
+
+    // Ngăn chặn scroll khi click zoom controls
+    setTimeout(() => {
+      const zoomInButton = this.mapContainer.nativeElement.querySelector('.leaflet-control-zoom-in');
+      const zoomOutButton = this.mapContainer.nativeElement.querySelector('.leaflet-control-zoom-out');
+
+      [zoomInButton, zoomOutButton].forEach(button => {
+        if (button) {
+          button.addEventListener('mousedown', (e: Event) => {
+            e.preventDefault();
+            e.stopPropagation();
+          });
+          button.addEventListener('click', (e: Event) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // Trigger zoom manually
+            if (button === zoomInButton) {
+              this.map.zoomIn();
+            } else {
+              this.map.zoomOut();
+            }
+          });
+        }
+      });
+    }, 200);
 
     // Đảm bảo bản đồ hiển thị đúng khi load
     setTimeout(() => this.map.invalidateSize(), 100);

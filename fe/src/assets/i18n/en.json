@@ -1770,5 +1770,14 @@
         "enterMethod": "Select refund method",
         "enterStatus": "Select status",
         "enterCurrency": "Enter currency"
+    },
+    "my-club":{
+        "futureBookings": "Future Bookings",
+        "seeYourUpcomingAdventures": "See your upcoming adventures",
+        "viewAll": "View All",
+        "rewards": "Rewards",
+        "redeemYourVouchers": "Redeem your vouchers",
+        "exclusiveOffers": "Exclusive Offers",
+        "seeYourSLHClubOffers": "See your SLH Club offers"
     }
 }

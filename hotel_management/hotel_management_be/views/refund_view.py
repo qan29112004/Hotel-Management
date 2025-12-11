@@ -17,7 +17,7 @@ def list_refund(request):
         refunds = Refund.objects.all()
         paginated_refunds, total = Querykit.apply_filter_paginate_search_sort(request=request, queryset=refunds).values()
         serializers = RefundSerializer(paginated_refunds, many=True)
-        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data})
+        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data, 'total':total})
     except Exception as e:
         return AppResponse.error(ErrorCodes.LIST_AMENITY_FAIL, str(e))
 

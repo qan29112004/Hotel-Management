@@ -146,7 +146,7 @@
                                 <td class="px-4 py-3 font-semibold text-zinc-700">
                                     <span *ngIf="voucher.discountType === 'PERCENT'">{{ voucher.discountPercent
                                         }}%</span>
-                                    <span *ngIf="voucher.discountType === 'FIXED'">{{ voucher.discountValue | currency
+                                    <span *ngIf="voucher.discountType === 'FIXED'">{{ voucher.discountValue | currency:'VND':'symbol':'1.0-0'
                                         }}</span>
                                 </td>
                                 <td class="px-4 py-3 text-xs whitespace-nowrap text-zinc-500">

@@ -1,4 +1,4 @@
-<div class="w-full h-full max-w-[1920px] flex-auto relative [contain:paint]">
+   <div class="w-full h-full max-w-[1920px] flex-auto relative [contain:paint]">
     <div #headerRef
         class="sticky top-0 z-10 flex flex-col items-center justify-center w-full px-16 bg-center bg-no-repeat bg-cover pt-28"
         [style.background-image]="'url('  + crrImage + ')'">
@@ -41,7 +41,8 @@
                         (click)="toggleCalendarCheckin()">
                         <span class="self-start  text-black">CHECK IN</span>
                         <input readonly [min]="today" [matDatepicker]="pickerCheckin" name="pickerCheckin"
-                            [(ngModel)]="checkInDate" (ngModelChange)="onCheckInChange($event)" [placeholder]="translocoService.translate('home-page.choose_day')"
+                            [(ngModel)]="checkInDate" (ngModelChange)="onCheckInChange($event)"
+                            [placeholder]="translocoService.translate('home-page.choose_day')"
                             class="text-black placeholder:">
                         <mat-datepicker #pickerCheckin></mat-datepicker>
                     </button>
@@ -260,9 +261,10 @@
                             <span class="flex flex-col w-full text-black font-lexend_deca">
                                 <span
                                     class="italic font-lexend_deca text-[13px] text-gray-400">{{'hotel.please_select_date'|transloco}}</span>
-                                    <span>{{'hotel.base_price'|transloco}}:
-                                {{hotel.price | currency:'VND':'symbol':'1.0-0'}} ~ {{hotel.price/25000 |
-                                currency:'USD':'symbol-narrow':'1.0-2'}} <br> {{'hotel.price_note'|transloco}}</span>
+                                <span>{{'hotel.base_price'|transloco}}:
+                                    {{hotel.price | currency:'VND':'symbol':'1.0-0'}} ~ {{hotel.price/25000 |
+                                    currency:'USD':'symbol-narrow':'1.0-2'}} <br>
+                                    {{'hotel.price_note'|transloco}}</span>
                             </span>
 
                             <div class="flex items-end gap-6 mt-auto">
@@ -338,7 +340,8 @@
                         </div>
                     </div>
                 </ng-container>
-                <button [disabled]="!buttonNext" type="button" class="z-10 py-2 hover:bg-yellow-400 cursor-pointer"
+                <button  type="button"
+                    class="z-10 py-2 hover:bg-yellow-400 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                     (click)="loadMoreHotes()">{{translocoService.translate('hotel.load_more')}}</button>
             </div>
             <div #mapContainer class="h-[756px] hidden">

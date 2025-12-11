@@ -437,7 +437,7 @@ export const appRoutes: Route[] = [
             },
             {
                 path: routeConfig.OFFER_EXCLUSIVE,
-                data: { title: 'offer_exclusive.title' },
+                data: { title: 'Offer exclusive' },
                 loadChildren: () =>
                     import('app/modules/landing/offer-exclusive/offer-exclusive.route'),
             },

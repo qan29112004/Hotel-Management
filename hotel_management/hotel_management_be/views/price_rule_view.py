@@ -75,7 +75,7 @@ def list_price_rule(request):
         list_price_rule = PriceRule.objects.all()
         paginated_price_rule, total = Querykit.apply_filter_paginate_search_sort(request=request, queryset=list_price_rule).values()
         serializers = PriceRuleSerializer(paginated_price_rule, many=True)
-        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data})
+        return AppResponse.success(SuccessCodes.LIST_AMENITY, data={'data':serializers.data, 'total':total})
     except Exception as e:
         return AppResponse.error(ErrorCodes.LIST_AMENITY_FAIL, str(e))
     

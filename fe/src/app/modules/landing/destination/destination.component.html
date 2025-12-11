@@ -2,9 +2,9 @@
     <div class='bg-black h-[7rem] w-full'></div>
     <div class='flex flex-col items-center justify-center mt-5'>
         <span class='text-[48px] font-lexend_deca'>{{'destination.explore'|transloco}}</span>
-        <button type="button" class="px-6 py-3 mt-4 text-base font-semibold uppercase transition duration-300 bg-yellow-500 cursor-pointer font-avenir hover:scale-105">
+        <a [href]="'explore-hotels'"  class="px-6 py-3 mt-4 text-base font-semibold uppercase transition duration-300 bg-yellow-500 cursor-pointer font-avenir hover:scale-105">
             {{'destination.hotel_list'|transloco}}
-        </button>
+        </a>
     </div>
     <app-map class='w-full h-[756px] z-0 mt-8 max-w-[1920px] px-16' [listData]="listHotels"></app-map>
     <div class="grid w-full grid-cols-3 max-md:grid-cols-1 mx-auto mt-8 place-items-center max-w-[1920px] px-16">
@@ -17,7 +17,7 @@
                     <div class="z-10 flex flex-col items-center w-full gap-8">
                         <span class="font-avenir text-[30px]">{{destination.name | capitalize}}</span>
                         <a [href]="'destination/' +destination.slug" class="text-base uppercase border-b border-b-white font-lexend_deca">{{'destination.visit_page'|transloco}}</a>
-                        <button type="button" class="w-full h-[2.5rem] font-avenir text-[14px] text-black uppercase flex justify-center items-center bg-yellow-500 font-black">{{destination.totalHotels}} {{'destination.hotels_suffix'|transloco}}</button>
+                        <a [href]="'explore-hotels?dest=' +destination.uuid " class="w-full h-[2.5rem] font-avenir text-[14px] text-black uppercase flex justify-center items-center bg-yellow-500 font-black">{{destination.totalHotels}} {{'destination.hotels_suffix'|transloco}}</a>
                     </div>
                 </div>
             </div>
